@@ -45,6 +45,13 @@
     <AddinDir>$(APPDATA)\Autodesk\Revit\Addins\$(RevitVersion)</AddinDir>
   </PropertyGroup>
 
+  <!-- Stamped into the DLL for the About button (App.cs / Commands\AboutCommand.cs):
+       the build date, and the Revit version the build is for. The version itself is <Version> above. -->
+  <ItemGroup>
+    <AssemblyMetadata Include="BuildDate" Value="$([System.DateTime]::Now.ToString('yyyy-MM-dd'))" />
+    <AssemblyMetadata Include="RevitVersion" Value="$(RevitVersion)" />
+  </ItemGroup>
+
   <!-- Revit API via Nice3point NuGet packages, the version matching the build. Reference only, never copied to the output. -->
   <PropertyGroup>
     <RevitApiPackage Condition="'$(RevitVersion)' == '2024'">2024.2.0</RevitApiPackage>

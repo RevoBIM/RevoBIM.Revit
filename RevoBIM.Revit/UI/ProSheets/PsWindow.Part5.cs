@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -225,17 +226,56 @@ namespace RevoBIM.UI.ProSheets
             // the pre-selection
             // ==================================================================
 
-            /// <summary>Isolate to whatever was selected in Revit before the tool opened.</summary>
+            /// <summary>
+            /// Whatever was selected in Revit before the tool opened arrives ticked, and
+            /// the list scrolls to it once the window is on screen (ScrollToPreselection).
+            /// Changed from the pyRevit original at the user's request: every other
+            /// sheet stays showing. Untick "Show all" to isolate the selection as before.
+            /// </summary>
             internal void ApplyPreselection()
             {
                 List<PsModel.Row> picked = PsModel.PreselectedRows(Uidoc, Rows);
                 if (picked == null || picked.Count == 0)
                     return;
                 PreselectedKeys = new HashSet<long>(picked.Select(row => row.Key));
-                IsolatedKeys = new HashSet<long>(PreselectedKeys);
+                IsolatedKeys = null;
                 PsUi.SetVisible(C("ShowAllCheck"), true);
-                SetChecked(C("ShowAllCheck"), false);
+                SetChecked(C("ShowAllCheck"), true);
                 SayIsolation();
+            }
+
+            /// <summary>
+            /// Bring the first pre-selected sheet into view. Called once the window has
+            /// rendered, because a grid that has not laid out yet has nowhere to scroll.
+            /// Scrolls only: highlighting rows would change what a tick click applies to.
+            /// </summary>
+            internal void ScrollToPreselection()
+            {
+                if (PreselectedKeys == null || PreselectedKeys.Count == 0)
+                    return;
+                var grid = C<DataGrid>("SheetGrid");
+                if (grid == null)
+                    return;
+                try
+                {
+                    var keys = new HashSet<string>(PreselectedKeys.Select(key => key.ToString(Inv)), StringComparer.Ordinal);
+                    object first = null;
+                    foreach (object item in grid.Items)
+                    {
+                        if (item is DataRowView entry && keys.Contains(S(entry["key"])))
+                        {
+                            first = item;
+                            break;
+                        }
+                    }
+                    if (first == null)
+                        return;
+                    grid.UpdateLayout();
+                    grid.ScrollIntoView(first);
+                }
+                catch (Exception)
+                {
+                }
             }
 
             /// <summary>

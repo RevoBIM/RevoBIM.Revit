@@ -153,6 +153,7 @@ namespace RevoBIM.UI.ProSheets
                 catch (Exception)
                 {
                 }
+                ScrollToPreselection();
                 return true;
             }
 

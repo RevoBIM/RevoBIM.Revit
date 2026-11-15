@@ -107,6 +107,17 @@ namespace RevoBIM
             });
             UI.Ribbon.ModifyTabPanel.Install(app, TabName);
 
+            // --- About: always the last panel, on the right of the tab. Build version and release date.
+            RibbonPanel about = app.CreateRibbonPanel(TabName, "About");
+            about.AddItem(new PushButtonData(
+                "RevoBIM_About", "About", dll, typeof(Commands.AboutCommand).FullName)
+            {
+                ToolTip = "RevoBIM Tools: the build version installed and the date it was released.",
+                AvailabilityClassName = typeof(Commands.AlwaysAvailable).FullName,
+                LargeImage = Icon("About", 32),
+                Image = Icon("About", 16),
+            });
+
 #if !REVIT2024
             // Right-click menu (Revit 2025+): "Print in ProSheets" and "Express Export".
             Commands.ProSheetsContextMenu.Register(app);
