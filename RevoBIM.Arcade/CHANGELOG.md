@@ -2,6 +2,7 @@
 
 ## 0.2.1 - 2026-11-15 - Snake
 
+- **Picker.** Each game card has an icon (drawn from path data, themed), and the window crops to the cards. A game opens at the size it last had.
 - **Snake.** Ported from the pyRevit egg: same grid, speed, scoring, ranks and sign-offs; segments slide between cells. Rules in `SnakeModel`, checked by the selftest.
 
 ## 0.2.0 — 2026-11-15 — Pacman, Tetris and a default game

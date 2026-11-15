@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
@@ -18,6 +18,7 @@ namespace RevoBIM.Arcade.Games.PacMan
     {
         public string Key => "pacman";
         public string DisplayName => "Pacman";
+        public string Icon => "M12,12 L20.66,7 A10,10 0 1 0 20.66,17 Z M13,5.5 a1.6,1.6 0 1 1 -0.01,0 Z";
         public string Hints => "Arrows / WASD move   P pause   R restart   Esc menu";
 
         // '#' wall   '.' pellet   'o' power pellet   '-' ghost house door

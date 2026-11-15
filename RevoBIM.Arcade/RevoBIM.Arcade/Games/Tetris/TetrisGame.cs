@@ -15,6 +15,7 @@ namespace RevoBIM.Arcade.Games.Tetris
     {
         public string Key => "tetris";
         public string DisplayName => "Tetris";
+        public string Icon => "M2,4 h6 v6 h-6 z M9,4 h6 v6 h-6 z M16,4 h6 v6 h-6 z M9,11 h6 v6 h-6 z";
         public string Hints => "Left/Right move   Up rotate   Z back   Down soft   Space drop   P pause   R restart   Esc menu";
 
         const double CellSize = 24, Pad = 12, PanelX = Pad + TetrisModel.Cols * CellSize + 18;

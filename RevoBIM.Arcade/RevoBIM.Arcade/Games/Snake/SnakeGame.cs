@@ -15,6 +15,7 @@ namespace RevoBIM.Arcade.Games.Snake
     {
         public string Key => "snake";
         public string DisplayName => "Snake";
+        public string Icon => "M3,2 h18 v4 h-18 z M3,6 h4 v5 h-4 z M3,10 h18 v4 h-18 z M17,14 h4 v4 h-4 z M3,18 h18 v4 h-18 z";
         public string Hints => "Arrows / WASD turn   P pause   R restart   Esc menu";
 
         const int Cell = 18;

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
@@ -19,6 +19,7 @@ namespace RevoBIM.Arcade.UI
             public string DisplayName { get; set; } = "";
             public string BestText { get; set; } = "";
             public bool IsDefault { get; set; }
+            public Geometry IconData { get; set; } = Geometry.Empty;
             public string DefaultGlyph => IsDefault ? "\uE735" : "\uE734";
             public string DefaultText => IsDefault ? "Default" : "Make default";
             public string DefaultTip => IsDefault
@@ -100,6 +101,7 @@ namespace RevoBIM.Arcade.UI
                 SetTitle("RevoBIM Arcade  -  " + game.DisplayName);
                 PickerView.Visibility = Visibility.Collapsed;
                 GameView.Visibility = Visibility.Visible;
+                RestoreGameSize();
                 DefaultButton.Visibility = Visibility.Visible;
                 RefreshDefaultButton();
 
@@ -147,6 +149,52 @@ namespace RevoBIM.Arcade.UI
             GameView.Visibility = Visibility.Collapsed;
             DefaultButton.Visibility = Visibility.Collapsed;
             PickerView.Visibility = Visibility.Visible;
+            FitToPicker();
+        }
+
+        static Geometry IconOf(string data)
+        {
+            try { return Geometry.Parse(string.IsNullOrWhiteSpace(data) ? "M4,4 h16 v16 h-16 z" : data); }
+            catch { return Geometry.Parse("M4,4 h16 v16 h-16 z"); }
+        }
+
+        // ---- window size: the picker crops to its cards, a game gets the size it last had
+
+        Size _gameSize = new Size(760, 560);
+        bool _fitted;
+
+        /// <summary>Sizes the window to the picker's contents, keeping its centre where it was.</summary>
+        void FitToPicker()
+        {
+            if (_drawer.Shrunk || WindowState != WindowState.Normal) return;
+            PickerView.UpdateLayout();
+            PickerPanel.Measure(new Size(PickerPanel.Width, double.PositiveInfinity));
+            var work = ScreenHelper.WorkAreaOf(this);
+            double chrome = HeaderBar.ActualHeight + Footer.ActualHeight + 2;
+            double wantW = PickerPanel.Width + 44 + 2;           // ScrollViewer padding 22 each side, border 1 each side
+            double wantH = chrome + PickerPanel.DesiredSize.Height + 36;   // padding 18 top and bottom
+            if (!_fitted && ActualWidth > 0) _gameSize = new Size(ActualWidth, ActualHeight);
+            Resize(wantW, Math.Min(wantH, work.Height * 0.9));
+            _fitted = true;
+        }
+
+        void RestoreGameSize()
+        {
+            if (!_fitted || _drawer.Shrunk || WindowState != WindowState.Normal) { _fitted = false; return; }
+            _fitted = false;
+            Resize(_gameSize.Width, _gameSize.Height);
+        }
+
+        void Resize(double w, double h)
+        {
+            double oldW = ActualWidth, oldH = ActualHeight;
+            var work = ScreenHelper.WorkAreaOf(this);
+            Width = w; Height = h;
+            if (oldW > 0)
+            {
+                Left = ScreenHelper.Clamp(Left + (oldW - w) / 2, work.Left, work.Right - w);
+                Top = ScreenHelper.Clamp(Top + (oldH - h) / 2, work.Top, work.Bottom - h);
+            }
         }
 
         void FillPicker()
@@ -158,7 +206,7 @@ namespace RevoBIM.Arcade.UI
                 return new PickerItem
                 {
                     Key = g.Key, DisplayName = g.DisplayName, BestText = best > 0 ? $"Best {best}" : "No score yet",
-                    IsDefault = g.Key == defaultKey,
+                    IsDefault = g.Key == defaultKey, IconData = IconOf(g.Icon),
                 };
             }).ToList();
         }

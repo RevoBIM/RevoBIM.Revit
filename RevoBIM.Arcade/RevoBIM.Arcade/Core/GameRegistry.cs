@@ -30,10 +30,11 @@ namespace RevoBIM.Arcade.Core
 
         public sealed class Entry
         {
-            public Entry(string key, string name, Func<IArcadeGame> create) { Key = key; DisplayName = name; Create = create; }
+            public Entry(string key, string name, Func<IArcadeGame> create, string icon = "") { Key = key; DisplayName = name; Create = create; Icon = icon; }
             public string Key { get; }
             public string DisplayName { get; }
             public Func<IArcadeGame> Create { get; }
+            public string Icon { get; }
         }
 
         public static IReadOnlyList<Entry> All => _all ??= Load(Build());
@@ -50,7 +51,7 @@ namespace RevoBIM.Arcade.Core
                     throw new InvalidOperationException($"Game key '{key}' is not valid (lower-case letters, digits and '-').");
                 if (list.Any(e => e.Key == key))
                     throw new InvalidOperationException($"Game key '{key}' is registered twice.");
-                list.Add(new Entry(key, game.DisplayName, make));
+                list.Add(new Entry(key, game.DisplayName, make, game.Icon));
             }
             return list;
         }

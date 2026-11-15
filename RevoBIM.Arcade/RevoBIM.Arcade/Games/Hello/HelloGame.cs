@@ -17,6 +17,7 @@ namespace RevoBIM.Arcade.Games.Hello
 
         public string Key => "hello";
         public string DisplayName => "Hello";
+        public string Icon => "M4,4 h16 v16 h-16 z";
         public string Hints => "Arrows steer   P pause   R restart   Esc menu";
 
         GameHost? _host;
