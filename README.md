@@ -1,6 +1,6 @@
 # RevoBIM Tools
 
-Revit add-in by A² Services LTD for building services BIM, for **Revit 2024, 2025, 2026 and 2027**.
+Revit add-in by RevoBIM LTD for building services BIM, for **Revit 2024, 2025, 2026 and 2027**.
 
 ## Download
 
