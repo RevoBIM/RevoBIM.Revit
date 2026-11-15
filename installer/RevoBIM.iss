@@ -4,7 +4,12 @@
 
 #define MyAppName      "RevoBIM Tools"
 #define MyAppPublisher "A² Services LTD"
-#define BuildDir       "..\RevoBIM.Revit2024\bin\Release\net48"
+; One Release build per Revit version, made by build-installer.ps1
+#define Bin            "..\RevoBIM.Revit\bin"
+#define Build2024      Bin + "\Release R24\net48"
+#define Build2025      Bin + "\Release R25\net8.0-windows"
+#define Build2026      Bin + "\Release R26\net8.0-windows"
+#define Build2027      Bin + "\Release R27\net10.0-windows"
 
 [Setup]
 ; Fixed for the life of the product. Upgrades work because every version shares this AppId.
@@ -13,7 +18,8 @@ AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
 UninstallDisplayName={#MyAppName} {#MyAppVersion}
-DefaultDirName={userappdata}\RevoBIM\2024
+; Each Revit version gets its own subfolder: {app}\2024, {app}\2025, ...
+DefaultDirName={userappdata}\RevoBIM
 DisableDirPage=yes
 DisableProgramGroupPage=yes
 PrivilegesRequired=lowest
@@ -24,18 +30,37 @@ SolidCompression=yes
 Uninstallable=yes
 
 [Files]
-Source: "{#BuildDir}\RevoBIM.Revit2024.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#BuildDir}\RevoBIM.Revit2024.pdb"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
-; Add any non-Revit third-party DLLs that bin\Release\net48 gets. Never ship RevitAPI*.dll.
+; Never ship RevitAPI*.dll - the Nice3point packages are reference only.
+Source: "{#Build2024}\RevoBIM.Revit.dll"; DestDir: "{app}\2024"; Flags: ignoreversion
+Source: "{#Build2024}\RevoBIM.Revit.pdb"; DestDir: "{app}\2024"; Flags: ignoreversion skipifsourcedoesntexist
+Source: "{#Build2025}\RevoBIM.Revit.dll"; DestDir: "{app}\2025"; Flags: ignoreversion
+Source: "{#Build2025}\RevoBIM.Revit.pdb"; DestDir: "{app}\2025"; Flags: ignoreversion skipifsourcedoesntexist
+Source: "{#Build2026}\RevoBIM.Revit.dll"; DestDir: "{app}\2026"; Flags: ignoreversion
+Source: "{#Build2026}\RevoBIM.Revit.pdb"; DestDir: "{app}\2026"; Flags: ignoreversion skipifsourcedoesntexist
+Source: "{#Build2027}\RevoBIM.Revit.dll"; DestDir: "{app}\2027"; Flags: ignoreversion
+Source: "{#Build2027}\RevoBIM.Revit.pdb"; DestDir: "{app}\2027"; Flags: ignoreversion skipifsourcedoesntexist
 
 [InstallDelete]
-; Remove the previous version's files before copying the new ones.
-Type: files; Name: "{app}\*.dll"
-Type: files; Name: "{app}\*.pdb"
+; Remove the previous version's files before copying the new ones,
+; including the DLL's name before the project was renamed (RevoBIM.Revit2024.dll).
+Type: files; Name: "{app}\2024\*.dll"
+Type: files; Name: "{app}\2024\*.pdb"
+Type: files; Name: "{app}\2025\*.dll"
+Type: files; Name: "{app}\2025\*.pdb"
+Type: files; Name: "{app}\2026\*.dll"
+Type: files; Name: "{app}\2026\*.pdb"
+Type: files; Name: "{app}\2027\*.dll"
+Type: files; Name: "{app}\2027\*.pdb"
 
 [UninstallDelete]
-Type: filesandordirs; Name: "{app}"
+Type: filesandordirs; Name: "{app}\2024"
+Type: filesandordirs; Name: "{app}\2025"
+Type: filesandordirs; Name: "{app}\2026"
+Type: filesandordirs; Name: "{app}\2027"
 Type: files; Name: "{userappdata}\Autodesk\Revit\Addins\2024\RevoBIM.addin"
+Type: files; Name: "{userappdata}\Autodesk\Revit\Addins\2025\RevoBIM.addin"
+Type: files; Name: "{userappdata}\Autodesk\Revit\Addins\2026\RevoBIM.addin"
+Type: files; Name: "{userappdata}\Autodesk\Revit\Addins\2027\RevoBIM.addin"
 
 [Code]
 const
@@ -57,38 +82,47 @@ begin
   Result := True;
   if RevitRunning() then
   begin
-    MsgBox('Revit is running. Close Revit completely, then run this installer again.',
+    MsgBox('Revit is running. Close every Revit window completely, then run this installer again.',
            mbError, MB_OK);
     Result := False;
   end;
 end;
 
-procedure CurStepChanged(CurStep: TSetupStep);
+// The .addin manifest for one Revit version, pointing at that version's DLL.
+procedure WriteManifest(Year: String);
 var
   Lines: TArrayOfString;
   AddinDir, ManifestPath, AsmPath: String;
 begin
+  AddinDir     := ExpandConstant('{userappdata}\Autodesk\Revit\Addins\') + Year;
+  ManifestPath := AddinDir + '\RevoBIM.addin';
+  AsmPath      := ExpandConstant('{app}\') + Year + '\RevoBIM.Revit.dll';
+
+  ForceDirectories(AddinDir);
+
+  SetArrayLength(Lines, 11);
+  Lines[0]  := '<?xml version="1.0" encoding="utf-8"?>';
+  Lines[1]  := '<RevitAddIns>';
+  Lines[2]  := '  <AddIn Type="Application">';
+  Lines[3]  := '    <Name>RevoBIM Tools</Name>';
+  Lines[4]  := '    <Assembly>' + AsmPath + '</Assembly>';
+  Lines[5]  := '    <AddInId>' + AddinGuid + '</AddInId>';
+  Lines[6]  := '    <FullClassName>RevoBIM.App</FullClassName>';
+  Lines[7]  := '    <VendorId>A2SV</VendorId>';
+  Lines[8]  := '    <VendorDescription>A2 Services LTD</VendorDescription>';
+  Lines[9]  := '  </AddIn>';
+  Lines[10] := '</RevitAddIns>';
+
+  SaveStringsToFile(ManifestPath, Lines, False);
+end;
+
+procedure CurStepChanged(CurStep: TSetupStep);
+begin
   if CurStep = ssPostInstall then
   begin
-    AddinDir     := ExpandConstant('{userappdata}\Autodesk\Revit\Addins\2024');
-    ManifestPath := AddinDir + '\RevoBIM.addin';
-    AsmPath      := ExpandConstant('{app}\RevoBIM.Revit2024.dll');
-
-    ForceDirectories(AddinDir);
-
-    SetArrayLength(Lines, 11);
-    Lines[0]  := '<?xml version="1.0" encoding="utf-8"?>';
-    Lines[1]  := '<RevitAddIns>';
-    Lines[2]  := '  <AddIn Type="Application">';
-    Lines[3]  := '    <Name>RevoBIM Tools</Name>';
-    Lines[4]  := '    <Assembly>' + AsmPath + '</Assembly>';
-    Lines[5]  := '    <AddInId>' + AddinGuid + '</AddInId>';
-    Lines[6]  := '    <FullClassName>RevoBIM.App</FullClassName>';
-    Lines[7]  := '    <VendorId>A2SV</VendorId>';
-    Lines[8]  := '    <VendorDescription>A2 Services LTD</VendorDescription>';
-    Lines[9]  := '  </AddIn>';
-    Lines[10] := '</RevitAddIns>';
-
-    SaveStringsToFile(ManifestPath, Lines, False);
+    WriteManifest('2024');
+    WriteManifest('2025');
+    WriteManifest('2026');
+    WriteManifest('2027');
   end;
 end;

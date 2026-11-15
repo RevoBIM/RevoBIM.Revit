@@ -1,0 +1,95 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    One project, one build per Revit version. Pick the version with the configuration:
+      Debug R24 / Release R24   Revit 2024  net48
+      Debug R25 / Release R25   Revit 2025  net8.0-windows
+      Debug R26 / Release R26   Revit 2026  net8.0-windows
+      Debug R27 / Release R27   Revit 2027  net10.0-windows
+    Plain Debug / Release build Revit 2024.
+    Command line: dotnet build RevoBIM.Revit.sln -c "Release R26"
+  -->
+  <PropertyGroup>
+    <Configurations>Debug;Release;Debug R24;Release R24;Debug R25;Release R25;Debug R26;Release R26;Debug R27;Release R27</Configurations>
+    <RevitVersion Condition="$(Configuration.EndsWith('R25'))">2025</RevitVersion>
+    <RevitVersion Condition="$(Configuration.EndsWith('R26'))">2026</RevitVersion>
+    <RevitVersion Condition="$(Configuration.EndsWith('R27'))">2027</RevitVersion>
+    <RevitVersion Condition="'$(RevitVersion)' == ''">2024</RevitVersion>
+    <Optimize Condition="$(Configuration.StartsWith('Release'))">true</Optimize>
+    <DebugType>portable</DebugType>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TargetFramework Condition="'$(RevitVersion)' == '2024'">net48</TargetFramework>
+    <TargetFramework Condition="'$(RevitVersion)' == '2025' Or '$(RevitVersion)' == '2026'">net8.0-windows</TargetFramework>
+    <TargetFramework Condition="'$(RevitVersion)' == '2027'">net10.0-windows</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>RevoBIM</RootNamespace>
+    <AssemblyName>RevoBIM.Revit</AssemblyName>
+    <Platforms>AnyCPU</Platforms>
+    <!-- Revit is 64-bit only; matches the AMD64 Nice3point reference DLLs (avoids MSB3270) -->
+    <PlatformTarget>x64</PlatformTarget>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <EnableDefaultCompileItems>true</EnableDefaultCompileItems>
+    <Version>0.1.0</Version>
+    <!-- REVIT2024, REVIT2025 ... for the few places the API differs between versions -->
+    <DefineConstants>$(DefineConstants);REVIT$(RevitVersion)</DefineConstants>
+    <!-- bin\<Configuration>\<framework>\ per version, so the builds never overwrite each other -->
+    <BaseOutputPath>bin\</BaseOutputPath>
+    <AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
+    <DeployDir>$(APPDATA)\RevoBIM\$(RevitVersion)</DeployDir>
+    <AddinDir>$(APPDATA)\Autodesk\Revit\Addins\$(RevitVersion)</AddinDir>
+  </PropertyGroup>
+
+  <!-- Revit API via Nice3point NuGet packages, the version matching the build. Reference only, never copied to the output. -->
+  <PropertyGroup>
+    <RevitApiPackage Condition="'$(RevitVersion)' == '2024'">2024.2.0</RevitApiPackage>
+    <RevitApiPackage Condition="'$(RevitVersion)' == '2025'">2025.4.60</RevitApiPackage>
+    <RevitApiPackage Condition="'$(RevitVersion)' == '2026'">2026.4.10</RevitApiPackage>
+    <RevitApiPackage Condition="'$(RevitVersion)' == '2027'">2027.3.0</RevitApiPackage>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Nice3point.Revit.Api.RevitAPI" Version="$(RevitApiPackage)" />
+    <PackageReference Include="Nice3point.Revit.Api.RevitAPIUI" Version="$(RevitApiPackage)" />
+  </ItemGroup>
+
+  <!-- .NET Framework only: framework assemblies that .NET 8+ brings in through UseWPF / UseWindowsForms -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="System.Printing" />
+    <Reference Include="UIAutomationClient" />
+    <Reference Include="UIAutomationTypes" />
+  </ItemGroup>
+
+  <!-- Ribbon icons, embedded as RevoBIM.Resources.<Tool>.<file> -->
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\**\*.png" />
+  </ItemGroup>
+
+  <!-- Pro Sheets Exporter layouts: loose XAML loaded at runtime by PsUi.LoadXaml,
+       exactly as the pyRevit tool did. Embedded as RevoBIM.UI.ProSheets.Layouts.<file>. -->
+  <ItemGroup>
+    <Page Remove="UI\ProSheets\Layouts\**" />
+    <None Remove="UI\ProSheets\Layouts\**" />
+    <EmbeddedResource Include="UI\ProSheets\Layouts\*.xaml" LogicalName="RevoBIM.UI.ProSheets.Layouts.%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <!-- Per-user deploy for the version being built: no admin rights needed. Copies the DLL and writes the .addin manifest. -->
+  <Target Name="DeployAddin" AfterTargets="Build">
+    <MakeDir Directories="$(DeployDir);$(AddinDir)" />
+    <ItemGroup>
+      <BuiltFiles Include="$(OutDir)RevoBIM.Revit.dll;$(OutDir)RevoBIM.Revit.pdb" />
+      <!-- The DLL's name before the rename; the manifest no longer points at it. -->
+      <OldDll Include="$(DeployDir)\RevoBIM.Revit2024.dll;$(DeployDir)\RevoBIM.Revit2024.pdb" />
+    </ItemGroup>
+    <Copy SourceFiles="@(BuiltFiles)" DestinationFolder="$(DeployDir)" ContinueOnError="true" />
+    <Delete Files="@(OldDll)" ContinueOnError="true" />
+    <WriteLinesToFile File="$(AddinDir)\RevoBIM.addin" Overwrite="true" Lines="&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;;&lt;RevitAddIns&gt;;  &lt;AddIn Type=&quot;Application&quot;&gt;;    &lt;Name&gt;RevoBIM Tools&lt;/Name&gt;;    &lt;Assembly&gt;$(DeployDir)\RevoBIM.Revit.dll&lt;/Assembly&gt;;    &lt;AddInId&gt;4C8B2E71-5A93-4F0D-B6E2-9D1A7C3E8F54&lt;/AddInId&gt;;    &lt;FullClassName&gt;RevoBIM.App&lt;/FullClassName&gt;;    &lt;VendorId&gt;A2SV&lt;/VendorId&gt;;    &lt;VendorDescription&gt;A2 Services LTD&lt;/VendorDescription&gt;;  &lt;/AddIn&gt;;&lt;/RevitAddIns&gt;" />
+  </Target>
+
+</Project>
