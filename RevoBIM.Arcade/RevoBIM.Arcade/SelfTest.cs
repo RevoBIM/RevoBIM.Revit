@@ -46,13 +46,14 @@ namespace RevoBIM.Arcade
                 string.Join(",", all.Select(g => g.Key)));
             Check("every registered key is valid", all.All(g => GameRegistry.IsValidKey(g.Key)));
             Check("every game has a display name", all.All(g => !string.IsNullOrWhiteSpace(g.DisplayName)));
-            Check("the hello placeholder is registered", GameRegistry.Find("hello") != null);
-            Check("Find is case and space tolerant", GameRegistry.Find("  HeLLo ") != null);
+            Check("the bundled games are registered", new[] { "pacman", "tetris", "snake" }.All(k => GameRegistry.Find(k) != null) && GameRegistry.All.Count == 3);
+            Check("Find is case and space tolerant", GameRegistry.Find("  TeTrIs ") != null);
             Check("Find returns null for an unknown key", GameRegistry.Find("nope") == null && GameRegistry.Find(null) == null && GameRegistry.Find("") == null);
             Check("a duplicate key is refused", Throws(() => GameRegistry.Load(new Func<IArcadeGame>[] { () => new Probe("a"), () => new Probe("a") })));
             Check("an invalid key is refused", Throws(() => GameRegistry.Load(new Func<IArcadeGame>[] { () => new Probe("Bad Key") })));
             Check("an empty key is refused", Throws(() => GameRegistry.Load(new Func<IArcadeGame>[] { () => new Probe("") })));
 
+            Check("every game draws a picker icon", GameRegistry.All.All(g => g.Create().CreateIcon() != null));
             Check("pacman and tetris are registered", GameRegistry.Find("pacman") != null && GameRegistry.Find("tetris") != null);
 
             // ---- default game: named game wins, else the saved default, else the picker

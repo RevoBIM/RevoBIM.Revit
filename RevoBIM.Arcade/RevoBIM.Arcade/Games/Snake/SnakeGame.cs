@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Windows;
+using System.Windows.Media;
 using System.Windows.Shapes;
 using WKey = System.Windows.Input.Key;
 using RevoBIM.Arcade.Core;
@@ -15,8 +16,29 @@ namespace RevoBIM.Arcade.Games.Snake
     {
         public string Key => "snake";
         public string DisplayName => "Snake";
-        public string Icon => "M3,2 h18 v4 h-18 z M3,6 h4 v5 h-4 z M3,10 h18 v4 h-18 z M17,14 h4 v4 h-4 z M3,18 h18 v4 h-18 z";
         public string Hints => "Arrows / WASD turn   P pause   R restart   Esc menu";
+
+        public System.Windows.UIElement? CreateIcon()
+        {
+            var box = IconKit.Box();
+            const string Path = "M15,5.5 L8,5.5 Q4.2,5.5 4.2,9 Q4.2,12.2 8,12.2 L16,12.2 Q19.8,12.2 19.8,15.6 Q19.8,18.8 16,18.8 L8,18.8";
+            box.Children.Add(new System.Windows.Shapes.Path { Data = Geometry.Parse(Path), Stroke = IconKit.Solid("#17692C"), StrokeThickness = 5.6,
+                StrokeStartLineCap = PenLineCap.Round, StrokeEndLineCap = PenLineCap.Round, StrokeLineJoin = PenLineJoin.Round });
+            box.Children.Add(new System.Windows.Shapes.Path { Data = Geometry.Parse(Path), Stroke = IconKit.Vertical("#8BEA9C", "#2FB152"), StrokeThickness = 4.2,
+                StrokeStartLineCap = PenLineCap.Round, StrokeEndLineCap = PenLineCap.Round, StrokeLineJoin = PenLineJoin.Round });
+            box.Children.Add(new System.Windows.Shapes.Path { Data = Geometry.Parse("M15,4.6 L8,4.6 Q5.2,4.6 5.2,7"), Stroke = IconKit.Solid("#66FFFFFF"), StrokeThickness = 0.9,
+                StrokeStartLineCap = PenLineCap.Round, StrokeEndLineCap = PenLineCap.Round });
+            // head
+            box.Children.Add(IconKit.Dot(7.4, 18.8, 3.6, 3.2, IconKit.Glow("#E6FF8A", "#7BD84A", "#2C9A3C")));
+            box.Children.Add(IconKit.Dot(6.6, 17.6, 1.0, 1.1, IconKit.Solid("#FFFFFF")));
+            box.Children.Add(IconKit.Dot(9.0, 17.6, 1.0, 1.1, IconKit.Solid("#FFFFFF")));
+            box.Children.Add(IconKit.Dot(6.7, 17.8, 0.5, 0.6, IconKit.Solid("#1B1B1B")));
+            box.Children.Add(IconKit.Dot(9.1, 17.8, 0.5, 0.6, IconKit.Solid("#1B1B1B")));
+            // apple
+            box.Children.Add(IconKit.Dot(19.6, 5.2, 2.6, 2.6, IconKit.Glow("#FFB0A8", "#E5392F", "#9C1712")));
+            box.Children.Add(IconKit.Shape("M19.6,2.8 Q21.4,1.2 22.6,2.2 Q21.2,3.6 19.6,2.8 Z", IconKit.Vertical("#8BEA9C", "#2FB152")));
+            return IconKit.Wrap(box);
+        }
 
         const int Cell = 18;
         const double StepSeconds = 0.110;

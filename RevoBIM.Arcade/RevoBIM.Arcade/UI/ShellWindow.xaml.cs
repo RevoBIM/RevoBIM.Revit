@@ -19,9 +19,9 @@ namespace RevoBIM.Arcade.UI
             public string DisplayName { get; set; } = "";
             public string BestText { get; set; } = "";
             public bool IsDefault { get; set; }
-            public Geometry IconData { get; set; } = Geometry.Empty;
+            public UIElement? Icon { get; set; }
             public string DefaultGlyph => IsDefault ? "\uE735" : "\uE734";
-            public string DefaultText => IsDefault ? "Default" : "Make default";
+
             public string DefaultTip => IsDefault
                 ? "This game opens first. Click to clear it."
                 : "Open this game first whenever the arcade starts.";
@@ -55,7 +55,6 @@ namespace RevoBIM.Arcade.UI
             HeaderBar.MouseLeftButtonDown += OnHeaderDown;
             LogoHit.PreviewMouseLeftButtonDown += OnLogoClick;
             CloseButton.Click += (s, e) => Close();
-            DefaultButton.Click += (s, e) => ToggleDefault(_entry?.Key);
         }
 
         // ------------------------------------------------------------ start up
@@ -102,8 +101,6 @@ namespace RevoBIM.Arcade.UI
                 PickerView.Visibility = Visibility.Collapsed;
                 GameView.Visibility = Visibility.Visible;
                 RestoreGameSize();
-                DefaultButton.Visibility = Visibility.Visible;
-                RefreshDefaultButton();
 
                 game.Start(host);
                 host.Loop.Start();
@@ -147,15 +144,14 @@ namespace RevoBIM.Arcade.UI
             FillPicker();
 
             GameView.Visibility = Visibility.Collapsed;
-            DefaultButton.Visibility = Visibility.Collapsed;
             PickerView.Visibility = Visibility.Visible;
             FitToPicker();
         }
 
-        static Geometry IconOf(string data)
+        static UIElement? IconOf(GameRegistry.Entry entry)
         {
-            try { return Geometry.Parse(string.IsNullOrWhiteSpace(data) ? "M4,4 h16 v16 h-16 z" : data); }
-            catch { return Geometry.Parse("M4,4 h16 v16 h-16 z"); }
+            try { return entry.Create().CreateIcon(); }
+            catch { return null; }
         }
 
         // ---- window size: the picker crops to its cards, a game gets the size it last had
@@ -206,7 +202,7 @@ namespace RevoBIM.Arcade.UI
                 return new PickerItem
                 {
                     Key = g.Key, DisplayName = g.DisplayName, BestText = best > 0 ? $"Best {best}" : "No score yet",
-                    IsDefault = g.Key == defaultKey, IconData = IconOf(g.Icon),
+                    IsDefault = g.Key == defaultKey, Icon = IconOf(g),
                 };
             }).ToList();
         }
@@ -218,20 +214,8 @@ namespace RevoBIM.Arcade.UI
             var settings = SettingsStore.Load();
             settings.DefaultGame = string.Equals(settings.DefaultGame, key, StringComparison.OrdinalIgnoreCase) ? null : key;
             SettingsStore.Save(settings);
-            RefreshDefaultButton();
             if (_game == null) FillPicker();
         }
-
-        void RefreshDefaultButton()
-        {
-            bool isDefault = _entry != null && string.Equals(SettingsStore.Load().DefaultGame, _entry.Key, StringComparison.OrdinalIgnoreCase);
-            DefaultGlyph.Text = isDefault ? "\uE735" : "\uE734";
-            DefaultGlyph.SetResourceReference(TextBlock.ForegroundProperty, isDefault ? "OrangeBrush" : "MutedBrush");
-            DefaultButton.ToolTip = isDefault
-                ? "This game opens first. Click to clear it."
-                : "Make this the game the arcade opens with.";
-        }
-
         void OnToggleDefault(object sender, RoutedEventArgs e)
         {
             if (sender is Button b && b.Tag is string key) ToggleDefault(key);
@@ -297,7 +281,7 @@ namespace RevoBIM.Arcade.UI
             if (_egg.Click(e.Timestamp))
             {
                 e.Handled = true;   // swallow only the click that fires, so dragging still works
-                ShowPicker("Back at the menu.");
+                ShowPicker();
             }
         }
 

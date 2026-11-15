@@ -1,5 +1,11 @@
 # RevoBIM Arcade — changelog
 
+## 0.2.2 - 2026-11-15 - Cleaner picker
+
+- **Picker.** Colourful, shaded icons (drawn in code, IconKit); no title or help text, just the game cards. The default-game star sits on the right of each card; the pill button and the header star are gone.
+- **Tetris.** Space rotates, a double tap of Up drops the piece to the bottom (one tap does nothing).
+- **Hello removed.** The placeholder game is gone; launch checks use Tetris.
+
 ## 0.2.1 - 2026-11-15 - Snake
 
 - **Picker.** Each game card has an icon (drawn from path data, themed), and the window crops to the cards. A game opens at the size it last had.

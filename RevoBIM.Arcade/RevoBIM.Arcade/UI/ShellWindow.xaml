@@ -24,7 +24,6 @@
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
           </Grid.ColumnDefinitions>
           <Border x:Name="LogoHit" Grid.Column="0" Background="Transparent" Cursor="Hand" ToolTip="RevoBIM">
             <Image x:Name="LogoImage" Width="26" Height="26" RenderOptions.BitmapScalingMode="HighQuality"/>
@@ -32,18 +31,14 @@
           <TextBlock x:Name="TitleText" Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center"
                      Text="RevoBIM Arcade" FontFamily="Segoe UI" FontSize="13" FontWeight="SemiBold"
                      Foreground="{DynamicResource TextBrush}"/>
-          <!-- star: make the open game the one the arcade starts with (shown while a game is open) -->
-          <Button x:Name="DefaultButton" Grid.Column="2" Style="{StaticResource HeaderButton}" Visibility="Collapsed">
-            <TextBlock x:Name="DefaultGlyph" Text="&#xE734;" FontFamily="Segoe MDL2 Assets" FontSize="14"/>
-          </Button>
-          <Button x:Name="ShrinkButton" Grid.Column="3" Style="{StaticResource HeaderButton}">
+          <Button x:Name="ShrinkButton" Grid.Column="2" Style="{StaticResource HeaderButton}">
             <Grid>
               <TextBlock x:Name="ShrinkGlyph" Text="&#xE74B;" FontFamily="Segoe MDL2 Assets" FontSize="13"/>
               <TextBlock x:Name="ExpandGlyph" Text="&#xE74A;" FontFamily="Segoe MDL2 Assets" FontSize="14"
                          Foreground="{DynamicResource GreenBrush}" Visibility="Collapsed"/>
             </Grid>
           </Button>
-          <Button x:Name="CloseButton" Grid.Column="4" Style="{StaticResource CloseButton}" ToolTip="Close">
+          <Button x:Name="CloseButton" Grid.Column="3" Style="{StaticResource CloseButton}" ToolTip="Close">
             <TextBlock Text="&#xE8BB;" FontFamily="Segoe MDL2 Assets" FontSize="11"/>
           </Button>
         </Grid>
@@ -53,45 +48,34 @@
       <Grid x:Name="Body" Grid.Row="1">
         <ScrollViewer x:Name="PickerView" VerticalScrollBarVisibility="Auto" Padding="22,18">
           <StackPanel x:Name="PickerPanel" Width="470" HorizontalAlignment="Center">
-            <TextBlock Text="Pick a game" FontFamily="Segoe UI" FontSize="18" FontWeight="SemiBold"
-                       Foreground="{DynamicResource TextBrush}" Margin="0,0,0,4"/>
-            <TextBlock x:Name="PickerHelp" Text="The starred game opens first. Star a different one to change it." FontFamily="Segoe UI" FontSize="12"
-                       Foreground="{DynamicResource MutedBrush}" Margin="0,0,0,6" TextWrapping="Wrap"/>
             <TextBlock x:Name="PickerNote" Text="" FontFamily="Segoe UI" FontSize="12"
                        Foreground="{DynamicResource MutedBrush}" Margin="0,0,0,14" TextWrapping="Wrap"/>
             <ItemsControl x:Name="PickerList">
               <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                  <Grid>
-                    <Grid.ColumnDefinitions>
-                      <ColumnDefinition Width="*"/>
-                      <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <Button Grid.Column="0" Style="{StaticResource CardButton}" Tag="{Binding Key}" Click="OnPickGame">
-                      <StackPanel Orientation="Horizontal">
-                        <Path Data="{Binding IconData}" Width="30" Height="30" Stretch="Uniform" Margin="0,0,14,0"
-                              Fill="{DynamicResource BlueBrush}" VerticalAlignment="Center"/>
-                        <StackPanel VerticalAlignment="Center">
-                          <TextBlock Text="{Binding DisplayName}" FontFamily="Segoe UI" FontSize="15" FontWeight="SemiBold"
-                                     Foreground="{DynamicResource TextBrush}"/>
-                          <TextBlock Text="{Binding BestText}" FontFamily="Segoe UI" FontSize="12" Margin="0,2,0,0"
-                                     Foreground="{DynamicResource MutedBrush}"/>
-                        </StackPanel>
+                  <Button Style="{StaticResource CardButton}" Tag="{Binding Key}" Click="OnPickGame">
+                    <Grid>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                      </Grid.ColumnDefinitions>
+                      <ContentControl Grid.Column="0" Content="{Binding Icon}" Margin="0,0,16,0" VerticalAlignment="Center" Focusable="False"/>
+                      <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding DisplayName}" FontFamily="Segoe UI" FontSize="16" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource TextBrush}"/>
+                        <TextBlock Text="{Binding BestText}" FontFamily="Segoe UI" FontSize="12" Margin="0,2,0,0"
+                                   Foreground="{DynamicResource MutedBrush}"/>
                       </StackPanel>
-                    </Button>
-                    <Button x:Name="DefaultToggle" Grid.Column="1" Style="{StaticResource PillButton}" Tag="{Binding Key}"
-                            Click="OnToggleDefault" ToolTip="{Binding DefaultTip}" MinWidth="128">
-                      <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{Binding DefaultGlyph}" FontFamily="Segoe MDL2 Assets" FontSize="13" Margin="0,0,7,0"
-                                   VerticalAlignment="Center"/>
-                        <TextBlock Text="{Binding DefaultText}" FontFamily="Segoe UI" FontSize="12" VerticalAlignment="Center"/>
-                      </StackPanel>
-                    </Button>
-                  </Grid>
+                      <Button x:Name="StarButton" Grid.Column="2" Style="{StaticResource StarButton}" Tag="{Binding Key}"
+                              Click="OnToggleDefault" ToolTip="{Binding DefaultTip}">
+                        <TextBlock Text="{Binding DefaultGlyph}" FontFamily="Segoe MDL2 Assets" FontSize="18"/>
+                      </Button>
+                    </Grid>
+                  </Button>
                   <DataTemplate.Triggers>
                     <DataTrigger Binding="{Binding IsDefault}" Value="True">
-                      <Setter TargetName="DefaultToggle" Property="Foreground" Value="{DynamicResource OrangeBrush}"/>
-                      <Setter TargetName="DefaultToggle" Property="BorderBrush" Value="{DynamicResource OrangeBrush}"/>
+                      <Setter TargetName="StarButton" Property="Foreground" Value="{DynamicResource OrangeBrush}"/>
                     </DataTrigger>
                   </DataTemplate.Triggers>
                 </DataTemplate>

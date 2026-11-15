@@ -16,11 +16,8 @@ namespace RevoBIM.Arcade.Core
         /// <summary>Footer hint, e.g. "Arrows move   P pause   R restart   Esc menu".</summary>
         string Hints => string.Empty;
 
-        /// <summary>
-        /// The picker icon: SVG path data drawn in a 24 x 24 box, filled with the theme accent.
-        /// Empty means a plain square.
-        /// </summary>
-        string Icon => string.Empty;
+        /// <summary>The picker icon: a small coloured, shaded drawing (see IconKit). Null for none.</summary>
+        System.Windows.UIElement? CreateIcon() => null;
 
         /// <summary>Build the board and start the loop. Called on the UI thread.</summary>
         void Start(GameHost host);

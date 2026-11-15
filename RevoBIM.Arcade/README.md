@@ -15,7 +15,6 @@ RevoBIM.Arcade\
     Games\PacMan\            Pacman (ported from the pyRevit egg)
     Games\Tetris\            Tetris (rules in TetrisModel, timing and drawing in TetrisGame)
     Games\Snake\             Snake (ported from the pyRevit egg)
-    Games\Hello\             the placeholder game
     Version.cs               the one place the version lives
   tools\                     publish.ps1, selftest.ps1, launch-check.ps1
   integration\               what goes into the extension (the egg_hook fragment, button bundle)
@@ -86,8 +85,8 @@ By hand:
 
 ```powershell
 RevoBIM.Arcade.exe                               # the picker
-RevoBIM.Arcade.exe --game hello --theme light
-RevoBIM.Arcade.exe --game hello --theme dark --owner-x 100 --owner-y 100 --owner-w 1000 --owner-h 700
+RevoBIM.Arcade.exe --game tetris --theme light
+RevoBIM.Arcade.exe --game tetris --theme dark --owner-x 100 --owner-y 100 --owner-w 1000 --owner-h 700
 ```
 
 The launch checks use a scratch settings folder (`REVOBIM_ARCADE_DIR`), so a test run never

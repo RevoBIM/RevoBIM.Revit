@@ -18,7 +18,6 @@ namespace RevoBIM.Arcade.Games.PacMan
     {
         public string Key => "pacman";
         public string DisplayName => "Pacman";
-        public string Icon => "M12,12 L20.66,7 A10,10 0 1 0 20.66,17 Z M13,5.5 a1.6,1.6 0 1 1 -0.01,0 Z";
         public string Hints => "Arrows / WASD move   P pause   R restart   Esc menu";
 
         // '#' wall   '.' pellet   'o' power pellet   '-' ghost house door
@@ -118,6 +117,16 @@ namespace RevoBIM.Arcade.Games.PacMan
         int _score, _level = 1, _lives = Lives, _eatenPellets, _eatenGhosts, _bestAtStart;
         bool _recorded, _overlay;
         string _signOff = SignOffs[0];
+
+        public System.Windows.UIElement? CreateIcon()
+        {
+            var box = IconKit.Box();
+            box.Children.Add(IconKit.Shape("M12,12 L21.09,6.75 A10.5,10.5 0 1 0 21.09,17.25 Z",
+                IconKit.Glow("#FFF6A8", "#FFD21F", "#E08A00"), IconKit.Solid("#B87400")));
+            box.Children.Add(IconKit.Dot(11.2, 6.4, 1.5, 1.7, IconKit.Solid("#3B2A00")));
+            box.Children.Add(IconKit.Dot(11.7, 5.8, 0.5, 0.5, IconKit.Solid("#FFFFFF")));
+            return IconKit.Wrap(box);
+        }
 
         // ---------------------------------------------------------------- shell contract
 

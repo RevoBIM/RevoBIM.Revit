@@ -79,11 +79,11 @@ $env:REVOBIM_ARCADE_DIR = Join-Path ([IO.Path]::GetTempPath()) ('arcade-launch-'
 Stop-All
 
 $cases = @(
-    @{ Name = 'game hello, dark';  Args = @('--game','hello','--theme','dark');  Title = 'Hello' },
-    @{ Name = 'game hello, light'; Args = @('--game','hello','--theme','light'); Title = 'Hello' },
+    @{ Name = 'game tetris, dark';  Args = @('--game','tetris','--theme','dark');  Title = 'Tetris' },
+    @{ Name = 'game tetris, light'; Args = @('--game','tetris','--theme','light'); Title = 'Tetris' },
     @{ Name = 'no arguments';      Args = @();                                   Title = 'RevoBIM Arcade' },
     @{ Name = 'unknown game key';  Args = @('--game','nosuchgame','--theme','dark'); Title = 'RevoBIM Arcade' },
-    @{ Name = 'bad theme value';   Args = @('--game','hello','--theme','purple'); Title = 'Hello' }
+    @{ Name = 'bad theme value';   Args = @('--game','tetris','--theme','purple'); Title = 'Tetris' }
 )
 
 foreach ($c in $cases) {
@@ -102,7 +102,7 @@ foreach ($c in $cases) {
 }
 
 # Owner rectangle: the window should be centred over it.
-$p = Start-Process -FilePath $Exe -ArgumentList @('--game','hello','--theme','dark','--owner-x','100','--owner-y','100','--owner-w','1000','--owner-h','700') -PassThru
+$p = Start-Process -FilePath $Exe -ArgumentList @('--game','tetris','--theme','dark','--owner-x','100','--owner-y','100','--owner-w','1000','--owner-h','700') -PassThru
 if (Wait-Window $p) {
     Start-Sleep -Milliseconds 600
     $r = New-Object ArcadeWin+RECT
@@ -116,13 +116,13 @@ Stop-All
 $first = Start-Process -FilePath $Exe -ArgumentList @('--theme','dark') -PassThru
 [void](Wait-Window $first)
 Start-Sleep -Milliseconds 500
-$second = Start-Process -FilePath $Exe -ArgumentList @('--game','hello','--theme','dark') -PassThru
+$second = Start-Process -FilePath $Exe -ArgumentList @('--game','tetris','--theme','dark') -PassThru
 [void]$second.WaitForExit(6000)
 Start-Sleep -Milliseconds 800
 $first.Refresh()
 Check 'single instance: second launch exits' $second.HasExited
 Check 'single instance: only one arcade running' (@(Get-Process RevoBIM.Arcade -ErrorAction SilentlyContinue).Count -eq 1)
-Check 'single instance: the running window switched to the requested game' ($first.MainWindowTitle -like '*Hello*') $first.MainWindowTitle
+Check 'single instance: the running window switched to the requested game' ($first.MainWindowTitle -like '*Tetris*') $first.MainWindowTitle
 Save-Shot $first 'single-instance-handover'
 Stop-All
 

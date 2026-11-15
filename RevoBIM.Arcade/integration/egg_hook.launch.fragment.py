@@ -46,7 +46,7 @@
 
 # >>> RevoBIM.Arcade BEGIN (egg_hook.launch) >>>
 # Keys the standalone exe can run. Extend as games are ported.
-ARCADE_KEYS = ("pacman", "tetris", "snake", "hello")
+ARCADE_KEYS = ("pacman", "tetris", "snake")
 
 ARCADE_EXE_NAME = "RevoBIM.Arcade.exe"
 

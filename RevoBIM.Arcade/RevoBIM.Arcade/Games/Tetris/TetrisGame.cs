@@ -15,8 +15,24 @@ namespace RevoBIM.Arcade.Games.Tetris
     {
         public string Key => "tetris";
         public string DisplayName => "Tetris";
-        public string Icon => "M2,4 h6 v6 h-6 z M9,4 h6 v6 h-6 z M16,4 h6 v6 h-6 z M9,11 h6 v6 h-6 z";
-        public string Hints => "Left/Right move   Up rotate   Z back   Down soft   Space drop   P pause   R restart   Esc menu";
+        public string Hints => "Left/Right move   Space rotate   Up Up drop   Down soft   P pause   R restart   Esc menu";
+
+        public System.Windows.UIElement? CreateIcon()
+        {
+            var box = IconKit.Box();
+            void Brick(double x, double y, string light, string dark, string edge)
+            {
+                box.Children.Add(IconKit.Block(x, y, 6, 6, 1.2, IconKit.Vertical(light, dark), IconKit.Solid(edge)));
+                box.Children.Add(IconKit.Block(x + 0.9, y + 0.8, 4.2, 1.3, 0.6, IconKit.Solid("#66FFFFFF")));
+            }
+            Brick(2, 3, "#8DF0F7", "#1FA6B5", "#12727E");
+            Brick(9, 3, "#D9A0F5", "#8A3FC4", "#5F2690");
+            Brick(16, 3, "#FFC78A", "#E27A1C", "#A5530B");
+            Brick(9, 10, "#9BEBA6", "#2FA84B", "#1D7633");
+            Brick(2, 17, "#FF9E9A", "#D63B36", "#992421");
+            Brick(16, 17, "#9CC8FF", "#2F74D6", "#1E4F97");
+            return IconKit.Wrap(box);
+        }
 
         const double CellSize = 24, Pad = 12, PanelX = Pad + TetrisModel.Cols * CellSize + 18;
         const double Das = 0.16, Arr = 0.045, SoftInterval = 0.04, LockDelay = 0.45;
@@ -35,6 +51,8 @@ namespace RevoBIM.Arcade.Games.Tetris
         TextBlock? _scoreText, _linesText, _levelText;
         TextBlock? _again;
 
+        const long DoubleTapMs = 320;
+        long _lastUp;
         double _fall, _lock, _hTimer, _hNext = Das;
         int _hHeld, _lockResets, _paint, _bestAtStart;
         bool _recorded, _overlay;
@@ -94,14 +112,18 @@ namespace RevoBIM.Arcade.Games.Tetris
             if (_model.Over) return;
             switch (key)
             {
-                case WKey.Up: case WKey.W: case WKey.X:
+                case WKey.Space: case WKey.X:
                     if (_model.TryRotate(1)) Moved();
                     break;
                 case WKey.Z:
                     if (_model.TryRotate(-1)) Moved();
                     break;
-                case WKey.Space:
-                    Landed(_model.HardDrop());
+                case WKey.Up: case WKey.W:
+                    // Double tap sends the piece to the bottom. One tap does nothing, so a stray press
+                    // never costs a piece.
+                    long now = Environment.TickCount64;
+                    if (now - _lastUp <= DoubleTapMs) { _lastUp = 0; Landed(_model.HardDrop()); }
+                    else _lastUp = now;
                     break;
             }
         }
