@@ -1,5 +1,5 @@
 # Builds the Release DLL for every Revit version, then compiles the Inno Setup installer.
-# Output: dist\RevoBIM-Setup-<version>.exe  (installs Revit 2024, 2025, 2026 and 2027)
+# Output: dist\RevoBIM_Tools-<version>.exe  (installs Revit 2024, 2025, 2026 and 2027)
 # Usage:  powershell -ExecutionPolicy Bypass -File installer\build-installer.ps1
 #         add -SkipBuild to reuse the existing Release DLLs.
 param([switch]$SkipBuild)
@@ -35,6 +35,10 @@ foreach ($year in $builds.Keys) {
     if (-not (Test-Path $dll)) { throw "Release DLL for Revit $year not found: $dll" }
 }
 
+# Installer artwork (icon + wizard images) from installer\make-assets.ps1
+& (Join-Path $PSScriptRoot 'make-assets.ps1')
+if ($LASTEXITCODE -ne 0 -and $null -ne $LASTEXITCODE) { throw 'make-assets.ps1 failed' }
+
 $iscc = foreach ($v in '7', '6') {
     "${env:ProgramFiles(x86)}\Inno Setup $v\ISCC.exe"
     "$env:ProgramFiles\Inno Setup $v\ISCC.exe"
@@ -46,4 +50,4 @@ if (-not $iscc) { throw 'Inno Setup 6 or 7 not found. Install it from https://jr
 & $iscc "/DMyAppVersion=$version" (Join-Path $PSScriptRoot 'RevoBIM.iss')
 if ($LASTEXITCODE -ne 0) { throw 'Inno Setup compile failed' }
 
-Write-Host "Installer built: $(Join-Path $root "dist\RevoBIM-Setup-$version.exe")"
+Write-Host "Installer built: $(Join-Path $root "dist\RevoBIM_Tools-$version.exe")"

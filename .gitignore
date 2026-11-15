@@ -2,3 +2,8 @@ bin/
 obj/
 .vs/
 *.user
+
+# Installer output and generated artwork (rebuilt by installer\build-installer.ps1)
+dist/
+installer/assets/*.bmp
+installer/assets/*.ico
