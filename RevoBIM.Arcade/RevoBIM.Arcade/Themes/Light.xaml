@@ -1,0 +1,19 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <!-- RevoBIM light, from the Sheet Manager theme reference. Accents are darkened, not inverted. -->
+  <SolidColorBrush x:Key="WindowBg"       Color="#F4F4F6"/>
+  <SolidColorBrush x:Key="CardBg"         Color="#FFFFFF"/>
+  <SolidColorBrush x:Key="FieldBg"        Color="#FFFFFF"/>
+  <SolidColorBrush x:Key="BarBg"          Color="#E7E7EB"/>
+  <SolidColorBrush x:Key="EdgeBrush"      Color="#C6C6CC"/>
+  <SolidColorBrush x:Key="TextBrush"      Color="#1F1F22"/>
+  <SolidColorBrush x:Key="MutedBrush"     Color="#63636A"/>
+  <SolidColorBrush x:Key="BlueBrush"      Color="#1B72BE"/>
+  <SolidColorBrush x:Key="OrangeBrush"    Color="#B96A12"/>
+  <SolidColorBrush x:Key="GreenBrush"     Color="#2E8546"/>
+  <SolidColorBrush x:Key="GreenHover"     Color="#37A055"/>
+  <SolidColorBrush x:Key="RedBrush"       Color="#B33430"/>
+  <SolidColorBrush x:Key="SelectionBrush" Color="#BBD8F0"/>
+  <SolidColorBrush x:Key="HoverBg"        Color="#E2E2E8"/>
+  <SolidColorBrush x:Key="HeroBrush"      Color="#D9A400"/>
+</ResourceDictionary>

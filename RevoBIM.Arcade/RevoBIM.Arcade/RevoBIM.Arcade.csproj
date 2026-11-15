@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    RevoBIM Arcade: a standalone game shell. No Revit, no pyRevit. One build covers
+    Revit 2023-2027 because nothing here references Revit.
+
+    Publish as one self-contained file: run tools\publish.ps1. It calls dotnet publish for
+    win-x64 with self-contained and PublishSingleFile on, then copies the exe to dist\egg-bin.
+  -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>RevoBIM.Arcade</RootNamespace>
+    <AssemblyName>RevoBIM.Arcade</AssemblyName>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Resources\revobim.ico</ApplicationIcon>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>true</SelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <DebugType>embedded</DebugType>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <Product>RevoBIM Arcade</Product>
+    <Company>A2 Services LTD</Company>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\revobim.ico" />
+    <Resource Include="Resources\Arcade\icon.png" />
+  </ItemGroup>
+
+</Project>
