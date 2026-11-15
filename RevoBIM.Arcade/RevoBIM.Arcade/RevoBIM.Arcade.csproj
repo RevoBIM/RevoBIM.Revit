@@ -27,7 +27,7 @@
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <Product>RevoBIM Arcade</Product>
-    <Company>A2 Services LTD</Company>
+    <Company>RevoBIM LTD</Company>
   </PropertyGroup>
 
   <ItemGroup>

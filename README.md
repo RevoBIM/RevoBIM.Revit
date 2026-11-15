@@ -4,19 +4,23 @@ Revit add-in by RevoBIM LTD for building services BIM, for **Revit 2024, 2025, 2
 
 ## Download
 
-[![Download RevoBIM Tools 0.2.0](https://img.shields.io/badge/Download-RevoBIM%20Tools%200.2.0-2EA44F?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/RevoBIM/RevoBIM.Revit/releases/download/v0.2.0/RevoBIM_Tools-0.2.0.exe)
+[![Download RevoBIM Tools 0.2.1](https://img.shields.io/badge/Download-RevoBIM%20Tools%200.2.1-2EA44F?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/RevoBIM/RevoBIM.Revit/releases/download/v0.2.1/RevoBIM_Tools-0.2.1.exe)
 
-**Build 0.2.0** · released 15 November 2026 · [all releases](https://github.com/RevoBIM/RevoBIM.Revit/releases)
+**Build 0.2.1** · released 15 November 2026 · [all releases](https://github.com/RevoBIM/RevoBIM.Revit/releases)
 
 ## Install
 
 1. Close every Revit window.
-2. Run `RevoBIM_Tools-0.2.0.exe` and pick the Revit versions to install for. No admin rights are needed.
+2. Run `RevoBIM_Tools-0.2.1.exe` and pick the Revit versions to install for. No admin rights are needed.
 3. Start Revit. The tools are on the **RevoBIM** tab. **About**, on the right of the tab, shows the installed version and its release date.
 
 Installing a newer version replaces the old one.
 
 ## Change log
+
+### 0.2.1 — 15 November 2026
+
+Maintenance release. No change to how the tools work: install it over 0.2.0.
 
 ### 0.2.0 — 15 November 2026
 

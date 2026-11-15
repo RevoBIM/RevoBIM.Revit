@@ -3,6 +3,10 @@
 All notable changes to RevoBIM Tools. The installer for each version is on the
 [Releases page](https://github.com/RevoBIM/RevoBIM.Revit/releases).
 
+## 0.2.1 — 15 November 2026
+
+Maintenance release. No change to how the tools work: install it over 0.2.0.
+
 ## 0.2.0 — 15 November 2026
 
 First public release. One installer for **Revit 2024, 2025, 2026 and 2027**.

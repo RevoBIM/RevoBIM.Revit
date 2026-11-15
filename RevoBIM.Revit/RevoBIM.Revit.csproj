@@ -35,7 +35,7 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <EnableDefaultCompileItems>true</EnableDefaultCompileItems>
-    <Version>0.2.0</Version>
+    <Version>0.2.1</Version>
     <!-- REVIT2024, REVIT2025 ... for the few places the API differs between versions -->
     <DefineConstants>$(DefineConstants);REVIT$(RevitVersion)</DefineConstants>
     <!-- bin\<Configuration>\<framework>\ per version, so the builds never overwrite each other -->
@@ -98,7 +98,7 @@
     </ItemGroup>
     <Copy SourceFiles="@(BuiltFiles)" DestinationFolder="$(DeployDir)" ContinueOnError="true" />
     <Delete Files="@(OldDll)" ContinueOnError="true" />
-    <WriteLinesToFile File="$(AddinDir)\RevoBIM.addin" Overwrite="true" Lines="&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;;&lt;RevitAddIns&gt;;  &lt;AddIn Type=&quot;Application&quot;&gt;;    &lt;Name&gt;RevoBIM Tools&lt;/Name&gt;;    &lt;Assembly&gt;$(DeployDir)\RevoBIM.Revit.dll&lt;/Assembly&gt;;    &lt;AddInId&gt;4C8B2E71-5A93-4F0D-B6E2-9D1A7C3E8F54&lt;/AddInId&gt;;    &lt;FullClassName&gt;RevoBIM.App&lt;/FullClassName&gt;;    &lt;VendorId&gt;A2SV&lt;/VendorId&gt;;    &lt;VendorDescription&gt;A2 Services LTD&lt;/VendorDescription&gt;;  &lt;/AddIn&gt;;&lt;/RevitAddIns&gt;" />
+    <WriteLinesToFile File="$(AddinDir)\RevoBIM.addin" Overwrite="true" Lines="&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;;&lt;RevitAddIns&gt;;  &lt;AddIn Type=&quot;Application&quot;&gt;;    &lt;Name&gt;RevoBIM Tools&lt;/Name&gt;;    &lt;Assembly&gt;$(DeployDir)\RevoBIM.Revit.dll&lt;/Assembly&gt;;    &lt;AddInId&gt;4C8B2E71-5A93-4F0D-B6E2-9D1A7C3E8F54&lt;/AddInId&gt;;    &lt;FullClassName&gt;RevoBIM.App&lt;/FullClassName&gt;;    &lt;VendorId&gt;RevoBIM&lt;/VendorId&gt;;    &lt;VendorDescription&gt;RevoBIM LTD&lt;/VendorDescription&gt;;  &lt;/AddIn&gt;;&lt;/RevitAddIns&gt;" />
   </Target>
 
 </Project>

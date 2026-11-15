@@ -1,6 +1,6 @@
 # RevoBIM.Revit
 
-C# Revit add-in ("RevoBIM Tools") for Revit 2024, 2025, 2026 and 2027, being converted tool-by-tool from the pyRevit extension "RevoBIM PY". Owner: A² Services LTD (building services BIM).
+C# Revit add-in ("RevoBIM Tools") for Revit 2024, 2025, 2026 and 2027, being converted tool-by-tool from the pyRevit extension "RevoBIM PY". Owner: RevoBIM LTD (building services BIM).
 
 ## Build and deploy
 - One project (`RevoBIM.Revit\RevoBIM.Revit.csproj`, assembly `RevoBIM.Revit.dll`), one build per Revit version, chosen by configuration:

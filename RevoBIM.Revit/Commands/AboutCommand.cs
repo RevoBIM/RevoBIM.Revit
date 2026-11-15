@@ -25,7 +25,7 @@ namespace RevoBIM.Commands
                 MainContent = "Build version: " + Version + "\n" +
                               "Released: " + ReleaseDate + "\n" +
                               "For Revit " + (Metadata("RevitVersion") ?? "?"),
-                FooterText = "A² Services LTD",
+                FooterText = "RevoBIM LTD",
                 CommonButtons = TaskDialogCommonButtons.Close,
                 DefaultButton = TaskDialogResult.Close,
             };

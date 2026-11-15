@@ -127,7 +127,7 @@ function New-Panel([double]$s, [string]$path) {
     $g.DrawString('T O O L S', $fSub, $accent, $cx, [single](184 * $s), $center)
     $g.DrawString('Add-in suite for', $fSmall, $grey, $cx, [single](232 * $s), $center)
     $g.DrawString('Autodesk Revit 2024-2027', $fSmall, $grey, $cx, [single](246 * $s), $center)
-    $g.DrawString(('A' + [char]0x00B2 + ' Services LTD'), $fSmall, $grey, $cx, [single](280 * $s), $center)
+    $g.DrawString('RevoBIM LTD', $fSmall, $grey, $cx, [single](280 * $s), $center)
 
     # tri-colour bar along the bottom
     $bh = [int](4 * $s); $seg = [int]($w / 3)

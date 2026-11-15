@@ -3,7 +3,7 @@
 #endif
 
 #define MyAppName      "RevoBIM Tools"
-#define MyAppPublisher "A² Services LTD"
+#define MyAppPublisher "RevoBIM LTD"
 ; One Release build per Revit version, made by build-installer.ps1
 #define Bin            "..\RevoBIM.Revit\bin"
 #define Build2024      Bin + "\Release R24\net48"
@@ -389,8 +389,8 @@ begin
   Lines[4]  := '    <Assembly>' + AsmPath + '</Assembly>';
   Lines[5]  := '    <AddInId>' + AddinGuid + '</AddInId>';
   Lines[6]  := '    <FullClassName>RevoBIM.App</FullClassName>';
-  Lines[7]  := '    <VendorId>A2SV</VendorId>';
-  Lines[8]  := '    <VendorDescription>A2 Services LTD</VendorDescription>';
+  Lines[7]  := '    <VendorId>RevoBIM</VendorId>';
+  Lines[8]  := '    <VendorDescription>RevoBIM LTD</VendorDescription>';
   Lines[9]  := '  </AddIn>';
   Lines[10] := '</RevitAddIns>';
 
