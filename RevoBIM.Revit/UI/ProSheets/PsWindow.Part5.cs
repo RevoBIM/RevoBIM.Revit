@@ -112,7 +112,7 @@ namespace RevoBIM.UI.ProSheets
             {
                 try
                 {
-                    if (!PsSetupWin.Needed(Settings))
+                    if (SkipFirstRunSetup || !PsSetupWin.Needed(Settings))
                         return;
                     OpenSetup(firstRun: true);
                 }

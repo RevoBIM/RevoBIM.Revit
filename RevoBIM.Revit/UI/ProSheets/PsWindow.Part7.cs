@@ -595,6 +595,17 @@ namespace RevoBIM.UI.ProSheets
                 int done = ProgressDone;
                 ProgressDone++;
 
+                if (ProgressHook != null)
+                {
+                    try
+                    {
+                        ProgressHook(done, ExportTotal, string.Format(Inv, "{0}  {1}", fmt, label));
+                    }
+                    catch (Exception)
+                    {
+                    }
+                }
+
                 OnUi(() =>
                 {
                     if (C("Progress") is RangeBase bar)
@@ -944,6 +955,12 @@ namespace RevoBIM.UI.ProSheets
 
             internal void ShowReport(PsExport.Report report)
             {
+                if (ReportHook != null)
+                {
+                    Exporting = false;
+                    ReportHook(report);
+                    return;
+                }
                 if (ExpressRun)
                 {
                     ExpressFinished(report);

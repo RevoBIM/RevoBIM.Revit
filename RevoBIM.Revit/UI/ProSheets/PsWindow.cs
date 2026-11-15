@@ -368,6 +368,12 @@ namespace RevoBIM.UI.ProSheets
             public bool Exporting;
             // An Express Export run: no prompts, no report window.
             internal bool ExpressRun;
+            // The right-click Express Export (PsExpress) runs this window hidden and
+            // listens in: each file as it starts, and the report instead of a window.
+            internal Action<int, int, string> ProgressHook;
+            internal Action<PsExport.Report> ReportHook;
+            // Set while PsExpress builds a hidden window: no first-run setup on screen.
+            internal static bool SkipFirstRunSetup;
             public bool StopWanted;
             public PsExport.Report LastReport;
             internal string HuntedFolder = "";

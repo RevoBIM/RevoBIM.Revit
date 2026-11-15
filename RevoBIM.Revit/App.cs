@@ -85,6 +85,11 @@ namespace RevoBIM
             };
             sheetTools.AddItem(revisionManager);
 
+#if !REVIT2024
+            // Right-click menu (Revit 2025+): "Print in ProSheets" and "Express Export".
+            Commands.ProSheetsContextMenu.Register(app);
+#endif
+
             return Result.Succeeded;
         }
 
