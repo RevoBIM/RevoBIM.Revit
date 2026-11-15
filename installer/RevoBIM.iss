@@ -85,6 +85,7 @@ Source: "{#ArcadeExe}"; DestDir: "{app}\ArcadeApp"; Flags: ignoreversion
 Source: "assets\icon_legend.bmp";    Flags: dontcopy
 Source: "assets\icon_prosheets.bmp"; Flags: dontcopy
 Source: "assets\icon_revision.bmp";  Flags: dontcopy
+Source: "assets\icon_excel.bmp";     Flags: dontcopy
 
 [InstallDelete]
 ; Remove the previous version's files before copying the new ones,
@@ -261,16 +262,19 @@ begin
   AddCard(Page, 0, 'icon_legend.bmp', 'Legend Creator', 'Project panel',
     'Builds family legends and system colour legends (containment, ductwork, pipework) straight from the model.',
     ColBlue);
-  AddCard(Page, ScaleY(80), 'icon_prosheets.bmp', 'Pro Sheets Exporter', 'Sheet Tools panel',
+  AddCard(Page, ScaleY(76), 'icon_prosheets.bmp', 'Pro Sheets Exporter', 'Sheet Tools panel',
     'Batch export sheets and views to PDF and DWG with custom file naming, project-driven output folders and saved templates.',
     ColOrange);
-  AddCard(Page, ScaleY(160), 'icon_revision.bmp', 'Revision Manager', 'Sheet Tools panel',
+  AddCard(Page, ScaleY(152), 'icon_revision.bmp', 'Revision Manager', 'Sheet Tools panel',
     'Add, edit, reorder, merge and delete project revisions, with sheet counts, search and custom columns.',
     ColGreen);
+  AddCard(Page, ScaleY(228), 'icon_excel.bmp', 'Excel for Revit', 'Management panel',
+    'Edit a schedule in a spreadsheet grid, then apply every change in one transaction. Export to Excel and import it back.',
+    ColBlue);
 
   AddText(Page.Surface,
     'Works with Revit 2024, 2025, 2026 and 2027. More tools arrive as they are converted.',
-    0, ScaleY(246), W, ScaleY(40), 9, False, ColMuted);
+    0, ScaleY(306), W, ScaleY(32), 9, False, ColMuted);
 end;
 
 procedure InitializeWizard();

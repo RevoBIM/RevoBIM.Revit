@@ -162,6 +162,7 @@ $toolIcons = [ordered]@{
     'icon_legend'    = 'LegendCreator'
     'icon_prosheets' = 'ProSheetsExporter'
     'icon_revision'  = 'RevisionManager'
+    'icon_excel'     = 'ExcelForRevit'
 }
 foreach ($name in $toolIcons.Keys) {
     $src = Join-Path $resDir "$($toolIcons[$name])\icon.png"

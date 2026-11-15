@@ -88,6 +88,14 @@
     <EmbeddedResource Include="UI\ProSheets\Layouts\*.xaml" LogicalName="RevoBIM.UI.ProSheets.Layouts.%(Filename)%(Extension)" />
   </ItemGroup>
 
+  <!-- Excel for Revit layout: the pyRevit XAML verbatim, loaded at runtime.
+       Embedded as RevoBIM.UI.ExcelForRevit.Layouts.<file>. -->
+  <ItemGroup>
+    <Page Remove="UI\ExcelForRevit\Layouts\**" />
+    <None Remove="UI\ExcelForRevit\Layouts\**" />
+    <EmbeddedResource Include="UI\ExcelForRevit\Layouts\*.xaml" LogicalName="RevoBIM.UI.ExcelForRevit.Layouts.%(Filename)%(Extension)" />
+  </ItemGroup>
+
   <!-- Per-user deploy for the version being built: no admin rights needed. Copies the DLL and writes the .addin manifest. -->
   <Target Name="DeployAddin" AfterTargets="Build">
     <MakeDir Directories="$(DeployDir);$(AddinDir)" />

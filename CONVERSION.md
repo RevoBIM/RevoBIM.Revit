@@ -74,7 +74,7 @@ Status values: Not started, Converted (built, not yet tried in Revit), Tested (w
 | Re-Route Wires | Electrical | Not started | In Wires pulldown. |
 | Settings | Electrical | Not started | In Wires pulldown. |
 | Hanger Automation | FAB Automation | Not started |  |
-| Excel for Revit | Management | Not started |  |
+| Excel for Revit | Management | Converted | v1.20.0 port, builds on R24/R25/R26/R27, never run in Revit. Logic in `Tools\ExcelForRevit\` (`Efr*.cs`: core/palette, params, `ScheduleModel`, levels, `WorkHandler`, fill and formula engine, own xlsx writer/reader and Excel round trip), WPF in `UI\ExcelForRevit\` (`ExcelForRevitWindow*.cs` partial class, `EfrDialogs*.cs`, `EfrUi.cs` toolkit, `EfrMain.cs` entry), pyRevit XAML embedded verbatim in `UI\ExcelForRevit\Layouts\`. Shares `%APPDATA%\RevoBIM PY\excel_for_revit_settings.json` with the pyRevit version; failure log at `%APPDATA%\RevoBIM\logs\excel_for_revit_last_error.txt`. Not ported: the IronPython-engine liveness machinery (modeless proof, `check_modeless_health`, `migrate_window_settings`); the modeless/modal toggle stays. Logo easter egg armed on the logo and wordmark. Python benches (`import_check.py`, `bench_logic.py`, `xlsx_check.py`) not ported. |
 | Family Editor Tools | Management | Not started |  |
 | Family Find Replace | Management | Not started |  |
 | Family Management Placer | Management | Not started |  |

@@ -74,6 +74,23 @@ namespace RevoBIM
             };
             coordination.AddStackedItems(nudgeUp, nudgeDown, nudgeSettings);
 
+            // --- Management (pyRevit: Management.panel)
+            RibbonPanel management = app.CreateRibbonPanel(TabName, "Management");
+            var excelForRevit = new PushButtonData(
+                "RevoBIM_ExcelForRevit", "Excel for\nRevit", dll, typeof(Commands.ExcelForRevitCommand).FullName)
+            {
+                ToolTip = "Opens the active or selected schedule as an editable spreadsheet grid. Instance parameter " +
+                          "cells are blue, type parameter cells orange, cells that cannot be edited light red. Copy, " +
+                          "paste, fill down, drag to sequence, formulas, numbering, prefixes, highlighting, find and " +
+                          "replace, undo and redo, with a dark or light canvas. Export to Excel for editing or for " +
+                          "issuing, and import an edited workbook back. Nothing is written to the model until APPLY, " +
+                          "which runs every edit in one transaction.",
+                AvailabilityClassName = typeof(Commands.ProjectDocumentAvailability).FullName,
+                LargeImage = Icon("ExcelForRevit", 32),
+                Image = Icon("ExcelForRevit", 16),
+            };
+            management.AddItem(excelForRevit);
+
             // --- Project (pyRevit: Project.panel)
             RibbonPanel project = app.CreateRibbonPanel(TabName, "Project");
             var legendCreator = new PushButtonData(
