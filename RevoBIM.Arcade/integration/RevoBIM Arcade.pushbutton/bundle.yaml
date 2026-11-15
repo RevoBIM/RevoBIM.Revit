@@ -1,0 +1,13 @@
+title: RevoBIM Arcade
+tooltip: >
+  Opens the RevoBIM Arcade.
+
+  The arcade is its own Windows program (RevoBIM.Arcade.exe), so it keeps playing while a
+  tool is working and keeps playing if Revit is closed. Revit only starts it. The same
+  Revit 2023 to 2027 build serves every version.
+
+  Three slow clicks on any tool's logo opens it too.
+
+  Shift-click for a diagnostic report: whether the easter egg is wired, which tools it
+  found, and the last dozen log lines.
+author: RevoBIM
