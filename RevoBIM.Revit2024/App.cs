@@ -31,6 +31,34 @@ namespace RevoBIM
             };
             project.AddItem(legendCreator);
 
+            // --- Sheet Tools (pyRevit: Sheet Tools.panel)
+            RibbonPanel sheetTools = app.CreateRibbonPanel(TabName, "Sheet Tools");
+            var proSheets = new PushButtonData(
+                "RevoBIM_ProSheetsExporter", "Pro Sheets\nExporter", dll, typeof(Commands.ProSheetsExporterCommand).FullName)
+            {
+                ToolTip = "RevoBIM Pro Sheets Exporter. Batch export sheets and views to PDF and DWG with custom file " +
+                          "naming built from sheet parameters, output folders driven by project parameters, and export " +
+                          "templates saved per project.\n\nOpens modeless, so Revit stays usable while it is open. Sheets " +
+                          "selected before launching arrive already isolated on the first page.",
+                AvailabilityClassName = typeof(Commands.ProjectDocumentAvailability).FullName,
+                LargeImage = Icon("ProSheetsExporter", 32),
+                Image = Icon("ProSheetsExporter", 16),
+            };
+            sheetTools.AddItem(proSheets);
+            var revisionManager = new PushButtonData(
+                "RevoBIM_RevisionManager", "Revision\nManager", dll, typeof(Commands.RevisionManagerCommand).FullName)
+            {
+                ToolTip = "RevoBIM Revision Manager. Add, edit, reorder, merge and delete the project's revisions, with " +
+                          "how many sheets use each one, a search on every column, and columns of your own such as " +
+                          "Revision notes - kept in the model and pushed into sheet or revision cloud parameters if you " +
+                          "map them.\n\nNothing is written until Apply. Also opens from the Document Register tab in " +
+                          "Pro Sheets Exporter.",
+                AvailabilityClassName = typeof(Commands.ProjectDocumentAvailability).FullName,
+                LargeImage = Icon("RevisionManager", 32),
+                Image = Icon("RevisionManager", 16),
+            };
+            sheetTools.AddItem(revisionManager);
+
             return Result.Succeeded;
         }
 
@@ -47,7 +75,10 @@ namespace RevoBIM
             {
                 string file = IsDarkUi() ? "icon.dark.png" : "icon.png";
                 string name = "RevoBIM.Resources." + tool + "." + file;
-                using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(name))
+                Assembly assembly = Assembly.GetExecutingAssembly();
+                // A tool with no dark icon (the pyRevit original had none) uses its light one.
+                using (Stream stream = assembly.GetManifestResourceStream(name)
+                                       ?? assembly.GetManifestResourceStream("RevoBIM.Resources." + tool + ".icon.png"))
                 {
                     if (stream == null) return null;
                     var image = new BitmapImage();
