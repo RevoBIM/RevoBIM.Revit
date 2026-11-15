@@ -12,6 +12,8 @@ RevoBIM.Arcade\
     Services\                loop, input, storage, theme, drawer, single instance, screen helper
     UI\                      ShellWindow (header, picker, board, footer)
     Themes\                  Common, Dark, Light (brush keys only)
+    Games\PacMan\            Pacman (ported from the pyRevit egg)
+    Games\Tetris\            Tetris (rules in TetrisModel, timing and drawing in TetrisGame)
     Games\Hello\             the placeholder game
     Version.cs               the one place the version lives
   tools\                     publish.ps1, selftest.ps1, launch-check.ps1
@@ -96,7 +98,8 @@ touches your real scores.
 RevoBIM.Arcade.exe --game <key> --theme <light|dark> [--owner-x <int> --owner-y <int> --owner-w <int> --owner-h <int>]
 ```
 
-* No arguments, or an unknown key: the picker lists the registered games.
+* A game named with --game always wins. An unknown key shows the picker with a note.
+* No --game: the arcade opens the **default game** if one is set, otherwise the picker lists the games.
 * `--theme` is `light` or `dark`; anything else is ignored and dark is used.
 * The owner rectangle is in screen pixels. With all four numbers (w and h above zero) the window is
   centred over it; otherwise it is centred on the screen.
@@ -104,7 +107,14 @@ RevoBIM.Arcade.exe --game <key> --theme <light|dark> [--owner-x <int> --owner-y 
   requested game and exits.
 * Bad arguments never stop it opening.
 
+## Default game
+
+Each card in the picker has a star button, and the header has one while a game is open. Starring a
+game makes it the one the arcade opens with (from the Routines button, or three slow clicks on a
+tool's logo, neither of which names a game). Esc leaves a game for the picker, where the star can
+be moved to another game, or clicked again to clear it. Saved as `DefaultGame` in `settings.json`.
+
 ## Storage
 
-`%APPDATA%\RevoBIM\arcade\` holds `settings.json` and one `scores.<game>.json` per game. The old
+`%APPDATA%\RevoBIM\arcade\` holds `settings.json` (the default game, the last game, the player name) and one `scores.<game>.json` per game. The old
 `easter_egg*.txt` files are not read.

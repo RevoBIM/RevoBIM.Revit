@@ -83,6 +83,8 @@ namespace RevoBIM.UI.LegendCreator
             palette = LgcTheme.ApplyPalette(this, ThemeName);
             drawer = new WindowDrawer(this, header_bar, shrink_btn); // before WireEvents: it sees keys first
             WireEvents();
+            // Three slow clicks on the RevoBIM logo (the icon or the word) open the RevoBIM Arcade.
+            RevoBIM.Helpers.EggHook.Attach(this, () => ThemeName, logo_icon, logo_word);
 
             Log("window: filling the family tab");
             FillPhases();

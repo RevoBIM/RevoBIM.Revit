@@ -46,7 +46,7 @@ Status values: Not started, Converted (built, not yet tried in Revit), Tested (w
 | Pipe Slope Assigner | Coordination | Not started | In Routines pulldown. |
 | QFR Remover | Coordination | Not started | In Routines pulldown. |
 | Reset Hide | Coordination | Not started | In Routines pulldown. |
-| RevoBIM Arcade | Coordination | Not started | In Routines pulldown. |
+| RevoBIM Arcade | Coordination | Converted | In Routines pulldown (the C# Routines dropdown holds only this so far). Not a port of the Python code: Revit launches the standalone `RevoBIM.Arcade.exe` (own solution, `RevoBIM.Arcade\`). Shift-click diagnostic report not ported. |
 | RevoBIM Tag Elbow Settings | Coordination | Not started | In Routines pulldown. |
 | RevoBIM Tag Leader Elbow | Coordination | Not started | In Routines pulldown. |
 | Selected in View | Coordination | Not started | In Routines pulldown. |
@@ -93,12 +93,12 @@ Status values: Not started, Converted (built, not yet tried in Revit), Tested (w
 | ViewManager | Management | Not started |  |
 | Workset Management | Management | Not started |  |
 | ClickToRVT | Point Cloud | Not started |  |
-| Legend Creator | Project | Converted | v3.0.0 port. Code in `Tools\LegendCreator\`, windows in `UI\LegendCreator\`. Shares `%APPDATA%\RevoBIM\legend_creator.txt` with the pyRevit version. pyRevit progress bar replaced by a themed progress window. Debug report drops the pyRevit/IronPython lines and API-by-name probes. |
+| Legend Creator | Project | Converted | Logo easter egg armed (icon and RevoBIM word). v3.0.0 port. Code in `Tools\LegendCreator\`, windows in `UI\LegendCreator\`. Shares `%APPDATA%\RevoBIM\legend_creator.txt` with the pyRevit version. pyRevit progress bar replaced by a themed progress window. Debug report drops the pyRevit/IronPython lines and API-by-name probes. |
 | DWG Block Replace | Schematic | Not started |  |
 | Schematic Builder | Schematic | Not started |  |
 | Schematic Marriage | Schematic | Not started |  |
 | Auto RevCloud | Sheet Tools | Not started |  |
 | Callout to 3D | Sheet Tools | Not started |  |
-| Pro Sheets Exporter | Sheet Tools | Tested | v1.56.1 port. Code in `Tools\ProSheets\`, windows in `UI\ProSheets\` (pyRevit XAML embedded verbatim in `UI\ProSheets\Layouts\`, loaded at runtime). Shares settings, profiles, templates and register files under `%APPDATA%\RevoBIM\` with the pyRevit version. Not ported: Express print from Project Browser Pro (PBP not converted), "Print in ProSheets" right-click entry (Revit 2025+ only), logo easter egg. |
+| Pro Sheets Exporter | Sheet Tools | Tested | v1.56.1 port. Code in `Tools\ProSheets\`, windows in `UI\ProSheets\` (pyRevit XAML embedded verbatim in `UI\ProSheets\Layouts\`, loaded at runtime). Shares settings, profiles, templates and register files under `%APPDATA%\RevoBIM\` with the pyRevit version. Not ported: Express print from Project Browser Pro (PBP not converted), "Print in ProSheets" right-click entry (Revit 2025+ only). Logo easter egg: armed on the main window (and on Revision Manager when opened from its own button), opens the RevoBIM Arcade. |
 | Revision Manager | Sheet Tools | Tested | Shares Pro Sheets Exporter's code (`UI\ProSheets\PsRevWin*.cs`, `Tools\ProSheets\PsRevisions*.cs`, `PsRevData.cs`). Revision data in Extensible Storage uses the same schema as the pyRevit version. |
 | Sheet Manager | Sheet Tools | Not started |  |

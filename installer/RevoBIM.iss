@@ -11,6 +11,8 @@
 #define Build2026      Bin + "\Release R26\net8.0-windows"
 #define Build2027      Bin + "\Release R27\net10.0-windows"
 #define Res            "..\RevoBIM.Revit\Resources"
+; The RevoBIM Arcade: one self-contained exe for every Revit version, published by build-installer.ps1
+#define ArcadeExe      "..\RevoBIM.Arcade\publish\RevoBIM.Arcade.exe"
 
 [Setup]
 ; Fixed for the life of the product. Upgrades work because every version shares this AppId.
@@ -75,6 +77,10 @@ Source: "{#Build2026}\RevoBIM.Revit.dll"; DestDir: "{app}\2026"; Flags: ignoreve
 Source: "{#Build2026}\RevoBIM.Revit.pdb"; DestDir: "{app}\2026"; Flags: ignoreversion skipifsourcedoesntexist; Components: r2026
 Source: "{#Build2027}\RevoBIM.Revit.dll"; DestDir: "{app}\2027"; Flags: ignoreversion; Components: r2027
 Source: "{#Build2027}\RevoBIM.Revit.pdb"; DestDir: "{app}\2027"; Flags: ignoreversion skipifsourcedoesntexist; Components: r2027
+; The RevoBIM Arcade goes in silently: no component, no page, no card. Revit starts it (Routines
+; dropdown, or three slow clicks on a tool's logo). Its scores and settings live in
+; %AppData%\RevoBIM\arcade\ and are never touched by an install or uninstall.
+Source: "{#ArcadeExe}"; DestDir: "{app}\ArcadeApp"; Flags: ignoreversion
 ; Tool icons for the "What's included" page (used by the wizard only, not installed)
 Source: "assets\icon_legend.bmp";    Flags: dontcopy
 Source: "assets\icon_prosheets.bmp"; Flags: dontcopy
@@ -97,6 +103,7 @@ Type: filesandordirs; Name: "{app}\2024"
 Type: filesandordirs; Name: "{app}\2025"
 Type: filesandordirs; Name: "{app}\2026"
 Type: filesandordirs; Name: "{app}\2027"
+Type: filesandordirs; Name: "{app}\ArcadeApp"
 Type: files; Name: "{userappdata}\Autodesk\Revit\Addins\2024\RevoBIM.addin"
 Type: files; Name: "{userappdata}\Autodesk\Revit\Addins\2025\RevoBIM.addin"
 Type: files; Name: "{userappdata}\Autodesk\Revit\Addins\2026\RevoBIM.addin"

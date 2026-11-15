@@ -272,14 +272,23 @@ namespace RevoBIM.UI.ProSheets
         // ==================================================================
 
         /// <summary>
-        /// The extension's easter egg lived in the shared revobim.egg Python
-        /// package, which the C# add-in does not carry. A no-op that reports
-        /// "not armed", as the Python does when the package is missing.
-        /// (The Python's _argument_names helper existed only to call into it.)
+        /// The easter egg: three slow clicks on the window's RevoBIM logo open the RevoBIM Arcade
+        /// (RevoBIM.Arcade.exe, its own program). The extension's egg lived in the shared revobim.egg
+        /// Python package; the C# add-in arms the same gesture through Helpers\EggHook. Armed on the
+        /// logo only. theme returns "light" or "dark" for the palette in use when the click lands
+        /// (null reads Revit's). False when the window has no such element.
         /// </summary>
-        public static bool AttachEgg(Window window, string elementName = "LogoHost")
+        public static bool AttachEgg(Window window, Func<string> theme = null, string elementName = "LogoHost")
         {
-            return false;
+            try
+            {
+                UIElement logo = Find(window, elementName) as UIElement;
+                return logo != null && RevoBIM.Helpers.EggHook.Attach(window, theme, logo);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
 
         // ==================================================================

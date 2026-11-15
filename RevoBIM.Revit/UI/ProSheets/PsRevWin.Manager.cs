@@ -142,7 +142,10 @@ namespace RevoBIM.UI.ProSheets
 
                 Window = PsUi.LoadWindow("ProSheetsRevisions.xaml", themeName);
                 Chrome = new PsUi.Chrome(Window, () => Cancel());
-                // The egg is armed on the main window only (and is a no-op in this port).
+                // The egg is armed on the main window only. Opened from Pro Sheets (owner given) this is a
+                // secondary window and the egg stays on Pro Sheets; opened from its own ribbon button it
+                // is the main window, so its logo opens the arcade.
+                if (owner == null) PsUi.AttachEgg(Window, () => ThemeName);
                 if (owner != null)
                 {
                     try

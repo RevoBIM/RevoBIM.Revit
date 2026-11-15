@@ -17,6 +17,32 @@ namespace RevoBIM
 
             string dll = Assembly.GetExecutingAssembly().Location;
 
+            // --- Coordination (pyRevit: Coordination.panel). Routines is a dropdown that will collect
+            //     the routine tools as they are converted; RevoBIM Arcade is its first member.
+            RibbonPanel coordination = app.CreateRibbonPanel(TabName, "Coordination");
+            var routines = new PulldownButtonData("RevoBIM_Routines", "Routines")
+            {
+                ToolTip = "Routine tools.",
+                LargeImage = Icon("Arcade", 32),
+                Image = Icon("Arcade", 16),
+            };
+            var routinesButton = coordination.AddItem(routines) as PulldownButton;
+            if (routinesButton != null)
+            {
+                routinesButton.AddPushButton(new PushButtonData(
+                    "RevoBIM_Arcade", "RevoBIM\nArcade", dll, typeof(Commands.ArcadeCommand).FullName)
+                {
+                    ToolTip = "Opens the RevoBIM Arcade: Pacman, Tetris and more.\n\n" +
+                              "The arcade is its own Windows program, so it keeps playing while a tool is working " +
+                              "and keeps playing if Revit is closed. Revit only starts it. It opens the game you " +
+                              "starred as your default, or the game picker.\n\n" +
+                              "Three slow clicks on the RevoBIM logo of any RevoBIM tool open it too.",
+                    AvailabilityClassName = typeof(Commands.AlwaysAvailability).FullName,
+                    LargeImage = Icon("Arcade", 32),
+                    Image = Icon("Arcade", 16),
+                });
+            }
+
             // --- Project (pyRevit: Project.panel)
             RibbonPanel project = app.CreateRibbonPanel(TabName, "Project");
             var legendCreator = new PushButtonData(

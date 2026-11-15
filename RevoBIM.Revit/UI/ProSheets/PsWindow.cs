@@ -459,7 +459,8 @@ namespace RevoBIM.UI.ProSheets
                 Chrome.Busy = () => Exporting;
                 // - and + in the header: the whole window smaller or bigger. Kept per machine.
                 Zoom = new PsUi.Zoom(Window, Settings);
-                PsUi.AttachEgg(Window);
+                // Three slow clicks on the logo open the RevoBIM Arcade, in the palette showing now.
+                PsUi.AttachEgg(Window, () => ThemeName);
                 PsUi.OwnToRevit(Window, uiapp);
 
                 GrabControls();

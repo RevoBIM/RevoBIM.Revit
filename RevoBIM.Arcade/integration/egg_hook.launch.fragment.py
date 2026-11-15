@@ -36,7 +36,7 @@
 #   inside this package. Every caller above asks for "pacman", so sending that to
 #   the exe would open its menu with "there is no game called pacman". Until each
 #   game is ported, its key stays out of ARCADE_KEYS and keeps running as before.
-#   When PacMan is ported, add "pacman" to ARCADE_KEYS - that is the only edit.
+#   Pacman and Tetris are ported (0.2.0), so both are in ARCADE_KEYS.
 #
 # ADDING A GAME LATER
 #   Port it in the exe (Games\<Name>\ + one line in GameRegistry), publish, then
@@ -46,7 +46,7 @@
 
 # >>> RevoBIM.Arcade BEGIN (egg_hook.launch) >>>
 # Keys the standalone exe can run. Extend as games are ported.
-ARCADE_KEYS = ("hello",)
+ARCADE_KEYS = ("pacman", "tetris", "hello")
 
 ARCADE_EXE_NAME = "RevoBIM.Arcade.exe"
 

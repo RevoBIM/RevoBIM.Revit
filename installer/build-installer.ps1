@@ -35,6 +35,18 @@ foreach ($year in $builds.Keys) {
     if (-not (Test-Path $dll)) { throw "Release DLL for Revit $year not found: $dll" }
 }
 
+# The RevoBIM Arcade (standalone exe, one for every Revit version). It is installed silently:
+# no wizard page. Publish it, and refuse to package it if its own logic checks fail.
+$arcadeExe = Join-Path $root 'RevoBIM.Arcade\publish\RevoBIM.Arcade.exe'
+if (-not $SkipBuild) {
+    Write-Host 'Publishing RevoBIM Arcade'
+    & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $root 'RevoBIM.Arcade\tools\publish.ps1')
+    if ($LASTEXITCODE -ne 0) { throw 'RevoBIM Arcade publish failed' }
+    & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $root 'RevoBIM.Arcade\tools\selftest.ps1') -SkipLaunch
+    if ($LASTEXITCODE -ne 0) { throw 'RevoBIM Arcade selftest failed' }
+}
+if (-not (Test-Path $arcadeExe)) { throw "RevoBIM Arcade exe not found: $arcadeExe (run without -SkipBuild)" }
+
 # Installer artwork (icon + wizard images) from installer\make-assets.ps1
 & (Join-Path $PSScriptRoot 'make-assets.ps1')
 if ($LASTEXITCODE -ne 0 -and $null -ne $LASTEXITCODE) { throw 'make-assets.ps1 failed' }
