@@ -85,6 +85,28 @@ namespace RevoBIM
             };
             sheetTools.AddItem(revisionManager);
 
+            // --- "RevoBIM" panel on the Modify tab, shown while a sheet or view is selected.
+            //     Built here with the normal API on the RevoBIM tab, then moved across by
+            //     UI\Ribbon\ModifyTabPanel.cs: Revit's API cannot add to the Modify tab itself.
+            RibbonPanel modifyPanel = app.CreateRibbonPanel(TabName, UI.Ribbon.ModifyTabPanel.PanelName);
+            modifyPanel.AddItem(new PushButtonData(
+                "RevoBIM_ProSheetsExporter_Modify", "Pro Sheets\nExporter", dll, typeof(Commands.ProSheetsExporterCommand).FullName)
+            {
+                ToolTip = proSheets.ToolTip,
+                AvailabilityClassName = typeof(Commands.ProjectDocumentAvailability).FullName,
+                LargeImage = Icon("ProSheetsExporter", 32),
+                Image = Icon("ProSheetsExporter", 16),
+            });
+            modifyPanel.AddItem(new PushButtonData(
+                "RevoBIM_RevisionManager_Modify", "Revision\nManager", dll, typeof(Commands.RevisionManagerCommand).FullName)
+            {
+                ToolTip = revisionManager.ToolTip,
+                AvailabilityClassName = typeof(Commands.ProjectDocumentAvailability).FullName,
+                LargeImage = Icon("RevisionManager", 32),
+                Image = Icon("RevisionManager", 16),
+            });
+            UI.Ribbon.ModifyTabPanel.Install(app, TabName);
+
 #if !REVIT2024
             // Right-click menu (Revit 2025+): "Print in ProSheets" and "Express Export".
             Commands.ProSheetsContextMenu.Register(app);

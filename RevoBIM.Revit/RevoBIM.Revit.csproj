@@ -55,6 +55,8 @@
   <ItemGroup>
     <PackageReference Include="Nice3point.Revit.Api.RevitAPI" Version="$(RevitApiPackage)" />
     <PackageReference Include="Nice3point.Revit.Api.RevitAPIUI" Version="$(RevitApiPackage)" />
+    <!-- Revit's own ribbon library: the RevoBIM panel on the Modify tab (UI\Ribbon\ModifyTabPanel.cs) -->
+    <PackageReference Include="Nice3point.Revit.Api.AdWindows" Version="$(RevitApiPackage)" />
   </ItemGroup>
 
   <!-- .NET Framework only: framework assemblies that .NET 8+ brings in through UseWPF / UseWindowsForms -->
