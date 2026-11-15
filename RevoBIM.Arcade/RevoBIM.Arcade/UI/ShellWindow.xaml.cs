@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
@@ -18,6 +18,12 @@ namespace RevoBIM.Arcade.UI
             public string Key { get; set; } = "";
             public string DisplayName { get; set; } = "";
             public string BestText { get; set; } = "";
+            public bool IsDefault { get; set; }
+            public string DefaultGlyph => IsDefault ? "\uE735" : "\uE734";
+            public string DefaultText => IsDefault ? "Default" : "Make default";
+            public string DefaultTip => IsDefault
+                ? "This game opens first. Click to clear it."
+                : "Open this game first whenever the arcade starts.";
         }
 
         readonly LaunchOptions _options;
@@ -48,18 +54,16 @@ namespace RevoBIM.Arcade.UI
             HeaderBar.MouseLeftButtonDown += OnHeaderDown;
             LogoHit.PreviewMouseLeftButtonDown += OnLogoClick;
             CloseButton.Click += (s, e) => Close();
+            DefaultButton.Click += (s, e) => ToggleDefault(_entry?.Key);
         }
 
         // ------------------------------------------------------------ start up
 
         void OnLoaded(object sender, RoutedEventArgs e)
         {
-            var entry = GameRegistry.Find(_options.GameKey);
+            // A game named on the command line wins; with none named, the saved default; else the picker.
+            var (entry, note) = GameRegistry.ResolveStart(_options.GameKey, SettingsStore.Load().DefaultGame);
             if (entry != null) { OpenGame(entry); return; }
-
-            var note = string.IsNullOrEmpty(_options.GameKey)
-                ? ""
-                : $"There is no game called '{_options.GameKey}'. Pick one below.";
             ShowPicker(note);
         }
 
@@ -96,6 +100,8 @@ namespace RevoBIM.Arcade.UI
                 SetTitle("RevoBIM Arcade  -  " + game.DisplayName);
                 PickerView.Visibility = Visibility.Collapsed;
                 GameView.Visibility = Visibility.Visible;
+                DefaultButton.Visibility = Visibility.Visible;
+                RefreshDefaultButton();
 
                 game.Start(host);
                 host.Loop.Start();
@@ -136,14 +142,51 @@ namespace RevoBIM.Arcade.UI
             PickerNote.Text = note;
             PickerNote.Visibility = string.IsNullOrEmpty(note) ? Visibility.Collapsed : Visibility.Visible;
 
+            FillPicker();
+
+            GameView.Visibility = Visibility.Collapsed;
+            DefaultButton.Visibility = Visibility.Collapsed;
+            PickerView.Visibility = Visibility.Visible;
+        }
+
+        void FillPicker()
+        {
+            var defaultKey = GameRegistry.Find(SettingsStore.Load().DefaultGame)?.Key;
             PickerList.ItemsSource = GameRegistry.All.Select(g =>
             {
                 int best = new ScoreStore(g.Key).Best();
-                return new PickerItem { Key = g.Key, DisplayName = g.DisplayName, BestText = best > 0 ? $"Best {best}" : "No score yet" };
+                return new PickerItem
+                {
+                    Key = g.Key, DisplayName = g.DisplayName, BestText = best > 0 ? $"Best {best}" : "No score yet",
+                    IsDefault = g.Key == defaultKey,
+                };
             }).ToList();
+        }
 
-            GameView.Visibility = Visibility.Collapsed;
-            PickerView.Visibility = Visibility.Visible;
+        /// <summary>Stars a game as the one that opens first, or clears the star if it already has it.</summary>
+        void ToggleDefault(string? key)
+        {
+            if (string.IsNullOrEmpty(key)) return;
+            var settings = SettingsStore.Load();
+            settings.DefaultGame = string.Equals(settings.DefaultGame, key, StringComparison.OrdinalIgnoreCase) ? null : key;
+            SettingsStore.Save(settings);
+            RefreshDefaultButton();
+            if (_game == null) FillPicker();
+        }
+
+        void RefreshDefaultButton()
+        {
+            bool isDefault = _entry != null && string.Equals(SettingsStore.Load().DefaultGame, _entry.Key, StringComparison.OrdinalIgnoreCase);
+            DefaultGlyph.Text = isDefault ? "\uE735" : "\uE734";
+            DefaultGlyph.SetResourceReference(TextBlock.ForegroundProperty, isDefault ? "OrangeBrush" : "MutedBrush");
+            DefaultButton.ToolTip = isDefault
+                ? "This game opens first. Click to clear it."
+                : "Make this the game the arcade opens with.";
+        }
+
+        void OnToggleDefault(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button b && b.Tag is string key) ToggleDefault(key);
         }
 
         void OnPickGame(object sender, RoutedEventArgs e)
@@ -224,3 +267,4 @@ namespace RevoBIM.Arcade.UI
         }
     }
 }
+

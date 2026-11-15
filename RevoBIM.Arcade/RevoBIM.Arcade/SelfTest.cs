@@ -1,9 +1,11 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows;
 using RevoBIM.Arcade.Core;
+using RevoBIM.Arcade.Games.PacMan;
+using RevoBIM.Arcade.Games.Tetris;
 using RevoBIM.Arcade.Services;
 
 namespace RevoBIM.Arcade
@@ -49,6 +51,20 @@ namespace RevoBIM.Arcade
             Check("a duplicate key is refused", Throws(() => GameRegistry.Load(new Func<IArcadeGame>[] { () => new Probe("a"), () => new Probe("a") })));
             Check("an invalid key is refused", Throws(() => GameRegistry.Load(new Func<IArcadeGame>[] { () => new Probe("Bad Key") })));
             Check("an empty key is refused", Throws(() => GameRegistry.Load(new Func<IArcadeGame>[] { () => new Probe("") })));
+
+            Check("pacman and tetris are registered", GameRegistry.Find("pacman") != null && GameRegistry.Find("tetris") != null);
+
+            // ---- default game: named game wins, else the saved default, else the picker
+            var named = GameRegistry.ResolveStart("tetris", "pacman");
+            Check("start: a named game beats the default", named.Entry?.Key == "tetris" && named.Note == "");
+            var viaDefault = GameRegistry.ResolveStart(null, "pacman");
+            Check("start: no game named opens the default", viaDefault.Entry?.Key == "pacman" && viaDefault.Note == "");
+            Check("start: a blank game name opens the default too", GameRegistry.ResolveStart("  ", "tetris").Entry?.Key == "tetris");
+            var noDefault = GameRegistry.ResolveStart(null, null);
+            Check("start: no default means the picker", noDefault.Entry == null && noDefault.Note == "");
+            Check("start: a stale default means the picker", GameRegistry.ResolveStart(null, "deleted-game").Entry == null);
+            var unknown = GameRegistry.ResolveStart("nope", "pacman");
+            Check("start: an unknown name shows the picker with a note, not the default", unknown.Entry == null && unknown.Note.Contains("nope"));
 
             // ---- launch parser
             var none = LaunchOptions.Parse(new string[0]);
@@ -120,6 +136,67 @@ namespace RevoBIM.Arcade
             var high = DrawerMath.ExpandRect(saved, new Point(300, 992), new Point(300, 10), 40, area);
             Check("drawer: a bar dragged near the top stays on screen", high.Top >= 0);
 
+            // ---- theme palettes: both define every key, and every key the games use
+            try
+            {
+                ResourceDictionary Load(string name) => new ResourceDictionary { Source = new Uri($"pack://application:,,,/RevoBIM.Arcade;component/Themes/{name}.xaml", UriKind.Absolute) };
+                var dark = Load("Dark"); var light = Load("Light");
+                var darkKeys = dark.Keys.Cast<object>().Select(k => k.ToString()!).OrderBy(k => k).ToList();
+                var lightKeys = light.Keys.Cast<object>().Select(k => k.ToString()!).OrderBy(k => k).ToList();
+                Check("theme: dark and light define the same keys", darkKeys.SequenceEqual(lightKeys),
+                    string.Join(",", darkKeys.Except(lightKeys).Concat(lightKeys.Except(darkKeys))));
+                var missing = BrushKeys.All.Where(k => !dark.Contains(k) || !light.Contains(k)).ToList();
+                Check("theme: every brush the games use exists in both palettes", missing.Count == 0, string.Join(",", missing));
+            }
+            catch (Exception ex) { Check("theme: palettes load", false, ex.Message); }
+
+            // ---- fixed step: logic at a steady rate whatever the frame rate
+            var fs = new FixedStep(0.1);
+            int ticks = 0;
+            fs.Advance(0.25, () => ticks++);
+            Check("step: 0.25 s at 0.1 s steps runs twice and leaves a remainder", ticks == 2 && Math.Abs(fs.Alpha - 0.5) < 1e-9);
+            ticks = 0; fs.Advance(10, () => ticks++, 4);
+            Check("step: a long stall is capped and the backlog dropped", ticks == 4 && fs.Alpha == 0);
+
+            // ---- pacman data
+            var maze = PacManGame.Maze;
+            string all2 = string.Concat(maze);
+            Check("pacman: maze rows are all the same width", maze.All(r => r.Length == maze[0].Length));
+            Check("pacman: one start, one door, three ghost cells", all2.Count(c => c == 'P') == 1 && all2.Count(c => c == '-') == 1 && all2.Count(c => c == 'G') == 3);
+            Check("pacman: walls frame the maze except the tunnel row", maze[0].All(c => c == '#') && maze[^1].All(c => c == '#'));
+            Check("pacman: ranks climb with score", PacManGame.RankOf(0) == "Setting Out Apprentice" && PacManGame.RankOf(9500) == "Model Federation Overlord"
+                && PacManGame.RankOf(1199) == "Draughtsperson, Second Class");
+
+            // ---- tetris rules
+            var tm1 = new TetrisModel(7);
+            Check("tetris: a new game has a piece and no score", tm1.Piece >= 1 && tm1.Piece <= 7 && tm1.Score == 0 && !tm1.Over);
+            bool shapesOk = true;
+            for (int pp = 1; pp <= 7; pp++) for (int rr = 0; rr < 4; rr++) shapesOk &= TetrisModel.CellsOf(pp, rr).Length == 4 && TetrisModel.CellsOf(pp, rr).Distinct().Count() == 4;
+            Check("tetris: every piece has four distinct cells in every rotation", shapesOk);
+            Check("tetris: four turns come back to the start", Enumerable.Range(1, 7).All(pp => TetrisModel.CellsOf(pp, 4).SequenceEqual(TetrisModel.CellsOf(pp, 0))));
+            var seen = new HashSet<int>();
+            var bagModel = new TetrisModel(3);
+            seen.Add(bagModel.Piece);
+            for (int ii = 0; ii < 6; ii++) { bagModel.Lock(); seen.Add(bagModel.Piece); if (bagModel.Over) break; }
+            Check("tetris: the first seven pieces are one of each", seen.Count == 7 || bagModel.Over);
+            var tm2 = new TetrisModel(1);
+            while (tm2.TryMove(-1, 0)) { }
+            Check("tetris: a piece stops at the left wall", !tm2.TryMove(-1, 0));
+            int scoreBefore = tm2.Score;
+            tm2.HardDrop();
+            Check("tetris: a hard drop locks the piece into the grid and scores", Enumerable.Range(0, 10).Any(cc => tm2.Grid[19, cc] != 0) && tm2.Score > scoreBefore);
+            var tm3 = new TetrisModel(2);
+            for (int cc = 0; cc < 10; cc++) tm3.Grid[19, cc] = 1;
+            for (int cc = 0; cc < 3; cc++) tm3.Grid[18, cc] = 2;     // a stray block above the full row
+            int cleared = tm3.Lock();                              // the current piece lands wherever it is; the full row clears
+            Check("tetris: a full row clears and the rows above fall", cleared >= 1 && tm3.Lines >= 1 && tm3.Grid[19, 0] != 0 && tm3.Score >= 40);
+            var tm4 = new TetrisModel(4);
+            for (int rr = 0; rr < 20; rr++) for (int cc = 0; cc < 10; cc++) tm4.Grid[rr, cc] = 3;
+            tm4.Spawn();
+            Check("tetris: a full board ends the game", tm4.Over);
+            var tm5 = new TetrisModel(5);
+            Check("tetris: rotation and gravity interval are sane", tm5.TryRotate(1) && tm5.FallInterval > 0.04 && tm5.FallInterval <= 0.8);
+
             // ---- storage round trip, in a throwaway folder
             var dir = Path.Combine(Path.GetTempPath(), "revobim-arcade-selftest-" + Guid.NewGuid().ToString("N"));
             var before = Environment.GetEnvironmentVariable("REVOBIM_ARCADE_DIR");
@@ -135,6 +212,12 @@ namespace RevoBIM.Arcade
                 Check("scores: a damaged file reads as empty", new ScoreStore("selftest").Best() == 0);
                 var s = SettingsStore.Load(); s.LastGame = "hello"; SettingsStore.Save(s);
                 Check("settings: round trip in one file", SettingsStore.Load().LastGame == "hello" && File.Exists(ArcadePaths.SettingsFile));
+                s.DefaultGame = "tetris"; SettingsStore.Save(s);
+                Check("settings: the default game is saved and read back", SettingsStore.Load().DefaultGame == "tetris");
+                s.DefaultGame = null; SettingsStore.Save(s);
+                Check("settings: clearing the default leaves none", SettingsStore.Load().DefaultGame == null);
+                File.WriteAllText(ArcadePaths.SettingsFile, "{ broken");
+                Check("settings: a damaged file means no default, not a crash", SettingsStore.Load().DefaultGame == null);
             }
             finally
             {
@@ -151,3 +234,5 @@ namespace RevoBIM.Arcade
         }
     }
 }
+
+

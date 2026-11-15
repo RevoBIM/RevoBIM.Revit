@@ -38,6 +38,9 @@ namespace RevoBIM.Arcade.Services
     public sealed class ArcadeSettings
     {
         public string? LastGame { get; set; }
+
+        /// <summary>The game that opens first when the arcade starts with no game named. Null = show the picker.</summary>
+        public string? DefaultGame { get; set; }
         public string PlayerName { get; set; } = Environment.UserName;
     }
 

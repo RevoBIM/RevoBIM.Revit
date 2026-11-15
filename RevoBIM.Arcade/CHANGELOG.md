@@ -1,6 +1,18 @@
-# RevoBIM Arcade — changelog
+﻿# RevoBIM Arcade — changelog
 
-## 0.1.0 — 2026-11-15 — the base
+## 0.2.0 — 2026-11-15 — Pacman, Tetris and a default game
+
+- **Pacman.** Ported from the pyRevit egg: same maze, ghost targeting, speeds, scoring and ranks. One
+  life. Logic on a fixed 33 ms step, drawn every frame between the last two steps.
+- **Tetris.** New. 7-bag, wall kicks, landing shadow, hold-to-repeat, soft and hard drop, lock delay,
+  levels. Rules are in `TetrisModel`, checked headless by the selftest.
+- **Default game.** A star on each picker card, and on the header while a game is open, marks the
+  game the arcade starts with. Starting with no `--game` opens it; no default shows the picker;
+  an unknown `--game` still shows the picker with a note. Esc leaves a game for the picker, where
+  the star can be moved. Saved as `DefaultGame` in `settings.json`.
+- **Shared drawing.** `FixedStep` and `Kit` (rects, circles, labels, banners, wedges) so a game
+  stays small. Game colours are theme brush keys in both palettes.
+## 0.1.0 â€” 2026-11-15 â€” the base
 
 A standalone Windows arcade that runs outside Revit. This release is the base only:
 the shell, the game contract and the shared services, with a placeholder game. No real
@@ -28,3 +40,4 @@ game is ported yet.
 - **Storage.** `%APPDATA%\RevoBIM\arcade\settings.json` and `scores.<game>.json`. The old
   `easter_egg*.txt` files are not read; scores start fresh.
 - **Bench.** `tools\selftest.ps1` (logic, repo and launch checks).
+

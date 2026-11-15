@@ -16,4 +16,18 @@
   <SolidColorBrush x:Key="SelectionBrush" Color="#BBD8F0"/>
   <SolidColorBrush x:Key="HoverBg"        Color="#E2E2E8"/>
   <SolidColorBrush x:Key="HeroBrush"      Color="#D9A400"/>
+  <!-- game colours (Pacman, Tetris): the light palette from egg_theme.py -->
+  <SolidColorBrush x:Key="MazeBrush"      Color="#1B72BE"/>
+  <SolidColorBrush x:Key="MazeFillBrush"  Color="#DCE9F5"/>
+  <SolidColorBrush x:Key="PelletBrush"    Color="#63636A"/>
+  <SolidColorBrush x:Key="PowerBrush"     Color="#B96A12"/>
+  <SolidColorBrush x:Key="Ghost1Brush"    Color="#B23B38"/>
+  <SolidColorBrush x:Key="Ghost2Brush"    Color="#C4589A"/>
+  <SolidColorBrush x:Key="Ghost3Brush"    Color="#1B9AA8"/>
+  <SolidColorBrush x:Key="Ghost4Brush"    Color="#B96A12"/>
+  <SolidColorBrush x:Key="ScaredBrush"    Color="#BBD8F0"/>
+  <SolidColorBrush x:Key="ScaredEndBrush" Color="#1F1F22"/>
+  <SolidColorBrush x:Key="EyesBrush"      Color="#FFFFFF"/>
+  <SolidColorBrush x:Key="PupilBrush"     Color="#1F1F22"/>
+  <SolidColorBrush x:Key="VeilBrush"      Color="#EAF4F4F6"/>
 </ResourceDictionary>

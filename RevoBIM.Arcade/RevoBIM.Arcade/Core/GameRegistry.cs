@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using RevoBIM.Arcade.Games.Hello;
+using RevoBIM.Arcade.Games.PacMan;
+using RevoBIM.Arcade.Games.Tetris;
 
 namespace RevoBIM.Arcade.Core
 {
@@ -17,8 +19,9 @@ namespace RevoBIM.Arcade.Core
         /// <summary>Registration list. One line per game.</summary>
         static IEnumerable<Func<IArcadeGame>> Build()
         {
+            yield return () => new PacManGame();
+            yield return () => new TetrisGame();
             yield return () => new HelloGame();
-            // yield return () => new PacManGame();
         }
 
         static List<Entry>? _all;
@@ -51,6 +54,21 @@ namespace RevoBIM.Arcade.Core
         }
 
         public static bool IsValidKey(string? key) => !string.IsNullOrEmpty(key) && KeyPattern.IsMatch(key);
+
+        /// <summary>
+        /// What to open at start-up. A game named on the command line wins (an unknown name gives no
+        /// game and a note, so the picker explains itself); with none named, the saved default game
+        /// if there is one; otherwise nothing, which means the picker.
+        /// </summary>
+        public static (Entry? Entry, string Note) ResolveStart(string? requested, string? defaultKey)
+        {
+            if (!string.IsNullOrWhiteSpace(requested))
+            {
+                var named = Find(requested);
+                return named != null ? (named, "") : (null, $"There is no game called '{requested.Trim()}'. Pick one below.");
+            }
+            return (Find(defaultKey), "");
+        }
 
         public static Entry? Find(string? key)
         {
