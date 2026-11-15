@@ -3,7 +3,7 @@
 C# Revit add-in ("RevoBIM Tools") for Revit 2024, being converted tool-by-tool from the pyRevit extension "RevoBIM PY". Owner: A² Services LTD (building services BIM).
 
 ## Build and deploy
-- Target: .NET Framework 4.8 (net48), Revit 2024 API only. Revit API DLLs are referenced from `C:\Program Files\Autodesk\Revit 2024` with Copy Local = false. Never copy Revit DLLs into the output.
+- Target: .NET Framework 4.8 (net48), Revit 2024 API only. The Revit API comes from the Nice3point NuGet packages (`Nice3point.Revit.Api.RevitAPI` / `RevitAPIUI`, 2024.x versions only). Do not reference DLLs from `C:\Program Files\Autodesk\Revit 2024`. Never copy Revit DLLs into the output; check `bin\` after changing references.
 - Build: `dotnet build RevoBIM.Revit2024.sln` (or MSBuild). Fix compile errors yourself and rebuild.
 - A post-build target deploys per-user, no admin rights: DLL to `%AppData%\RevoBIM\2024\`, manifest `RevoBIM.addin` to `%AppData%\Autodesk\Revit\Addins\2024\`.
 - Revit locks the DLL while running. If the copy step fails, ask the user to close Revit, then rebuild. The user must restart Revit to load a new build.
