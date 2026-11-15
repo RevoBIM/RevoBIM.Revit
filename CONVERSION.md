@@ -56,9 +56,9 @@ Status values: Not started, Converted (built, not yet tried in Revit), Tested (w
 | VlookUp | Coordination | Not started | In Routines pulldown. |
 | Service Spacing | Coordination | Not started | In Service Spacing pulldown. |
 | Settings | Coordination | Not started | In Service Spacing pulldown. |
-| Nudge Down | Coordination | Not started | In stack3 stack. |
-| Nudge Settings | Coordination | Not started | In stack3 stack. |
-| Nudge Up | Coordination | Not started | In stack3 stack. |
+| Nudge Down | Coordination | Converted | Small button in the Coordination panel (stack3 stack) and a large button in an always-visible "Nudge" panel on the Modify tab (`UI\Ribbon\ModifyTabPanel.cs`). Code in `Tools\Nudge\NudgeEngine.cs`; both not yet tried in Revit. |
+| Nudge Settings | Coordination | Converted | Window in `UI\Nudge\`, pyRevit XAML kept. Settings now in `%APPDATA%\RevoBIM\nudge_settings.json` (same keys; the pyRevit file in `%APPDATA%\RevoBIM PY\` is read once if the new one does not exist). Shortcuts are written to KeyboardShortcuts.xml as before, matched by button id. Logo easter egg armed. Not yet tried in Revit. No installer card yet (the What is included page has no room for a fourth). |
+| Nudge Up | Coordination | Converted | See Nudge Down. |
 | RevoBIM Clash Offset | Coordination | Not started | In System Offset Tools pulldown. |
 | RevoBIM Click System | Coordination | Not started | In System Offset Tools pulldown. |
 | RevoBIM Offset Break | Coordination | Not started | In System Offset Tools pulldown. |

@@ -24,6 +24,8 @@ namespace RevoBIM.UI.Ribbon
     public static class ModifyTabPanel
     {
         public const string PanelName = "RevoBIM";
+        /// <summary>The always-visible "Nudge" panel (Nudge Up, Nudge Down) moved to the Modify tab alongside it.</summary>
+        public const string NudgePanelName = "Nudge";
         private const string ModifyTabId = "Modify";
 
         private static AW.RibbonPanel panel;
@@ -69,6 +71,22 @@ namespace RevoBIM.UI.Ribbon
                 modify.Panels.Add(found);
                 found.IsVisible = false;
                 panel = found;
+
+                // The Nudge panel goes across too and stays visible whatever is selected.
+                // A failure here must not stop the sheet/view panel working.
+                try
+                {
+                    AW.RibbonPanel nudge = own.Panels.FirstOrDefault(p => p.Source != null && p.Source.Title == NudgePanelName);
+                    if (nudge != null)
+                    {
+                        own.Panels.Remove(nudge);
+                        modify.Panels.Add(nudge);
+                    }
+                }
+                catch (Exception err)
+                {
+                    Log("could not move the Nudge panel to the Modify tab: " + err);
+                }
                 return true;
             }
             catch (Exception err)

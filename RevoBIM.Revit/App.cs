@@ -43,6 +43,37 @@ namespace RevoBIM
                 });
             }
 
+            // Nudge Up / Down / Settings: the pyRevit "stack3" stack, three small buttons.
+            string nudgeUpTip = "Raise elements by the Nudge increment (default 50mm). " +
+                                "Select elements first to raise them all - press again to raise them again. " +
+                                "Run with nothing selected and every element you click rises straight away, " +
+                                "until you press Escape. Set the increment with Nudge Settings.";
+            string nudgeDownTip = "Lower elements by the Nudge increment (default 50mm). " +
+                                  "Select elements first to lower them all - press again to lower them again. " +
+                                  "Run with nothing selected and every element you click drops straight away, " +
+                                  "until you press Escape. Set the increment with Nudge Settings.";
+            var nudgeUp = new PushButtonData("RevoBIM_NudgeUp", "Nudge Up", dll, typeof(Commands.NudgeUpCommand).FullName)
+            {
+                ToolTip = nudgeUpTip,
+                Image = Icon("NudgeUp", 16),
+                LargeImage = Icon("NudgeUp", 32),
+            };
+            var nudgeDown = new PushButtonData("RevoBIM_NudgeDown", "Nudge Down", dll, typeof(Commands.NudgeDownCommand).FullName)
+            {
+                ToolTip = nudgeDownTip,
+                Image = Icon("NudgeDown", 16),
+                LargeImage = Icon("NudgeDown", 32),
+            };
+            var nudgeSettings = new PushButtonData("RevoBIM_NudgeSettings", "Nudge Settings", dll, typeof(Commands.NudgeSettingsCommand).FullName)
+            {
+                ToolTip = "Set the increment used by Nudge Up and Nudge Down, and how they behave. Default 50mm. " +
+                          "Settings are shared by all three buttons and are kept between sessions.",
+                AvailabilityClassName = typeof(Commands.AlwaysAvailable).FullName,
+                Image = Icon("NudgeSettings", 16),
+                LargeImage = Icon("NudgeSettings", 32),
+            };
+            coordination.AddStackedItems(nudgeUp, nudgeDown, nudgeSettings);
+
             // --- Project (pyRevit: Project.panel)
             RibbonPanel project = app.CreateRibbonPanel(TabName, "Project");
             var legendCreator = new PushButtonData(
@@ -104,6 +135,23 @@ namespace RevoBIM
                 AvailabilityClassName = typeof(Commands.ProjectDocumentAvailability).FullName,
                 LargeImage = Icon("RevisionManager", 32),
                 Image = Icon("RevisionManager", 16),
+            });
+
+            // --- "Nudge" panel on the Modify tab, always shown: Nudge Up and Nudge Down.
+            RibbonPanel nudgePanel = app.CreateRibbonPanel(TabName, UI.Ribbon.ModifyTabPanel.NudgePanelName);
+            nudgePanel.AddItem(new PushButtonData(
+                "RevoBIM_NudgeUp_Modify", "Nudge\nUp", dll, typeof(Commands.NudgeUpCommand).FullName)
+            {
+                ToolTip = nudgeUpTip,
+                LargeImage = Icon("NudgeUp", 32),
+                Image = Icon("NudgeUp", 16),
+            });
+            nudgePanel.AddItem(new PushButtonData(
+                "RevoBIM_NudgeDown_Modify", "Nudge\nDown", dll, typeof(Commands.NudgeDownCommand).FullName)
+            {
+                ToolTip = nudgeDownTip,
+                LargeImage = Icon("NudgeDown", 32),
+                Image = Icon("NudgeDown", 16),
             });
             UI.Ribbon.ModifyTabPanel.Install(app, TabName);
 
