@@ -14,6 +14,7 @@ RevoBIM.Arcade\
     Themes\                  Common, Dark, Light (brush keys only)
     Games\PacMan\            Pacman (ported from the pyRevit egg)
     Games\Tetris\            Tetris (rules in TetrisModel, timing and drawing in TetrisGame)
+    Games\Snake\             Snake (ported from the pyRevit egg)
     Games\Hello\             the placeholder game
     Version.cs               the one place the version lives
   tools\                     publish.ps1, selftest.ps1, launch-check.ps1

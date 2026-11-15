@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows;
 using RevoBIM.Arcade.Core;
 using RevoBIM.Arcade.Games.PacMan;
+using RevoBIM.Arcade.Games.Snake;
 using RevoBIM.Arcade.Games.Tetris;
 using RevoBIM.Arcade.Services;
 
@@ -196,6 +197,24 @@ namespace RevoBIM.Arcade
             Check("tetris: a full board ends the game", tm4.Over);
             var tm5 = new TetrisModel(5);
             Check("tetris: rotation and gravity interval are sane", tm5.TryRotate(1) && tm5.FallInterval > 0.04 && tm5.FallInterval <= 0.8);
+
+            // ---- snake rules
+            var sn = new SnakeModel(1);
+            Check("snake: starts three long heading right", sn.Body.Count == 3 && sn.Direction == SnakeModel.Right && !sn.Over);
+            sn.Turn(SnakeModel.Left); sn.Step();
+            Check("snake: it cannot double back on itself", sn.Body[0].X == 7 && !sn.Over);
+            sn.Food = (8, 10);
+            bool ate = sn.Step();
+            Check("snake: eating grows it by one and scores 10", ate && sn.Body.Count == 4 && sn.Score == 10 && !sn.Body.Contains(sn.Food));
+            var wall = new SnakeModel(2);
+            for (int k = 0; k < 40 && !wall.Over; k++) wall.Step();
+            Check("snake: hitting a wall ends the game", wall.Over);
+            var knot = new SnakeModel(3);
+            knot.Food = (0, 0);
+            for (int k = 0; k < 3; k++) { knot.Food = (knot.Body[0].X + 1, knot.Body[0].Y); knot.Step(); }   // grow to 6
+            knot.Turn(SnakeModel.Up); knot.Step(); knot.Turn(SnakeModel.Left); knot.Step(); knot.Turn(SnakeModel.Down); knot.Step();
+            Check("snake: running into itself ends the game", knot.Over);
+            Check("snake: ranks climb with score", SnakeGame.RankOf(0) == "Cable Puller" && SnakeGame.RankOf(450) == "Lord of the Basket" && SnakeGame.RankOf(149) == "Containment Fitter");
 
             // ---- storage round trip, in a throwaway folder
             var dir = Path.Combine(Path.GetTempPath(), "revobim-arcade-selftest-" + Guid.NewGuid().ToString("N"));

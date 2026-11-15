@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using RevoBIM.Arcade.Games.Hello;
 using RevoBIM.Arcade.Games.PacMan;
+using RevoBIM.Arcade.Games.Snake;
 using RevoBIM.Arcade.Games.Tetris;
 
 namespace RevoBIM.Arcade.Core
@@ -21,6 +22,7 @@ namespace RevoBIM.Arcade.Core
         {
             yield return () => new PacManGame();
             yield return () => new TetrisGame();
+            yield return () => new SnakeGame();
             yield return () => new HelloGame();
         }
 

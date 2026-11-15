@@ -1,4 +1,8 @@
-﻿# RevoBIM Arcade — changelog
+# RevoBIM Arcade — changelog
+
+## 0.2.1 - 2026-11-15 - Snake
+
+- **Snake.** Ported from the pyRevit egg: same grid, speed, scoring, ranks and sign-offs; segments slide between cells. Rules in `SnakeModel`, checked by the selftest.
 
 ## 0.2.0 — 2026-11-15 — Pacman, Tetris and a default game
 
