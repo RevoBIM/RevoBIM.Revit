@@ -1,0 +1,128 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RevoBIM Change revision on sheet"
+        Width="620" Height="560" MinWidth="520" MinHeight="420"
+        WindowStartupLocation="CenterOwner"
+        WindowStyle="None" AllowsTransparency="True"
+        Background="Transparent" ResizeMode="NoResize"
+        ShowInTaskbar="False" SnapsToDevicePixels="True">
+
+  <Grid>
+    <Border Background="{DynamicResource WindowBg}"
+            BorderBrush="{DynamicResource WindowEdgeBrush}"
+            BorderThickness="1" CornerRadius="6">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Border x:Name="HeaderBar" Grid.Row="0"
+                Background="{DynamicResource BarBg}"
+                CornerRadius="5,5,0,0" Padding="14,9">
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Border x:Name="LogoHost" Grid.Column="0" Width="28" Height="28"
+                    CornerRadius="4" Margin="0,0,11,0"
+                    Background="{DynamicResource ChipBg}" Cursor="Hand">
+              <Image x:Name="LogoImage" Stretch="Uniform" Margin="3"/>
+            </Border>
+
+            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+              <TextBlock Text="RevoBIM" FontSize="17" FontWeight="Bold"
+                         Foreground="{DynamicResource BlueBrush}"/>
+              <TextBlock Text="Change revision on sheet" FontSize="13"
+                         Margin="0,-3,0,0"
+                         Foreground="{DynamicResource OrangeBrush}"/>
+            </StackPanel>
+
+            <TextBlock x:Name="VersionText" Grid.Column="2"
+                       Style="{DynamicResource MutedText}"
+                       HorizontalAlignment="Right" VerticalAlignment="Center"
+                       Margin="0,0,10,0" Text="v0.0.0"/>
+
+            <StackPanel Grid.Column="3" Orientation="Horizontal"
+                        VerticalAlignment="Center">
+              <Button x:Name="ShrinkButton" Style="{DynamicResource ShrinkButton}"
+                      ToolTip="Shrink to the bottom of the screen"/>
+              <Button x:Name="CloseButton"
+                      Style="{DynamicResource CloseButton}"
+                      Content="&#x2715;"/>
+            </StackPanel>
+          </Grid>
+        </Border>
+
+        <Grid Grid.Row="1" Margin="16,14,16,4">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+
+          <!-- What is being changed -->
+          <Border Grid.Row="0" Background="{DynamicResource CardBg}"
+                  BorderBrush="{DynamicResource EdgeBrush}"
+                  BorderThickness="1" CornerRadius="4" Padding="12,9"
+                  Margin="0,0,0,12">
+            <StackPanel>
+              <TextBlock x:Name="SwapHeadline" FontSize="14" FontWeight="Bold"
+                         Foreground="{DynamicResource TextBrush}"
+                         TextWrapping="Wrap" Text="Change revisions"/>
+              <TextBlock x:Name="SwapFrom" Style="{DynamicResource MutedText}"
+                         TextWrapping="Wrap" Margin="0,4,0,0" Text=""/>
+            </StackPanel>
+          </Border>
+
+          <StackPanel Grid.Row="1" Margin="0,0,0,8">
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+              <Border Width="4" Height="16" Margin="0,0,8,0"
+                      Background="{DynamicResource BlueBrush}"/>
+              <TextBlock Text="Change them to" FontSize="14" FontWeight="Bold"
+                         Foreground="{DynamicResource TextBrush}"/>
+            </StackPanel>
+            <TextBox x:Name="SwapSearch" Style="{DynamicResource ColumnSearchBox}"
+                     Tag="Search by sequence, date or description"
+                     Height="24" Margin="0"/>
+          </StackPanel>
+
+          <ListBox x:Name="SwapList" Grid.Row="2"
+                   ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+
+          <TextBlock x:Name="SwapNote" Grid.Row="3" Style="{DynamicResource MutedText}"
+                     TextWrapping="Wrap" Margin="0,10,0,4"
+                     Text="Added by hand in Revisions on Sheet: swapped on the sheet. Drawn as revision clouds: the clouds move to the new revision - but a cloud that also shows on a sheet you have not picked is left alone, and listed. Issued revisions are locked by Revit and cannot be chosen or changed."/>
+        </Grid>
+
+        <Border Grid.Row="2" Margin="0,8,0,0"
+                Background="{DynamicResource BarBg}"
+                CornerRadius="0,0,5,5" Padding="14,9">
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock x:Name="StatusText" Grid.Column="0"
+                       Style="{DynamicResource MutedText}"
+                       VerticalAlignment="Center" TextWrapping="Wrap"
+                       Text="Pick the revision to change them to."/>
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+              <Button x:Name="CancelButton" Content="Cancel" Width="100"
+                      Margin="0,0,9,0"/>
+              <Button x:Name="OkButton" Content="Change" Width="110"
+                      IsEnabled="False"
+                      Style="{DynamicResource PrimaryButton}"/>
+            </StackPanel>
+          </Grid>
+        </Border>
+      </Grid>
+    </Border>
+  </Grid>
+</Window>

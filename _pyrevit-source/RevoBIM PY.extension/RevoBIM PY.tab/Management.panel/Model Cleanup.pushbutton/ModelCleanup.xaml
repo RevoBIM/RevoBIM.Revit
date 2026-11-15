@@ -1,0 +1,361 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Model Cleanup"
+        Width="1060" Height="800" MinWidth="900" MinHeight="680"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ShowInTaskbar="True" ResizeMode="CanResize"
+        FontFamily="Segoe UI" FontSize="12.5">
+
+    <Grid>
+        <Border x:Name="RootBorder" CornerRadius="6" BorderThickness="1"
+                Background="{DynamicResource BgBrush}" BorderBrush="{DynamicResource WindowEdgeBrush}">
+            <Grid x:Name="RootGrid">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="3"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- ==================== header ==================== -->
+                <Border x:Name="HeaderBar" Grid.Row="0" Background="{DynamicResource BarBrush}"
+                        CornerRadius="6,6,0,0" Padding="12,8,8,8">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Image x:Name="HeaderIcon" Grid.Column="0" Width="36" Height="36" Margin="0,0,10,0"
+                               VerticalAlignment="Center"/>
+                        <StackPanel x:Name="LogoHost" Grid.Column="1" VerticalAlignment="Center" Background="Transparent">
+                            <TextBlock x:Name="LogoText" Text="RevoBIM" FontSize="20" FontWeight="Bold"
+                                       Foreground="{DynamicResource BlueBrush}" Cursor="Hand"/>
+                            <TextBlock Text="Model Cleanup" FontSize="15" Margin="1,-3,0,0"
+                                       Foreground="{DynamicResource OrangeBrush}"/>
+                        </StackPanel>
+
+                        <Button x:Name="ThemeChip" Grid.Column="3" Style="{DynamicResource ChipButton}"
+                                Margin="0,0,12,0" VerticalAlignment="Center"
+                                ToolTip="Dark or light. Auto follows the Revit canvas.">
+                            <StackPanel Orientation="Horizontal">
+                                <Grid Width="12" Height="12" Margin="0,0,6,0" VerticalAlignment="Center">
+                                    <Ellipse Stroke="{DynamicResource TextBrush}" StrokeThickness="1.2"/>
+                                    <Path Data="M 6,0 A 6,6 0 0 0 6,12 Z" Fill="{DynamicResource TextBrush}"/>
+                                </Grid>
+                                <TextBlock x:Name="ThemeChipText" Text="Auto Dark" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        <TextBlock x:Name="VersionText" Grid.Column="4" Text="v0.0.0" FontSize="11"
+                                   Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <Button x:Name="ShrinkButton" Grid.Column="5" Style="{DynamicResource ShrinkButton}"
+                                ToolTip="Shrink to a bar so Revit can be seen (Ctrl+Shift+H)"/>
+                        <Button x:Name="FullScreenButton" Grid.Column="6" Style="{DynamicResource WindowButton}"
+                                ToolTip="Full screen (F11)">
+                            <Border Width="11" Height="11" BorderThickness="1.5" BorderBrush="{DynamicResource MutedBrush}"/>
+                        </Button>
+                        <Button x:Name="CloseButton" Grid.Column="7" Style="{DynamicResource CloseButton}" ToolTip="Close">
+                            <Path Data="M 0,0 L 10,10 M 10,0 L 0,10" StrokeThickness="1.6"
+                                  Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                        </Button>
+                    </Grid>
+                </Border>
+
+                <!-- ==================== body ==================== -->
+                <Grid x:Name="BodyGrid" Grid.Row="2" Margin="14,12,14,10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- model and template -->
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="3*" MinWidth="360"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="2*" MinWidth="320"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Style="{DynamicResource Card}">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                    <Border Width="4" Height="14" CornerRadius="2" Background="{DynamicResource BlueBrush}" Margin="0,0,8,0"/>
+                                    <TextBlock Text="Current model" Style="{DynamicResource SectionLabel}"/>
+                                </StackPanel>
+                                <TextBlock x:Name="ModelNameText" Text="-" FontSize="15" FontWeight="SemiBold"
+                                           TextTrimming="CharacterEllipsis"/>
+                                <TextBlock x:Name="ModelPathText" Text="-" Style="{DynamicResource Muted}"
+                                           TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Margin="0,2,0,0"/>
+                                <TextBlock x:Name="ModelKindText" Text="-" Style="{DynamicResource Muted}" Margin="0,2,0,0"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Column="2" Style="{DynamicResource Card}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                    <Border Width="4" Height="14" CornerRadius="2" Background="{DynamicResource OrangeBrush}" Margin="0,0,8,0"/>
+                                    <TextBlock Text="Settings template" Style="{DynamicResource SectionLabel}"/>
+                                </StackPanel>
+                                <Grid Grid.Row="1">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <ComboBox x:Name="TemplateCombo" Grid.Column="0" Margin="0,0,8,0"/>
+                                    <Button x:Name="ExportSettingsButton" Grid.Column="1" Style="{DynamicResource OrangeButton}"
+                                            Content="Export Settings" ToolTip="Edit what the clean up removes and how the copy is saved"/>
+                                </Grid>
+                                <TextBlock x:Name="TemplateSummaryText" Grid.Row="2" Style="{DynamicResource Muted}"
+                                           Margin="0,6,0,0" Text="-"/>
+                            </Grid>
+                        </Border>
+                    </Grid>
+
+                    <!-- the three steps -->
+                    <Grid Grid.Row="1" Margin="0,12,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <Button x:Name="SyncButton" Grid.Column="0" Style="{DynamicResource StepButton}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Border x:Name="SyncNumber" Width="40" Height="40" CornerRadius="20" VerticalAlignment="Top"
+                                        Background="{DynamicResource BlueBrush}">
+                                    <TextBlock x:Name="SyncNumberText" Text="1" FontSize="20" FontWeight="Bold"
+                                               Foreground="{DynamicResource OnAccentBrush}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel Grid.Column="1" Margin="12,0,0,0">
+                                    <TextBlock x:Name="SyncTitle" Text="Sync Current Model" FontSize="17" FontWeight="SemiBold"/>
+                                    <TextBlock x:Name="SyncSub" Style="{DynamicResource Muted}" Margin="0,3,0,0"
+                                               Text="Sync with central so the copy carries everyone's work."/>
+                                    <TextBlock x:Name="SyncBadge" Text="Ready" FontWeight="SemiBold" Margin="0,6,0,0"
+                                               Foreground="{DynamicResource BlueBrush}"/>
+                                </StackPanel>
+                            </Grid>
+                        </Button>
+
+                        <Button x:Name="SaveAsButton" Grid.Column="2" Style="{DynamicResource StepButton}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Border x:Name="SaveAsNumber" Width="40" Height="40" CornerRadius="20" VerticalAlignment="Top"
+                                        Background="{DynamicResource BlueBrush}">
+                                    <TextBlock x:Name="SaveAsNumberText" Text="2" FontSize="20" FontWeight="Bold"
+                                               Foreground="{DynamicResource OnAccentBrush}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel Grid.Column="1" Margin="12,0,0,0">
+                                    <TextBlock x:Name="SaveAsTitle" Text="Save As Detached Copy" FontSize="17" FontWeight="SemiBold"/>
+                                    <TextBlock x:Name="SaveAsSub" Style="{DynamicResource Muted}" Margin="0,3,0,0"
+                                               Text="Saves a detached copy where the issue goes. That copy becomes the model everything after this works on."/>
+                                    <TextBlock x:Name="SaveAsBadge" Text="Locked" FontWeight="SemiBold" Margin="0,6,0,0"
+                                               Foreground="{DynamicResource MutedBrush}"/>
+                                </StackPanel>
+                            </Grid>
+                        </Button>
+
+                        <Button x:Name="CleanupButton" Grid.Column="4" Style="{DynamicResource StepButton}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Border x:Name="CleanupNumber" Width="40" Height="40" CornerRadius="20" VerticalAlignment="Top"
+                                        Background="{DynamicResource BlueBrush}">
+                                    <TextBlock x:Name="CleanupNumberText" Text="3" FontSize="20" FontWeight="Bold"
+                                               Foreground="{DynamicResource OnAccentBrush}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel Grid.Column="1" Margin="12,0,0,0">
+                                    <TextBlock x:Name="CleanupTitle" Text="Clean Up Model" FontSize="17" FontWeight="SemiBold"/>
+                                    <TextBlock x:Name="CleanupSub" Style="{DynamicResource Muted}" Margin="0,3,0,0"
+                                               Text="Exports NWC if set, then removes links, unplaced views and purges the detached copy."/>
+                                    <TextBlock x:Name="CleanupBadge" Text="Locked" FontWeight="SemiBold" Margin="0,6,0,0"
+                                               Foreground="{DynamicResource MutedBrush}"/>
+                                </StackPanel>
+                            </Grid>
+                        </Button>
+
+                        <!-- step options -->
+                        <Border Grid.Row="1" Grid.Column="0" Style="{DynamicResource Card}" Margin="0,8,0,0">
+                            <StackPanel>
+                                <TextBox x:Name="SyncCommentBox" Tag="Sync comment"/>
+                                <CheckBox x:Name="RelinquishCheck" Content="Relinquish everything after the sync" Margin="0,8,0,0"/>
+                                <Border x:Name="PublishRow" Margin="0,10,0,0" Padding="0,8,0,0"
+                                        BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="0,1,0,0">
+                                    <StackPanel>
+                                        <Button x:Name="PublishButton" Style="{DynamicResource OrangeButton}"
+                                                Content="Publish latest to ACC" HorizontalAlignment="Stretch"
+                                                ToolTip="Publish the latest synced version on ACC, with or without its links"/>
+                                        <TextBlock x:Name="PublishStatusText" Style="{DynamicResource Muted}"
+                                                   Margin="0,6,0,0" Text="Lights once the model is synced."/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Row="1" Grid.Column="2" Style="{DynamicResource Card}" Margin="0,8,0,0">
+                            <StackPanel>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox x:Name="TargetPathBox" Tag="Where the send copy is saved" Margin="0,0,8,0"/>
+                                    <Button x:Name="BrowseButton" Grid.Column="1" Style="{DynamicResource BaseButton}" Content="Browse"/>
+                                </Grid>
+                                <TextBlock x:Name="DetachText" Style="{DynamicResource Muted}" Margin="0,8,0,0" Text="-"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Row="1" Grid.Column="4" Style="{DynamicResource Card}" Margin="0,8,0,0">
+                            <StackPanel>
+                                <TextBlock x:Name="CleanupTargetText" Style="{DynamicResource Muted}"
+                                           Text="Runs on the saved copy only, once steps 1 and 2 are done."/>
+                                <TextBlock x:Name="CleanupResultText" Margin="0,8,0,0" TextWrapping="Wrap"
+                                           FontWeight="SemiBold" Text=""/>
+                                <Button x:Name="SkipButton" Style="{DynamicResource RedGhostButton}" Margin="0,10,0,0"
+                                        Content="Skip steps 1 and 2" HorizontalAlignment="Stretch"
+                                        ToolTip="Clean the model that is open now, without syncing or saving a copy first. Never on a central model."/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+
+                    <!-- plan and log -->
+                    <Grid Grid.Row="2" Margin="0,12,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*" MinWidth="320"/>
+                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="3*" MinWidth="360"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Style="{DynamicResource Card}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Grid Margin="0,0,0,6">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Border Width="4" Height="14" CornerRadius="2" Background="{DynamicResource BlueBrush}" Margin="0,0,8,0"/>
+                                        <TextBlock Text="What Clean Up will do" Style="{DynamicResource SectionLabel}"/>
+                                    </StackPanel>
+                                    <Button x:Name="ScanButton" Grid.Column="1" Style="{DynamicResource BaseButton}"
+                                            Content="Count in current model" MinHeight="26" Padding="10,2"
+                                            ToolTip="Counts what the template would remove from the live model. Nothing is changed."/>
+                                </Grid>
+                                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                                    <StackPanel x:Name="PlanPanel"/>
+                                </ScrollViewer>
+                            </Grid>
+                        </Border>
+                        <GridSplitter Grid.Column="1" Width="8" HorizontalAlignment="Stretch" ResizeBehavior="PreviousAndNext"/>
+                        <Border Grid.Column="2" Style="{DynamicResource Card}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                    <Border Width="4" Height="14" CornerRadius="2" Background="{DynamicResource OrangeBrush}" Margin="0,0,8,0"/>
+                                    <TextBlock Text="Run log" Style="{DynamicResource SectionLabel}"/>
+                                </StackPanel>
+                                <TextBox x:Name="LogBox" Grid.Row="1" IsReadOnly="True" TextWrapping="Wrap"
+                                         AcceptsReturn="True" VerticalContentAlignment="Top"
+                                         VerticalScrollBarVisibility="Auto" FontFamily="Consolas" FontSize="11.5"/>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </Grid>
+
+                <!-- ==================== progress ==================== -->
+                <Border x:Name="ProgressPanel" Grid.Row="3" Background="{DynamicResource BarBrush}"
+                        BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="0,1,0,0"
+                        Padding="14,10,14,6" Visibility="Collapsed">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid x:Name="ProgressTrack" Height="24">
+                            <Border CornerRadius="12" Background="{DynamicResource FieldBrush}"
+                                    BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="1"/>
+                            <Border x:Name="ProgressFill" CornerRadius="12" HorizontalAlignment="Left"
+                                    Width="0" Background="{DynamicResource BlueBrush}"/>
+                            <TextBlock x:Name="ProgressPercent" Text="0%" FontSize="13" FontWeight="Bold"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Grid>
+                        <Grid Grid.Row="1" Margin="4,6,4,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock x:Name="ProgressStage" Text="" TextTrimming="CharacterEllipsis"
+                                       Foreground="{DynamicResource TextBrush}"/>
+                            <TextBlock x:Name="ProgressEta" Grid.Column="1" Text="" Margin="16,0,0,0"
+                                       Foreground="{DynamicResource MutedBrush}"/>
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <!-- ==================== footer ==================== -->
+                <Border x:Name="FooterBar" Grid.Row="4" Background="{DynamicResource BarBrush}" CornerRadius="0,0,6,6" Padding="14,8">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <CheckBox x:Name="DebugCheck" Content="Debug report" VerticalAlignment="Center" Margin="0,0,10,0"
+                                  ToolTip="Write everything the tool reads and decides to a text file you can send for debugging"/>
+                        <Button x:Name="OpenDebugButton" Grid.Column="1" Style="{DynamicResource OrangeButton}"
+                                Content="Open debug report" Margin="0,0,14,0" Visibility="Collapsed"/>
+                        <TextBlock x:Name="StatusText" Grid.Column="2" VerticalAlignment="Center" Foreground="{DynamicResource MutedBrush}"
+                                   TextTrimming="CharacterEllipsis" Text="Ready"/>
+                        <Button x:Name="FooterCloseButton" Grid.Column="3" Style="{DynamicResource BaseButton}" Content="Close"/>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- ==================== resize grips ==================== -->
+        <Grid x:Name="GripLayer">
+            <Thumb x:Name="GripN" Style="{DynamicResource GripThumb}" Height="5" VerticalAlignment="Top" Margin="8,0" Cursor="SizeNS"/>
+            <Thumb x:Name="GripS" Style="{DynamicResource GripThumb}" Height="5" VerticalAlignment="Bottom" Margin="8,0" Cursor="SizeNS"/>
+            <Thumb x:Name="GripW" Style="{DynamicResource GripThumb}" Width="5" HorizontalAlignment="Left" Margin="0,8" Cursor="SizeWE"/>
+            <Thumb x:Name="GripE" Style="{DynamicResource GripThumb}" Width="5" HorizontalAlignment="Right" Margin="0,8" Cursor="SizeWE"/>
+            <Thumb x:Name="GripNW" Style="{DynamicResource GripThumb}" Width="8" Height="8" HorizontalAlignment="Left" VerticalAlignment="Top" Cursor="SizeNWSE"/>
+            <Thumb x:Name="GripNE" Style="{DynamicResource GripThumb}" Width="8" Height="8" HorizontalAlignment="Right" VerticalAlignment="Top" Cursor="SizeNESW"/>
+            <Thumb x:Name="GripSW" Style="{DynamicResource GripThumb}" Width="8" Height="8" HorizontalAlignment="Left" VerticalAlignment="Bottom" Cursor="SizeNESW"/>
+            <Thumb x:Name="GripSE" Style="{DynamicResource GripThumb}" Width="8" Height="8" HorizontalAlignment="Right" VerticalAlignment="Bottom" Cursor="SizeNWSE"/>
+        </Grid>
+    </Grid>
+</Window>

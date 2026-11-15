@@ -1,0 +1,10 @@
+Excel for Revit could not start.
+
+It failed while loading the tool.
+
+Traceback (most recent call last):
+  File "/home/claude/build/RevoBIM PY.extension/RevoBIM PY.tab/Management.panel/Excel for Revit.pushbutton/script.py", line 68, in run
+    import efr_core
+  File "/home/claude/build/RevoBIM PY.extension/RevoBIM PY.tab/Management.panel/Excel for Revit.pushbutton/efr_core.py", line 1, in <module>
+    raise ImportError("mis-namespaced name")
+ImportError: mis-namespaced name

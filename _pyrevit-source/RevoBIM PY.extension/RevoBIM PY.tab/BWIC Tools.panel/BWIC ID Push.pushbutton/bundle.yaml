@@ -1,0 +1,5 @@
+title: BWIC ID Push
+tooltip: >
+  Push CLM_BWIC ID from a linked Generic Model element into BGL_BWIC ID on a
+  host element. Click the linked source, then the host target; repeats until
+  Escape. Finishes silently.

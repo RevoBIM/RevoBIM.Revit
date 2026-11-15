@@ -1,0 +1,219 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RevoBIM - Space Data Push"
+        Width="1060" Height="700" MinWidth="900" MinHeight="620"
+        WindowStyle="None" AllowsTransparency="False"
+        Background="{DynamicResource WindowBrush}"
+        ResizeMode="NoResize" ShowInTaskbar="False"
+        WindowStartupLocation="CenterScreen"
+        FontFamily="Segoe UI" FontSize="12.5"
+        UseLayoutRounding="True" SnapsToDevicePixels="True">
+  <Grid>
+    <Border x:Name="Frame" CornerRadius="0" BorderThickness="1"
+            BorderBrush="{DynamicResource FrameEdgeBrush}"
+            Background="{DynamicResource WindowBrush}"
+            TextElement.Foreground="{DynamicResource TextBrush}">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="54"/>
+          <RowDefinition Height="2"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="140"/>
+          <RowDefinition Height="58"/>
+        </Grid.RowDefinitions>
+
+        <!-- ===== Header ===== -->
+        <Border x:Name="HeaderBar" Grid.Row="0" Background="{DynamicResource BarBrush}">
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel x:Name="LogoHost" Grid.Column="0" Orientation="Horizontal" Margin="14,0,0,0" VerticalAlignment="Center" Background="Transparent"
+                        ToolTip="RevoBIM">
+              <Image x:Name="IconImage" Width="32" Height="32" Margin="0,0,11,0"/>
+              <StackPanel VerticalAlignment="Center">
+                <TextBlock Text="RevoBIM" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource BlueBrush}" LineHeight="22" LineStackingStrategy="BlockLineHeight"/>
+                <TextBlock x:Name="ToolText" Text="Space Data Push" FontSize="15" Foreground="{DynamicResource OrangeBrush}" LineHeight="17" LineStackingStrategy="BlockLineHeight"/>
+              </StackPanel>
+            </StackPanel>
+            <Button x:Name="ThemeChip" Grid.Column="2" Style="{DynamicResource BtnChip}" VerticalAlignment="Center" Margin="0,0,12,0"
+                    ToolTip="Colour theme. Auto follows Revit's canvas theme. Click to cycle Auto, Dark, Light.">
+              <StackPanel Orientation="Horizontal">
+                <Ellipse x:Name="ThemeDot" Width="10" Height="10" Fill="{DynamicResource BlueBrush}" Margin="0,0,7,0" VerticalAlignment="Center"/>
+                <TextBlock x:Name="ThemeText" Text="Auto" VerticalAlignment="Center"/>
+              </StackPanel>
+            </Button>
+            <TextBlock x:Name="VersionText" Grid.Column="3" Text="v1.2.1" FontSize="11" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center" Margin="0,0,12,0"/>
+            <Button x:Name="FullBtn" Grid.Column="4" Style="{DynamicResource BtnIcon}" ToolTip="Full screen (F11)">
+              <Border Width="11" Height="11" BorderThickness="1.5" CornerRadius="2"
+                      BorderBrush="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"/>
+            </Button>
+            <Button x:Name="CloseBtn" Grid.Column="5" Style="{DynamicResource BtnClose}" Margin="0,0,8,0" ToolTip="Close">
+              <Path Data="M0,0 L10,10 M10,0 L0,10" StrokeThickness="1.6"
+                    Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"/>
+            </Button>
+          </Grid>
+        </Border>
+
+        <!-- ===== Accent rule under the header ===== -->
+        <Grid Grid.Row="1">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Border Grid.Column="0" Width="132" Background="{DynamicResource BlueBrush}"/>
+          <Border Grid.Column="1" Width="58" Background="{DynamicResource OrangeBrush}"/>
+          <Border Grid.Column="2" Background="{DynamicResource EdgeBrush}"/>
+        </Grid>
+
+        <!-- ===== Mapping card ===== -->
+        <Border Grid.Row="2" Margin="16,14,16,8" Padding="16,14,16,12" CornerRadius="8" BorderThickness="1"
+                Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource EdgeBrush}">
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0" Margin="0,0,0,14">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+              </Grid.ColumnDefinitions>
+              <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,12,0">
+                <Border Width="4" Height="18" CornerRadius="2" Background="{DynamicResource OrangeBrush}" Margin="0,0,9,0"/>
+                <TextBlock Text="Element category" FontWeight="SemiBold" VerticalAlignment="Center"/>
+              </StackPanel>
+              <ComboBox x:Name="CatCombo" Grid.Column="1" MaxWidth="440" MinWidth="280" HorizontalAlignment="Left"
+                        ToolTip="The category you will click in the view. Type in the box to narrow the list."/>
+              <TextBlock Grid.Column="2" VerticalAlignment="Center" FontSize="11" Margin="14,0,0,0"
+                         Foreground="{DynamicResource MutedBrush}" Text="every dropdown narrows as you type"/>
+            </Grid>
+
+            <Grid Grid.Row="1" Margin="0,0,13,6">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2.3*" MinWidth="150"/>
+                <ColumnDefinition Width="1.5*" MinWidth="110"/>
+                <ColumnDefinition Width="46"/>
+                <ColumnDefinition Width="2.3*" MinWidth="150"/>
+                <ColumnDefinition Width="34"/>
+              </Grid.ColumnDefinitions>
+              <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="0,0,10,0">
+                <Border Width="4" Height="15" CornerRadius="2" Background="{DynamicResource BlueBrush}" Margin="0,0,8,0"/>
+                <TextBlock Text="Space parameter" FontWeight="SemiBold" VerticalAlignment="Center"/>
+              </StackPanel>
+              <TextBlock Grid.Column="1" Text="Value held" VerticalAlignment="Center" FontSize="11" Foreground="{DynamicResource MutedBrush}"/>
+              <StackPanel Grid.Column="3" Orientation="Horizontal">
+                <Border Width="4" Height="15" CornerRadius="2" Background="{DynamicResource OrangeBrush}" Margin="0,0,8,0"/>
+                <TextBlock Text="Element parameter" FontWeight="SemiBold" VerticalAlignment="Center"/>
+              </StackPanel>
+            </Grid>
+
+            <Border Grid.Row="2" Height="1" Background="{DynamicResource EdgeBrush}" Margin="0,0,0,8"/>
+
+            <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled"
+                          Focusable="False" Padding="0,0,3,0">
+              <StackPanel x:Name="RowsPanel"/>
+            </ScrollViewer>
+
+            <Grid Grid.Row="4" Margin="0,10,0,0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Button x:Name="AddRowBtn" Grid.Column="0" Style="{DynamicResource BtnGreen}" Content="+ Add parameter" ToolTip="Add another space parameter to push"/>
+              <TextBlock x:Name="RowCountText" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="11" Foreground="{DynamicResource MutedBrush}"/>
+            </Grid>
+          </Grid>
+        </Border>
+
+        <!-- ===== Held space and options ===== -->
+        <Border Grid.Row="3" Margin="16,0,16,8" Padding="14,11,14,9" CornerRadius="8" BorderThickness="1"
+                Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource EdgeBrush}">
+          <StackPanel>
+            <Border Padding="12,8" CornerRadius="5" BorderThickness="1" Margin="0,0,0,10"
+                    Background="{DynamicResource SunkenBrush}" BorderBrush="{DynamicResource EdgeBrush}">
+              <StackPanel Orientation="Horizontal">
+                <Border Width="4" Height="15" CornerRadius="2" Background="{DynamicResource BlueBrush}" Margin="0,0,9,0" VerticalAlignment="Center"/>
+                <TextBlock x:Name="SpaceInfo" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
+              </StackPanel>
+            </Border>
+            <WrapPanel Orientation="Horizontal">
+              <CheckBox x:Name="OverwriteCheck" Content="Overwrite values already on the element" Margin="0,0,24,4"/>
+              <CheckBox x:Name="SkipBlankCheck" Content="Skip blank space values" Margin="0,0,24,4"/>
+              <CheckBox x:Name="KeepPickingCheck" Content="Keep picking until Esc" Margin="0,0,24,4"/>
+              <CheckBox x:Name="HideCheck" Content="Hide this window while picking" Margin="0,0,0,4"/>
+            </WrapPanel>
+          </StackPanel>
+        </Border>
+
+        <!-- ===== Activity ===== -->
+        <Border Grid.Row="4" Margin="16,0,16,8" Padding="14,10,14,10" CornerRadius="8" BorderThickness="1"
+                Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource EdgeBrush}">
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0" Margin="0,0,0,6">
+              <StackPanel Orientation="Horizontal">
+                <Border Width="4" Height="15" CornerRadius="2" Background="{DynamicResource GreenBrush}" Margin="0,0,8,0"/>
+                <TextBlock Text="Activity" FontWeight="SemiBold" VerticalAlignment="Center"/>
+              </StackPanel>
+              <Button x:Name="ClearLogBtn" Style="{DynamicResource BtnIcon}" HorizontalAlignment="Right" Padding="12,0" MinHeight="24" Content="Clear"/>
+            </Grid>
+            <Border Grid.Row="1" CornerRadius="5" Background="{DynamicResource SunkenBrush}" Padding="10,7">
+              <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <StackPanel x:Name="LogPanel"/>
+              </ScrollViewer>
+            </Border>
+          </Grid>
+        </Border>
+
+        <!-- ===== Footer ===== -->
+        <Border Grid.Row="5" Background="{DynamicResource BarBrush}">
+          <Grid Margin="16,0,16,0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,16,0">
+              <Ellipse x:Name="StatusDot" Width="8" Height="8" Margin="0,0,9,0" VerticalAlignment="Center"
+                       Fill="{DynamicResource MutedBrush}"/>
+              <TextBlock x:Name="StatusText" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+              <Button x:Name="PickSpaceBtn" Style="{DynamicResource BtnBlue}" Content="Pick Space" MinWidth="140" Margin="0,0,10,0"
+                      ToolTip="Pick a space in a plan view. A space already selected in Revit is used as it is."/>
+              <Button x:Name="PickPushBtn" Style="{DynamicResource BtnGreen}" Content="Pick Elements and Push" MinWidth="200"
+                      ToolTip="Go to any view, then click elements of the chosen category. Esc finishes and brings you back here."/>
+            </StackPanel>
+          </Grid>
+        </Border>
+      </Grid>
+    </Border>
+
+    <!-- ===== Resize grips: no Background, so everything under them stays clickable ===== -->
+    <Grid x:Name="GripLayer">
+      <Thumb x:Name="GripT" Height="5" VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="12,0,12,0" Cursor="SizeNS" Background="Transparent"/>
+      <Thumb x:Name="GripB" Height="5" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Margin="12,0,12,0" Cursor="SizeNS" Background="Transparent"/>
+      <Thumb x:Name="GripL" Width="5" HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="0,12,0,12" Cursor="SizeWE" Background="Transparent"/>
+      <Thumb x:Name="GripR" Width="5" HorizontalAlignment="Right" VerticalAlignment="Stretch" Margin="0,12,0,12" Cursor="SizeWE" Background="Transparent"/>
+      <Thumb x:Name="GripTL" Width="12" Height="12" HorizontalAlignment="Left" VerticalAlignment="Top" Cursor="SizeNWSE" Background="Transparent"/>
+      <Thumb x:Name="GripTR" Width="12" Height="12" HorizontalAlignment="Right" VerticalAlignment="Top" Cursor="SizeNESW" Background="Transparent"/>
+      <Thumb x:Name="GripBL" Width="12" Height="12" HorizontalAlignment="Left" VerticalAlignment="Bottom" Cursor="SizeNESW" Background="Transparent"/>
+      <Thumb x:Name="GripBR" Width="12" Height="12" HorizontalAlignment="Right" VerticalAlignment="Bottom" Cursor="SizeNWSE" Background="Transparent"/>
+    </Grid>
+  </Grid>
+</Window>

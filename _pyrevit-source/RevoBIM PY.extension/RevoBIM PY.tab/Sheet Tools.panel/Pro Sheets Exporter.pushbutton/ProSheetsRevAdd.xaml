@@ -1,0 +1,148 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RevoBIM Add revision"
+        Width="600" Height="640" MinWidth="520" MinHeight="460"
+        WindowStartupLocation="CenterOwner"
+        WindowStyle="None" AllowsTransparency="True"
+        Background="Transparent" ResizeMode="NoResize"
+        ShowInTaskbar="False" SnapsToDevicePixels="True">
+
+  <Grid>
+    <Border Background="{DynamicResource WindowBg}"
+            BorderBrush="{DynamicResource WindowEdgeBrush}"
+            BorderThickness="1" CornerRadius="6">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Border x:Name="HeaderBar" Grid.Row="0"
+                Background="{DynamicResource BarBg}"
+                CornerRadius="5,5,0,0" Padding="14,9">
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Border x:Name="LogoHost" Grid.Column="0" Width="28" Height="28"
+                    CornerRadius="4" Margin="0,0,11,0"
+                    Background="{DynamicResource ChipBg}" Cursor="Hand">
+              <Image x:Name="LogoImage" Stretch="Uniform" Margin="3"/>
+            </Border>
+
+            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+              <TextBlock Text="RevoBIM" FontSize="17" FontWeight="Bold"
+                         Foreground="{DynamicResource BlueBrush}"/>
+              <TextBlock x:Name="DialogSubtitle" Text="Add revision" FontSize="13"
+                         Margin="0,-3,0,0"
+                         Foreground="{DynamicResource OrangeBrush}"/>
+            </StackPanel>
+
+            <TextBlock x:Name="VersionText" Grid.Column="2"
+                       Style="{DynamicResource MutedText}"
+                       HorizontalAlignment="Right" VerticalAlignment="Center"
+                       Margin="0,0,10,0" Text="v0.0.0"/>
+
+            <StackPanel Grid.Column="3" Orientation="Horizontal"
+                        VerticalAlignment="Center">
+              <Button x:Name="ShrinkButton" Style="{DynamicResource ShrinkButton}"
+                      ToolTip="Shrink to the bottom of the screen"/>
+              <Button x:Name="CloseButton"
+                      Style="{DynamicResource CloseButton}"
+                      Content="&#x2715;"/>
+            </StackPanel>
+          </Grid>
+        </Border>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+          <StackPanel Margin="16,14,16,4">
+
+            <!-- ============ where it goes - the one to choose ============ -->
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+              <Border Width="4" Height="16" Margin="0,0,8,0"
+                      Background="{DynamicResource OrangeBrush}"/>
+              <TextBlock Text="Sequence" FontSize="14" FontWeight="Bold"
+                         Foreground="{DynamicResource TextBrush}"/>
+            </StackPanel>
+            <!-- Washed and edged in orange: the field to look at first. -->
+            <Border x:Name="SequenceCard"
+                    Background="{DynamicResource PickWashBrush}"
+                    BorderBrush="{DynamicResource OrangeBrush}"
+                    BorderThickness="2" CornerRadius="4" Padding="12,10"
+                    Margin="0,0,0,16">
+              <StackPanel>
+                <StackPanel Orientation="Horizontal">
+                  <Button x:Name="SequenceDownButton"
+                          Style="{DynamicResource IconButton}"
+                          ToolTip="Earlier - towards the top">
+                    <Path Width="11" Height="11" Stretch="Uniform"
+                          Fill="{DynamicResource TextBrush}"
+                          Data="M 0,5 L 11,5 L 11,7 L 0,7 Z"/>
+                  </Button>
+                  <!-- Tall enough for the 18pt number and the box's own
+                       padding: at 32 the digits were cropped. -->
+                  <TextBox x:Name="SequenceBox" Width="74" Height="44"
+                           MinHeight="44" Padding="2,0"
+                           Margin="6,0,6,0" FontSize="18" FontWeight="Bold"
+                           HorizontalContentAlignment="Center"
+                           VerticalContentAlignment="Center"
+                           BorderBrush="{DynamicResource OrangeBrush}"
+                           ToolTip="The sequence the new revision takes. 1 is the top."/>
+                  <Button x:Name="SequenceUpButton"
+                          Style="{DynamicResource IconButton}"
+                          ToolTip="Later - towards the bottom">
+                    <Path Width="11" Height="11" Stretch="Uniform"
+                          Fill="{DynamicResource TextBrush}"
+                          Data="M 4.5,0 L 6.5,0 L 6.5,4.5 L 11,4.5 L 11,6.5 L 6.5,6.5 L 6.5,11 L 4.5,11 L 4.5,6.5 L 0,6.5 L 0,4.5 L 4.5,4.5 Z"/>
+                  </Button>
+                  <TextBlock x:Name="SequenceRange" Style="{DynamicResource MutedText}"
+                             VerticalAlignment="Center" Margin="10,0,0,0"
+                             Text="of 1"/>
+                </StackPanel>
+                <TextBlock x:Name="SequenceNote" Margin="0,8,0,0"
+                           TextWrapping="Wrap" FontWeight="SemiBold"
+                           Foreground="{DynamicResource OrangeBrush}"
+                           Text="Goes in last."/>
+              </StackPanel>
+            </Border>
+
+            <!-- ============ everything else Revit holds ============ -->
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+              <Border Width="4" Height="16" Margin="0,0,8,0"
+                      Background="{DynamicResource BlueBrush}"/>
+              <TextBlock Text="Revision" FontSize="14" FontWeight="Bold"
+                         Foreground="{DynamicResource TextBrush}"/>
+            </StackPanel>
+            <StackPanel x:Name="AddForm"/>
+          </StackPanel>
+        </ScrollViewer>
+
+        <Border Grid.Row="2" Margin="0,8,0,0"
+                Background="{DynamicResource BarBg}"
+                CornerRadius="0,0,5,5" Padding="14,9">
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock x:Name="StatusText" Grid.Column="0"
+                       Style="{DynamicResource MutedText}"
+                       VerticalAlignment="Center" TextWrapping="Wrap"
+                       Text="Staged in the manager - created on Apply."/>
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+              <Button x:Name="CancelButton" Content="Cancel" Width="100"
+                      Margin="0,0,9,0"/>
+              <Button x:Name="OkButton" Content="Add" Width="110"
+                      Style="{DynamicResource PrimaryButton}"/>
+            </StackPanel>
+          </Grid>
+        </Border>
+      </Grid>
+    </Border>
+  </Grid>
+</Window>

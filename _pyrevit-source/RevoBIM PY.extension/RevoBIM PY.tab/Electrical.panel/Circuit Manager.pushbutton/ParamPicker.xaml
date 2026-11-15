@@ -1,0 +1,97 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Circuit Manager" Width="520" Height="640" MinWidth="400" MinHeight="360"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent" ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen" ShowInTaskbar="False" FontFamily="Segoe UI" FontSize="12"
+        UseLayoutRounding="True" SnapsToDevicePixels="True">
+  <Border x:Name="frame" CornerRadius="6" BorderThickness="2" BorderBrush="{DynamicResource FrameEdge}"
+          Background="{DynamicResource BodyBg}">
+  <Grid x:Name="root_grid">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="*"/>
+      <RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
+
+    <!-- ==================== header: icon, RevoBIM, tool, chip, version, window controls ==================== -->
+    <Border x:Name="header_bar" Grid.Row="0" Background="{DynamicResource TitleBg}" CornerRadius="5,5,0,0"
+            Padding="10,6,6,6">
+      <DockPanel LastChildFill="True">
+        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+          <Button x:Name="theme_btn" Style="{DynamicResource ChipBtn}" ToolTip="Theme: Auto follows Revit's canvas - click for Dark, Light, Auto">
+            <StackPanel Orientation="Horizontal">
+              <Path x:Name="theme_glyph" Width="13" Height="13" Stretch="Uniform" VerticalAlignment="Center"
+                    Fill="{DynamicResource Orange}"
+                    Data="M 7,0 A 7,7 0 1 0 7,14 A 7,7 0 0 1 7,0 Z"/>
+              <TextBlock x:Name="theme_text" Text="Auto" Margin="6,0,0,0" VerticalAlignment="Center"/>
+            </StackPanel>
+          </Button>
+          <TextBlock x:Name="version_text" Text="v0.0.0" Foreground="{DynamicResource Muted}" FontSize="11"
+                     VerticalAlignment="Center" Margin="2,0,8,0"/>
+          <Button x:Name="shrink_btn" Style="{DynamicResource ChromeBtn}" ToolTip="Shrink to taskbar (Ctrl+Shift+H)">
+            <Grid Width="14" Height="15">
+              <Path x:Name="shrink_glyph" Data="M 7,1 L 7,10 M 3,6.5 L 7,10.5 L 11,6.5 M 1.5,14 L 12.5,14"
+                    StrokeThickness="1.6" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                    Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+              <Path x:Name="expand_glyph" Visibility="Collapsed" Data="M 7,14 L 7,4.5 M 3,8 L 7,4 L 11,8 M 1.5,1 L 12.5,1"
+                    StrokeThickness="2.2" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                    Stroke="{DynamicResource Green}"/>
+            </Grid>
+          </Button>
+          <Button x:Name="close_btn" Style="{DynamicResource CloseBtn}" ToolTip="Close">
+            <Path Data="M 1,1 L 11,11 M 11,1 L 1,11" StrokeThickness="1.6"
+                  Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+          </Button>
+        </StackPanel>
+        <Image x:Name="icon_img" Width="32" Height="32" Margin="0,0,10,0" VerticalAlignment="Center"/>
+        <StackPanel VerticalAlignment="Center">
+          <TextBlock Text="RevoBIM" Foreground="{DynamicResource Blue}" FontSize="19" FontWeight="Bold" Margin="0,-3,0,-2"/>
+          <TextBlock x:Name="tool_text" Text="Circuit Manager" Foreground="{DynamicResource Orange}" FontSize="13" FontWeight="SemiBold"/>
+        </StackPanel>
+      </DockPanel>
+    </Border>
+
+
+    <!-- ==================== body ==================== -->
+    <Grid x:Name="body" Grid.Row="1" Margin="10,8,10,8">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <TextBlock Grid.Row="0" Text="Parameters available to electrical circuits" Foreground="{DynamicResource Text}"
+                 FontWeight="SemiBold" Margin="0,0,0,6"/>
+      <DockPanel Grid.Row="1" Margin="0,0,0,6">
+        <Button x:Name="none_btn" DockPanel.Dock="Right" Margin="6,0,0,0"><TextBlock Text="Untick all"/></Button>
+        <Button x:Name="all_btn" DockPanel.Dock="Right" Margin="6,0,0,0"><TextBlock Text="Select all"/></Button>
+        <TextBox x:Name="search_box" Tag="Search parameters..." Height="28"/>
+      </DockPanel>
+      <ListBox x:Name="list" Grid.Row="2" BorderThickness="1"
+               VirtualizingPanel.IsVirtualizing="True" ScrollViewer.HorizontalScrollBarVisibility="Disabled"/>
+    </Grid>
+
+    <!-- ==================== footer ==================== -->
+    <Border x:Name="footer" Grid.Row="2" Background="{DynamicResource TitleBg}" CornerRadius="0,0,5,5" Padding="10,7">
+      <DockPanel>
+        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+          <Button x:Name="cancel_btn" Margin="0,0,8,0"><TextBlock Text="Cancel"/></Button>
+          <Button x:Name="ok_btn" Style="{DynamicResource GreenBtn}" Padding="16,6"><TextBlock x:Name="ok_text" Text="Show columns"/></Button>
+        </StackPanel>
+        <TextBlock x:Name="count_text" Foreground="{DynamicResource Muted}" VerticalAlignment="Center"
+                   Text="Ticked parameters show as columns; unticking hides one."/>
+      </DockPanel>
+    </Border>
+
+    <Grid x:Name="grips" Grid.RowSpan="3">
+      <Thumb x:Name="grip_n" Style="{DynamicResource Grip}" VerticalAlignment="Top" HorizontalAlignment="Stretch" Height="5" Cursor="SizeNS"/>
+      <Thumb x:Name="grip_s" Style="{DynamicResource Grip}" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Height="5" Cursor="SizeNS"/>
+      <Thumb x:Name="grip_w" Style="{DynamicResource Grip}" VerticalAlignment="Stretch" HorizontalAlignment="Left" Width="5" Cursor="SizeWE"/>
+      <Thumb x:Name="grip_e" Style="{DynamicResource Grip}" VerticalAlignment="Stretch" HorizontalAlignment="Right" Width="5" Cursor="SizeWE"/>
+      <Thumb x:Name="grip_nw" Style="{DynamicResource Grip}" VerticalAlignment="Top" HorizontalAlignment="Left" Height="8" Width="8" Cursor="SizeNWSE"/>
+      <Thumb x:Name="grip_ne" Style="{DynamicResource Grip}" VerticalAlignment="Top" HorizontalAlignment="Right" Height="8" Width="8" Cursor="SizeNESW"/>
+      <Thumb x:Name="grip_sw" Style="{DynamicResource Grip}" VerticalAlignment="Bottom" HorizontalAlignment="Left" Height="8" Width="8" Cursor="SizeNESW"/>
+      <Thumb x:Name="grip_se" Style="{DynamicResource Grip}" VerticalAlignment="Bottom" HorizontalAlignment="Right" Height="8" Width="8" Cursor="SizeNWSE"/>
+    </Grid>
+  </Grid>
+  </Border>
+</Window>

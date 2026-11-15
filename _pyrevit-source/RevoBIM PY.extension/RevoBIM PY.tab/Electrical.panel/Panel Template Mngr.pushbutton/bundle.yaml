@@ -1,0 +1,16 @@
+title: Panel Template\nMngr
+tooltip: >
+  Panel Schedule Template Manager.
+
+  Every panel in the project with the panel schedule template it is using.
+  Search and filter on every heading, add as many parameter columns as you need,
+  swap templates by hand or with Auto Assign, and nothing is written to the
+  model until Apply is pressed.
+
+  The Template Duplicator tab lists every template with how many panels use it,
+  isolates the unused ones, deletes or merges them, and duplicates one template
+  into as many fixed slot counts as you pick.
+
+  Settings are behind the gear in the tool's own header. Modeless - Revit stays
+  usable while it is open.
+author: RevoBIM PY

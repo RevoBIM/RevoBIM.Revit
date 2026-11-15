@@ -1,0 +1,149 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RevoBIM Tag Aligner Settings" Width="780" SizeToContent="Height"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ResizeMode="NoResize" WindowStartupLocation="CenterScreen" ShowInTaskbar="False"
+        FontFamily="Segoe UI" FontSize="12" UseLayoutRounding="True">
+  <Border x:Name="Root" CornerRadius="6" BorderThickness="1" BorderBrush="{DynamicResource WinEdge}" Background="{DynamicResource Bg}">
+    <DockPanel>
+
+      <!-- ==================== header ==================== -->
+      <Border x:Name="HeaderBar" DockPanel.Dock="Top" Background="{DynamicResource Bar}" CornerRadius="6,6,0,0" Padding="12,8,8,8">
+        <DockPanel LastChildFill="False">
+          <Image x:Name="HeaderIcon" DockPanel.Dock="Left" Width="30" Height="30" Margin="0,0,10,0" VerticalAlignment="Center"/>
+          <StackPanel DockPanel.Dock="Left" VerticalAlignment="Center">
+            <TextBlock Text="RevoBIM" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource Blue}"/>
+            <TextBlock x:Name="TitleText" Text="Tag Aligner Settings" FontSize="15" Foreground="{DynamicResource Orange}" Margin="0,-3,0,0"/>
+          </StackPanel>
+          <Button x:Name="CloseButton" DockPanel.Dock="Right" Style="{DynamicResource TaCloseButton}" VerticalAlignment="Center" ToolTip="Close"/>
+          <TextBlock x:Name="VersionText" DockPanel.Dock="Right" Text="v0.0.0" FontSize="11" Foreground="{DynamicResource Muted}"
+                     VerticalAlignment="Center" Margin="10,0,8,0"/>
+          <Border x:Name="ThemeChip" DockPanel.Dock="Right" Style="{DynamicResource TaChip}" VerticalAlignment="Center">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+              <Grid Width="14" Height="14" VerticalAlignment="Center">
+                <Grid x:Name="GlyphAuto">
+                  <Path Data="M 7,1.5 A 5.5,5.5 0 0 0 7,12.5 Z" Fill="{DynamicResource Blue}"/>
+                  <Path Data="M 7,1.5 A 5.5,5.5 0 1 1 6.99,1.5 Z" Stroke="{DynamicResource Blue}" StrokeThickness="1.3" Fill="Transparent"/>
+                </Grid>
+                <Path x:Name="GlyphDark" Data="M 9,1.5 A 5.5,5.5 0 1 0 12.5,9 A 4.5,4.5 0 0 1 9,1.5 Z"
+                      Stroke="{DynamicResource Blue}" StrokeThickness="1.3" Fill="Transparent" Visibility="Collapsed"/>
+                <Path x:Name="GlyphLight" Data="M 7,4.5 A 2.5,2.5 0 1 1 6.99,4.5 Z M 7,0.5 L 7,2.3 M 7,11.7 L 7,13.5 M 0.5,7 L 2.3,7 M 11.7,7 L 13.5,7 M 2.4,2.4 L 3.6,3.6 M 10.4,10.4 L 11.6,11.6 M 2.4,11.6 L 3.6,10.4 M 10.4,3.6 L 11.6,2.4"
+                      Stroke="{DynamicResource Blue}" StrokeThickness="1.3" Fill="Transparent" Visibility="Collapsed"/>
+              </Grid>
+              <TextBlock x:Name="ThemeChipText" Text="Auto" Margin="6,0,0,0" FontSize="11" VerticalAlignment="Center"/>
+            </StackPanel>
+          </Border>
+        </DockPanel>
+      </Border>
+
+      <!-- ==================== footer ==================== -->
+      <Border DockPanel.Dock="Bottom" Background="{DynamicResource Bar}" CornerRadius="0,0,6,6" Padding="12,9">
+        <DockPanel LastChildFill="True">
+          <Button x:Name="ApplyButton" DockPanel.Dock="Right" Style="{DynamicResource TaPrimaryButton}" Content="Apply" Margin="8,0,0,0"/>
+          <Button x:Name="CancelButton" DockPanel.Dock="Right" Style="{DynamicResource TaButton}" Content="Cancel" Margin="8,0,0,0"/>
+          <Button x:Name="ResetButton" DockPanel.Dock="Right" Style="{DynamicResource TaButton}" Content="Reset defaults"/>
+          <TextBlock x:Name="StatusText" Foreground="{DynamicResource Muted}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
+                     Text="Saved to %APPDATA%\RevoBIM\tag_aligner.txt"/>
+        </DockPanel>
+      </Border>
+
+      <!-- ==================== body ==================== -->
+      <Grid Margin="12">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="12"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- left column -->
+        <StackPanel Grid.Column="0">
+          <Border Background="{DynamicResource Card}" BorderBrush="{DynamicResource Edge}" BorderThickness="1" CornerRadius="4" Padding="12,10">
+            <StackPanel>
+              <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                <Border Width="4" Height="14" Background="{DynamicResource Blue}" CornerRadius="1" Margin="0,0,7,0"/>
+                <TextBlock Text="Align Left / Center / Right" FontWeight="SemiBold"/>
+              </StackPanel>
+              <TextBlock Text="Line the selected tags up to:" Foreground="{DynamicResource Muted}" Margin="0,0,0,4"/>
+              <RadioButton x:Name="RefFirst" GroupName="Ref" Content="The first tag selected"/>
+              <RadioButton x:Name="RefAverage" GroupName="Ref" Content="The average of all the selected tags"/>
+              <RadioButton x:Name="RefPick" GroupName="Ref" Content="A tag I click after pressing the button"/>
+              <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource Muted}" FontSize="11" Margin="22,2,0,0"
+                         Text="Only the side-to-side position changes. The up-and-down position is kept."/>
+            </StackPanel>
+          </Border>
+
+          <Border Background="{DynamicResource Card}" BorderBrush="{DynamicResource Edge}" BorderThickness="1" CornerRadius="4" Padding="12,10" Margin="0,12,0,0">
+            <StackPanel>
+              <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                <Border Width="4" Height="14" Background="{DynamicResource Blue}" CornerRadius="1" Margin="0,0,7,0"/>
+                <TextBlock Text="Moving tags" FontWeight="SemiBold"/>
+              </StackPanel>
+              <CheckBox x:Name="MoveElbows" Content="Carry leader elbows with the tag"/>
+              <TextBlock Text="Pinned tags" Foreground="{DynamicResource Muted}" Margin="0,6,0,2"/>
+              <RadioButton x:Name="PinSkip" GroupName="Pin" Content="Leave them where they are and say so"/>
+              <RadioButton x:Name="PinUnpin" GroupName="Pin" Content="Unpin, move, and pin again"/>
+              <TextBlock Text="Show the results window" Foreground="{DynamicResource Muted}" Margin="0,6,0,2"/>
+              <RadioButton x:Name="ShowNeeded" GroupName="Show" Content="Only when something needs a look"/>
+              <RadioButton x:Name="ShowAlways" GroupName="Show" Content="Always"/>
+              <RadioButton x:Name="ShowNever" GroupName="Show" Content="Never"/>
+              <CheckBox x:Name="DebugLog" Content="Write a debug log (tag_aligner_debug.txt)" Margin="0,8,0,0"/>
+            </StackPanel>
+          </Border>
+        </StackPanel>
+
+        <!-- right column -->
+        <StackPanel Grid.Column="2">
+          <Border Background="{DynamicResource Card}" BorderBrush="{DynamicResource Edge}" BorderThickness="1" CornerRadius="4" Padding="12,10">
+            <StackPanel>
+              <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                <Border Width="4" Height="14" Background="{DynamicResource Orange}" CornerRadius="1" Margin="0,0,7,0"/>
+                <TextBlock Text="Untangle spacing" FontWeight="SemiBold"/>
+              </StackPanel>
+
+              <TextBlock Text="Text height (on paper, scaled by the view)" Foreground="{DynamicResource Muted}" Margin="0,0,0,2"/>
+              <RadioButton x:Name="THAuto" GroupName="TH" Content="Read it from the tag families (largest text)"/>
+              <StackPanel Orientation="Horizontal">
+                <RadioButton x:Name="THFixed" GroupName="TH" Content="Fixed at" VerticalAlignment="Center"/>
+                <TextBox x:Name="TextHeight" Width="54" Margin="8,0,6,0"/>
+                <TextBlock Text="mm (also used if a family has no text)" Foreground="{DynamicResource Muted}" VerticalAlignment="Center"/>
+              </StackPanel>
+
+              <TextBlock Text="Untangle Vertical" FontWeight="SemiBold" Foreground="{DynamicResource Orange}" Margin="0,10,0,2"/>
+              <StackPanel Orientation="Horizontal">
+                <RadioButton x:Name="VModeGap" GroupName="VMode" Content="Tag height + text height x" VerticalAlignment="Center"/>
+                <TextBox x:Name="VGap" Width="46" Margin="8,0,6,0"/>
+                <TextBlock Text="clear gap" Foreground="{DynamicResource Muted}" VerticalAlignment="Center"/>
+              </StackPanel>
+              <StackPanel Orientation="Horizontal">
+                <RadioButton x:Name="VModePitch" GroupName="VMode" Content="Fixed pitch, text height x" VerticalAlignment="Center"/>
+                <TextBox x:Name="VPitch" Width="46" Margin="8,0,6,0"/>
+                <TextBlock Text="centre to centre" Foreground="{DynamicResource Muted}" VerticalAlignment="Center"/>
+              </StackPanel>
+              <TextBlock x:Name="VPreview" FontSize="11" Foreground="{DynamicResource Muted}" Margin="22,2,0,0" TextWrapping="Wrap"/>
+
+              <TextBlock Text="Untangle Horizontal" FontWeight="SemiBold" Foreground="{DynamicResource Orange}" Margin="0,10,0,2"/>
+              <StackPanel Orientation="Horizontal">
+                <RadioButton x:Name="HModeGap" GroupName="HMode" Content="Tag width + text height x" VerticalAlignment="Center"/>
+                <TextBox x:Name="HGap" Width="46" Margin="8,0,6,0"/>
+                <TextBlock Text="clear gap" Foreground="{DynamicResource Muted}" VerticalAlignment="Center"/>
+              </StackPanel>
+              <StackPanel Orientation="Horizontal">
+                <RadioButton x:Name="HModePitch" GroupName="HMode" Content="Fixed pitch, text height x" VerticalAlignment="Center"/>
+                <TextBox x:Name="HPitch" Width="46" Margin="8,0,6,0"/>
+                <TextBlock Text="centre to centre" Foreground="{DynamicResource Muted}" VerticalAlignment="Center"/>
+              </StackPanel>
+              <TextBlock x:Name="HPreview" FontSize="11" Foreground="{DynamicResource Muted}" Margin="22,2,0,0" TextWrapping="Wrap"/>
+
+              <TextBlock Text="Keep in place" Foreground="{DynamicResource Muted}" Margin="0,10,0,2"/>
+              <RadioButton x:Name="AnchorCentre" GroupName="Anchor" Content="The middle of the group (tags move least)"/>
+              <RadioButton x:Name="AnchorFirst" GroupName="Anchor" Content="The top tag (vertical) or left tag (horizontal)"/>
+
+              <TextBlock TextWrapping="Wrap" FontSize="11" Foreground="{DynamicResource Muted}" Margin="0,8,0,0"
+                         Text="Defaults give single line tags text height + text height / 2 centre to centre. Tags never end up overlapping, whichever rule is picked."/>
+            </StackPanel>
+          </Border>
+        </StackPanel>
+      </Grid>
+    </DockPanel>
+  </Border>
+</Window>

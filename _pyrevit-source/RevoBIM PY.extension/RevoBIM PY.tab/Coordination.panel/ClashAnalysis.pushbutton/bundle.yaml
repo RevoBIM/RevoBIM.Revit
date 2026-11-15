@@ -1,0 +1,11 @@
+title: Clash Analysis
+tooltip: >-
+  Clash review for host and linked models. Build clash tests from categories
+  and families (Set A vs Set B), save them to run again, count the clashes,
+  place a clash family centred on each intersection with an "A-vs-B" comment,
+  group them per floor as CLASH-<Year>_<Month>_<Day>_<Hour>-<Minute>_<Level>-<Clash name>
+  (skipping clashes already marked) on a
+  chosen workset (or create Z_BIM_Clash_Sphere), run on the whole project
+  or the current view, schedule them in BIM_Clash Analysis Schedule, then
+  review, re-workset or delete those groups.
+author: RevoBIM

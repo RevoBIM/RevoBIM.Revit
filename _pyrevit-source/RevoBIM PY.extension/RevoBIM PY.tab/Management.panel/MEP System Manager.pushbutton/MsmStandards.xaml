@@ -1,0 +1,129 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RevoBIM MEP System Manager Checks and Standards"
+        Width="900" Height="620" WindowStyle="None" AllowsTransparency="True"
+        Background="Transparent" ResizeMode="NoResize" WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False" FontFamily="Segoe UI" FontSize="12.5">
+    <Border CornerRadius="6" BorderThickness="1" BorderBrush="{DynamicResource WinEdge}"
+            Background="{DynamicResource Bg}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- ==================== header ==================== -->
+            <Border x:Name="HeaderBar" Background="{DynamicResource Bar}" CornerRadius="6,6,0,0" Padding="12,8,8,8">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock x:Name="VersionText" Text="v" Foreground="{DynamicResource Muted}" FontSize="11"
+                                   Margin="10,0,8,0" VerticalAlignment="Center"/>
+                        <Button x:Name="BtnShrink" Style="{DynamicResource BtnIcon}"
+                                ToolTip="Shrink to the taskbar so Revit can be seen (Ctrl+Shift+H)">
+                            <Grid Width="14" Height="14">
+                                <Path x:Name="ShrinkGlyph" Data="M7,1 L7,9 M3.5,5.5 L7,9 L10.5,5.5 M2,12.5 L12,12.5"
+                                      Stroke="{DynamicResource Text}" StrokeThickness="1.6"
+                                      StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
+                                <Path x:Name="ExpandGlyph" Data="M7,13 L7,2.5 M2.5,7 L7,2.5 L11.5,7" Visibility="Collapsed"
+                                      Stroke="{DynamicResource Green}" StrokeThickness="2.4"
+                                      StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
+                            </Grid>
+                        </Button>
+                        <Button x:Name="BtnClose" Style="{DynamicResource BtnClose}" ToolTip="Close">
+                            <Path Data="M0,0 L10,10 M10,0 L0,10" Stroke="{DynamicResource Text}" StrokeThickness="1.6"/>
+                        </Button>
+                    </StackPanel>
+                    <Border x:Name="LogoHost" Background="Transparent" HorizontalAlignment="Left">
+                        <StackPanel Orientation="Horizontal">
+                            <Image x:Name="Logo" Width="28" Height="28" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock x:Name="LogoText" Text="RevoBIM" FontSize="20" FontWeight="Bold"
+                                           Foreground="{DynamicResource Blue}"/>
+                                <TextBlock x:Name="SubTitle" Text="MEP System Manager Checks and Standards" FontSize="15"
+                                           Foreground="{DynamicResource Orange}" Margin="1,-4,0,0"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </DockPanel>
+            </Border>
+
+            <!-- ==================== body: two columns, no scrolling ==================== -->
+            <Grid Grid.Row="1" Margin="14,12,14,6">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="1.3*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                        <Border Width="4" Height="16" CornerRadius="2" Background="{DynamicResource Blue}" Margin="0,0,7,0"/>
+                        <TextBlock Text="Checks" FontWeight="SemiBold" Foreground="{DynamicResource Text}"/>
+                    </StackPanel>
+                    <TextBlock Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,0,0,10"
+                               Text="A row with anything ticked here wrong with it turns red and says what in its Checks column."/>
+                    <CheckBox x:Name="ChkStandards" Content="Pipe type not allowed for its service" Margin="0,0,0,4"/>
+                    <TextBlock Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="22,0,0,10" FontSize="11.5"
+                               Text="Uses the standards on the right. A service with none set is never flagged."/>
+
+                    <CheckBox x:Name="ChkSizes" Content="Size not in the pipe type's routing preferences" Margin="0,0,0,10"/>
+                    <CheckBox x:Name="ChkOpenEnds" Content="Open ends - a pipe end joined to nothing" Margin="0,0,0,10"/>
+                    <CheckBox x:Name="ChkMismatch" Content="Fitting or accessory on a different system" Margin="0,0,0,10"/>
+                    <CheckBox x:Name="ChkNoSystem" Content="Pipe on no system at all" Margin="0,0,0,16"/>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                        <Border Width="4" Height="16" CornerRadius="2" Background="{DynamicResource Blue}" Margin="0,0,7,0"/>
+                        <TextBlock Text="How standards match" FontWeight="SemiBold" Foreground="{DynamicResource Text}"/>
+                    </StackPanel>
+                    <TextBlock x:Name="MatchNote" Foreground="{DynamicResource Muted}" TextWrapping="Wrap"/>
+                </StackPanel>
+
+                <DockPanel Grid.Column="2">
+                    <StackPanel DockPanel.Dock="Top">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                            <Border Width="4" Height="16" CornerRadius="2" Background="{DynamicResource Orange}" Margin="0,0,7,0"/>
+                            <TextBlock Text="Type standards" FontWeight="SemiBold" Foreground="{DynamicResource Text}"/>
+                        </StackPanel>
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="70"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Service" Foreground="{DynamicResource Muted}" VerticalAlignment="Center"/>
+                            <ComboBox Grid.Column="1" x:Name="CmbService"/>
+                        </Grid>
+                        <DockPanel Margin="0,0,0,6">
+                            <TextBlock x:Name="TypeCount" DockPanel.Dock="Right" Foreground="{DynamicResource Muted}"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock x:Name="TypesTitle" Text="Allowed types" Foreground="{DynamicResource Text}" VerticalAlignment="Center"/>
+                        </DockPanel>
+                        <DockPanel Margin="0,0,0,6">
+                            <Button x:Name="BtnTypesNone" DockPanel.Dock="Right" Content="None" Margin="6,0,0,0"/>
+                            <Button x:Name="BtnTypesAll" DockPanel.Dock="Right" Content="All" Margin="6,0,0,0"/>
+                            <TextBox x:Name="TxtTypeSearch" Tag="Search types..."/>
+                        </DockPanel>
+                    </StackPanel>
+                    <Border Background="{DynamicResource Field}" BorderBrush="{DynamicResource Edge}"
+                            BorderThickness="1" CornerRadius="4">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel x:Name="TypeHost" Margin="8,6,8,6"/>
+                        </ScrollViewer>
+                    </Border>
+                </DockPanel>
+            </Grid>
+
+            <!-- ==================== footer ==================== -->
+            <Border Grid.Row="2" Background="{DynamicResource Bar}" CornerRadius="0,0,6,6" Padding="12,8,12,8">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                        <Button x:Name="BtnCancel" Content="Cancel" Margin="0,0,8,0"/>
+                        <Button x:Name="BtnApply" Style="{DynamicResource BtnGreen}" Content="Apply"/>
+                    </StackPanel>
+                    <TextBlock x:Name="StatusText" Foreground="{DynamicResource Muted}" VerticalAlignment="Center"
+                               TextTrimming="CharacterEllipsis" Text="Nothing is saved until Apply."/>
+                </DockPanel>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

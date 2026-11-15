@@ -1,0 +1,6 @@
+title: Schematic Marriage
+tooltip: >-
+  Marry a source element to a target element or detail item, keep the pairs in the
+  model, and push parameter values from each source to its target with Parameter
+  Push Templates (Update Data).
+author: RevoBIM

@@ -1,0 +1,186 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RevoBIM Addin Manager Settings"
+        Width="540" Height="640"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False">
+
+    <Border Background="{DynamicResource BgWindow}"
+            BorderBrush="{DynamicResource BrdWindow}" BorderThickness="1" CornerRadius="6">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <!-- ============================ header ============================ -->
+            <Border x:Name="HeaderBar" Grid.Row="0" Tag="round"
+                    Background="{DynamicResource BgBar}"
+                    CornerRadius="6,6,0,0" Padding="14,10,10,10">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="RevoBIM" FontFamily="Segoe UI" FontSize="20"
+                                   FontWeight="Bold" Foreground="{DynamicResource AccBlue}" />
+                        <TextBlock Text="Addin Manager Settings" FontFamily="Segoe UI" FontSize="14"
+                                   Foreground="{DynamicResource AccOrange}" Margin="0,-3,0,0" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Top">
+                        <TextBlock x:Name="VersionText" Text="v0.0.0" FontFamily="Segoe UI"
+                                   FontSize="11" Foreground="{DynamicResource FgMuted}"
+                                   VerticalAlignment="Center" Margin="0,0,10,0" />
+                        <Button x:Name="ShrinkBtn" Style="{DynamicResource WinButton}"
+                                ToolTip="Shrink to the taskbar so Revit can be seen (Ctrl+Shift+H)">
+                            <Grid>
+                                <Path x:Name="ShrinkGlyph" Stroke="{DynamicResource FgText}"
+                                      StrokeThickness="1.6" StrokeStartLineCap="Round"
+                                      StrokeEndLineCap="Round" StrokeLineJoin="Round"
+                                      Data="M 6,1 L 6,9 M 2.5,5.5 L 6,9 L 9.5,5.5 M 1.5,12 L 10.5,12" />
+                                <Path x:Name="ExpandGlyph" Stroke="{DynamicResource AccGreen}"
+                                      StrokeThickness="2.2" StrokeStartLineCap="Round"
+                                      StrokeEndLineCap="Round" StrokeLineJoin="Round"
+                                      Visibility="Collapsed"
+                                      Data="M 6,12 L 6,2 M 1.5,6.5 L 6,2 L 10.5,6.5" />
+                            </Grid>
+                        </Button>
+                        <Button x:Name="CloseBtn" Style="{DynamicResource CloseButton}" Margin="2,0,0,0"
+                                ToolTip="Close">
+                            <Path Stroke="{DynamicResource FgText}" StrokeThickness="1.5"
+                                  StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                                  Data="M 1,1 L 10,10 M 10,1 L 1,10" />
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- ============================= body ============================= -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="16,12,14,12">
+                <StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                        <Border Width="4" Height="15" Background="{DynamicResource AccBlue}"
+                                CornerRadius="2" Margin="0,0,8,0" />
+                        <TextBlock Text="Where the addins are" FontFamily="Segoe UI" FontSize="13"
+                                   FontWeight="SemiBold" Foreground="{DynamicResource FgText}"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+                    <TextBlock Text="One folder per line. Leave blank to use the pyRevit extensions folder."
+                               FontFamily="Segoe UI" FontSize="11"
+                               Foreground="{DynamicResource FgMuted}" Margin="0,0,0,5"
+                               TextWrapping="Wrap" />
+                    <TextBox x:Name="FoldersBox" Height="86" AcceptsReturn="True"
+                             TextWrapping="NoWrap" VerticalContentAlignment="Top"
+                             VerticalScrollBarVisibility="Auto"
+                             Tag="%APPDATA%\pyRevit\Extensions" />
+                    <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                        <Button x:Name="BrowseBtn" Content="Add a folder" />
+                        <Button x:Name="ClearFoldersBtn" Content="Clear" Margin="6,0,0,0" />
+                    </StackPanel>
+
+                    <TextBlock Text="Only list extensions whose name contains"
+                               FontFamily="Segoe UI" FontSize="12"
+                               Foreground="{DynamicResource FgText}" Margin="0,14,0,4" />
+                    <TextBox x:Name="NameFilterBox" Tag="blank lists them all" />
+
+                    <StackPanel Orientation="Horizontal" Margin="0,18,0,6">
+                        <Border Width="4" Height="15" Background="{DynamicResource AccOrange}"
+                                CornerRadius="2" Margin="0,0,8,0" />
+                        <TextBlock Text="How the list looks" FontFamily="Segoe UI" FontSize="13"
+                                   FontWeight="SemiBold" Foreground="{DynamicResource FgText}"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+
+                    <Grid Margin="0,2,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Group by"
+                                   FontFamily="Segoe UI" FontSize="12"
+                                   Foreground="{DynamicResource FgText}" Margin="0,0,8,3" />
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text="Icon size"
+                                   FontFamily="Segoe UI" FontSize="12"
+                                   Foreground="{DynamicResource FgText}" Margin="8,0,0,3" />
+                        <ComboBox x:Name="GroupByCombo" Grid.Row="1" Grid.Column="0" Margin="0,0,8,0" />
+                        <ComboBox x:Name="IconSizeCombo" Grid.Row="1" Grid.Column="1" Margin="8,0,0,0" />
+
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Theme"
+                                   FontFamily="Segoe UI" FontSize="12"
+                                   Foreground="{DynamicResource FgText}" Margin="0,12,8,3" />
+                        <TextBlock Grid.Row="2" Grid.Column="1" Text="Dock the pane"
+                                   FontFamily="Segoe UI" FontSize="12"
+                                   Foreground="{DynamicResource FgText}" Margin="8,12,0,3" />
+                        <ComboBox x:Name="ThemeCombo" Grid.Row="3" Grid.Column="0" Margin="0,0,8,0" />
+                        <ComboBox x:Name="DockCombo" Grid.Row="3" Grid.Column="1" Margin="8,0,0,0" />
+                    </Grid>
+
+                    <TextBlock Text="The floating window snaps to this side straight away. Docked in Revit, the pane first appears here at the next Revit start - after that Revit remembers wherever you drag it."
+                               FontFamily="Segoe UI" FontSize="11" TextWrapping="Wrap"
+                               Foreground="{DynamicResource FgMuted}" Margin="0,7,0,0" />
+
+                    <CheckBox x:Name="TooltipsChk" Content="Show a tooltip on each addin" Margin="0,12,0,0" />
+                    <CheckBox x:Name="PathsChk" Content="Put the folder path in the tooltip" />
+                    <CheckBox x:Name="HideUnloadedChk" Content="Hide addins that are in the folder but not on the ribbon" />
+
+                    <StackPanel Orientation="Horizontal" Margin="0,18,0,6">
+                        <Border Width="4" Height="15" Background="{DynamicResource AccBlue}"
+                                CornerRadius="2" Margin="0,0,8,0" />
+                        <TextBlock Text="Keeping up to date" FontFamily="Segoe UI" FontSize="13"
+                                   FontWeight="SemiBold" Foreground="{DynamicResource FgText}"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+
+                    <CheckBox x:Name="WatchChk" Content="Re-read the folder when it changes" />
+                    <StackPanel Orientation="Horizontal" Margin="22,4,0,0">
+                        <TextBlock Text="settle delay" FontFamily="Segoe UI" FontSize="12"
+                                   Foreground="{DynamicResource FgMuted}"
+                                   VerticalAlignment="Center" Margin="0,0,8,0" />
+                        <TextBox x:Name="WatchMsBox" Width="70" />
+                        <TextBlock Text="ms" FontFamily="Segoe UI" FontSize="12"
+                                   Foreground="{DynamicResource FgMuted}"
+                                   VerticalAlignment="Center" Margin="6,0,0,0" />
+                    </StackPanel>
+
+                    <CheckBox x:Name="DebugChk" Content="Write a debug log to %APPDATA%\RevoBIM" Margin="0,10,0,0" />
+
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- ============================ footer ============================ -->
+            <Border Grid.Row="2" Background="{DynamicResource BgBar}"
+                    CornerRadius="0,0,6,6" Padding="14,9,14,9">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock x:Name="FooterText" Grid.Column="0" Text=""
+                               FontFamily="Segoe UI" FontSize="11"
+                               Foreground="{DynamicResource FgMuted}"
+                               VerticalAlignment="Center" />
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <Button x:Name="CancelBtn" Content="Cancel" MinWidth="80" MinHeight="28" />
+                        <Button x:Name="ApplyBtn" Content="Apply" MinWidth="90" MinHeight="28"
+                                Margin="8,0,0,0" Style="{DynamicResource GreenButton}" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

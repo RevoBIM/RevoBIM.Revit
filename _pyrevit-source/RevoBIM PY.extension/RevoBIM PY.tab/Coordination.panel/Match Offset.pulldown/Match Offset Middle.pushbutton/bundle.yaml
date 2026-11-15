@@ -1,0 +1,7 @@
+title: RevoBIM Match Offset Middle
+tooltip: >
+  Match Offset Middle. First click takes the middle offset off an element;
+  every click after it puts that element's middle on the same offset.
+  Escape finishes. Give it a keyboard shortcut and the whole tool is
+  keys, click, click.
+author: RevoBIM

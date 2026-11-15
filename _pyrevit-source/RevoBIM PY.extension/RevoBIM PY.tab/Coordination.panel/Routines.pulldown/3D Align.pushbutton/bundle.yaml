@@ -1,0 +1,12 @@
+title: 3D Align
+tooltip: >-
+  Centre one pipe, duct, cable tray or conduit on another, in plan.
+
+  Click a vertical, then: another vertical is centred on it in X and Y; a
+  horizontal has its centreline run through the vertical's centre. Click a
+  horizontal, then a vertical: the vertical moves onto the horizontal's
+  centreline. Nothing changes height or fall. Pre-select the first element to
+  skip the first click. Keeps going until Escape.
+
+  Shift+Click for settings.
+author: RevoBIM

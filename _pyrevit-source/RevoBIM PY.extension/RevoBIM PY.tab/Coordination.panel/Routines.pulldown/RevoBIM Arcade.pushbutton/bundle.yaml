@@ -1,0 +1,11 @@
+title: RevoBIM Arcade
+tooltip: >
+  Opens the RevoBIM Arcade - Pacman by default, and whatever the game chip was
+  last set to after that.
+
+  Runs in its own process where this machine has Python, and on its own thread
+  where it does not, so it keeps playing while a tool is working.
+
+  Shift-click for a diagnostic report: whether the easter egg is wired, which
+  tools it found, and the last dozen log lines.
+author: RevoBIM

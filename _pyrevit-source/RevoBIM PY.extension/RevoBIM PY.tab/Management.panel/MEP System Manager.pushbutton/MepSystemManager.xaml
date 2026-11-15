@@ -1,0 +1,442 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RevoBIM MEP System Manager"
+        Width="1180" Height="780" MinWidth="1180" MinHeight="560"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ResizeMode="NoResize" WindowStartupLocation="CenterScreen"
+        ShowInTaskbar="False" FontFamily="Segoe UI" FontSize="12.5">
+    <Grid>
+        <Border x:Name="RootBorder" CornerRadius="6" BorderThickness="1"
+                BorderBrush="{DynamicResource WinEdge}" Background="{DynamicResource Bg}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- ==================== header ==================== -->
+                <Border x:Name="HeaderBar" Grid.Row="0" Background="{DynamicResource Bar}"
+                        CornerRadius="6,6,0,0" Padding="12,8,8,8">
+                    <DockPanel LastChildFill="True">
+                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Button x:Name="BtnChecks" Style="{DynamicResource BtnChip}" Margin="0,0,6,0"
+                                    ToolTip="Which checks flag a row, and the pipe types each service may use">
+                                <StackPanel Orientation="Horizontal">
+                                    <Canvas Width="14" Height="14" VerticalAlignment="Center">
+                                        <Path Data="M2,7.5 L5.5,11 L12,3" Stroke="{DynamicResource Text}"
+                                              StrokeThickness="1.8"/>
+                                    </Canvas>
+                                    <TextBlock Text="Checks" Margin="6,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            <Button x:Name="BtnExport" Style="{DynamicResource BtnChip}" Margin="0,0,6,0"
+                                    ToolTip="Export the rows as shown to an Excel workbook">
+                                <StackPanel Orientation="Horizontal">
+                                    <Canvas Width="14" Height="14" VerticalAlignment="Center">
+                                        <Border Canvas.Left="1" Canvas.Top="1" Width="12" Height="12"
+                                                BorderBrush="{DynamicResource Text}" BorderThickness="1.4"/>
+                                        <Path Data="M1.5,5.5 L12.5,5.5 M1.5,9 L12.5,9 M6,1.5 L6,12.5"
+                                              Stroke="{DynamicResource Text}" StrokeThickness="1"/>
+                                    </Canvas>
+                                    <TextBlock Text="Export" Margin="6,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            <Button x:Name="BtnSettings" Style="{DynamicResource BtnChip}" Margin="0,0,6,0"
+                                    ToolTip="Settings">
+                                <StackPanel Orientation="Horizontal">
+                                    <Canvas Width="14" Height="14" VerticalAlignment="Center">
+                                        <Path Data="M7,0.5 L7,3 M7,11 L7,13.5 M0.5,7 L3,7 M11,7 L13.5,7 M2.4,2.4 L4.2,4.2 M9.8,9.8 L11.6,11.6 M2.4,11.6 L4.2,9.8 M9.8,4.2 L11.6,2.4"
+                                              Stroke="{DynamicResource Text}" StrokeThickness="1.6"/>
+                                        <Ellipse Canvas.Left="3" Canvas.Top="3" Width="8" Height="8"
+                                                 Stroke="{DynamicResource Text}" StrokeThickness="1.6"/>
+                                    </Canvas>
+                                    <TextBlock Text="Settings" Margin="6,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            <Button x:Name="BtnTheme" Style="{DynamicResource BtnChip}"
+                                    ToolTip="Theme - Auto follows Revit's canvas, then Dark, then Light">
+                                <StackPanel Orientation="Horizontal">
+                                    <Grid Width="13" Height="13" VerticalAlignment="Center">
+                                        <Ellipse Stroke="{DynamicResource Text}" StrokeThickness="1.4"/>
+                                        <Path Data="M6.5,0.5 A6,6 0 0 1 6.5,12.5 Z" Fill="{DynamicResource Text}"/>
+                                    </Grid>
+                                    <TextBlock x:Name="ThemeLabel" Text="Auto" Margin="6,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            <TextBlock x:Name="VersionText" Text="v" Foreground="{DynamicResource Muted}"
+                                       FontSize="11" Margin="10,0,8,0" VerticalAlignment="Center"/>
+                            <Button x:Name="BtnShrink" Style="{DynamicResource BtnIcon}"
+                                    ToolTip="Shrink to the taskbar so Revit can be seen (Ctrl+Shift+H)">
+                                <Grid Width="14" Height="14">
+                                    <Path x:Name="ShrinkGlyph" Data="M7,1 L7,9 M3.5,5.5 L7,9 L10.5,5.5 M2,12.5 L12,12.5"
+                                          Stroke="{DynamicResource Text}" StrokeThickness="1.6"
+                                          StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
+                                    <Path x:Name="ExpandGlyph" Data="M7,13 L7,2.5 M2.5,7 L7,2.5 L11.5,7" Visibility="Collapsed"
+                                          Stroke="{DynamicResource Green}" StrokeThickness="2.4"
+                                          StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
+                                </Grid>
+                            </Button>
+                            <Button x:Name="BtnFull" Style="{DynamicResource BtnIcon}" ToolTip="Full screen (F11)">
+                                <Grid Width="13" Height="11">
+                                    <Border x:Name="FullGlyphBack" BorderBrush="{DynamicResource Text}" BorderThickness="1.4"
+                                            Margin="3,0,0,3" Visibility="Collapsed"/>
+                                    <Border x:Name="FullGlyph" BorderBrush="{DynamicResource Text}" BorderThickness="1.4"
+                                            Background="{DynamicResource Bar}"/>
+                                </Grid>
+                            </Button>
+                            <Button x:Name="BtnClose" Style="{DynamicResource BtnClose}" ToolTip="Close">
+                                <Path Data="M0,0 L10,10 M10,0 L0,10" Stroke="{DynamicResource Text}" StrokeThickness="1.6"/>
+                            </Button>
+                        </StackPanel>
+                        <Border x:Name="LogoHost" Background="Transparent" HorizontalAlignment="Left">
+                            <StackPanel Orientation="Horizontal">
+                                <Image x:Name="Logo" Width="32" Height="32" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock x:Name="LogoText" Text="RevoBIM" FontSize="20" FontWeight="Bold"
+                                               Foreground="{DynamicResource Blue}"/>
+                                    <TextBlock Text="MEP System Manager" FontSize="15"
+                                               Foreground="{DynamicResource Orange}" Margin="1,-4,0,0"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </DockPanel>
+                </Border>
+
+                <!-- ==================== progress band ==================== -->
+                <!-- ==================== tabs: one per discipline ==================== -->
+                <Border Grid.Row="1" Background="{DynamicResource Bar}" Padding="12,0,12,0"
+                        BorderBrush="{DynamicResource Edge}" BorderThickness="0,1,0,0">
+                    <StackPanel Orientation="Horizontal">
+                        <Button x:Name="BtnTabPipe" Style="{DynamicResource BtnTab}">
+                            <StackPanel Orientation="Horizontal">
+                                <Canvas Width="18" Height="14" Margin="0,0,8,0" VerticalAlignment="Center">
+                                    <Border Canvas.Left="0" Canvas.Top="4" Width="18" Height="6" CornerRadius="3" Background="{DynamicResource Orange}"/>
+                                    <Border Canvas.Left="3" Canvas.Top="2" Width="2" Height="10" Background="{DynamicResource Orange}"/>
+                                    <Border Canvas.Left="13" Canvas.Top="2" Width="2" Height="10" Background="{DynamicResource Orange}"/>
+                                </Canvas>
+                                <TextBlock Text="Pipe System Manager" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        <Button x:Name="BtnTabDuct" Style="{DynamicResource BtnTab}">
+                            <StackPanel Orientation="Horizontal">
+                                <Canvas Width="18" Height="14" Margin="0,0,8,0" VerticalAlignment="Center">
+                                    <Border Canvas.Left="0" Canvas.Top="2" Width="18" Height="10" Background="{DynamicResource Blue}"/>
+                                    <Border Canvas.Left="0" Canvas.Top="2" Width="18" Height="2" Background="{DynamicResource Text}" Opacity="0.35"/>
+                                </Canvas>
+                                <TextBlock Text="Duct System Manager" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        <Button x:Name="BtnTabCont" Style="{DynamicResource BtnTab}">
+                            <StackPanel Orientation="Horizontal">
+                                <Canvas Width="18" Height="14" Margin="0,0,8,0" VerticalAlignment="Center">
+                                    <Border Canvas.Left="0" Canvas.Top="2" Width="18" Height="2" Background="{DynamicResource Green}"/>
+                                    <Border Canvas.Left="0" Canvas.Top="10" Width="18" Height="2" Background="{DynamicResource Green}"/>
+                                    <Border Canvas.Left="2" Canvas.Top="4" Width="2" Height="6" Background="{DynamicResource Green}"/>
+                                    <Border Canvas.Left="8" Canvas.Top="4" Width="2" Height="6" Background="{DynamicResource Green}"/>
+                                    <Border Canvas.Left="14" Canvas.Top="4" Width="2" Height="6" Background="{DynamicResource Green}"/>
+                                </Canvas>
+                                <TextBlock Text="Containment System Manager" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        <Button x:Name="BtnTabWs" Style="{DynamicResource BtnTab}">
+                            <StackPanel Orientation="Horizontal">
+                                <Canvas Width="18" Height="14" Margin="0,0,8,0" VerticalAlignment="Center">
+                                    <Border Canvas.Left="4" Canvas.Top="0" Width="13" Height="8" CornerRadius="1.5" BorderThickness="1.5" BorderBrush="{DynamicResource Muted}"/>
+                                    <Border Canvas.Left="2" Canvas.Top="3" Width="13" Height="8" CornerRadius="1.5" BorderThickness="1.5" BorderBrush="{DynamicResource Blue}" Background="{DynamicResource Bar}"/>
+                                    <Border Canvas.Left="0" Canvas.Top="6" Width="13" Height="8" CornerRadius="1.5" Background="{DynamicResource Blue}"/>
+                                </Canvas>
+                                <TextBlock Text="Workset Assigner" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Row="2" Height="3" Background="{DynamicResource Bar}">
+                    <Border x:Name="ProgressFill" HorizontalAlignment="Left" Width="0"
+                            Background="{DynamicResource Orange}"/>
+                </Border>
+
+                <!-- ==================== toolbar ==================== -->
+                <Border Grid.Row="3" Padding="12,10,12,8">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <!-- ==================== toolbar row 1: find and how rows are split ==================== -->
+                        <DockPanel Grid.Row="0" LastChildFill="False">
+                            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                                <Button x:Name="BtnPick" Style="{DynamicResource BtnBlue}" Margin="6,0,6,0"
+                                        ToolTip="Pick a pipe, duct, cable tray or conduit in Revit - its system is found and selected in the list, on its own tab">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Canvas Width="14" Height="14" Margin="0,0,7,0" VerticalAlignment="Center">
+                                            <Path Data="M2,0.5 L2,12 L5,9.2 L7.4,13.5 L9.3,12.6 L6.9,8.4 L10.8,8.4 Z"
+                                                  Fill="{DynamicResource OnAccent}"/>
+                                        </Canvas>
+                                        <TextBlock Text="Pick System" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
+                                <Button x:Name="BtnExpandAll" Content="Expand all" Margin="6,0,0,0"/>
+                                <Button x:Name="BtnCollapseAll" Content="Collapse all" Margin="6,0,0,0"/>
+                                <Button x:Name="BtnRefresh" Content="Refresh (F5)" Margin="6,0,0,0"/>
+                            </StackPanel>
+                            <TextBox x:Name="TxtSearch" Width="240" Tag="Search every service..."
+                                     VerticalAlignment="Center"/>
+                            <StackPanel x:Name="WsTools" Orientation="Horizontal" Visibility="Collapsed">
+                                <Border Width="4" Height="18" CornerRadius="2" Background="{DynamicResource Blue}"
+                                        Margin="16,0,6,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="Group by" Foreground="{DynamicResource Muted}"
+                                           VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                <ComboBox x:Name="CmbWsGrouping" Width="270" VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel x:Name="DisciplineTools" Orientation="Horizontal">
+                                <Border Width="4" Height="18" CornerRadius="2" Background="{DynamicResource Blue}"
+                                        Margin="16,0,6,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="Rows split by" Foreground="{DynamicResource Muted}"
+                                           VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                <CheckBox x:Name="ChkSplitSystem" Content="System No" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                                <CheckBox x:Name="ChkSplitType" Content="Type" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                                <CheckBox x:Name="ChkSplitSize" Content="Size" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </DockPanel>
+                        <!-- ==================== toolbar row 2: scope, checks and filters ==================== -->
+                        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,8,0,0">
+                            <StackPanel x:Name="WsTools2" Orientation="Horizontal" Visibility="Collapsed">
+                                <CheckBox x:Name="ChkMixedOnly" Content="Only systems on more than one workset"
+                                          VerticalAlignment="Center"
+                                          ToolTip="Isolate the systems whose elements are split across worksets, to give them the right one"/>
+                            </StackPanel>
+                            <StackPanel x:Name="DisciplineTools2" Orientation="Horizontal">
+                                <TextBlock Text="Scope" Foreground="{DynamicResource Muted}"
+                                           VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                <ComboBox x:Name="CmbScope" Width="140" VerticalAlignment="Center"/>
+                                <CheckBox x:Name="ChkNest" Content="Group by System No" Margin="16,0,0,0"
+                                          VerticalAlignment="Center"
+                                          ToolTip="Give each system number its own fold inside its service type, to collapse and expand"/>
+                                <Button x:Name="BtnChecksOn" Style="{DynamicResource BtnChip}" Margin="16,0,0,0"
+                                        VerticalAlignment="Center"
+                                        ToolTip="Switch every check on or off - red rows, the Checks column and the counts. Which checks are ticked is kept.">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Border x:Name="ChecksOnDot" Width="9" Height="9" CornerRadius="4.5"
+                                                Background="{DynamicResource Red}" VerticalAlignment="Center"/>
+                                        <TextBlock x:Name="ChecksOnLabel" Text="Checks on" Margin="6,0,0,0"
+                                                   VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
+                                <CheckBox x:Name="ChkIssuesOnly" Content="Issues only" Margin="14,0,0,0"
+                                          VerticalAlignment="Center"
+                                          ToolTip="Show only rows the checks have flagged"/>
+                                <CheckBox x:Name="ChkMultiType" Content="Only service types using more than one type"
+                                          Margin="14,0,0,0" VerticalAlignment="Center" Visibility="Collapsed"
+                                          ToolTip="Isolate the service types built from more than one cable tray or conduit type"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- ==================== the services ==================== -->
+                <Border Grid.Row="4" Margin="12,0,12,0" Background="{DynamicResource Field}"
+                        BorderBrush="{DynamicResource Edge}" BorderThickness="1" CornerRadius="4">
+                    <Grid>
+                        <ScrollViewer x:Name="BodyScroll" VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled">
+                            <StackPanel x:Name="GroupsHost" Margin="8"/>
+                        </ScrollViewer>
+                        <!-- ==================== the frozen system type heading ==================== -->
+                        <Border x:Name="StickyHeader" VerticalAlignment="Top" Margin="1,0,14,0"
+                                Background="{DynamicResource Bar}" BorderBrush="{DynamicResource Edge}"
+                                BorderThickness="0,0,0,1" Padding="14,7,12,5" Visibility="Collapsed"
+                                Cursor="Hand" ToolTip="Click the name to go back to the top of this system type; click a heading to sort">
+                            <StackPanel>
+                            <DockPanel LastChildFill="False">
+                                <TextBlock x:Name="StickyCount" DockPanel.Dock="Right" Foreground="{DynamicResource Muted}"
+                                           FontSize="11.5" VerticalAlignment="Center"/>
+                                <TextBlock x:Name="StickyFlag" DockPanel.Dock="Right" Foreground="{DynamicResource Red}"
+                                           FontSize="11.5" FontWeight="SemiBold" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                                <TextBlock x:Name="StickyNote" DockPanel.Dock="Right" Foreground="{DynamicResource Blue}"
+                                           FontSize="11.5" FontWeight="SemiBold" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                                <Border Width="4" Height="16" CornerRadius="2" Background="{DynamicResource Orange}"
+                                        Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <TextBlock x:Name="StickyTitle" Foreground="{DynamicResource Text}" FontSize="13.5"
+                                           FontWeight="Bold" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                            </DockPanel>
+                            <!-- the pinned system type's column headings, lined up with its table -->
+                            <StackPanel x:Name="StickyColumns" Orientation="Horizontal" Margin="0,6,0,0"/>
+                            </StackPanel>
+                        </Border>
+                        <TextBlock x:Name="EmptyText" Text="No pipes found." Foreground="{DynamicResource Muted}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed"/>
+                    </Grid>
+                </Border>
+
+                <!-- ==================== footer: tools in rows, nothing past the edge ==================== -->
+                <Border Grid.Row="5" Background="{DynamicResource Bar}" CornerRadius="0,0,6,6"
+                        Padding="12,8,12,8" Margin="0,10,0,0">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- ==================== row 1: Change Settings ==================== -->
+                        <DockPanel Grid.Row="0" LastChildFill="False">
+                            <!-- Workset Assigner: Apply at the far right, where nothing covers it -->
+                            <Button x:Name="BtnApplyWs" DockPanel.Dock="Right" Style="{DynamicResource BtnGreen}"
+                                    Content="Apply" Margin="14,0,0,0" IsEnabled="False" Visibility="Collapsed"
+                                    ToolTip="Write every staged workset to the model - nothing is written until this is pressed"/>
+                            <StackPanel x:Name="FooterMain" Orientation="Horizontal">
+                            <Border Width="4" Height="18" CornerRadius="2" Background="{DynamicResource Orange}"
+                                    Margin="0,0,7,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="Change Settings" Foreground="{DynamicResource Text}" FontWeight="SemiBold"
+                                       VerticalAlignment="Center" Width="118"/>
+                            <TextBlock Text="Type" Foreground="{DynamicResource Muted}"
+                                       VerticalAlignment="Center" Margin="0,0,8,0"/>
+                            <TextBox x:Name="TxtTypeSearch" Width="150" Height="32" Tag="Search types..."
+                                     VerticalAlignment="Center" Margin="0,0,6,0"
+                                     ToolTip="Type any words from the type name to narrow the list"/>
+                            <ComboBox x:Name="CmbPipeType" Width="240" VerticalAlignment="Center"/>
+                            <Button x:Name="BtnChangeType" Style="{DynamicResource BtnOrange}" Margin="8,0,0,0" IsEnabled="False"
+                                    ToolTip="Change the selected rows to the type chosen, keeping the parameters ticked in Settings">
+                                <StackPanel Orientation="Horizontal">
+                                    <Canvas Width="14" Height="14" Margin="0,0,7,0" VerticalAlignment="Center">
+                                        <Path Data="M1,4 L11,4 M8,1 L11,4 L8,7" Stroke="{DynamicResource OnAccent}" StrokeThickness="1.6" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                        <Path Data="M13,10 L3,10 M6,7 L3,10 L6,13" Stroke="{DynamicResource OnAccent}" StrokeThickness="1.6" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                    </Canvas>
+                                    <TextBlock x:Name="ChangeTypeLabel" Text="Change Type" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            <Button x:Name="BtnReapply" Style="{DynamicResource BtnOrange}" Margin="8,0,0,0" IsEnabled="False" Visibility="Collapsed"
+                                    ToolTip="Put the fittings on the selected systems back to what their type's routing preferences call for - Revit's Reapply Type">
+                                <StackPanel Orientation="Horizontal">
+                                    <Canvas Width="14" Height="14" Margin="0,0,7,0" VerticalAlignment="Center">
+                                        <Path Data="M12,5 A5.5,5.5 0 0 0 2.2,4.2" Stroke="{DynamicResource OnAccent}" StrokeThickness="1.6" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                        <Path Data="M2,9 A5.5,5.5 0 0 0 11.8,9.8" Stroke="{DynamicResource OnAccent}" StrokeThickness="1.6" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                        <Path Data="M2,1 L2.2,4.4 L5.4,4.1" Stroke="{DynamicResource OnAccent}" StrokeThickness="1.6" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                        <Path Data="M12,13 L11.8,9.6 L8.6,9.9" Stroke="{DynamicResource OnAccent}" StrokeThickness="1.6" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                    </Canvas>
+                                    <TextBlock Text="Re-apply Type" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            <Button x:Name="BtnResize" Style="{DynamicResource BtnOrange}" Margin="8,0,0,0" IsEnabled="False" Visibility="Collapsed"
+                                    ToolTip="Change the width and height of cable trays, or the diameter of conduits, on the selected runs - fittings follow">
+                                <StackPanel Orientation="Horizontal">
+                                    <Canvas Width="14" Height="14" Margin="0,0,7,0" VerticalAlignment="Center">
+                                        <Path Data="M2,12 L12,2" Stroke="{DynamicResource OnAccent}" StrokeThickness="1.6" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                        <Path Data="M7,2 L12,2 L12,7" Stroke="{DynamicResource OnAccent}" StrokeThickness="1.6" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                        <Path Data="M2,7 L2,12 L7,12" Stroke="{DynamicResource OnAccent}" StrokeThickness="1.6" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                    </Canvas>
+                                    <TextBlock Text="Resize runs" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            <Button x:Name="BtnService" Style="{DynamicResource BtnOrange}" Margin="8,0,0,0" IsEnabled="False" Visibility="Collapsed"
+                                    ToolTip="Give the selected runs, or every run of their service types, a new service type">
+                                <StackPanel Orientation="Horizontal">
+                                    <Canvas Width="14" Height="14" Margin="0,0,7,0" VerticalAlignment="Center">
+                                        <Path Data="M1,1 L7,1 L13,7 L7,13 L1,7 Z" Stroke="{DynamicResource OnAccent}" StrokeThickness="1.6" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                        <Path Data="M3.6,3.6 L4.4,4.4" Stroke="{DynamicResource OnAccent}" StrokeThickness="1.6" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                    </Canvas>
+                                    <TextBlock Text="Change Service" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            </StackPanel>
+                            <StackPanel x:Name="FooterWs" Orientation="Horizontal" Visibility="Collapsed">
+                                <Border Width="4" Height="18" CornerRadius="2" Background="{DynamicResource Blue}"
+                                        Margin="0,0,7,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="Workset" Foreground="{DynamicResource Text}" FontWeight="SemiBold"
+                                           VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                <TextBox x:Name="TxtWorksetSearch" Width="160" Height="32" Tag="Search worksets..."
+                                         VerticalAlignment="Center" Margin="0,0,6,0"
+                                         ToolTip="Type any words from the workset name to narrow the list"/>
+                                <ComboBox x:Name="CmbWorkset" Width="260" VerticalAlignment="Center"/>
+                            <Button x:Name="BtnStage" Style="{DynamicResource BtnOrange}" Margin="8,0,0,0" IsEnabled="False"
+                                    ToolTip="Stage the chosen workset for the selected systems - nothing is written until Apply">
+                                <StackPanel Orientation="Horizontal">
+                                    <Canvas Width="14" Height="14" Margin="0,0,7,0" VerticalAlignment="Center">
+                                        <Path Data="M7,1 L7,9" Stroke="{DynamicResource OnAccent}" StrokeThickness="1.6" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                        <Path Data="M3.5,5.5 L7,9 L10.5,5.5" Stroke="{DynamicResource OnAccent}" StrokeThickness="1.6" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                        <Path Data="M1,12.5 L13,12.5" Stroke="{DynamicResource OnAccent}" StrokeThickness="1.6" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                    </Canvas>
+                                    <TextBlock Text="Assign to selected" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                                <Button x:Name="BtnUnstage" Content="Clear selected" Margin="6,0,0,0" IsEnabled="False"
+                                        ToolTip="Take the staged workset off the selected systems"/>
+                            </StackPanel>
+                        </DockPanel>
+
+                        <!-- ==================== row 2: Isolate in (or what is staged) ==================== -->
+                        <DockPanel Grid.Row="1" LastChildFill="False" Margin="0,8,0,0">
+                            <TextBlock x:Name="SelectionText" DockPanel.Dock="Right" Foreground="{DynamicResource Muted}"
+                                       VerticalAlignment="Center" Text="Nothing selected"/>
+                            <StackPanel x:Name="FooterIsolate" Orientation="Horizontal">
+                            <Border Width="4" Height="18" CornerRadius="2" Background="{DynamicResource Blue}"
+                                    Margin="0,0,7,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="Isolate in" Foreground="{DynamicResource Text}" FontWeight="SemiBold"
+                                       VerticalAlignment="Center" Width="118"/>
+                            <TextBlock Text="View" Foreground="{DynamicResource Muted}"
+                                       VerticalAlignment="Center" Margin="0,0,8,0"/>
+                            <ComboBox x:Name="CmbView" Width="230" VerticalAlignment="Center"/>
+                            <Button x:Name="BtnIsolate" Style="{DynamicResource BtnOrange}" Margin="8,0,0,0" IsEnabled="False"
+                                    ToolTip="Isolate the selected rows in the chosen 3D view - an earlier isolate is reset first">
+                                <StackPanel Orientation="Horizontal">
+                                    <Canvas Width="14" Height="14" Margin="0,0,7,0" VerticalAlignment="Center">
+                                        <Path Data="M1,4 L1,1 L4,1 M10,1 L13,1 L13,4 M13,10 L13,13 L10,13 M4,13 L1,13 L1,10" Stroke="{DynamicResource OnAccent}" StrokeThickness="1.6" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                        <Path Data="M5,5 L9,5 L9,9 L5,9 Z" Stroke="{DynamicResource OnAccent}" StrokeThickness="1.6" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                    </Canvas>
+                                    <TextBlock Text="Isolate Selected" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            <Button x:Name="BtnReset" Margin="6,0,0,0"
+                                    ToolTip="Take the temporary isolate, and any red this tool coloured, off the chosen 3D view">
+                                <StackPanel Orientation="Horizontal">
+                                    <Canvas Width="14" Height="14" Margin="0,0,7,0" VerticalAlignment="Center">
+                                        <Path Data="M11.5,4 A5,5 0 1 0 12.5,8" Stroke="{DynamicResource Text}" StrokeThickness="1.6" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                        <Path Data="M12,1 L12,4.5 L8.5,4.5" Stroke="{DynamicResource Text}" StrokeThickness="1.6" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                    </Canvas>
+                                    <TextBlock Text="Reset Isolate" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            </StackPanel>
+                            <StackPanel x:Name="FooterWs2" Orientation="Horizontal" Visibility="Collapsed">
+                                <TextBlock x:Name="PendingText" Foreground="{DynamicResource Orange}" FontWeight="SemiBold"
+                                           VerticalAlignment="Center" Margin="0,0,10,0" Text="Nothing staged"/>
+                                <Button x:Name="BtnClearAll" Content="Clear all" IsEnabled="False"
+                                        ToolTip="Take every staged workset off - nothing has been written"/>
+                            </StackPanel>
+                        </DockPanel>
+
+                        <!-- ==================== row 3: debug and status ==================== -->
+                        <DockPanel Grid.Row="2" Margin="0,8,0,0" LastChildFill="True">
+                            <CheckBox x:Name="ChkDebug" DockPanel.Dock="Left" Content="Debug" FontSize="11.5"
+                                      VerticalAlignment="Center"
+                                      ToolTip="Record what each action does, as a table you can copy and send"/>
+                            <Button x:Name="BtnCopyDebug" DockPanel.Dock="Left" Content="Copy table" FontSize="11"
+                                    Margin="8,0,14,0" Padding="8,1,8,1" Visibility="Collapsed"
+                                    ToolTip="Copy the debug table to the clipboard, ready to paste into a chat"/>
+                            <TextBlock x:Name="StatusText" Foreground="{DynamicResource Muted}" Margin="10,0,0,0"
+                                       FontSize="11.5" TextTrimming="CharacterEllipsis" Text="Ready"
+                                       VerticalAlignment="Center" TextWrapping="NoWrap"/>
+                        </DockPanel>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- ==================== resize grips: no Background, so the window stays clickable ==================== -->
+        <Grid x:Name="GripLayer">
+            <Thumb x:Name="GripN" Style="{DynamicResource GripThumb}" Height="5" VerticalAlignment="Top" Margin="8,0,8,0" Cursor="SizeNS"/>
+            <Thumb x:Name="GripS" Style="{DynamicResource GripThumb}" Height="5" VerticalAlignment="Bottom" Margin="8,0,8,0" Cursor="SizeNS"/>
+            <Thumb x:Name="GripW" Style="{DynamicResource GripThumb}" Width="5" HorizontalAlignment="Left" Margin="0,8,0,8" Cursor="SizeWE"/>
+            <Thumb x:Name="GripE" Style="{DynamicResource GripThumb}" Width="5" HorizontalAlignment="Right" Margin="0,8,0,8" Cursor="SizeWE"/>
+            <Thumb x:Name="GripNW" Style="{DynamicResource GripThumb}" Width="8" Height="8" HorizontalAlignment="Left" VerticalAlignment="Top" Cursor="SizeNWSE"/>
+            <Thumb x:Name="GripNE" Style="{DynamicResource GripThumb}" Width="8" Height="8" HorizontalAlignment="Right" VerticalAlignment="Top" Cursor="SizeNESW"/>
+            <Thumb x:Name="GripSW" Style="{DynamicResource GripThumb}" Width="8" Height="8" HorizontalAlignment="Left" VerticalAlignment="Bottom" Cursor="SizeNESW"/>
+            <Thumb x:Name="GripSE" Style="{DynamicResource GripThumb}" Width="8" Height="8" HorizontalAlignment="Right" VerticalAlignment="Bottom" Cursor="SizeNWSE"/>
+        </Grid>
+    </Grid>
+</Window>

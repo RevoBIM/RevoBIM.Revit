@@ -1,0 +1,9 @@
+title: Style Manager
+author: RevoBIM PY
+tooltip: >
+  One window for view filters, line styles and text styles. Audit every style in
+  the project, isolate duplicates that look identical under different names,
+  merge them into a single style, rename in place or in bulk, delete with an
+  impact warning, and round-trip the whole table through Excel. Every edit is
+  staged until you press APPLY CHANGES, then written in one transaction.
+highlight: updated

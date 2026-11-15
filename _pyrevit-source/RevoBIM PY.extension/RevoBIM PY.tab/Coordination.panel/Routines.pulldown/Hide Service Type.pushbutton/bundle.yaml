@@ -1,0 +1,11 @@
+title: RevoBIM Hide Service Type
+tooltip: >
+  Hide Service Type - hides every tray, duct, pipe or conduit in the active
+  view that shares the selected element's service type, along with its
+  fittings, accessories, terminals and equipment. The mirror of Isolate
+  Service Type, reading the same settings. With nothing selected it opens a
+  list of the categories in the view and in every linked model, to tick and
+  hide. Everything it hides is remembered: the floating Reset Hide window puts
+  back exactly what it hid, or hides it again. Bind a key to it under View >
+  User Interface > Keyboard Shortcuts, searching "RevoBIM Hide Service Type".
+author: RevoBIM PY

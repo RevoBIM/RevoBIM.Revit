@@ -1,0 +1,114 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RevoBIM categories" Width="520" Height="620"
+        MinWidth="380" MinHeight="320"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
+  <Grid x:Name="Root">
+    <Border x:Name="Shell" CornerRadius="6" Background="{DynamicResource WindowBg}"
+            BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="1">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="52"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="52"/>
+        </Grid.RowDefinitions>
+
+        <!-- ============================ header ============================ -->
+        <Border x:Name="Header" Grid.Row="0" Background="{DynamicResource BarBg}"
+                CornerRadius="5,5,0,0">
+          <Grid Margin="14,0,10,0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+              <TextBlock x:Name="RevoBimLogo" Text="RevoBIM" FontSize="20" FontWeight="Bold"
+                         Foreground="{DynamicResource BlueBrush}" VerticalAlignment="Bottom"/>
+              <TextBlock x:Name="PickerTitle" Text="Categories" FontSize="15" Margin="8,0,0,2"
+                         Foreground="{DynamicResource OrangeBrush}" VerticalAlignment="Bottom"/>
+            </StackPanel>
+            <TextBlock x:Name="VersionText" Grid.Column="1" Style="{DynamicResource ArcMuted}"
+                       FontSize="11" HorizontalAlignment="Right" VerticalAlignment="Center"
+                       Margin="0,0,10,0"/>
+            <Button x:Name="CloseButton" Grid.Column="2" Style="{DynamicResource ArcCloseButton}"
+                    Content="&#x2715;"/>
+          </Grid>
+        </Border>
+
+        <!-- ============================ tools ============================= -->
+        <StackPanel Grid.Row="1" Margin="12,10,12,6">
+          <Grid Margin="0,0,0,8">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Style="{DynamicResource ArcLabel}" Text="Template"
+                       VerticalAlignment="Center" Margin="0,0,8,0"/>
+            <ComboBox x:Name="TemplateCombo" Grid.Column="1" Style="{DynamicResource ArcComboBox}"
+                      ToolTip="Load a saved category selection"/>
+            <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="8,0,0,0">
+              <Button x:Name="SaveTemplateButton" Style="{DynamicResource ArcSmallButton}"
+                      Content="Save as..." Padding="12,3"
+                      ToolTip="Save what is ticked as a named template"/>
+              <Button x:Name="DeleteTemplateButton" Style="{DynamicResource ArcSmallButton}"
+                      Content="Delete" Padding="12,3" Margin="6,0,0,0"
+                      ToolTip="Delete the template shown above"/>
+            </StackPanel>
+          </Grid>
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBox x:Name="SearchBox" Grid.Column="0" Style="{DynamicResource ArcTextBox}"
+                     Tag="Search the categories"/>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="8,0,0,0">
+              <Button x:Name="AllButton" Style="{DynamicResource ArcSmallButton}" Content="All" Padding="12,3"/>
+              <Button x:Name="NoneButton" Style="{DynamicResource ArcSmallButton}" Content="None" Padding="12,3" Margin="6,0,0,0"/>
+              <Button x:Name="DefaultButton" Style="{DynamicResource ArcSmallButton}" Content="MEP" Padding="12,3" Margin="6,0,0,0"
+                      ToolTip="Tick the standard MEP services list"/>
+            </StackPanel>
+          </Grid>
+        </StackPanel>
+
+        <!-- ============================ the list =========================== -->
+        <Border Grid.Row="2" Margin="12,0,12,0" Background="{DynamicResource FieldBg}"
+                BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="1" CornerRadius="4">
+          <ListBox x:Name="CategoryList" Style="{DynamicResource ArcList}" SelectionMode="Extended"
+                   Background="Transparent" BorderThickness="0"/>
+        </Border>
+
+        <!-- ============================ footer ============================= -->
+        <Border Grid.Row="3" Background="{DynamicResource BarBg}" CornerRadius="0,0,5,5">
+          <Grid Margin="14,0,14,0">
+            <TextBlock x:Name="StatusText" Grid.Column="0" Style="{DynamicResource ArcMuted}"
+                       VerticalAlignment="Center"
+                       Text="Click to tick. Shift-click for a run, ctrl-click to add."/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+              <Button x:Name="CancelButton" Style="{DynamicResource ArcSmallButton}"
+                      Content="Cancel" Padding="16,4" Margin="0,0,8,0"/>
+              <Button x:Name="OkButton" Style="{DynamicResource ArcGreenButton}"
+                      Content="Use these" Padding="20,5"/>
+            </StackPanel>
+          </Grid>
+        </Border>
+      </Grid>
+    </Border>
+
+    <!-- ============================ resize grips ======================== -->
+    <Grid x:Name="Grips">
+      <Thumb x:Name="GripLeft" Style="{DynamicResource ArcGrip}" Width="6" HorizontalAlignment="Left" Margin="0,8,0,8" Cursor="SizeWE"/>
+      <Thumb x:Name="GripRight" Style="{DynamicResource ArcGrip}" Width="6" HorizontalAlignment="Right" Margin="0,8,0,8" Cursor="SizeWE"/>
+      <Thumb x:Name="GripTop" Style="{DynamicResource ArcGrip}" Height="6" VerticalAlignment="Top" Margin="8,0,8,0" Cursor="SizeNS"/>
+      <Thumb x:Name="GripBottom" Style="{DynamicResource ArcGrip}" Height="6" VerticalAlignment="Bottom" Margin="8,0,8,0" Cursor="SizeNS"/>
+      <Thumb x:Name="GripTopLeft" Style="{DynamicResource ArcGrip}" Width="10" Height="10" HorizontalAlignment="Left" VerticalAlignment="Top" Cursor="SizeNWSE"/>
+      <Thumb x:Name="GripTopRight" Style="{DynamicResource ArcGrip}" Width="10" Height="10" HorizontalAlignment="Right" VerticalAlignment="Top" Cursor="SizeNESW"/>
+      <Thumb x:Name="GripBottomLeft" Style="{DynamicResource ArcGrip}" Width="10" Height="10" HorizontalAlignment="Left" VerticalAlignment="Bottom" Cursor="SizeNESW"/>
+      <Thumb x:Name="GripBottomRight" Style="{DynamicResource ArcGrip}" Width="10" Height="10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Cursor="SizeNWSE"/>
+    </Grid>
+  </Grid>
+</Window>

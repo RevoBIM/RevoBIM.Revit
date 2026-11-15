@@ -1,0 +1,49 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RevoBIM Clash Analysis - floor plan" Width="560" Height="560" MinWidth="420" MinHeight="320"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent" ResizeMode="CanResizeWithGrip"
+        ShowInTaskbar="False" FontFamily="Segoe UI" FontSize="12"
+        Foreground="{DynamicResource Text}">
+    <Border x:Name="OuterBorder" Background="{DynamicResource WindowBg}" BorderBrush="{DynamicResource Edge}"
+            BorderThickness="1" CornerRadius="6">
+        <Grid x:Name="RootGrid">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Border x:Name="HeaderBar" Background="{DynamicResource BarBg}" CornerRadius="6,6,0,0" Padding="10,6">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                        <TextBlock x:Name="VersionText" Text="v0.0.0" Foreground="{DynamicResource Muted}" FontSize="11"
+                                   VerticalAlignment="Center" Margin="8,0,10,0"/>
+                        <Button x:Name="ShrinkBtn" Style="{DynamicResource ShrinkButton}"/>
+                        <Button x:Name="CloseBtn" Style="{DynamicResource CloseBtn}" ToolTip="Close"/>
+                    </StackPanel>
+                    <TextBlock Text="RevoBIM" FontSize="15" FontWeight="Bold" Foreground="{DynamicResource Blue}"
+                               VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <TextBlock x:Name="TitleText" Text="Pick a floor plan" FontSize="13" FontWeight="SemiBold"
+                               Foreground="{DynamicResource Orange}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                </DockPanel>
+            </Border>
+            <DockPanel Grid.Row="1" Margin="12,10">
+                <TextBlock x:Name="MessageText" DockPanel.Dock="Top" TextWrapping="Wrap" LineHeight="18" Margin="0,0,0,8"/>
+                <DockPanel DockPanel.Dock="Top" Margin="0,0,0,6">
+                    <CheckBox x:Name="OnLevelChk" DockPanel.Dock="Right" IsChecked="True" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                    <TextBox x:Name="ViewSearch" Tag="Search floor plans and levels"/>
+                </DockPanel>
+                <DataGrid x:Name="ViewGrid" SelectionMode="Single"/>
+            </DockPanel>
+            <Border Grid.Row="2" Background="{DynamicResource BarBg}" CornerRadius="0,0,6,6" Padding="8,6">
+                <DockPanel>
+                    <TextBlock x:Name="CountText" Foreground="{DynamicResource Muted}" VerticalAlignment="Center" Margin="4,0"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button x:Name="CancelBtn" Style="{DynamicResource Btn}" Content="Cancel" MinWidth="86"/>
+                        <Button x:Name="CurrentBtn" Style="{DynamicResource Btn}" Content="Use the current view" ToolTip="Isolate in the view that is open now, whatever its level"/>
+                        <Button x:Name="OpenBtn" Style="{DynamicResource GreenBtn}" Content="Open and isolate" MinWidth="120" ToolTip="Open the highlighted floor plan and isolate the clash spheres in it (double-click a plan does the same)"/>
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

@@ -1,0 +1,6 @@
+title: Model Cleanup
+tooltip: >-
+  Model Cleanup. Sync the model, save a detached copy, then remove
+  links, unplaced views and purge the copy ready to send. The live model is
+  never cleaned.
+author: RevoBIM

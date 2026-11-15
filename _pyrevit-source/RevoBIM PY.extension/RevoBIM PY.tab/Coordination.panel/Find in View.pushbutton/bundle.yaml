@@ -1,0 +1,8 @@
+title: Find in View
+author: RevoBIM PY
+tooltip: >
+  Select one or more elements, then pick the view you want them in.
+  Narrow the list by view type and by keyword - the search covers the view
+  name, type, sheet and scale at once. Show Me opens the view and zooms to
+  the selection. The ribbon name is unique so Revit's Keyboard Shortcuts
+  dialog can bind keys to it.

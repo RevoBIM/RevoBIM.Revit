@@ -1,0 +1,21 @@
+title: Family Viewer
+tooltip: >-
+  RevoBIM Family Viewer. Every family and type in the project in one list,
+  grouped by family then type, with the family image, a live element count,
+  and any project parameter you like as a column.
+
+  Filter by category, by the active view and by phase. Pick families or types
+  and select every instance of them across the project or in the active view.
+
+  Double click a cell to edit it in place, or right click a set of rows for
+  batch rename with find and replace, a prefix and a suffix. Changes are
+  staged and nothing is written until Apply. The place button on each row
+  hands you Revit's own placement command.
+
+  Export the list to Excel, edit the orange cells, and import it back.
+
+  The window docks into Revit's own pane beside Project Browser, stretches by
+  its own edges, goes full screen with F11, and shrinks to the taskbar with
+  Ctrl+Shift+H. Dark and light follow Revit's own canvas.
+author: RevoBIM PY
+highlight: new

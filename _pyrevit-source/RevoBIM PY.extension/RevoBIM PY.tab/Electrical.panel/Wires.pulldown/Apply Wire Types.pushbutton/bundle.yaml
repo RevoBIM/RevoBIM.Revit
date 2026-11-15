@@ -1,0 +1,18 @@
+title: RevoBIM Apply Wire Types
+author: RevoBIM PY
+min_revit_version: 2024
+tooltip: >
+  Sets the wire type on wires that are already drawn, and changes nothing
+  else. No wire is moved, redrawn, retagged or deleted.
+
+  Select a circuit, or a wire or a fitting on one, and only those circuits are
+  done. Select nothing and it asks before doing every circuit with wires in
+  the active plan.
+
+  The type is decided by the same three questions Auto Wire draws with, in the
+  same order, so a circuit drawn by one and retyped by the other cannot
+  disagree: an emergency circuit is emergency throughout; a wire bridging two
+  legs - two spaces, or two switch systems - is permanent live; everything
+  else takes the lighting or power type.
+
+  Wires belonging to no circuit are reported and left alone.

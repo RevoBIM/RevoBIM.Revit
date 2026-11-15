@@ -1,0 +1,101 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RevoBIM MEP System Manager Change service type"
+        Width="600" Height="480" WindowStyle="None" AllowsTransparency="True"
+        Background="Transparent" ResizeMode="NoResize" WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False" FontFamily="Segoe UI" FontSize="12.5">
+    <Border CornerRadius="6" BorderThickness="1" BorderBrush="{DynamicResource WinEdge}"
+            Background="{DynamicResource Bg}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- ==================== header ==================== -->
+            <Border x:Name="HeaderBar" Background="{DynamicResource Bar}" CornerRadius="6,6,0,0" Padding="12,8,8,8">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock x:Name="VersionText" Text="v" Foreground="{DynamicResource Muted}" FontSize="11"
+                                   Margin="10,0,8,0" VerticalAlignment="Center"/>
+                        <Button x:Name="BtnShrink" Style="{DynamicResource BtnIcon}"
+                                ToolTip="Shrink to the taskbar so Revit can be seen (Ctrl+Shift+H)">
+                            <Grid Width="14" Height="14">
+                                <Path x:Name="ShrinkGlyph" Data="M7,1 L7,9 M3.5,5.5 L7,9 L10.5,5.5 M2,12.5 L12,12.5"
+                                      Stroke="{DynamicResource Text}" StrokeThickness="1.6"
+                                      StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
+                                <Path x:Name="ExpandGlyph" Data="M7,13 L7,2.5 M2.5,7 L7,2.5 L11.5,7" Visibility="Collapsed"
+                                      Stroke="{DynamicResource Green}" StrokeThickness="2.4"
+                                      StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
+                            </Grid>
+                        </Button>
+                        <Button x:Name="BtnClose" Style="{DynamicResource BtnClose}" ToolTip="Close">
+                            <Path Data="M0,0 L10,10 M10,0 L0,10" Stroke="{DynamicResource Text}" StrokeThickness="1.6"/>
+                        </Button>
+                    </StackPanel>
+                    <Border x:Name="LogoHost" Background="Transparent" HorizontalAlignment="Left">
+                        <StackPanel Orientation="Horizontal">
+                            <Image x:Name="Logo" Width="28" Height="28" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock x:Name="LogoText" Text="RevoBIM" FontSize="20" FontWeight="Bold"
+                                           Foreground="{DynamicResource Blue}"/>
+                                <TextBlock Text="Containment - Change service type" FontSize="15"
+                                           Foreground="{DynamicResource Orange}" Margin="1,-4,0,0"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </DockPanel>
+            </Border>
+
+            <!-- ==================== body ==================== -->
+            <StackPanel Grid.Row="1" Margin="16,12,16,6">
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                    <Border Width="4" Height="16" CornerRadius="2" Background="{DynamicResource Blue}" Margin="0,0,7,0"/>
+                    <TextBlock Text="Selected" FontWeight="SemiBold" Foreground="{DynamicResource Text}"/>
+                </StackPanel>
+                <TextBlock x:Name="SelText" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,0,0,14"/>
+
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                    <Border Width="4" Height="16" CornerRadius="2" Background="{DynamicResource Orange}" Margin="0,0,7,0"/>
+                    <TextBlock Text="New service type" FontWeight="SemiBold" Foreground="{DynamicResource Text}"/>
+                </StackPanel>
+                <Grid Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="130"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Text="Service type" Foreground="{DynamicResource Muted}" VerticalAlignment="Center"/>
+                    <TextBox Grid.Row="0" Grid.Column="1" x:Name="TxtService" Tag="Type a name, or pick one below" Height="32" Margin="0,0,0,6"/>
+                    <TextBlock Grid.Row="1" Text="Or one in use" Foreground="{DynamicResource Muted}" VerticalAlignment="Center"/>
+                    <ComboBox Grid.Row="1" Grid.Column="1" x:Name="CmbExisting" Margin="0,0,0,6"/>
+                    <TextBlock Grid.Row="2" Text="Change" Foreground="{DynamicResource Muted}" VerticalAlignment="Center"/>
+                    <ComboBox Grid.Row="2" Grid.Column="1" x:Name="CmbScope"/>
+                </Grid>
+                <TextBlock x:Name="ScopeCount" Foreground="{DynamicResource Blue}" FontWeight="SemiBold"
+                           TextWrapping="Wrap" Margin="130,0,0,8"/>
+                <CheckBox x:Name="ChkFittings" Content="Also the fittings on those runs" Margin="0,2,0,4"/>
+                <TextBlock x:Name="WritesText" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" FontSize="11.5"
+                           Margin="22,0,0,10"/>
+                <TextBlock x:Name="ErrorText" Foreground="{DynamicResource Red}" TextWrapping="Wrap" FontWeight="SemiBold"/>
+            </StackPanel>
+
+            <!-- ==================== footer ==================== -->
+            <Border Grid.Row="2" Background="{DynamicResource Bar}" CornerRadius="0,0,6,6" Padding="12,8,12,8">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                        <Button x:Name="BtnCancel" Content="Cancel" Margin="0,0,8,0"/>
+                        <Button x:Name="BtnChange" Style="{DynamicResource BtnOrange}" Content="Change"/>
+                    </StackPanel>
+                    <TextBlock Foreground="{DynamicResource Muted}" VerticalAlignment="Center"
+                               TextTrimming="CharacterEllipsis" Text="Every value is read back. Revit's undo takes it all back in one step."/>
+                </DockPanel>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

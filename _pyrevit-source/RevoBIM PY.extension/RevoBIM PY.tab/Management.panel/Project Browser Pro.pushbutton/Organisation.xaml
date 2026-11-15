@@ -1,0 +1,214 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Browser Organisation" Width="960" Height="640" MinWidth="560" MinHeight="460"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ResizeMode="NoResize" ShowInTaskbar="False" WindowStartupLocation="CenterOwner"
+        FontFamily="Segoe UI" FontSize="12" TextOptions.TextFormattingMode="Display">
+
+    <!-- ==========================================================
+         Project Browser Pro - Browser Organisation for one tab.
+         Folders top level first, then how items sort inside them.
+         ========================================================== -->
+    <Border x:Name="Frame" Background="{DynamicResource BgBrush}" CornerRadius="6"
+            BorderThickness="1" BorderBrush="{DynamicResource ChromeEdgeBrush}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- header -->
+            <Border x:Name="Header" Grid.Row="0" Background="{DynamicResource BarBrush}" CornerRadius="6,6,0,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Image x:Name="LogoImage" Width="28" Height="28" Margin="10,7,8,7" VerticalAlignment="Center"/>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="RevoBIM" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource BlueBrush}"/>
+                        <TextBlock x:Name="TitleText" Text="Browser Organisation" FontSize="13" Margin="0,-3,0,0"
+                                   Foreground="{DynamicResource OrangeBrush}"/>
+                    </StackPanel>
+                    <TextBlock x:Name="VersionText" Grid.Column="3" FontSize="11" Margin="0,0,8,0"
+                               VerticalAlignment="Center" Foreground="{DynamicResource MutedBrush}"/>
+                    <Button x:Name="CloseButton" Grid.Column="4" Style="{DynamicResource CloseButton}" Margin="0,0,6,0">
+                        <Path Data="M1,1 L9,9 M9,1 L1,9" StrokeThickness="1.5" Width="10" Height="10"
+                              Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                    </Button>
+                </Grid>
+            </Border>
+
+            <!-- source -->
+            <StackPanel x:Name="SourcePanel" Grid.Row="1" Margin="14,10,14,4">
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                    <Border Width="4" Height="14" Background="{DynamicResource BlueBrush}" Margin="0,0,6,0"/>
+                    <TextBlock Text="Group items by" FontWeight="SemiBold" Foreground="{DynamicResource TextBrush}"/>
+                </StackPanel>
+                <RadioButton x:Name="SourceRevit" GroupName="PbpSource" Style="{DynamicResource OptionRadio}">
+                    <TextBlock x:Name="RevitSourceText" Text="Revit's browser organisation"/>
+                </RadioButton>
+                <RadioButton x:Name="SourceCustom" GroupName="PbpSource" Style="{DynamicResource OptionRadio}"
+                             Content="Parameters I choose"/>
+                <RadioButton x:Name="SourceNone" GroupName="PbpSource" Style="{DynamicResource OptionRadio}"
+                             Content="No grouping"/>
+            </StackPanel>
+
+            <!-- parameters, and beside them the group colours -->
+            <Grid Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="290"/>
+                </Grid.ColumnDefinitions>
+            <Grid x:Name="CustomPanel" Grid.Column="0" Margin="14,6,4,6">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" MinWidth="180"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*" MinWidth="200"/>
+                </Grid.ColumnDefinitions>
+                <Grid Grid.Column="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                        <Border Width="4" Height="14" Background="{DynamicResource OrangeBrush}" Margin="0,0,6,0"/>
+                        <TextBlock Text="Available parameters" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource TextBrush}"/>
+                    </StackPanel>
+                    <!-- the browser's search look: an orange frame -->
+                    <Border Grid.Row="1" Margin="0,0,0,4" BorderBrush="{DynamicResource OrangeBrush}"
+                            BorderThickness="1" CornerRadius="4" Background="{DynamicResource FieldBrush}">
+                        <TextBox x:Name="ParamSearch" Tag="Search parameters" Height="26" BorderThickness="0"/>
+                    </Border>
+                    <ListBox x:Name="ParamList" Grid.Row="2" Style="{DynamicResource PlainList}"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"/>
+                </Grid>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0">
+                    <Button x:Name="AddLevel" Style="{DynamicResource PlainButton}" Margin="0,2" Content="Group by &#x203A;"
+                            ToolTip="Add the parameter as the next folder level (up to 6)"/>
+                    <Button x:Name="RemoveLevel" Style="{DynamicResource PlainButton}" Margin="0,2" Content="&#x2039; Remove"/>
+                    <Button x:Name="MoveUp" Style="{DynamicResource PlainButton}" Margin="0,10,0,2" Content="Move up"/>
+                    <Button x:Name="MoveDown" Style="{DynamicResource PlainButton}" Margin="0,2" Content="Move down"/>
+                    <Button x:Name="SortBy" Style="{DynamicResource PlainButton}" Margin="0,10,0,2" Content="Sort by &#x203A;"
+                            ToolTip="Sort the items inside each folder by this parameter"/>
+                </StackPanel>
+                <Grid Grid.Column="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                        <Border Width="4" Height="14" Background="{DynamicResource BlueBrush}" Margin="0,0,6,0"/>
+                        <TextBlock Text="Folders, top level first" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource TextBrush}"/>
+                    </StackPanel>
+                    <ListBox x:Name="LevelList" Grid.Row="1" Style="{DynamicResource PlainList}"/>
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,10,0,4">
+                        <Border Width="4" Height="14" Background="{DynamicResource GreenBrush}" Margin="0,0,6,0"/>
+                        <TextBlock Text="Sort items by" FontWeight="SemiBold" Foreground="{DynamicResource TextBrush}"/>
+                    </StackPanel>
+                    <Grid Grid.Row="3">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Border x:Name="SortBox" Background="{DynamicResource FieldBrush}" BorderThickness="1"
+                                CornerRadius="3" BorderBrush="{DynamicResource EdgeBrush}" Padding="7,4">
+                            <TextBlock x:Name="SortText" Text="Name" Foreground="{DynamicResource TextBrush}"
+                                       TextTrimming="CharacterEllipsis"/>
+                        </Border>
+                        <Button x:Name="DirButton" Grid.Column="1" Style="{DynamicResource PlainButton}"
+                                Content="Ascending" ToolTip="Ascending / Descending"/>
+                        <Button x:Name="ClearSort" Grid.Column="2" Style="{DynamicResource PlainButton}"
+                                Content="Name" ToolTip="Sort by name again"/>
+                    </Grid>
+                </Grid>
+            </Grid>
+            <!-- A colour of its own for any coloured group heading, in place
+                 of the automatic gradient. Works whichever way the tab is
+                 grouped, so it is outside the parameters panel. -->
+            <Grid x:Name="GroupColourPanel" Grid.Column="1" Margin="10,6,14,6">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                    <Border Width="4" Height="14" Background="{DynamicResource PanelBrush}" Margin="0,0,6,0"/>
+                    <TextBlock Text="Group colours" FontWeight="SemiBold" Foreground="{DynamicResource TextBrush}"/>
+                </StackPanel>
+                <!-- Which grouping level's values to list: All, or one level.
+                     Picking a level in the folder list picks it here too. -->
+                <WrapPanel x:Name="LevelFilter" Grid.Row="1" Margin="0,0,0,4"/>
+                <ListBox x:Name="GroupList" Grid.Row="2" Style="{DynamicResource PlainList}"
+                         SelectionMode="Extended" ScrollViewer.HorizontalScrollBarVisibility="Disabled"/>
+                <WrapPanel x:Name="SwatchStrip" Grid.Row="3" Margin="0,8,0,4"/>
+                <Grid Grid.Row="4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Pick values, then a colour. Right click a colour you added to remove it."
+                               FontSize="10.5" VerticalAlignment="Center"
+                               TextWrapping="Wrap" Foreground="{DynamicResource MutedBrush}"/>
+                    <Button x:Name="AddColour" Grid.Column="1" Style="{DynamicResource PlainButton}"
+                            Content="Add colour..." ToolTip="Pick any colour; it is kept with the choices for every tab"/>
+                    <Button x:Name="AutoColour" Grid.Column="2" Style="{DynamicResource PlainButton}"
+                            Content="Automatic" ToolTip="Back to the automatic colour"/>
+                </Grid>
+            </Grid>
+            </Grid>
+
+            <!-- coloured levels and preview -->
+            <StackPanel Grid.Row="3" Margin="14,2,14,8">
+                <!-- Which folder levels are drawn as coloured main headings;
+                     applies whichever way the tab is grouped. -->
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                    <Border Width="4" Height="14" Background="{DynamicResource AllBrush}" Margin="0,0,6,0"
+                            VerticalAlignment="Center"/>
+                    <TextBlock Text="Coloured heading levels" FontWeight="SemiBold" Margin="0,0,12,0"
+                               VerticalAlignment="Center" Foreground="{DynamicResource TextBrush}"/>
+                    <CheckBox x:Name="ColourLevel1" Content="1" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                    <CheckBox x:Name="ColourLevel2" Content="2" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                    <CheckBox x:Name="ColourLevel3" Content="3" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                    <CheckBox x:Name="ColourLevel4" Content="4" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                    <CheckBox x:Name="ColourLevel5" Content="5" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                    <CheckBox x:Name="ColourLevel6" Content="6" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                    <TextBlock Text="1 = top folder level" FontSize="11" VerticalAlignment="Center"
+                               Foreground="{DynamicResource MutedBrush}"/>
+                </StackPanel>
+                <TextBlock x:Name="PreviewText" TextWrapping="Wrap" Foreground="{DynamicResource MutedBrush}"/>
+            </StackPanel>
+
+            <!-- footer -->
+            <Border Grid.Row="4" Background="{DynamicResource BarBrush}" CornerRadius="0,0,6,6" Padding="10,8">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Button x:Name="ResetButton" Style="{DynamicResource PlainButton}" Content="Reset to default"/>
+                    <Button x:Name="CancelButton" Grid.Column="2" Style="{DynamicResource PlainButton}" Content="Cancel"/>
+                    <Button x:Name="ApplyButton" Grid.Column="3" Style="{DynamicResource GreenButton}"
+                            Padding="16,4" Margin="6,0,0,0" Content="Apply"/>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

@@ -1,0 +1,335 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RevoBIM Revision Manager"
+        Width="1280" Height="720" MinWidth="900" MinHeight="460"
+        WindowStartupLocation="CenterOwner"
+        WindowStyle="None" AllowsTransparency="True"
+        Background="Transparent" ResizeMode="NoResize"
+        ShowInTaskbar="False" SnapsToDevicePixels="True">
+
+  <Grid>
+    <Border x:Name="WindowShell" Background="{DynamicResource WindowBg}"
+            BorderBrush="{DynamicResource WindowEdgeBrush}"
+            BorderThickness="1" CornerRadius="6">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- ======================= header ======================= -->
+        <Border x:Name="HeaderBar" Grid.Row="0"
+                Background="{DynamicResource BarBg}"
+                CornerRadius="5,5,0,0" Padding="14,9">
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Border x:Name="LogoHost" Grid.Column="0" Width="28" Height="28"
+                    CornerRadius="4" Margin="0,0,11,0"
+                    Background="{DynamicResource ChipBg}" Cursor="Hand">
+              <Image x:Name="LogoImage" Stretch="Uniform" Margin="3"/>
+            </Border>
+
+            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+              <TextBlock Text="RevoBIM" FontSize="17" FontWeight="Bold"
+                         Foreground="{DynamicResource BlueBrush}"/>
+              <TextBlock Text="Revision Manager" FontSize="13"
+                         Margin="0,-3,0,0"
+                         Foreground="{DynamicResource OrangeBrush}"/>
+            </StackPanel>
+
+            <StackPanel Grid.Column="2" Orientation="Horizontal"
+                        HorizontalAlignment="Right" VerticalAlignment="Center">
+              <!-- House header order: settings, light/dark, version. -->
+              <Button x:Name="RevSettingsButton" Style="{DynamicResource ChipButton}"
+                      Margin="0,0,7,0"
+                      ToolTip="Revision Manager settings: map your own columns to project parameters">
+                <StackPanel Orientation="Horizontal">
+                  <Path Width="12" Height="12" Stretch="Uniform" Margin="0,0,6,0"
+                        VerticalAlignment="Center"
+                        Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                        Data="M 6.9,0 L 9.1,0 L 9.5,2.2 L 10.9,2.8 L 12.8,1.5 L 14.4,3.1 L 13.1,5 L 13.7,6.4 L 16,6.9 L 16,9.1 L 13.7,9.5 L 13.2,10.9 L 14.5,12.8 L 12.9,14.4 L 11,13.1 L 9.6,13.7 L 9.1,16 L 6.9,16 L 6.5,13.7 L 5.1,13.2 L 3.2,14.5 L 1.6,12.9 L 2.9,11 L 2.3,9.6 L 0,9.1 L 0,6.9 L 2.3,6.5 L 2.8,5.1 L 1.5,3.2 L 3.1,1.6 L 5,2.9 L 6.4,2.3 Z M 8,5.2 A 2.8,2.8 0 1 0 8,10.8 A 2.8,2.8 0 1 0 8,5.2 Z"/>
+                  <TextBlock Text="Settings" VerticalAlignment="Center"
+                             Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                </StackPanel>
+              </Button>
+              <Button x:Name="ThemeChip" Style="{DynamicResource ChipButton}"
+                      Content="Dark" Margin="0,0,12,0"
+                      ToolTip="Switch this window between the dark and light palette"/>
+              <TextBlock x:Name="VersionText" Style="{DynamicResource MutedText}"
+                         VerticalAlignment="Center" Margin="0,0,10,0"
+                         Text="v0.0.0"/>
+            </StackPanel>
+
+            <StackPanel Grid.Column="3" Orientation="Horizontal"
+                        VerticalAlignment="Center">
+              <Button x:Name="ShrinkButton" Style="{DynamicResource ShrinkButton}"
+                      ToolTip="Shrink to the bottom of the screen"/>
+              <Button x:Name="FullScreenButton" Style="{DynamicResource IconButton}"
+                      ToolTip="Full screen (F11)">
+                <Border Width="12" Height="11" BorderThickness="1.6"
+                        BorderBrush="{DynamicResource MutedBrush}"/>
+              </Button>
+              <Button x:Name="CloseButton" Style="{DynamicResource CloseButton}"
+                      Content="&#x2715;" ToolTip="Close"/>
+            </StackPanel>
+          </Grid>
+        </Border>
+
+        <!-- ======================= body ======================= -->
+        <Grid Grid.Row="1" Margin="14,14,14,0">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="210"/>
+          </Grid.ColumnDefinitions>
+
+          <!-- Every column is built in code: each heading carries its own
+               search box, and each cell turns green when it is changed. -->
+          <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <!-- The column groups - Standard, Custom, Issue Status, Issued
+                 To, Issued Method - each one coloured strip across all of
+                 its columns, its name centred. Drawn in code from the
+                 columns' widths and kept in step as they are resized,
+                 dragged and scrolled. -->
+            <Border x:Name="RevisionBandHost" Grid.Row="0" Height="24"
+                    ClipToBounds="True">
+              <Canvas x:Name="RevisionBands"/>
+            </Border>
+            <DataGrid x:Name="RevisionGrid" Grid.Row="1"
+                      IsReadOnly="False"
+                      SelectionMode="Extended"
+                      CanUserSortColumns="False"
+                      CanUserReorderColumns="True"
+                      HorizontalScrollBarVisibility="Auto"
+                      VerticalScrollBarVisibility="Auto"/>
+          </Grid>
+
+          <ScrollViewer Grid.Column="1" Margin="14,0,0,0"
+                        VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+              <Button x:Name="RevAddButton"
+                      Margin="0,0,0,7" Height="30"
+                      ToolTip="Add a revision at the end of the list">
+                <StackPanel Orientation="Horizontal">
+                  <Path Width="12" Height="12" Stretch="Uniform"
+                        Margin="0,0,8,0" VerticalAlignment="Center"
+                        Fill="{DynamicResource GreenBrush}"
+                        Data="M 5,0 L 7,0 L 7,5 L 12,5 L 12,7 L 7,7 L 7,12 L 5,12 L 5,7 L 0,7 L 0,5 L 5,5 Z"/>
+                  <TextBlock Text="Add" VerticalAlignment="Center"/>
+                </StackPanel>
+              </Button>
+              <Button x:Name="RevDeleteButton" Margin="0,0,0,14" Height="30"
+                      ToolTip="Stage the selected revisions to be deleted. Select rows already staged and press again to restore them.">
+                <StackPanel Orientation="Horizontal">
+                  <Path Width="11" Height="12" Stretch="Uniform"
+                        Margin="0,0,8,0" VerticalAlignment="Center"
+                        Fill="{DynamicResource RedBrush}"
+                        Data="M 4,0 L 8,0 L 9,2 L 12,2 L 12,3.5 L 0,3.5 L 0,2 L 3,2 Z M 1.5,5 L 10.5,5 L 9.8,13 L 2.2,13 Z"/>
+                  <TextBlock x:Name="RevDeleteText" Text="Delete"
+                             VerticalAlignment="Center"/>
+                </StackPanel>
+              </Button>
+
+              <TextBlock Text="Numbering" Style="{DynamicResource SectionLabel}"
+                         Margin="0,0,0,6"/>
+              <RadioButton x:Name="RevPerProject" GroupName="RevNumbering"
+                           Content="Per Project" Margin="4,0,0,5"/>
+              <RadioButton x:Name="RevPerSheet" GroupName="RevNumbering"
+                           Content="Per Sheet" Margin="4,0,0,14"/>
+
+              <TextBlock Text="Row" Style="{DynamicResource SectionLabel}"
+                         Margin="0,0,0,6"/>
+              <Button x:Name="RevMoveUpButton"
+                      Margin="0,0,0,6" Height="28"
+                      ToolTip="Move every selected revision up one (Ctrl+Up). Ctrl or Shift click to select several.">
+                <StackPanel Orientation="Horizontal">
+                  <Path Width="12" Height="9" Stretch="Uniform"
+                        Margin="0,0,8,0" VerticalAlignment="Center"
+                        Fill="{DynamicResource BlueBrush}"
+                        Data="M 6,0 L 12,9 L 0,9 Z"/>
+                  <TextBlock Text="Move Up" VerticalAlignment="Center"/>
+                </StackPanel>
+              </Button>
+              <Button x:Name="RevMoveDownButton"
+                      Margin="0,0,0,6" Height="28"
+                      ToolTip="Move every selected revision down one (Ctrl+Down)">
+                <StackPanel Orientation="Horizontal">
+                  <Path Width="12" Height="9" Stretch="Uniform"
+                        Margin="0,0,8,0" VerticalAlignment="Center"
+                        Fill="{DynamicResource BlueBrush}"
+                        Data="M 0,0 L 12,0 L 6,9 Z"/>
+                  <TextBlock Text="Move Down" VerticalAlignment="Center"/>
+                </StackPanel>
+              </Button>
+              <Button x:Name="RevMergeUpButton" Content="Merge Up"
+                      Margin="0,0,0,6" Height="28"
+                      ToolTip="Merge the selected revision into the one above it. Its clouds move to that one and it is deleted. Unissued revisions only."/>
+              <Button x:Name="RevMergeDownButton" Content="Merge Down"
+                      Margin="0,0,0,14" Height="28"
+                      ToolTip="Merge the selected revision into the one below it. Unissued revisions only."/>
+
+              <TextBlock Text="Arc length (mm)" Style="{DynamicResource SectionLabel}"
+                         Margin="0,0,0,6"/>
+              <TextBox x:Name="RevArcBox" Margin="0,0,0,14" Height="34"
+                       FontSize="13" Padding="8,2"
+                       VerticalContentAlignment="Center"
+                       HorizontalContentAlignment="Right"
+                       ToolTip="The arc length of revision clouds on paper"/>
+
+              <TextBlock Text="Columns" Style="{DynamicResource SectionLabel}"
+                         Margin="0,0,0,6"/>
+              <Button x:Name="RevAddColumnButton" Margin="0,0,0,6" Height="30"
+                      ToolTip="Add a column of your own - Text, Yes/No, Number, Date or a choice list. Kept in the model, and pushed into a parameter if you map it.">
+                <StackPanel Orientation="Horizontal">
+                  <Path Width="12" Height="12" Stretch="Uniform"
+                        Margin="0,0,8,0" VerticalAlignment="Center"
+                        Fill="{DynamicResource GreenBrush}"
+                        Data="M 5,0 L 7,0 L 7,5 L 12,5 L 12,7 L 7,7 L 7,12 L 5,12 L 5,7 L 0,7 L 0,5 L 5,5 Z"/>
+                  <TextBlock Text="Add column" VerticalAlignment="Center"/>
+                </StackPanel>
+              </Button>
+              <Button x:Name="RevPushButton" Margin="0,0,0,14" Height="30"
+                      ToolTip="Push every mapped column into its parameter on Apply, even with nothing else changed. Mapped columns are pushed on every Apply anyway.">
+                <StackPanel Orientation="Horizontal">
+                  <Path Width="13" Height="11" Stretch="Uniform"
+                        Margin="0,0,8,0" VerticalAlignment="Center"
+                        Fill="{DynamicResource BlueBrush}"
+                        Data="M 0,4 L 8,4 L 8,0 L 14,5.5 L 8,11 L 8,7 L 0,7 Z"/>
+                  <TextBlock Text="Push to parameters" VerticalAlignment="Center"/>
+                </StackPanel>
+              </Button>
+
+              <!-- Greyed out unless Revit is showing a sheet; lit when it is;
+                   solid orange while the list is filtered to it. -->
+              <Button x:Name="RevSheetFilterButton"
+                      Style="{DynamicResource ChipButton}" Margin="0,0,0,8"
+                      HorizontalAlignment="Left" IsEnabled="False" Opacity="0.5"
+                      ToolTip="Show only the revisions on the sheet open in Revit. Follows you as you change sheets.">
+                <StackPanel Orientation="Horizontal">
+                  <Path Width="11" Height="13" Margin="0,0,6,0" Stretch="Uniform"
+                        VerticalAlignment="Center"
+                        Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                        Data="M 0,0 L 8,0 L 11,3 L 11,13 L 0,13 Z M 2,5 L 9,5 L 9,6.2 L 2,6.2 Z M 2,7.6 L 9,7.6 L 9,8.8 L 2,8.8 Z M 2,10.2 L 7,10.2 L 7,11.4 L 2,11.4 Z"/>
+                  <TextBlock x:Name="RevSheetFilterText"
+                             Text="Filter revisions on current sheet"
+                             VerticalAlignment="Center"
+                             Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                </StackPanel>
+              </Button>
+
+              <WrapPanel Margin="0,0,0,14">
+                <Button x:Name="RevClearSearchButton" Content="Clear filters"
+                        Style="{DynamicResource ChipButton}" Margin="0,0,6,6"
+                        ToolTip="Empty every column's search box and tick every value in every column's list again"/>
+                <Button x:Name="RevFollowButton" Content="Following selection"
+                        Style="{DynamicResource ChipButtonOn}" Margin="0,0,6,6"
+                        Visibility="Collapsed"
+                        ToolTip="While this window is open you can carry on working in Revit. Pick a revision cloud in a view and the list goes to its revision. Click to stop following."/>
+                <Button x:Name="RevSeriesToggleButton" Content="Collapse series"
+                        Style="{DynamicResource ChipButton}" Margin="0,0,6,6"
+                        ToolTip="Show every sheet series on every revision, or fold each to its first series and a count. Click a single cell to fold or unfold just that one."/>
+                <Button x:Name="RevFitColumnsButton" Content="Fit columns"
+                        Style="{DynamicResource ChipButton}" Margin="0,0,6,6"
+                        ToolTip="Fit every column to its heading and its widest value again, after dragging a column's edge or typing something longer. Sheet series keeps its width, because its chips wrap to it."/>
+                <Button x:Name="RevResetColumnsButton" Content="Reset columns"
+                        Style="{DynamicResource ChipButton}" Margin="0,0,0,6"
+                        ToolTip="Put the columns back in their first order. Drag a heading to move a column; the order is kept for next time."/>
+              </WrapPanel>
+
+              <Border Background="{DynamicResource CardBg}"
+                      BorderBrush="{DynamicResource EdgeBrush}"
+                      BorderThickness="1" CornerRadius="4" Padding="10,8">
+                <StackPanel>
+                  <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                    <Border Width="12" Height="12" CornerRadius="2"
+                            Margin="0,0,7,0"
+                            Background="{DynamicResource GreenWashBrush}"
+                            BorderBrush="{DynamicResource GreenBrush}"
+                            BorderThickness="1"/>
+                    <TextBlock Style="{DynamicResource MutedText}"
+                               Text="Changed, not yet applied"/>
+                  </StackPanel>
+                  <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                    <TextBlock Text="abc" Margin="0,0,7,0" FontSize="11"
+                               Foreground="{DynamicResource RedBrush}"
+                               TextDecorations="Strikethrough"/>
+                    <TextBlock Style="{DynamicResource MutedText}"
+                               Text="Deleted or merged on Apply"/>
+                  </StackPanel>
+                  <TextBlock Style="{DynamicResource MutedText}"
+                             TextWrapping="Wrap"
+                             Text="Issued revisions are locked, as in Revit: untick Issued to edit one."/>
+                </StackPanel>
+              </Border>
+            </StackPanel>
+          </ScrollViewer>
+        </Grid>
+
+        <!-- ======================= footer ======================= -->
+        <!-- Double-click: the window top to bottom of its screen, and
+             back again. -->
+        <Border x:Name="FooterBar" Grid.Row="2" Margin="0,14,0,0"
+                Background="{DynamicResource BarBg}"
+                CornerRadius="0,0,5,5" Padding="14,9"
+                ToolTip="Double-click to stretch the window to the full height of the screen - again to put it back">
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock x:Name="StatusText" Grid.Column="0"
+                       Style="{DynamicResource MutedText}"
+                       VerticalAlignment="Center" TextWrapping="Wrap"
+                       Text="Nothing is written to the model until Apply."/>
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+              <Button x:Name="CancelButton" Content="Cancel" Width="100"
+                      Margin="0,0,9,0"/>
+              <Button x:Name="ApplyButton" Content="Apply" Width="120"
+                      Style="{DynamicResource ExcelButton}" IsEnabled="False"
+                      ToolTip="Write every staged change to the model, then go back to the Document Register"/>
+            </StackPanel>
+          </Grid>
+        </Border>
+      </Grid>
+    </Border>
+
+    <Grid x:Name="GripLayer">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="5"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="5"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="5"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="5"/>
+      </Grid.ColumnDefinitions>
+      <Thumb x:Name="GripNW" Grid.Row="0" Grid.Column="0" Cursor="SizeNWSE"
+             Style="{DynamicResource GripThumb}"/>
+      <Thumb x:Name="GripN"  Grid.Row="0" Grid.Column="1" Cursor="SizeNS"
+             Style="{DynamicResource GripThumb}"/>
+      <Thumb x:Name="GripNE" Grid.Row="0" Grid.Column="2" Cursor="SizeNESW"
+             Style="{DynamicResource GripThumb}"/>
+      <Thumb x:Name="GripW"  Grid.Row="1" Grid.Column="0" Cursor="SizeWE"
+             Style="{DynamicResource GripThumb}"/>
+      <Thumb x:Name="GripE"  Grid.Row="1" Grid.Column="2" Cursor="SizeWE"
+             Style="{DynamicResource GripThumb}"/>
+      <Thumb x:Name="GripSW" Grid.Row="2" Grid.Column="0" Cursor="SizeNESW"
+             Style="{DynamicResource GripThumb}"/>
+      <Thumb x:Name="GripS"  Grid.Row="2" Grid.Column="1" Cursor="SizeNS"
+             Style="{DynamicResource GripThumb}"/>
+      <Thumb x:Name="GripSE" Grid.Row="2" Grid.Column="2" Cursor="SizeNWSE"
+             Style="{DynamicResource GripThumb}"/>
+    </Grid>
+  </Grid>
+</Window>

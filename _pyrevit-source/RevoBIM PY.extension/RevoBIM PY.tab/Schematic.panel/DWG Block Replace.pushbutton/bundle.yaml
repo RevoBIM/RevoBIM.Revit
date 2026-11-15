@@ -1,0 +1,12 @@
+author: RevoBIM
+tooltip: >
+  Replace the instances of a partially exploded imported DWG with a Revit
+  Detail Item or Generic Annotation family type.
+
+  Select the DWG blocks in the view, choose the family and type, then press
+  REPLACE. Each new element is placed on the centre point (or the block
+  insertion point) of the CAD block and rotated to match the block.
+
+  The window is modeless - keep navigating and editing Revit while it is
+  open. Rotate the placed elements by 90 degrees or a specified amount if
+  they do not look right. Press ESC to finish.

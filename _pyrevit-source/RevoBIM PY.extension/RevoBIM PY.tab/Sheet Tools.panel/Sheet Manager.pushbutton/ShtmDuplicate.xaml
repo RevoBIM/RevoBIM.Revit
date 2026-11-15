@@ -1,0 +1,584 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RevoBIM Sheet Manager - Create from templates"
+        Width="1560" Height="900" MinWidth="1100" MinHeight="620"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ResizeMode="NoResize" ShowInTaskbar="False" WindowStartupLocation="CenterOwner">
+
+  <Grid>
+    <Border CornerRadius="6" Background="{DynamicResource WindowBg}"
+            BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="1">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- ====================== header ====================== -->
+        <Border x:Name="HeaderBar" Grid.Row="0" Background="{DynamicResource BarBg}"
+                CornerRadius="6,6,0,0" Padding="12,8,8,8">
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" Orientation="Horizontal">
+              <Border x:Name="LogoHost" Width="34" Height="34" CornerRadius="4"
+                      Background="Transparent" Cursor="Hand" Margin="0,0,10,0">
+                <Image x:Name="LogoImage" Width="30" Height="30" Stretch="Uniform"/>
+              </Border>
+              <StackPanel VerticalAlignment="Center">
+                <TextBlock Text="RevoBIM" Foreground="{DynamicResource BlueBrush}"
+                           FontFamily="Segoe UI" FontSize="20" FontWeight="Bold"/>
+                <TextBlock x:Name="SubTitle" Text="Create sheets from templates"
+                           Foreground="{DynamicResource OrangeBrush}"
+                           FontFamily="Segoe UI" FontSize="15" Margin="1,-3,0,0"/>
+              </StackPanel>
+            </StackPanel>
+
+            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+              <TextBlock x:Name="VersionText" Style="{DynamicResource Lbl.Muted}" Text="v1.0.0"
+                         VerticalAlignment="Center" Margin="0,0,10,0"/>
+              <Button x:Name="ThemeChip" Style="{DynamicResource Btn.Chip}" Content="Theme: Auto"
+                      Margin="0,0,8,0" ToolTip="Auto follows Revit's canvas; click for Dark, then Light"/>
+              <Button x:Name="ShrinkBtn" Style="{DynamicResource Btn.Shrink}" Margin="0,0,2,0"/>
+              <Button x:Name="FullBtn" Style="{DynamicResource Btn.Glyph}" ToolTip="Full screen (F11)">
+                <Border Width="12" Height="10" BorderBrush="{DynamicResource MutedBrush}"
+                        BorderThickness="1.4" CornerRadius="1"/>
+              </Button>
+              <Button x:Name="CloseBtn" Style="{DynamicResource Btn.Close}" Content="&#x2715;"/>
+            </StackPanel>
+          </Grid>
+        </Border>
+
+        <!-- ====================== tab chips ====================== -->
+        <Border Grid.Row="1" Background="{DynamicResource CardBg}" Padding="12,0,12,0"
+                BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="0,1,0,1">
+          <StackPanel Orientation="Horizontal">
+            <Button x:Name="TabBuild" Style="{DynamicResource Btn.Tab}" Content="1  Sheets and views"/>
+            <Button x:Name="TabPreview" Style="{DynamicResource Btn.Tab}" Content="2  Preview and create"/>
+          </StackPanel>
+        </Border>
+
+        <!-- ====================== build ======================
+             Three groups stacked, each opening and shutting from its heading:
+             the source sheets (open to start with, the text to find beside
+             them), the view templates, and the sets to create. An open group
+             shares the height with any other open one. -->
+        <Grid x:Name="BuildPane" Grid.Row="2" Margin="12,10,12,6">
+          <Grid.RowDefinitions>
+            <RowDefinition x:Name="SourcesRow" Height="*"/>
+            <RowDefinition x:Name="TemplatesRow" Height="Auto"/>
+            <RowDefinition x:Name="SetsRow" Height="Auto"/>
+          </Grid.RowDefinitions>
+
+          <Border x:Name="SourcesCard" Grid.Row="0" Background="{DynamicResource CardBg}" CornerRadius="4"
+                  Margin="0,0,0,8">
+            <Grid>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+              </Grid.RowDefinitions>
+            <Button x:Name="SourcesHead" Grid.Row="0" Style="{DynamicResource Btn.Section}"
+                    ToolTip="Open or shut the source sheets">
+              <Grid>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Path x:Name="SourcesChevron" Grid.Column="0" Width="10" Height="10" Margin="0,0,10,0"
+                      Data="M2.5,1 L7.5,5 L2.5,9" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.6"
+                      StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
+                      RenderTransformOrigin="0.5,0.5" VerticalAlignment="Center"/>
+                <Path Grid.Column="1" Width="16" Height="16" Margin="0,0,9,0" VerticalAlignment="Center"
+                      Data="M5,1.5 H14.5 V12 M1.5,4.5 H11.5 V15 H1.5 Z M4,8 H9 M4,11 H9" Stroke="{DynamicResource BlueBrush}" StrokeThickness="1.5"
+                      StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                <TextBlock Grid.Column="2" Text="Source sheets" Style="{DynamicResource Lbl.Section}"/>
+                <TextBlock x:Name="SourcesSummary" Grid.Column="3" Style="{DynamicResource Lbl.Muted}"
+                           Margin="14,0,0,0" TextTrimming="CharacterEllipsis"/>
+              </Grid>
+            </Button>
+            <Grid x:Name="SourcesBody" Grid.Row="1" Margin="10,8,10,10">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.35*" MinWidth="320"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="1*" MinWidth="300"/>
+              </Grid.ColumnDefinitions>
+
+              <!-- the sheets to copy -->
+              <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="*"/>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <TextBox x:Name="SourceSearch" Grid.Row="0" Style="{DynamicResource Txt.Small}"
+                         Tag="search number or name" Margin="0,0,0,6"/>
+                <Border x:Name="PickedOnlyBar" Grid.Row="1" Background="{DynamicResource FieldBg}"
+                        CornerRadius="3" Padding="8,4,8,4" Margin="0,0,0,6" Visibility="Collapsed">
+                  <StackPanel Orientation="Horizontal">
+                    <Border Width="3" Height="14" Background="{DynamicResource BlueBrush}" Margin="0,0,8,0"/>
+                    <CheckBox x:Name="PickedOnlyBox" Style="{DynamicResource Chk.Flat}"
+                              Content="Only the sheets selected" VerticalAlignment="Center"
+                              ToolTip="Untick to list every sheet in the project"/>
+                  </StackPanel>
+                </Border>
+                <ListBox x:Name="SourceList" Grid.Row="2" Style="{DynamicResource Lst.Flat}" MinHeight="120"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"/>
+                <Grid Grid.Row="3" Margin="0,6,0,0">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                  </Grid.ColumnDefinitions>
+                  <TextBlock x:Name="SourceCount" Grid.Column="0" Style="{DynamicResource Lbl.Muted}"
+                             VerticalAlignment="Center" Text="0 ticked"/>
+                  <Button x:Name="TickShownBtn" Grid.Column="1" Style="{DynamicResource Btn.Flat}"
+                          Content="Tick shown" Margin="0,0,5,0"/>
+                  <Button x:Name="UntickBtn" Grid.Column="2" Style="{DynamicResource Btn.Flat}"
+                          Content="Clear"/>
+                </Grid>
+                <!-- what the new views and sheets start with -->
+                <StackPanel Grid.Row="4" Margin="0,8,0,0">
+                  <CheckBox x:Name="IncludeLegends" Style="{DynamicResource Chk.Flat}" Margin="0,0,0,4"
+                            Content="Include the legends from the original sheets"
+                            ToolTip="Off: the new sheets get no legends. On: each legend is placed again (or duplicated - Options &gt; Legends)"/>
+                  <CheckBox x:Name="StripAnnotation" Style="{DynamicResource Chk.Flat}" Margin="0,0,0,4"
+                            Content="Remove text notes and tags from the new views and sheets"
+                            ToolTip="Text notes and element tags (keynotes included) are deleted from every copy. Room and space tags follow the room options."/>
+                  <CheckBox x:Name="TagRooms" Style="{DynamicResource Chk.Flat}" Margin="0,0,0,4"
+                            Content="Tag every room, and remove '?' room tags, on the new views"
+                            ToolTip="Plan views: every placed room on the view's level - this model's and those in loaded links - gets a room tag if it has none, and tags showing '?' (tagging no room) are deleted"/>
+                  <CheckBox x:Name="StripLines" Style="{DynamicResource Chk.Flat}"
+                            Content="Remove detail lines and filled regions from the new views and sheets"
+                            ToolTip="Detail lines and filled regions only - room separation and area boundary lines are left alone"/>
+                  <TextBlock Style="{DynamicResource Lbl.Muted}" TextWrapping="Wrap" FontSize="11" Margin="0,4,0,0"
+                             Text="Revisions and revision clouds are always taken off the new sheets and views."/>
+                </StackPanel>
+              </Grid>
+
+              <GridSplitter Grid.Column="1" Width="8" Style="{DynamicResource Split.Flat}"
+                            HorizontalAlignment="Center" VerticalAlignment="Stretch" Margin="6,0,6,0"/>
+
+              <!-- the text to find, beside the sheets it is found in -->
+              <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto"
+                            HorizontalScrollBarVisibility="Disabled">
+                <StackPanel>
+                  <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                    <Border Width="4" Height="16" Background="{DynamicResource OrangeBrush}" Margin="0,0,8,0"/>
+                    <TextBlock Text="Text to find" Style="{DynamicResource Lbl.Section}"/>
+                  </StackPanel>
+                  <TextBlock Style="{DynamicResource Lbl.Muted}" TextWrapping="Wrap" Margin="0,0,0,8"
+                             Text="What each box finds is shown bold, in its colour, in the sheets on the left."/>
+                  <!-- saved text to find: pick one to fill the three boxes -->
+                  <Grid Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*"/>
+                      <ColumnDefinition Width="Auto"/>
+                      <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <ComboBox x:Name="FindPresetBox" Grid.Column="0" Style="{DynamicResource Cmb.Flat}"
+                              ToolTip="Saved text to find - pick one to fill the boxes below"/>
+                    <Button x:Name="FindSaveBtn" Grid.Column="1" Style="{DynamicResource Btn.Flat}"
+                            Content="Save..." Margin="5,0,5,0"
+                            ToolTip="Keep what is in the three boxes and Match case under a name, to bring back next time"/>
+                    <Button x:Name="FindDeleteBtn" Grid.Column="2" Style="{DynamicResource Btn.Flat}"
+                            Content="Delete" IsEnabled="False"/>
+                  </Grid>
+                  <StackPanel Orientation="Horizontal" Margin="0,0,0,3">
+                    <Border Width="10" Height="10" CornerRadius="2" Background="{DynamicResource BlueBrush}"
+                            Margin="0,0,6,0" VerticalAlignment="Center"/>
+                    <TextBlock Text="in the sheet numbers" Style="{DynamicResource Lbl.Body}"/>
+                  </StackPanel>
+                  <TextBox x:Name="NumFind" Style="{DynamicResource Txt.Field}"
+                           Tag="e.g. 0012" Margin="0,0,0,8"/>
+                  <StackPanel Orientation="Horizontal" Margin="0,0,0,3">
+                    <Border Width="10" Height="10" CornerRadius="2" Background="{DynamicResource OrangeBrush}"
+                            Margin="0,0,6,0" VerticalAlignment="Center"/>
+                    <TextBlock Text="in the sheet names" Style="{DynamicResource Lbl.Body}"/>
+                  </StackPanel>
+                  <TextBox x:Name="NameFind" Style="{DynamicResource Txt.Field}"
+                           Tag="leave blank to keep the names" Margin="0,0,0,8"/>
+                  <StackPanel Orientation="Horizontal" Margin="0,0,0,3">
+                    <Border Width="10" Height="10" CornerRadius="2" Background="{DynamicResource GreenBrush}"
+                            Margin="0,0,6,0" VerticalAlignment="Center"/>
+                    <TextBlock Text="in the view names" Style="{DynamicResource Lbl.Body}"/>
+                  </StackPanel>
+                  <TextBox x:Name="ViewFind" Style="{DynamicResource Txt.Field}"
+                           Tag="leave blank to keep the names" Margin="0,0,0,8"/>
+                  <CheckBox x:Name="MatchCase" Style="{DynamicResource Chk.Flat}" Content="Match case"
+                            Margin="0,0,0,8"/>
+                  <TextBlock x:Name="FindExample" Style="{DynamicResource Lbl.Muted}" TextWrapping="Wrap"
+                             FontFamily="Consolas" FontSize="11" Margin="0,0,0,14"/>
+
+                  <!-- the new sheet names into sheet parameters -->
+                  <Border Background="{DynamicResource FieldBg}" CornerRadius="4" Padding="10,8,10,8"
+                          Margin="0,0,0,14" BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="1">
+                    <StackPanel>
+                      <CheckBox x:Name="WriteNamesBox" Style="{DynamicResource Chk.Flat}" FontWeight="SemiBold"
+                                Content="Write the sheet names into sheet parameters"
+                                ToolTip="Split each new sheet name on the delimiter and write the parts, in order, into the parameters below"/>
+                      <StackPanel x:Name="NamePushBody" Margin="24,8,0,0">
+                        <Grid Margin="0,0,0,6">
+                          <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="110"/>
+                            <ColumnDefinition Width="70"/>
+                            <ColumnDefinition Width="*"/>
+                          </Grid.ColumnDefinitions>
+                          <TextBlock Grid.Column="0" Text="Delimiter" Style="{DynamicResource Lbl.Body}"/>
+                          <TextBox x:Name="NameDelimiterBox" Grid.Column="1" Style="{DynamicResource Txt.Field}"
+                                   Tag="_" ToolTip="What the sheet name is split on - blank means _"/>
+                          <TextBlock Grid.Column="2" Style="{DynamicResource Lbl.Muted}" Margin="8,0,0,0"
+                                     Text="default _"/>
+                        </Grid>
+                        <StackPanel x:Name="NamePushHost"/>
+                        <TextBlock x:Name="NamePushExample" Style="{DynamicResource Lbl.Muted}" TextWrapping="Wrap"
+                                   FontSize="11" Margin="0,4,0,0"/>
+                      </StackPanel>
+                    </StackPanel>
+                  </Border>
+
+                  <Button x:Name="OptionsToggle" Style="{DynamicResource Btn.Chip}"
+                          Content="Options  &#x25B8;" HorizontalAlignment="Left" Margin="0,0,0,8"/>
+                  <StackPanel x:Name="OptionsPanel" Visibility="Collapsed">
+                    <TextBlock Text="Views" Style="{DynamicResource Lbl.Section}" Margin="0,0,0,6"/>
+                    <RadioButton x:Name="DupWithDetailing" Style="{DynamicResource Rad.Flat}"
+                                 Content="Duplicate with detailing" GroupName="dupopt" Margin="0,0,0,4"/>
+                    <RadioButton x:Name="DupPlain" Style="{DynamicResource Rad.Flat}"
+                                 Content="Duplicate without detailing" GroupName="dupopt" Margin="0,0,0,8"/>
+                    <CheckBox x:Name="RetainRoomNames" Style="{DynamicResource Chk.Flat}"
+                              Content="Keep room and space tags" Margin="0,0,0,4"/>
+                    <CheckBox x:Name="CopyGridExtents" Style="{DynamicResource Chk.Flat}"
+                              Content="Match the grid and level stretch" Margin="0,0,0,4"/>
+                    <TextBlock Style="{DynamicResource Lbl.Muted}" TextWrapping="Wrap" FontSize="11"
+                               Margin="0,0,0,6"
+                               Text="A dependent view always comes across as a dependent of a copy of its parent, placed where the old one was."/>
+                    <CheckBox x:Name="DupAllDependents" Style="{DynamicResource Chk.Flat}"
+                              Content="Also copy the parent's dependents not on these sheets" Margin="0,0,0,4"/>
+                    <CheckBox x:Name="PlaceNewParent" Style="{DynamicResource Chk.Flat}"
+                              Content="Place a copied parent on its new sheet" Margin="0,0,0,8"/>
+                    <Grid Margin="0,0,0,10">
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="80"/>
+                        <ColumnDefinition Width="*"/>
+                      </Grid.ColumnDefinitions>
+                      <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                      </Grid.RowDefinitions>
+                      <TextBlock Grid.Row="0" Text="Legends" Style="{DynamicResource Lbl.Body}" VerticalAlignment="Center"/>
+                      <ComboBox x:Name="LegendMode" Grid.Row="0" Grid.Column="1"
+                                Style="{DynamicResource Cmb.Flat}" Margin="0,0,0,6"/>
+                      <TextBlock Grid.Row="1" Text="Schedules" Style="{DynamicResource Lbl.Body}" VerticalAlignment="Center"/>
+                      <ComboBox x:Name="ScheduleMode" Grid.Row="1" Grid.Column="1"
+                                Style="{DynamicResource Cmb.Flat}" Margin="0,0,0,6"/>
+                      <TextBlock Grid.Row="2" Text="Drafting" Style="{DynamicResource Lbl.Body}" VerticalAlignment="Center"/>
+                      <ComboBox x:Name="DraftingMode" Grid.Row="2" Grid.Column="1"
+                                Style="{DynamicResource Cmb.Flat}"/>
+                    </Grid>
+                    <TextBlock Text="Sheets" Style="{DynamicResource Lbl.Section}" Margin="0,0,0,6"/>
+                    <CheckBox x:Name="CopySheetParams" Style="{DynamicResource Chk.Flat}"
+                              Content="Copy the sheet's other parameters" Margin="0,0,0,4"/>
+                    <CheckBox x:Name="CopyTitleblockParams" Style="{DynamicResource Chk.Flat}"
+                              Content="Copy the title block's parameters" Margin="0,0,0,4"/>
+                    <TextBlock Style="{DynamicResource Lbl.Muted}" TextWrapping="Wrap" FontSize="11"
+                               Margin="0,2,0,4"
+                               Text="New sheets and views start with no revisions: revision clouds are taken off every copied view and the sheets carry none."/>
+                    <TextBlock Style="{DynamicResource Lbl.Muted}" TextWrapping="Wrap" FontSize="11"
+                               Margin="0,4,0,0"
+                               Text="Pushing the sheet names into their parameters is on the Preview page."/>
+                  </StackPanel>
+                </StackPanel>
+              </ScrollViewer>
+            </Grid>
+            </Grid>
+          </Border>
+
+          <Border x:Name="TemplatesCard" Grid.Row="1" Background="{DynamicResource CardBg}" CornerRadius="4"
+                  Margin="0,0,0,8">
+            <Grid>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+              </Grid.RowDefinitions>
+            <Button x:Name="TemplatesHead" Grid.Row="0" Style="{DynamicResource Btn.Section}"
+                    ToolTip="Open or shut the view templates">
+              <Grid>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Path x:Name="TemplatesChevron" Grid.Column="0" Width="10" Height="10" Margin="0,0,10,0"
+                      Data="M2.5,1 L7.5,5 L2.5,9" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.6"
+                      StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
+                      RenderTransformOrigin="0.5,0.5" VerticalAlignment="Center"/>
+                <Path Grid.Column="1" Width="16" Height="16" Margin="0,0,9,0" VerticalAlignment="Center"
+                      Data="M8,1.5 L14.5,4.75 L8,8 L1.5,4.75 Z M1.5,8 L8,11.25 L14.5,8 M1.5,11.25 L8,14.5 L14.5,11.25" Stroke="{DynamicResource GreenBrush}" StrokeThickness="1.5"
+                      StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                <TextBlock Grid.Column="2" Text="View templates" Style="{DynamicResource Lbl.Section}"/>
+                <TextBlock x:Name="TemplatesSummary" Grid.Column="3" Style="{DynamicResource Lbl.Muted}"
+                           Margin="14,0,0,0" TextTrimming="CharacterEllipsis"/>
+              </Grid>
+            </Button>
+            <Grid x:Name="TemplatesBody" Grid.Row="1" Margin="10,8,10,10" Visibility="Collapsed">
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+              </Grid.RowDefinitions>
+              <Grid Grid.Row="0" Margin="0,0,0,6">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="8"/>
+                  <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                  <TextBlock Text="Family" Style="{DynamicResource Lbl.Muted}" FontSize="11" Margin="0,0,0,2"/>
+                  <ComboBox x:Name="FamilyFilter" Style="{DynamicResource Cmb.Flat}"/>
+                </StackPanel>
+                <StackPanel Grid.Column="2">
+                  <TextBlock Text="Type" Style="{DynamicResource Lbl.Muted}" FontSize="11" Margin="0,0,0,2"/>
+                  <ComboBox x:Name="TypeFilter" Style="{DynamicResource Cmb.Flat}"/>
+                </StackPanel>
+              </Grid>
+              <TextBox x:Name="TemplateSearch" Grid.Row="1" Style="{DynamicResource Txt.Small}"
+                       Tag="search template names" Margin="0,0,0,6"/>
+              <Grid Grid.Row="2">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid x:Name="TemplateHeader" Grid.Row="0" Margin="4,0,4,4"/>
+                <ListBox x:Name="TemplateList" Grid.Row="1" Style="{DynamicResource Lst.Flat}"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                         ScrollViewer.VerticalScrollBarVisibility="Visible"/>
+              </Grid>
+              <Grid Grid.Row="3" Margin="0,8,0,0">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <!-- the template picked in the list (clicked, not ticked) -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="0,0,12,0">
+                  <Button x:Name="TplDuplicateBtn" Style="{DynamicResource Btn.Flat}" Content="Duplicate..."
+                          Margin="0,0,5,0" IsEnabled="False"
+                          ToolTip="Make a copy of the picked view template under a new name"/>
+                  <Button x:Name="TplRenameBtn" Style="{DynamicResource Btn.Flat}" Content="Rename..."
+                          Margin="0,0,5,0" IsEnabled="False"
+                          ToolTip="Give the picked view template a new name"/>
+                  <Button x:Name="TplEditBtn" Style="{DynamicResource Btn.Flat}" Content="Edit..."
+                          IsEnabled="False"
+                          ToolTip="Open the picked view template's properties - Parameter, Value, Include - like Revit's View Templates dialog"/>
+                </StackPanel>
+                <TextBlock x:Name="TemplateCount" Grid.Column="1" Style="{DynamicResource Lbl.Muted}"
+                           VerticalAlignment="Center" TextWrapping="Wrap"/>
+                <Button x:Name="PushBtn" Grid.Column="2" Style="{DynamicResource Btn.Orange}"
+                        Content="Add ticked  &#x2193;" IsEnabled="False"
+                        ToolTip="Each template becomes one set of new sheets in Sets to create, below"/>
+              </Grid>
+            </Grid>
+            </Grid>
+          </Border>
+
+          <Border x:Name="SetsCard" Grid.Row="2" Background="{DynamicResource CardBg}" CornerRadius="4"
+                  Margin="0">
+            <Grid>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+              </Grid.RowDefinitions>
+            <Button x:Name="SetsHead" Grid.Row="0" Style="{DynamicResource Btn.Section}"
+                    ToolTip="Open or shut the sets to create">
+              <Grid>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Path x:Name="SetsChevron" Grid.Column="0" Width="10" Height="10" Margin="0,0,10,0"
+                      Data="M2.5,1 L7.5,5 L2.5,9" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.6"
+                      StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
+                      RenderTransformOrigin="0.5,0.5" VerticalAlignment="Center"/>
+                <Path Grid.Column="1" Width="16" Height="16" Margin="0,0,9,0" VerticalAlignment="Center"
+                      Data="M1.5,2.5 H14.5 V13.5 H1.5 Z M1.5,6.2 H14.5 M1.5,9.9 H14.5 M6,2.5 V13.5" Stroke="{DynamicResource OrangeBrush}" StrokeThickness="1.5"
+                      StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                <TextBlock Grid.Column="2" Text="Sets to create" Style="{DynamicResource Lbl.Section}"/>
+                <TextBlock x:Name="SetsSummary" Grid.Column="3" Style="{DynamicResource Lbl.Muted}"
+                           Margin="14,0,0,0" TextTrimming="CharacterEllipsis"/>
+              </Grid>
+            </Button>
+            <Grid x:Name="SetsBody" Grid.Row="1" Margin="10,8,10,10" Visibility="Collapsed">
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+              </Grid.RowDefinitions>
+              <TextBlock Grid.Row="0" Style="{DynamicResource Lbl.Muted}" TextWrapping="Wrap" Margin="0,0,0,8"
+                         Text="Each row makes a full copy of the source sheets, with its template on the views of its type. Type what the found text becomes; a blank grouping cell keeps each sheet's own value."/>
+
+              <!-- the fill bar: one value into every picked cell -->
+              <Border x:Name="FillBar" Grid.Row="1" Background="{DynamicResource FieldBg}" CornerRadius="4"
+                      Padding="8,6,8,6" Margin="0,0,0,8" BorderBrush="{DynamicResource EdgeBrush}"
+                      BorderThickness="1">
+                <Grid>
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                  </Grid.RowDefinitions>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" MinWidth="160"/>
+                    <ColumnDefinition Width="Auto"/>
+                  </Grid.ColumnDefinitions>
+                  <TextBlock x:Name="FillLabel" Grid.Row="0" Grid.ColumnSpan="2" Style="{DynamicResource Lbl.Muted}"
+                             TextWrapping="Wrap" Margin="0,0,0,6"/>
+                  <StackPanel x:Name="FillHost" Grid.Row="1" Grid.Column="0" Margin="0,0,8,0"/>
+                  <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button x:Name="FillApplyBtn" Style="{DynamicResource Btn.Orange}" Content="Apply to picked"
+                            Margin="0,0,5,0" IsEnabled="False"
+                            ToolTip="Put this value into every picked cell (or Ctrl+Enter in a cell to use that cell's value)"/>
+                    <Button x:Name="FillSeriesBtn" Style="{DynamicResource Btn.Flat}" Content="Fill series"
+                            Margin="0,0,5,0" IsEnabled="False"
+                            ToolTip="Step each picked column down from its top cell: 0013, 0014, 0015..."/>
+                    <Button x:Name="FillClearBtn" Style="{DynamicResource Btn.Flat}" Content="Clear"
+                            Margin="0,0,5,0" IsEnabled="False" ToolTip="Empty every picked cell"/>
+                    <Button x:Name="FillUndoBtn" Style="{DynamicResource Btn.Flat}" Content="Undo"
+                            IsEnabled="False" ToolTip="Take back the last apply, fill or clear"/>
+                  </StackPanel>
+                </Grid>
+              </Border>
+
+              <!-- the heading stays put while the rows scroll; it follows them sideways -->
+              <ScrollViewer x:Name="ConfirmHeaderScroll" Grid.Row="2" HorizontalScrollBarVisibility="Hidden"
+                            VerticalScrollBarVisibility="Disabled" Margin="0,0,0,2">
+                <Grid x:Name="ConfirmHeader"/>
+              </ScrollViewer>
+              <ScrollViewer x:Name="ConfirmScroll" Grid.Row="3" VerticalScrollBarVisibility="Visible"
+                            HorizontalScrollBarVisibility="Auto">
+                <StackPanel>
+                  <StackPanel x:Name="ConfirmHost"/>
+                  <TextBlock x:Name="ConfirmEmpty" Style="{DynamicResource Lbl.Muted}" Margin="4,14,0,0"
+                             TextWrapping="Wrap"
+                             Text="Tick view templates above and press Add ticked, or double-click one, to bring it here."/>
+                </StackPanel>
+              </ScrollViewer>
+              <Grid Grid.Row="4" Margin="0,8,0,0">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock x:Name="ConfirmCount" Grid.Column="0" Style="{DynamicResource Lbl.Muted}"
+                           VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                <Button x:Name="ClearSetsBtn" Grid.Column="1" Style="{DynamicResource Btn.Flat}"
+                        Content="Remove all" IsEnabled="False"/>
+              </Grid>
+            </Grid>
+            </Grid>
+          </Border>
+        </Grid>
+
+        <!-- ====================== preview ====================== -->
+        <Grid x:Name="PreviewPane" Grid.Row="2" Margin="12,10,12,6" Visibility="Collapsed">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Grid Grid.Row="0" Margin="0,0,0,8">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock x:Name="PreviewNote" Grid.Column="0" Style="{DynamicResource Lbl.Body}"
+                       VerticalAlignment="Center" TextWrapping="Wrap"/>
+            <Button x:Name="PreviewExpandBtn" Grid.Column="1" Style="{DynamicResource Btn.Flat}"
+                    Content="Expand all" Margin="0,0,5,0"/>
+            <Button x:Name="PreviewCollapseBtn" Grid.Column="2" Style="{DynamicResource Btn.Flat}"
+                    Content="Collapse all"/>
+          </Grid>
+          <!-- push the sheet names into their parameters -->
+          <Border Grid.Row="1" Background="{DynamicResource CardBg}" CornerRadius="4"
+                  Padding="10,7,10,7" Margin="0,0,0,8" BorderBrush="{DynamicResource EdgeBrush}"
+                  BorderThickness="1">
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <CheckBox x:Name="PushNamesBox" Grid.Column="0" Style="{DynamicResource Chk.Flat}"
+                        Content="Push sheet names?" FontWeight="SemiBold" VerticalAlignment="Center"
+                        Margin="0,0,16,0"
+                        ToolTip="Split each new sheet name on _ and write the parts, in order, into the sheet name parameters set in Settings"/>
+              <TextBlock x:Name="PushNamesNote" Grid.Column="1" Style="{DynamicResource Lbl.Muted}"
+                         VerticalAlignment="Center" TextWrapping="Wrap"/>
+            </Grid>
+          </Border>
+
+          <DataGrid x:Name="PreviewGrid" Grid.Row="2" Style="{DynamicResource Grid.Flat}"
+                    IsReadOnly="True" SelectionMode="Extended" SelectionUnit="FullRow"
+                    CanUserSortColumns="True" CanUserReorderColumns="False"
+                    CanUserResizeColumns="True"/>
+        </Grid>
+
+        <!-- ====================== progress ====================== -->
+        <Border x:Name="ProgressBand" Grid.Row="3" Height="22" Margin="12,0,12,6" CornerRadius="3"
+                Background="{DynamicResource FieldBg}" Visibility="Collapsed">
+          <Grid>
+            <Border x:Name="ProgressFill" HorizontalAlignment="Left" Width="0" CornerRadius="3"
+                    Background="{DynamicResource GreenBrush}"/>
+            <TextBlock x:Name="ProgressText" Style="{DynamicResource Lbl.Body}" FontSize="12"
+                       FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          </Grid>
+        </Border>
+
+        <!-- ====================== footer ====================== -->
+        <Border Grid.Row="4" Background="{DynamicResource BarBg}" CornerRadius="0,0,6,6"
+                Padding="12,8,12,8" BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="0,1,0,0">
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock x:Name="StatusText" Grid.Column="0" Style="{DynamicResource Lbl.Muted}"
+                       VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,12,0"/>
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+              <Button x:Name="CancelBtn" Style="{DynamicResource Btn.Flat}" Content="Cancel" Margin="0,0,8,0"/>
+              <Button x:Name="PrevBtn" Style="{DynamicResource Btn.Flat}" Content="Previous"
+                      Margin="0,0,8,0" IsEnabled="False"/>
+              <Button x:Name="NextBtn" Style="{DynamicResource Btn.Flat}" Content="Next: Preview"
+                      Margin="0,0,8,0" IsEnabled="False"/>
+              <Button x:Name="RunBtn" Style="{DynamicResource Btn.Flat}" Content="Create"
+                      IsEnabled="False"/>
+            </StackPanel>
+          </Grid>
+        </Border>
+      </Grid>
+    </Border>
+
+    <Thumb x:Name="GripL" Style="{DynamicResource Grip}" HorizontalAlignment="Left" Width="5" Cursor="SizeWE"/>
+    <Thumb x:Name="GripR" Style="{DynamicResource Grip}" HorizontalAlignment="Right" Width="5" Cursor="SizeWE"/>
+    <Thumb x:Name="GripT" Style="{DynamicResource Grip}" VerticalAlignment="Top" Height="5" Cursor="SizeNS"/>
+    <Thumb x:Name="GripB" Style="{DynamicResource Grip}" VerticalAlignment="Bottom" Height="5" Cursor="SizeNS"/>
+    <Thumb x:Name="GripTL" Style="{DynamicResource Grip}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="8" Height="8" Cursor="SizeNWSE"/>
+    <Thumb x:Name="GripTR" Style="{DynamicResource Grip}" HorizontalAlignment="Right" VerticalAlignment="Top" Width="8" Height="8" Cursor="SizeNESW"/>
+    <Thumb x:Name="GripBL" Style="{DynamicResource Grip}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="8" Height="8" Cursor="SizeNESW"/>
+    <Thumb x:Name="GripBR" Style="{DynamicResource Grip}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="8" Height="8" Cursor="SizeNWSE"/>
+  </Grid>
+</Window>

@@ -1,0 +1,18 @@
+title: RevoBIM Reconnect Wires
+author: RevoBIM PY
+min_revit_version: 2024
+tooltip: >
+  Select the wires that have come away from their fittings and run this.
+
+  Every end that is connected to nothing is joined to the nearest lighting or
+  electrical element within the search radius that already carries a circuit
+  and has no wire on it yet. Joining the wire is what puts it on the circuit.
+
+  Distance is measured in plan, so a ceiling light three metres above the plan
+  the wire is drawn on is still found.
+
+  Nothing is deleted. A wire Revit refuses to join in place is rebuilt with
+  Wire.Create on the same type, view and workset, and the refusal is reported.
+
+  Single command button - bind a key to it in
+  View > User Interface > Keyboard Shortcuts, search "RevoBIM Reconnect Wires".

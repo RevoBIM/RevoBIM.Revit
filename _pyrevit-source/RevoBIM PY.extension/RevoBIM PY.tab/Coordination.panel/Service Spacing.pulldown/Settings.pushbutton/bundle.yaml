@@ -1,0 +1,6 @@
+title: RevoBIM Service Spacing Settings
+tooltip: >
+  Clear gaps, rounding, insulation, the spacing axis, the anchor and what
+  travels with each service.  Written to
+  %APPDATA%\RevoBIM\service_spacing.txt; every later run uses them.
+author: RevoBIM PY

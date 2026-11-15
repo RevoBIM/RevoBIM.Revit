@@ -1,0 +1,13 @@
+title: |-
+  Revision
+  Manager
+tooltip: >-
+  RevoBIM Revision Manager. Add, edit, reorder, merge and delete the
+  project's revisions, with how many sheets use each one, a search on every
+  column, and columns of your own such as Revision notes - kept in the model
+  and pushed into sheet or revision cloud parameters if you map them.
+
+  Nothing is written until Apply. Also opens from the Document Register tab
+  in Pro Sheets Exporter.
+author: RevoBIM PY
+highlight: new

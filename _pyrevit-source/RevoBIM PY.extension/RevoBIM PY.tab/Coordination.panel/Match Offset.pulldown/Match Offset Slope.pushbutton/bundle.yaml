@@ -1,0 +1,7 @@
+title: RevoBIM Match Offset Slope
+tooltip: >
+  Match Offset Slope. First click takes the fall and elevation off a main;
+  every click after it puts a branch run on that fall and lands it on the
+  main's centreline where the two cross in plan, then trims and fits it.
+  For connecting an existing drainage run into a main.
+author: RevoBIM

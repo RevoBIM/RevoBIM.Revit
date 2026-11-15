@@ -1,0 +1,7 @@
+title: Nudge Down
+tooltip: >
+  Lower elements by the Nudge increment (default 50mm).
+  Select elements first to lower them all - press again to lower them again.
+  Run with nothing selected and every element you click drops straight away,
+  until you press Escape. Set the increment with Nudge Settings.
+author: RevoBIM PY

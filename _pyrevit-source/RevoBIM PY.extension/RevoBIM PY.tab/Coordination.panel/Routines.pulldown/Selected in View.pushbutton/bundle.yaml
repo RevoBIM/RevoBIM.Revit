@@ -1,0 +1,9 @@
+title: Selected in View
+tooltip: >-
+  Opens a compact window listing the categories in the active view.
+  Tick the categories you want to be pickable - while the window is open,
+  anything else is taken straight back out of every selection you make.
+  Linked models and Pinned elements switch green (pickable) or red (filtered).
+  Tags expand into their family types. The list refreshes when you change view.
+  Close the window to put selection back to normal.
+author: RevoBIM

@@ -1,0 +1,9 @@
+title: RevoBIM Reset Hide
+tooltip: >
+  Reset Hide - opens the floating window that remembers everything Hide Service
+  Type has hidden in this model, view by view. Reset Hide puts back exactly
+  what the tool hid, and nothing anyone else hid; Hide again hides it again;
+  Forget drops it from memory. The memory survives closing Revit. Bind a key
+  to it under View > User Interface > Keyboard Shortcuts, searching
+  "RevoBIM Reset Hide".
+author: RevoBIM PY

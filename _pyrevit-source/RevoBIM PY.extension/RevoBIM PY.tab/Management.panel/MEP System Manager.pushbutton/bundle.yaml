@@ -1,0 +1,8 @@
+title: MEP System Manager
+tooltip: >-
+  RevoBIM MEP System Manager. A tab each for pipes, ducts and containment:
+  every system grouped by service type, sorted and filtered by system or run,
+  type, size and count; checks and type standards; isolate the selection in a
+  3D view; change the type of the selection while keeping the parameter data
+  chosen in Settings; export to Excel.
+author: RevoBIM

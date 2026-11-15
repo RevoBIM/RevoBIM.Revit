@@ -1,0 +1,192 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RevoBIM - Click to RVT Element" Width="900" Height="660" MinWidth="760" MinHeight="560"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent" ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen" ShowInTaskbar="False" FontFamily="Segoe UI" FontSize="12">
+  <Border x:Name="RootBorder" CornerRadius="6" BorderThickness="1" BorderBrush="{DynamicResource Edge}"
+          Background="{DynamicResource Bg}">
+    <Grid x:Name="Root">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+
+      <!-- ===== header ===== -->
+      <Border x:Name="Header" Grid.Row="0" Background="{DynamicResource Bar}" CornerRadius="6,6,0,0" Padding="10,6,8,6">
+        <DockPanel LastChildFill="True">
+          <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+            <Button x:Name="GearBtn" Style="{DynamicResource ChipBtn}" ToolTip="Settings">
+              <StackPanel Orientation="Horizontal">
+                <Path Data="M7,0.5 L8.2,2.6 L10.6,2 L10.9,4.4 L13.1,5.4 L12,7.5 L13.1,9.6 L10.9,10.6 L10.6,13 L8.2,12.4 L7,14.5 L5.8,12.4 L3.4,13 L3.1,10.6 L0.9,9.6 L2,7.5 L0.9,5.4 L3.1,4.4 L3.4,2 L5.8,2.6 Z M7,5 A2.5,2.5 0 1 0 7,10 A2.5,2.5 0 1 0 7,5"
+                      Stroke="{DynamicResource Text}" StrokeThickness="1.1" VerticalAlignment="Center"/>
+                <TextBlock Text="Settings" Margin="6,0,0,0" VerticalAlignment="Center"/>
+              </StackPanel>
+            </Button>
+            <Button x:Name="ThemeBtn" Style="{DynamicResource ChipBtn}" ToolTip="Theme: Auto follows Revit's canvas, then Dark, then Light">
+              <StackPanel Orientation="Horizontal">
+                <Path Data="M7,1 A6,6 0 1 0 7,13 A6,6 0 1 0 7,1 Z M7,1 A6,6 0 0 1 7,13 Z" Fill="{DynamicResource Text}"
+                      Stroke="{DynamicResource Text}" StrokeThickness="1" VerticalAlignment="Center" Opacity="0.9"/>
+                <TextBlock x:Name="ThemeLabel" Text="Auto" Margin="6,0,0,0" VerticalAlignment="Center"/>
+              </StackPanel>
+            </Button>
+            <TextBlock x:Name="VersionText" Text="v" Foreground="{DynamicResource Muted}" FontSize="11"
+                       VerticalAlignment="Center" Margin="10,0,6,0"/>
+            <Button x:Name="ShrinkBtn" Style="{DynamicResource ShrinkBtn}"/>
+            <Button x:Name="FullBtn" Style="{DynamicResource WinBtn}" ToolTip="Full screen (F11)">
+              <Border Width="11" Height="11" BorderBrush="{DynamicResource Text}" BorderThickness="1.5"/>
+            </Button>
+            <Button x:Name="CloseBtn" Style="{DynamicResource CloseBtn}" ToolTip="Close"/>
+          </StackPanel>
+          <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+            <Image x:Name="Logo" Width="30" Height="30" Margin="0,0,8,0" VerticalAlignment="Center"/>
+            <StackPanel VerticalAlignment="Center">
+              <TextBlock Text="RevoBIM" Foreground="{DynamicResource Blue}" FontSize="19" FontWeight="Bold"/>
+              <TextBlock Text="Click to RVT Element" Foreground="{DynamicResource Orange}" FontSize="13" Margin="1,-3,0,0"/>
+            </StackPanel>
+          </StackPanel>
+        </DockPanel>
+      </Border>
+
+      <!-- ===== body ===== -->
+      <Grid x:Name="Body" Grid.Row="1" Margin="10">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="1*" MinWidth="340"/>
+          <ColumnDefinition Width="10"/>
+          <ColumnDefinition Width="1.15*" MinWidth="360"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- left: what to recognise, which type -->
+        <Border Grid.Column="0" Background="{DynamicResource Card}" CornerRadius="5" Padding="10">
+          <DockPanel>
+            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,6">
+              <Border Width="4" Height="14" Background="{DynamicResource Blue}" CornerRadius="1" Margin="0,0,6,0"/>
+              <TextBlock Text="Recognise and place" Foreground="{DynamicResource Text}" FontWeight="SemiBold"/>
+              <TextBlock Text="  type: Auto picks the closest size" Foreground="{DynamicResource Muted}" FontSize="11"
+                         VerticalAlignment="Center"/>
+            </StackPanel>
+            <StackPanel DockPanel.Dock="Bottom">
+              <StackPanel Orientation="Horizontal" Margin="0,10,0,6">
+                <Border Width="4" Height="14" Background="{DynamicResource Orange}" CornerRadius="1" Margin="0,0,6,0"/>
+                <TextBlock Text="Systems, level and runs" Foreground="{DynamicResource Text}" FontWeight="SemiBold"/>
+              </StackPanel>
+              <Grid>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="92"/>
+                  <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="30"/>
+                  <RowDefinition Height="30"/>
+                  <RowDefinition Height="30"/>
+                  <RowDefinition Height="30"/>
+                  <RowDefinition Height="30"/>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Text="Pipe system" Foreground="{DynamicResource Muted}" VerticalAlignment="Center"/>
+                <ComboBox x:Name="PipeSysCombo" Grid.Row="0" Grid.Column="1"/>
+                <TextBlock Grid.Row="1" Text="Duct system" Foreground="{DynamicResource Muted}" VerticalAlignment="Center"/>
+                <ComboBox x:Name="DuctSysCombo" Grid.Row="1" Grid.Column="1"/>
+                <TextBlock Grid.Row="2" Text="Level" Foreground="{DynamicResource Muted}" VerticalAlignment="Center"/>
+                <ComboBox x:Name="LevelCombo" Grid.Row="2" Grid.Column="1"/>
+                <TextBlock Grid.Row="3" Text="Run length" Foreground="{DynamicResource Muted}" VerticalAlignment="Center"/>
+                <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                  <RadioButton x:Name="TraceRadio" Content="Trace from the click" GroupName="Run"/>
+                  <RadioButton x:Name="ClickEndRadio" Content="Click the end" GroupName="Run"/>
+                </StackPanel>
+                <TextBlock Grid.Row="4" Text="Insulation" Foreground="{DynamicResource Muted}" VerticalAlignment="Center"/>
+                <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                  <TextBox x:Name="InsulationBox" Width="60" Tag="0"/>
+                  <TextBlock Text="mm taken off round pipes and ducts" Foreground="{DynamicResource Muted}"
+                             Margin="8,0,0,0" VerticalAlignment="Center" FontSize="11"/>
+                </StackPanel>
+              </Grid>
+              <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                <CheckBox x:Name="AutoPlaceChk" Content="Place the best match straight away" Margin="0,0,16,0"/>
+                <CheckBox x:Name="ContinuousChk" Content="Keep clicking until Escape"/>
+              </StackPanel>
+            </StackPanel>
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+              <StackPanel x:Name="KindRows"/>
+            </ScrollViewer>
+          </DockPanel>
+        </Border>
+
+        <!-- right: what was found -->
+        <Border Grid.Column="2" Background="{DynamicResource Card}" CornerRadius="5" Padding="10">
+          <DockPanel>
+            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,6">
+              <Border Width="4" Height="14" Background="{DynamicResource Blue}" CornerRadius="1" Margin="0,0,6,0"/>
+              <TextBlock Text="Last recognition" Foreground="{DynamicResource Text}" FontWeight="SemiBold"/>
+            </StackPanel>
+            <StackPanel DockPanel.Dock="Bottom">
+              <StackPanel Orientation="Horizontal" Margin="0,8,0,6">
+                <Border Width="4" Height="14" Background="{DynamicResource Orange}" CornerRadius="1" Margin="0,0,6,0"/>
+                <TextBlock Text="Place as" Foreground="{DynamicResource Text}" FontWeight="SemiBold"/>
+                <TextBlock Text="  click another to swap" Foreground="{DynamicResource Muted}" FontSize="11"
+                           VerticalAlignment="Center"/>
+              </StackPanel>
+              <WrapPanel x:Name="AltPanel" MinHeight="34"/>
+              <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                <Button x:Name="SelectBtn" Content="Select in Revit" Margin="0,0,6,0" IsEnabled="False"/>
+                <Button x:Name="DeleteBtn" Content="Delete it" Foreground="{DynamicResource Orange}" IsEnabled="False"/>
+              </StackPanel>
+              <Border Background="{DynamicResource Field}" CornerRadius="4" Padding="8,6" Margin="0,10,0,0">
+                <TextBlock x:Name="HowText" TextWrapping="Wrap" Foreground="{DynamicResource Muted}" FontSize="11"
+                           Text="Press Click in model, then click the scanned object once. Pipes, ducts, trays, conduit and beams are followed along the cloud to their ends; walls and slabs are followed to their edges. Escape stops."/>
+              </Border>
+            </StackPanel>
+            <Grid>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+              </Grid.RowDefinitions>
+              <Border Grid.Row="0" Background="{DynamicResource Field}" CornerRadius="4" MinHeight="150" ClipToBounds="True">
+                <Canvas x:Name="Preview" ClipToBounds="True"/>
+              </Border>
+              <TextBlock x:Name="CaptionText" Grid.Row="1" Foreground="{DynamicResource Muted}" FontSize="11"
+                         Margin="0,3,0,4" Text="Nothing recognised yet"/>
+              <TextBlock x:Name="ResultTitle" Grid.Row="2" Foreground="{DynamicResource Text}" FontSize="15"
+                         FontWeight="SemiBold" TextWrapping="Wrap" Text="-"/>
+              <TextBlock x:Name="ResultDetail" Grid.Row="3" Foreground="{DynamicResource Muted}" TextWrapping="Wrap"
+                         Margin="0,2,0,0" Text=""/>
+            </Grid>
+          </DockPanel>
+        </Border>
+      </Grid>
+
+      <!-- ===== footer ===== -->
+      <Border x:Name="Footer" Grid.Row="2" Background="{DynamicResource Bar}" CornerRadius="0,0,6,6" Padding="10,7">
+        <DockPanel>
+          <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+            <Button x:Name="StopBtn" Content="Stop" Margin="0,0,8,0" IsEnabled="False"/>
+            <Button x:Name="ClickBtn" Style="{DynamicResource PrimaryBtn}">
+              <StackPanel Orientation="Horizontal">
+                <Path Data="M1,1 L1,13 L4.5,9.5 L7,14.5 L9,13.5 L6.5,8.5 L11,8.5 Z" Fill="{DynamicResource OnAccent}"
+                      VerticalAlignment="Center"/>
+                <TextBlock Text="Click in model" Margin="8,0,0,0" VerticalAlignment="Center"/>
+              </StackPanel>
+            </Button>
+          </StackPanel>
+          <CheckBox x:Name="DebugChk" Content="Debug" DockPanel.Dock="Left" Margin="0,0,12,0"
+                    ToolTip="Write every harvest, fit and decision to %APPDATA%\RevoBIM\click_to_rvt_debug.txt"/>
+          <TextBlock x:Name="StatusText" Foreground="{DynamicResource Muted}" VerticalAlignment="Center"
+                     TextTrimming="CharacterEllipsis" Text="Ready"/>
+        </DockPanel>
+      </Border>
+
+      <!-- ===== resize grips (no background, so the layout stays clickable) ===== -->
+      <Grid x:Name="Grips" Grid.RowSpan="3">
+        <Thumb x:Name="GripL" Style="{DynamicResource GripThumb}" Width="5" HorizontalAlignment="Left" Cursor="SizeWE" Margin="0,8"/>
+        <Thumb x:Name="GripR" Style="{DynamicResource GripThumb}" Width="5" HorizontalAlignment="Right" Cursor="SizeWE" Margin="0,8"/>
+        <Thumb x:Name="GripT" Style="{DynamicResource GripThumb}" Height="4" VerticalAlignment="Top" Cursor="SizeNS" Margin="8,0"/>
+        <Thumb x:Name="GripB" Style="{DynamicResource GripThumb}" Height="5" VerticalAlignment="Bottom" Cursor="SizeNS" Margin="8,0"/>
+        <Thumb x:Name="GripTL" Style="{DynamicResource GripThumb}" Width="8" Height="8" HorizontalAlignment="Left" VerticalAlignment="Top" Cursor="SizeNWSE"/>
+        <Thumb x:Name="GripTR" Style="{DynamicResource GripThumb}" Width="8" Height="8" HorizontalAlignment="Right" VerticalAlignment="Top" Cursor="SizeNESW"/>
+        <Thumb x:Name="GripBL" Style="{DynamicResource GripThumb}" Width="8" Height="8" HorizontalAlignment="Left" VerticalAlignment="Bottom" Cursor="SizeNESW"/>
+        <Thumb x:Name="GripBR" Style="{DynamicResource GripThumb}" Width="8" Height="8" HorizontalAlignment="Right" VerticalAlignment="Bottom" Cursor="SizeNWSE"/>
+      </Grid>
+    </Grid>
+  </Border>
+</Window>

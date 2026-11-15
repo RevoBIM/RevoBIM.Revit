@@ -1,0 +1,427 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RevoBIM Smart Dimension Settings"
+        Height="676" Width="940"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ResizeMode="NoResize" ShowInTaskbar="False">
+  <Window.Resources>
+
+    <Style x:Key="CloseButton" TargetType="Button">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="Foreground" Value="#9A9A9E"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="FontSize" Value="14"/>
+      <Setter Property="Width" Value="28"/>
+      <Setter Property="Height" Value="24"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border x:Name="bg" Background="{TemplateBinding Background}" CornerRadius="3">
+              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="bg" Property="Background" Value="#D9534F"/>
+                <Setter Property="Foreground" Value="#FFFFFF"/>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <Style x:Key="FlatButton" TargetType="Button">
+      <Setter Property="Background" Value="#2B2B2E"/>
+      <Setter Property="Foreground" Value="#E8912D"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="Padding" Value="12,6"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border x:Name="bg" Background="{TemplateBinding Background}" CornerRadius="3"
+                    BorderBrush="#3E3E42" BorderThickness="1">
+              <ContentPresenter Margin="{TemplateBinding Padding}"
+                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="bg" Property="Background" Value="#3A3A3E"/>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <Style x:Key="GreenButton" TargetType="Button">
+      <Setter Property="Background" Value="#3FA75A"/>
+      <Setter Property="Foreground" Value="#FFFFFF"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="Padding" Value="18,6"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border x:Name="bg" Background="{TemplateBinding Background}" CornerRadius="3">
+              <ContentPresenter Margin="{TemplateBinding Padding}"
+                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="bg" Property="Background" Value="#4EC06D"/>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <Style TargetType="RadioButton">
+      <Setter Property="Foreground" Value="#E4E4E4"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
+      <Setter Property="Margin" Value="0,3,18,3"/>
+    </Style>
+
+    <Style TargetType="CheckBox">
+      <Setter Property="Foreground" Value="#E4E4E4"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <Style x:Key="RowLabel" TargetType="TextBlock">
+      <Setter Property="Foreground" Value="#9A9A9E"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
+      <Setter Property="Margin" Value="0,0,10,0"/>
+    </Style>
+
+    <Style x:Key="SectionTitle" TargetType="TextBlock">
+      <Setter Property="Foreground" Value="#E4E4E4"/>
+      <Setter Property="FontSize" Value="13"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <Style TargetType="TextBox">
+      <Setter Property="Background" Value="#1C1C1F"/>
+      <Setter Property="Foreground" Value="#E4E4E4"/>
+      <Setter Property="BorderBrush" Value="#3E3E42"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="Padding" Value="6,3"/>
+      <Setter Property="CaretBrush" Value="#E4E4E4"/>
+    </Style>
+
+    <Style TargetType="ComboBoxItem">
+      <Setter Property="Background" Value="#1C1C1F"/>
+      <Setter Property="Foreground" Value="#E4E4E4"/>
+      <Setter Property="Padding" Value="6,4"/>
+    </Style>
+
+    <Style TargetType="ComboBox">
+      <Setter Property="Background" Value="#1C1C1F"/>
+      <Setter Property="Foreground" Value="#E4E4E4"/>
+      <Setter Property="BorderBrush" Value="#3E3E42"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="Padding" Value="6,3"/>
+    </Style>
+
+  </Window.Resources>
+
+  <Border Background="#232326" CornerRadius="6" BorderBrush="#4A4A50" BorderThickness="1">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+
+      <!-- header -->
+      <Border Grid.Row="0" Background="#1C1C1F" CornerRadius="6,6,0,0" Padding="14,10"
+              MouseLeftButtonDown="header_drag">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Image x:Name="header_icon" Grid.Column="0" Width="34" Height="34"
+                 Margin="0,0,10,0" VerticalAlignment="Center" Stretch="Uniform"/>
+          <StackPanel Grid.Column="1" VerticalAlignment="Center">
+            <TextBlock Text="RevoBIM" Foreground="#4FA3E3" FontSize="20" FontWeight="Bold"/>
+            <TextBlock Text="Smart Dimension Settings" Foreground="#E8912D" FontSize="15"
+                       Margin="1,-2,0,0"/>
+          </StackPanel>
+          <TextBlock x:Name="version_text" Grid.Column="3" Text="v1.0.0" Foreground="#9A9A9E"
+                     FontSize="11" VerticalAlignment="Top" Margin="0,2,10,0"/>
+          <Button Grid.Column="4" Content="&#x2715;" Style="{StaticResource CloseButton}"
+                  VerticalAlignment="Top" Click="close_click"/>
+        </Grid>
+      </Border>
+
+      <!-- body -->
+      <Grid Grid.Row="1" Margin="14,12,14,8">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="430"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- ================= left column ================= -->
+        <StackPanel Grid.Column="0" Margin="0,0,12,0">
+
+          <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+            <Border Width="4" Height="16" Background="#4FA3E3" CornerRadius="2" Margin="0,0,8,0"/>
+            <TextBlock Text="What each category is dimensioned to"
+                       Style="{StaticResource SectionTitle}"/>
+          </StackPanel>
+          <Border Background="#2B2B2E" BorderBrush="#3E3E42" BorderThickness="1" CornerRadius="4"
+                  Padding="12,8" Margin="0,0,0,10">
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="180"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+              </Grid.RowDefinitions>
+
+              <TextBlock Grid.Row="0" Grid.Column="0" Text="Pipes"
+                         Style="{StaticResource RowLabel}"/>
+              <RadioButton x:Name="pipe_centre" Grid.Row="0" Grid.Column="1" GroupName="pipe"
+                           Content="Centreline"/>
+              <RadioButton x:Name="pipe_edges" Grid.Row="0" Grid.Column="2" GroupName="pipe"
+                           Content="Both edges"/>
+
+              <TextBlock Grid.Row="1" Grid.Column="0" Text="Conduits"
+                         Style="{StaticResource RowLabel}"/>
+              <RadioButton x:Name="conduit_centre" Grid.Row="1" Grid.Column="1" GroupName="conduit"
+                           Content="Centreline"/>
+              <RadioButton x:Name="conduit_edges" Grid.Row="1" Grid.Column="2" GroupName="conduit"
+                           Content="Both edges"/>
+
+              <TextBlock Grid.Row="2" Grid.Column="0" Text="Round and oval ducts"
+                         Style="{StaticResource RowLabel}"/>
+              <RadioButton x:Name="rduct_centre" Grid.Row="2" Grid.Column="1" GroupName="rduct"
+                           Content="Centreline"/>
+              <RadioButton x:Name="rduct_edges" Grid.Row="2" Grid.Column="2" GroupName="rduct"
+                           Content="Both edges"/>
+
+              <TextBlock Grid.Row="3" Grid.Column="0" Text="Rectangular ducts"
+                         Style="{StaticResource RowLabel}"/>
+              <RadioButton x:Name="xduct_centre" Grid.Row="3" Grid.Column="1" GroupName="xduct"
+                           Content="Centreline"/>
+              <RadioButton x:Name="xduct_edges" Grid.Row="3" Grid.Column="2" GroupName="xduct"
+                           Content="Both edges"/>
+
+              <TextBlock Grid.Row="4" Grid.Column="0" Text="Cable trays"
+                         Style="{StaticResource RowLabel}"/>
+              <RadioButton x:Name="tray_centre" Grid.Row="4" Grid.Column="1" GroupName="tray"
+                           Content="Centreline"/>
+              <RadioButton x:Name="tray_edges" Grid.Row="4" Grid.Column="2" GroupName="tray"
+                           Content="Both edges"/>
+
+              <TextBlock Grid.Row="5" Grid.Column="0" Text="Generic models"
+                         Style="{StaticResource RowLabel}"/>
+              <RadioButton x:Name="generic_auto" Grid.Row="5" Grid.Column="1"
+                           GroupName="generic" Content="Like ducts"
+                           ToolTip="Flat-sided ones get both edges, curved ones get the family centre plane"/>
+              <StackPanel Grid.Row="5" Grid.Column="2" Orientation="Horizontal">
+                <RadioButton x:Name="generic_centre" GroupName="generic" Content="Centre"/>
+                <RadioButton x:Name="generic_edges" GroupName="generic" Content="Both edges"/>
+              </StackPanel>
+            </Grid>
+          </Border>
+
+          <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+            <Border Width="4" Height="16" Background="#E8912D" CornerRadius="2" Margin="0,0,8,0"/>
+            <TextBlock Text="Linked walls and columns" Style="{StaticResource SectionTitle}"/>
+          </StackPanel>
+          <Border Background="#2B2B2E" BorderBrush="#3E3E42" BorderThickness="1" CornerRadius="4"
+                  Padding="12,8" Margin="0,0,0,10">
+            <StackPanel>
+              <CheckBox x:Name="chk_link_step" Margin="0,0,0,6"
+                        Content="Ask for linked walls or columns before placing the string"/>
+              <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                <TextBlock Text="Pick" Width="110" Style="{StaticResource RowLabel}"/>
+                <RadioButton x:Name="link_single" GroupName="linkmulti"
+                             Content="One, single click"
+                             ToolTip="A single click completes the step - no Finish or Enter"/>
+                <RadioButton x:Name="link_many" GroupName="linkmulti"
+                             Content="Several, Enter to finish"/>
+              </StackPanel>
+              <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Dimension to" Width="110" Style="{StaticResource RowLabel}"/>
+                <RadioButton x:Name="link_face" GroupName="linkref"
+                             Content="Nearest face to the service"/>
+                <RadioButton x:Name="link_centre" GroupName="linkref" Content="Its centreline"/>
+              </StackPanel>
+            </StackPanel>
+          </Border>
+
+          <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+            <Border Width="4" Height="16" Background="#4FA3E3" CornerRadius="2" Margin="0,0,8,0"/>
+            <TextBlock Text="The dimension" Style="{StaticResource SectionTitle}"/>
+          </StackPanel>
+          <Border Background="#2B2B2E" BorderBrush="#3E3E42" BorderThickness="1" CornerRadius="4"
+                  Padding="12,8">
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="180"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+              </Grid.RowDefinitions>
+
+              <TextBlock Grid.Row="0" Grid.Column="0" Text="Dimension type"
+                         Style="{StaticResource RowLabel}"/>
+              <ComboBox x:Name="cmb_dim_type" Grid.Row="0" Grid.Column="1" Margin="0,0,0,6"/>
+
+              <TextBlock Grid.Row="1" Grid.Column="0" Text="Line overrun each end (mm)"
+                         Style="{StaticResource RowLabel}"/>
+              <TextBox x:Name="txt_margin" Grid.Row="1" Grid.Column="1" Width="90"
+                       HorizontalAlignment="Left" Margin="0,0,0,8"/>
+
+              <CheckBox x:Name="chk_repeat" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+                        Content="Keep running after each string until Escape"/>
+            </Grid>
+          </Border>
+
+        </StackPanel>
+
+        <!-- ================= right column ================= -->
+        <StackPanel Grid.Column="1">
+
+          <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+            <Border Width="4" Height="16" Background="#E8912D" CornerRadius="2" Margin="0,0,8,0"/>
+            <TextBlock Text="Small dimensions - text leadered out"
+                       Style="{StaticResource SectionTitle}"/>
+          </StackPanel>
+          <Border Background="#2B2B2E" BorderBrush="#3E3E42" BorderThickness="1" CornerRadius="4"
+                  Padding="12,8" Margin="0,0,0,10">
+            <StackPanel>
+              <CheckBox x:Name="chk_pull_out" Margin="0,0,0,8"
+                        Content="Leader the text out of the string when a dimension is under the threshold"/>
+
+              <Grid Margin="0,0,0,6">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="150"/>
+                  <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="Threshold by view scale"
+                           Style="{StaticResource RowLabel}"/>
+                <TextBox x:Name="txt_pull_table" Grid.Column="1"/>
+              </Grid>
+              <TextBlock Text="scale=mm, separated by ;  -  e.g. 50=200; 100=250"
+                         Foreground="#9A9A9E" FontSize="10" Margin="150,0,0,8"/>
+
+              <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                <TextBlock Text="Any other scale" Width="150"
+                           Style="{StaticResource RowLabel}"/>
+                <TextBox x:Name="txt_pull_base" Width="60"/>
+                <TextBlock Text="mm + the view scale" Foreground="#9A9A9E" FontSize="12"
+                           VerticalAlignment="Center" Margin="8,0,0,0"/>
+              </StackPanel>
+
+              <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                <TextBlock Text="Numbers are" Width="150" Style="{StaticResource RowLabel}"/>
+                <RadioButton x:Name="pull_stacked" GroupName="pulllayout"
+                             Content="Stacked above each other"
+                             ToolTip="One column, each number a gap further out from the dimension line"/>
+                <RadioButton x:Name="pull_row" GroupName="pulllayout"
+                             Content="In a row beside each other"/>
+              </StackPanel>
+
+              <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                <TextBlock Text="Stacked at" Width="150" Style="{StaticResource RowLabel}"/>
+                <RadioButton x:Name="pull_start" GroupName="pullside"
+                             Content="The first element"/>
+                <RadioButton x:Name="pull_end" GroupName="pullside" Content="The last element"/>
+              </StackPanel>
+
+              <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                <TextBlock Text="Set out from" Width="150" Style="{StaticResource RowLabel}"/>
+                <RadioButton x:Name="pull_from_mep" GroupName="pulldatum"
+                             Content="The outermost service edge"
+                             ToolTip="The furthest edge of the selected services on the side the text is going, measured square to the dimension string"/>
+                <RadioButton x:Name="pull_from_line" GroupName="pulldatum"
+                             Content="The dimension line"/>
+              </StackPanel>
+
+              <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Text stack, model mm" Width="150"
+                           Style="{StaticResource RowLabel}"/>
+                <TextBlock Text="first at" Foreground="#9A9A9E" FontSize="12"
+                           VerticalAlignment="Center" Margin="0,0,5,0"/>
+                <TextBox x:Name="txt_pull_offset" Width="52"
+                         TextChanged="stack_changed"/>
+                <TextBlock Text="then every" Foreground="#9A9A9E" FontSize="12"
+                           VerticalAlignment="Center" Margin="12,0,5,0"/>
+                <TextBox x:Name="txt_pull_gap" Width="52" TextChanged="stack_changed"/>
+                <TextBlock Text="clear of others" Foreground="#9A9A9E" FontSize="12"
+                           VerticalAlignment="Center" Margin="12,0,5,0"/>
+                <TextBox x:Name="txt_pull_clear" Width="52"/>
+              </StackPanel>
+              <TextBlock x:Name="stack_hint" Text="" Foreground="#4FA3E3" FontSize="10"
+                         Margin="150,4,0,0" TextWrapping="Wrap"/>
+            </StackPanel>
+          </Border>
+
+          <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+            <Border Width="4" Height="16" Background="#4FA3E3" CornerRadius="2" Margin="0,0,8,0"/>
+            <TextBlock Text="Reporting" Style="{StaticResource SectionTitle}"/>
+          </StackPanel>
+          <Border Background="#2B2B2E" BorderBrush="#3E3E42" BorderThickness="1" CornerRadius="4"
+                  Padding="12,8">
+            <StackPanel Orientation="Horizontal">
+              <TextBlock Text="Show results" Width="150" Style="{StaticResource RowLabel}"/>
+              <RadioButton x:Name="res_never" GroupName="results" Content="Never"/>
+              <RadioButton x:Name="res_issues" GroupName="results"
+                           Content="Only if something needs a look"/>
+              <RadioButton x:Name="res_always" GroupName="results" Content="Always"/>
+            </StackPanel>
+          </Border>
+
+        </StackPanel>
+      </Grid>
+
+      <!-- footer -->
+      <Border Grid.Row="2" Background="#1C1C1F" CornerRadius="0,0,6,6" Padding="14,10">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Button Grid.Column="0" Content="Keyboard Shortcuts..."
+                  Style="{StaticResource FlatButton}" Click="shortcuts_click"/>
+          <TextBlock x:Name="status_text" Grid.Column="1" Text="" Foreground="#9A9A9E"
+                     FontSize="11" VerticalAlignment="Center" Margin="12,0,12,0"
+                     TextTrimming="CharacterEllipsis"/>
+          <Button Grid.Column="2" Content="Apply" Style="{StaticResource GreenButton}"
+                  Margin="0,0,8,0" Click="apply_click"/>
+          <Button Grid.Column="3" Content="Close" Style="{StaticResource FlatButton}"
+                  Click="close_click"/>
+        </Grid>
+      </Border>
+
+    </Grid>
+  </Border>
+</Window>

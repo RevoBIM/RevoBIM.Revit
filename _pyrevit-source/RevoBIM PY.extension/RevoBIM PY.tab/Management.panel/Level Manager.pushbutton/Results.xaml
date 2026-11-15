@@ -1,0 +1,58 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RevoBIM Level Manager Results" Width="760" Height="520" MinWidth="480" MinHeight="320"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent" ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False" FontFamily="Segoe UI" FontSize="12">
+    <Border CornerRadius="6" BorderThickness="1" BorderBrush="{DynamicResource Frame}" Background="{DynamicResource Bg}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- ==================== header ==================== -->
+            <Border x:Name="Header" Background="{DynamicResource Bar}" CornerRadius="6,6,0,0" Height="46">
+                <DockPanel LastChildFill="False" Margin="12,0,6,0">
+                    <Image x:Name="Logo" DockPanel.Dock="Left" Width="26" Height="26" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                    <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="RevoBIM" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource Blue}" VerticalAlignment="Bottom"/>
+                        <TextBlock x:Name="TitleTxt" Text="Results" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource Orange}"
+                                   Margin="8,0,0,1" VerticalAlignment="Bottom"/>
+                    </StackPanel>
+                    <Button x:Name="CloseBtn" DockPanel.Dock="Right" Style="{DynamicResource CloseButton}" ToolTip="Close">
+                        <Path Data="M0,0 L10,10 M10,0 L0,10" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                              StrokeThickness="1.4"/>
+                    </Button>
+                    <Button x:Name="ShrinkBtn" DockPanel.Dock="Right" Style="{DynamicResource WinButton}"
+                            ToolTip="Shrink to the taskbar so Revit can be seen (Ctrl+Shift+H)">
+                        <Grid Width="12" Height="12">
+                            <Path x:Name="ShrinkGlyph" Data="M6,0.5 L6,7.6 M2.8,4.5 L6,7.7 L9.2,4.5 M1,11 L11,11"
+                                  Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.4"/>
+                            <Path x:Name="ExpandGlyph" Data="M6,11.5 L6,1.6 M1.8,5.8 L6,1.6 L10.2,5.8"
+                                  Stroke="{DynamicResource Green}" StrokeThickness="2" Visibility="Collapsed"/>
+                        </Grid>
+                    </Button>
+                    <TextBlock x:Name="VersionTxt" DockPanel.Dock="Right" Text="v0.0.0" Foreground="{DynamicResource Muted}"
+                               FontSize="11" VerticalAlignment="Center" Margin="4,0,10,0"/>
+                </DockPanel>
+            </Border>
+
+            <TextBlock x:Name="SummaryTxt" Grid.Row="1" Margin="14,12,14,8" Foreground="{DynamicResource Text}" TextWrapping="Wrap"/>
+
+            <DataGrid x:Name="Table" Grid.Row="2" Margin="14,0,14,0" AutoGenerateColumns="False" IsReadOnly="True"
+                      CanUserAddRows="False" SelectionMode="Extended" SelectionUnit="FullRow" CanUserSortColumns="True"/>
+
+            <Border Grid.Row="3" Background="{DynamicResource Bar}" CornerRadius="0,0,6,6" Margin="0,12,0,0">
+                <DockPanel Margin="12,8,12,8">
+                    <StackPanel Orientation="Horizontal">
+                        <Button x:Name="SelectBtn" Style="{DynamicResource OrangeButton}" Content="Select in Revit" Height="30"/>
+                        <Button x:Name="CopyBtn" Content="Copy" Height="30"/>
+                    </StackPanel>
+                    <Button x:Name="OkBtn" Style="{DynamicResource AccentButton}" Content="Close" HorizontalAlignment="Right"/>
+                </DockPanel>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

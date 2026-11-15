@@ -1,0 +1,7 @@
+title: Nudge Up
+tooltip: >
+  Raise elements by the Nudge increment (default 50mm).
+  Select elements first to raise them all - press again to raise them again.
+  Run with nothing selected and every element you click rises straight away,
+  until you press Escape. Set the increment with Nudge Settings.
+author: RevoBIM PY

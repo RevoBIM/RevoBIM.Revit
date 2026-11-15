@@ -1,0 +1,6 @@
+title: "QFR\nRemover"
+author: RevoBIM
+tooltip: >
+  QFR Remover - delete every instance of the chosen Cable Tray Fitting, Pipe
+  Fitting or Duct Fitting families in the project, then trim the runs either
+  side back together and reconnect them so the system stays whole.

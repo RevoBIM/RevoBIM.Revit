@@ -1,0 +1,10 @@
+title: >-
+  RevoBIM Fire Damper
+  Wall Type Push
+author: RevoBIM
+tooltip: >-
+  Finds every duct accessory that passes through a wall or a floor - in the
+  current model or in a chosen linked model - and pushes two values from that
+  host onto the accessory: the host type name and its fire rating.
+
+  Nothing is written until Apply is pressed.

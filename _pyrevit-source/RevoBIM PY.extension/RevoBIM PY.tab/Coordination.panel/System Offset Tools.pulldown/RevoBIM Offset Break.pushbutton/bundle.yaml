@@ -1,0 +1,20 @@
+title: RevoBIM Offset Break
+tooltip: >-
+  Two clicks and a run steps onto a new line. Click where the break starts on a
+  pipe, duct, cable tray or conduit, then click where to cut it. The prompt
+  offers the distance and four directions, the same as RevoBIM System Offset,
+  and the same settings drive both.
+
+
+  The difference is that the run does not come back: it is cut at the second
+  click, the piece between the clicks steps across on two bends, and whatever
+  lies beyond the cut stays exactly where it was.
+
+
+  No window: it reads the saved settings and goes straight to the picks, so it
+  can be bound to a key in View > User Interface > Keyboard Shortcuts. Search
+  for "RevoBIM Offset Break".
+
+
+  Escape finishes.
+highlight: new

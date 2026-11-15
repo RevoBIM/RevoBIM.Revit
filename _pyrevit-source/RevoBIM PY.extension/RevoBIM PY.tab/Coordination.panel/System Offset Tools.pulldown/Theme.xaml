@@ -1,0 +1,577 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ======================================================
+         Palette. These are the dark defaults; theme.apply
+         writes the live palette straight onto window.Resources,
+         which sits in front of a merged dictionary in WPF's
+         lookup order, so the palette swaps with no reload.
+         Banners are drawn with '=' - XML forbids '- -' inside
+         a comment and a run of hyphens kills XamlReader.Load.
+         ====================================================== -->
+
+    <SolidColorBrush x:Key="WindowBg"     Color="#232326"/>
+    <SolidColorBrush x:Key="CardBg"       Color="#2B2B2E"/>
+    <SolidColorBrush x:Key="FieldBg"      Color="#1C1C1F"/>
+    <SolidColorBrush x:Key="BarBg"        Color="#1C1C1F"/>
+    <SolidColorBrush x:Key="EdgeBrush"    Color="#3E3E42"/>
+    <SolidColorBrush x:Key="BodyText"     Color="#E4E4E4"/>
+    <SolidColorBrush x:Key="MutedText"    Color="#9A9A9E"/>
+    <SolidColorBrush x:Key="Blue"         Color="#4FA3E3"/>
+    <SolidColorBrush x:Key="Orange"       Color="#E8912D"/>
+    <SolidColorBrush x:Key="Green"        Color="#3FA75A"/>
+    <SolidColorBrush x:Key="GreenHover"   Color="#4EC06D"/>
+    <SolidColorBrush x:Key="Red"          Color="#D9534F"/>
+    <SolidColorBrush x:Key="Selection"    Color="#2B5473"/>
+    <SolidColorBrush x:Key="HoverBg"      Color="#34343A"/>
+    <SolidColorBrush x:Key="DisabledText" Color="#66666B"/>
+
+    <!-- ======================================================
+         Scrollbar. The implicit styles carry no x:Key on
+         purpose: a ScrollViewer builds its own scrollbars and
+         will not see a keyed style.
+         ====================================================== -->
+
+    <Style x:Key="ScrollThumbStyle" TargetType="Thumb">
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
+        <Setter Property="IsTabStop" Value="False"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Thumb">
+                    <Border Background="{DynamicResource EdgeBrush}"
+                            CornerRadius="3" Margin="3,0,3,0"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="ScrollBar">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Width" Value="10"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ScrollBar">
+                    <Grid Background="Transparent">
+                        <Track x:Name="PART_Track" IsDirectionReversed="True">
+                            <Track.Thumb>
+                                <Thumb Style="{DynamicResource ScrollThumbStyle}"/>
+                            </Track.Thumb>
+                            <Track.IncreaseRepeatButton>
+                                <RepeatButton Command="ScrollBar.PageDownCommand"
+                                              Opacity="0" Focusable="False"/>
+                            </Track.IncreaseRepeatButton>
+                            <Track.DecreaseRepeatButton>
+                                <RepeatButton Command="ScrollBar.PageUpCommand"
+                                              Opacity="0" Focusable="False"/>
+                            </Track.DecreaseRepeatButton>
+                        </Track>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="Orientation" Value="Horizontal">
+                            <Setter TargetName="PART_Track" Property="IsDirectionReversed" Value="False"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ======================================================
+         Text
+         ====================================================== -->
+
+    <Style x:Key="LabelText" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource BodyText}"/>
+        <Setter Property="FontFamily" Value="Segoe UI"/>
+        <Setter Property="FontSize" Value="12.5"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <Style x:Key="MutedLabel" TargetType="TextBlock" BasedOn="{StaticResource LabelText}">
+        <Setter Property="Foreground" Value="{DynamicResource MutedText}"/>
+        <Setter Property="FontSize" Value="11.5"/>
+    </Style>
+
+    <Style x:Key="SectionHeading" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource BodyText}"/>
+        <Setter Property="FontFamily" Value="Segoe UI"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <!-- ======================================================
+         TextBox. A stock TextBox ignores Background and falls
+         back to the system theme, which reads as an unreadable
+         white box in dark mode. The placeholder is driven by
+         Tag, so a bare box can say what it is for.
+         ====================================================== -->
+
+    <Style TargetType="TextBox">
+        <Setter Property="Foreground" Value="{DynamicResource BodyText}"/>
+        <Setter Property="CaretBrush" Value="{DynamicResource BodyText}"/>
+        <Setter Property="SelectionBrush" Value="{DynamicResource Selection}"/>
+        <Setter Property="FontFamily" Value="Segoe UI"/>
+        <Setter Property="FontSize" Value="12.5"/>
+        <Setter Property="MinHeight" Value="32"/>
+        <Setter Property="Padding" Value="7,3,7,3"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <Border x:Name="Shell"
+                            Background="{DynamicResource FieldBg}"
+                            BorderBrush="{DynamicResource EdgeBrush}"
+                            BorderThickness="1" CornerRadius="3">
+                        <Grid>
+                            <TextBlock x:Name="Placeholder"
+                                       Text="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}"
+                                       Foreground="{DynamicResource DisabledText}"
+                                       FontSize="12" Margin="9,0,0,0"
+                                       VerticalAlignment="Center"
+                                       Visibility="Collapsed" IsHitTestVisible="False"/>
+                            <ScrollViewer x:Name="PART_ContentHost"
+                                          Margin="{TemplateBinding Padding}"
+                                          VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="Text" Value="">
+                            <Setter TargetName="Placeholder" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                            <Setter TargetName="Shell" Property="BorderBrush"
+                                    Value="{DynamicResource Blue}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Foreground" Value="{DynamicResource DisabledText}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ======================================================
+         CheckBox. Drawn from Border and Path so the tick can
+         never come out as an empty box on a machine without
+         the symbol font.
+         ====================================================== -->
+
+    <Style TargetType="CheckBox">
+        <Setter Property="Foreground" Value="{DynamicResource BodyText}"/>
+        <Setter Property="FontFamily" Value="Segoe UI"/>
+        <Setter Property="FontSize" Value="12.5"/>
+        <Setter Property="Margin" Value="0,4,0,4"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="CheckBox">
+                    <StackPanel Orientation="Horizontal" Background="Transparent">
+                        <Border x:Name="Box" Width="16" Height="16"
+                                CornerRadius="3" VerticalAlignment="Center"
+                                Background="{DynamicResource FieldBg}"
+                                BorderBrush="{DynamicResource EdgeBrush}"
+                                BorderThickness="1">
+                            <Path x:Name="Tick" Stretch="Uniform" Margin="3"
+                                  Stroke="{DynamicResource WindowBg}"
+                                  StrokeThickness="2" Visibility="Collapsed"
+                                  Data="M 0,4 L 3.2,7.2 L 9,1"/>
+                        </Border>
+                        <ContentPresenter Margin="8,0,0,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Box" Property="Background" Value="{DynamicResource Blue}"/>
+                            <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource Blue}"/>
+                            <Setter TargetName="Tick" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource Blue}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Foreground" Value="{DynamicResource DisabledText}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ======================================================
+         RadioButton
+         ====================================================== -->
+
+    <Style TargetType="RadioButton">
+        <Setter Property="Foreground" Value="{DynamicResource BodyText}"/>
+        <Setter Property="FontFamily" Value="Segoe UI"/>
+        <Setter Property="FontSize" Value="12.5"/>
+        <Setter Property="Margin" Value="0,4,14,4"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <StackPanel Orientation="Horizontal" Background="Transparent">
+                        <Border x:Name="Ring" Width="16" Height="16"
+                                CornerRadius="8" VerticalAlignment="Center"
+                                Background="{DynamicResource FieldBg}"
+                                BorderBrush="{DynamicResource EdgeBrush}"
+                                BorderThickness="1">
+                            <Border x:Name="Dot" Width="8" Height="8" CornerRadius="4"
+                                    Background="{DynamicResource WindowBg}"
+                                    Visibility="Collapsed"/>
+                        </Border>
+                        <ContentPresenter Margin="8,0,0,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Ring" Property="Background" Value="{DynamicResource Blue}"/>
+                            <Setter TargetName="Ring" Property="BorderBrush" Value="{DynamicResource Blue}"/>
+                            <Setter TargetName="Dot" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Ring" Property="BorderBrush" Value="{DynamicResource Blue}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Foreground" Value="{DynamicResource DisabledText}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ======================================================
+         Buttons. A bare WPF Button with no implicit style
+         falls back to the OS chrome, which is a light grey
+         lozenge in a dark header.
+         ====================================================== -->
+
+    <Style TargetType="Button">
+        <Setter Property="Foreground" Value="{DynamicResource BodyText}"/>
+        <Setter Property="FontFamily" Value="Segoe UI"/>
+        <Setter Property="FontSize" Value="12.5"/>
+        <Setter Property="MinHeight" Value="30"/>
+        <Setter Property="Padding" Value="14,4,14,4"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Shell"
+                            Background="{DynamicResource CardBg}"
+                            BorderBrush="{DynamicResource EdgeBrush}"
+                            BorderThickness="1" CornerRadius="3">
+                        <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"
+                                          Margin="{TemplateBinding Padding}"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Shell" Property="Background" Value="{DynamicResource HoverBg}"/>
+                            <Setter TargetName="Shell" Property="BorderBrush" Value="{DynamicResource Blue}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Foreground" Value="{DynamicResource DisabledText}"/>
+                            <Setter TargetName="Shell" Property="Opacity" Value="0.6"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="PrimaryButton" TargetType="Button">
+        <Setter Property="Foreground" Value="#FFFFFF"/>
+        <Setter Property="FontFamily" Value="Segoe UI"/>
+        <Setter Property="FontSize" Value="12.5"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="MinHeight" Value="30"/>
+        <Setter Property="Padding" Value="18,4,18,4"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Shell" Background="{DynamicResource Green}"
+                            CornerRadius="3">
+                        <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"
+                                          Margin="{TemplateBinding Padding}"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Shell" Property="Background" Value="{DynamicResource GreenHover}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Shell" Property="Opacity" Value="0.5"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="ChipButton" TargetType="Button">
+        <Setter Property="Foreground" Value="{DynamicResource MutedText}"/>
+        <Setter Property="FontFamily" Value="Segoe UI"/>
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="MinHeight" Value="22"/>
+        <Setter Property="Padding" Value="10,2,10,2"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Shell" Background="Transparent"
+                            BorderBrush="{DynamicResource EdgeBrush}"
+                            BorderThickness="1" CornerRadius="11">
+                        <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"
+                                          Margin="{TemplateBinding Padding}"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Shell" Property="BorderBrush" Value="{DynamicResource Blue}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource Blue}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="CloseButton" TargetType="Button">
+        <Setter Property="Foreground" Value="{DynamicResource MutedText}"/>
+        <Setter Property="FontFamily" Value="Segoe UI"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="Width" Value="30"/>
+        <Setter Property="Height" Value="26"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Shell" Background="Transparent" CornerRadius="3">
+                        <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Shell" Property="Background" Value="{DynamicResource Red}"/>
+                            <Setter Property="Foreground" Value="#FFFFFF"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="GlyphButton" TargetType="Button">
+        <Setter Property="Width" Value="30"/>
+        <Setter Property="Height" Value="26"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Shell" Background="Transparent" CornerRadius="3">
+                        <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Shell" Property="Background" Value="{DynamicResource HoverBg}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ======================================================
+         ComboBox. Its editable text box, its popup and its
+         items all ignore Background and fall back to the
+         system theme, so the whole thing is retemplated.
+         ====================================================== -->
+
+    <Style TargetType="ComboBoxItem">
+        <Setter Property="Foreground" Value="{DynamicResource BodyText}"/>
+        <Setter Property="FontFamily" Value="Segoe UI"/>
+        <Setter Property="FontSize" Value="12.5"/>
+        <Setter Property="Padding" Value="9,5,9,5"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ComboBoxItem">
+                    <Border x:Name="Shell" Background="Transparent"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsHighlighted" Value="True">
+                            <Setter TargetName="Shell" Property="Background" Value="{DynamicResource Selection}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="ComboBox">
+        <Setter Property="Foreground" Value="{DynamicResource BodyText}"/>
+        <Setter Property="FontFamily" Value="Segoe UI"/>
+        <Setter Property="FontSize" Value="12.5"/>
+        <Setter Property="MinHeight" Value="32"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ComboBox">
+                    <Grid>
+                        <ToggleButton x:Name="PART_Toggle" Focusable="False"
+                                      ClickMode="Press"
+                                      IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
+                            <ToggleButton.Template>
+                                <ControlTemplate TargetType="ToggleButton">
+                                    <Border x:Name="Shell"
+                                            Background="{DynamicResource FieldBg}"
+                                            BorderBrush="{DynamicResource EdgeBrush}"
+                                            BorderThickness="1" CornerRadius="3">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="22"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Path Grid.Column="1" Width="9" Height="6"
+                                                  Stretch="Fill" Margin="0,1,0,0"
+                                                  HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"
+                                                  Fill="{DynamicResource MutedText}"
+                                                  Data="M 0,0 L 9,0 L 4.5,6 Z"/>
+                                        </Grid>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="Shell" Property="BorderBrush"
+                                                    Value="{DynamicResource Blue}"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </ToggleButton.Template>
+                        </ToggleButton>
+                        <ContentPresenter Margin="9,0,26,0"
+                                          VerticalAlignment="Center"
+                                          IsHitTestVisible="False"
+                                          Content="{TemplateBinding SelectionBoxItem}"/>
+                        <Popup x:Name="PART_Popup" AllowsTransparency="True"
+                               Placement="Bottom" Focusable="False"
+                               IsOpen="{TemplateBinding IsDropDownOpen}"
+                               PopupAnimation="Fade">
+                            <Border Background="{DynamicResource CardBg}"
+                                    BorderBrush="{DynamicResource EdgeBrush}"
+                                    BorderThickness="1" CornerRadius="3"
+                                    MinWidth="{TemplateBinding ActualWidth}"
+                                    MaxHeight="260" Margin="0,2,0,0">
+                                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                    <StackPanel IsItemsHost="True"/>
+                                </ScrollViewer>
+                            </Border>
+                        </Popup>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ======================================================
+         ToolTip
+         ====================================================== -->
+
+    <Style TargetType="ToolTip">
+        <Setter Property="Foreground" Value="{DynamicResource BodyText}"/>
+        <Setter Property="FontFamily" Value="Segoe UI"/>
+        <Setter Property="FontSize" Value="11.5"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToolTip">
+                    <Border Background="{DynamicResource CardBg}"
+                            BorderBrush="{DynamicResource EdgeBrush}"
+                            BorderThickness="1" CornerRadius="3"
+                            Padding="9,6,9,6">
+                        <ContentPresenter/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ======================================================
+         Card and section tick
+         ====================================================== -->
+
+    <Style x:Key="Card" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource CardBg}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource EdgeBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="4"/>
+        <Setter Property="Padding" Value="14"/>
+    </Style>
+
+    <Style x:Key="TickBlue" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource Blue}"/>
+        <Setter Property="Width" Value="4"/>
+        <Setter Property="CornerRadius" Value="2"/>
+        <Setter Property="Margin" Value="0,0,8,0"/>
+    </Style>
+
+    <Style x:Key="TickOrange" TargetType="Border" BasedOn="{StaticResource TickBlue}">
+        <Setter Property="Background" Value="{DynamicResource Orange}"/>
+    </Style>
+
+    <!-- ======================================================
+         Direction tile, for the four arrows on the prompt
+         ====================================================== -->
+
+    <Style x:Key="DirTile" TargetType="Button">
+        <Setter Property="Foreground" Value="{DynamicResource BodyText}"/>
+        <Setter Property="Height" Value="76"/>
+        <Setter Property="Margin" Value="4"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Shell"
+                            Background="{DynamicResource CardBg}"
+                            BorderBrush="{DynamicResource EdgeBrush}"
+                            BorderThickness="1" CornerRadius="4">
+                        <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Shell" Property="Background"
+                                    Value="{DynamicResource Selection}"/>
+                            <Setter TargetName="Shell" Property="BorderBrush"
+                                    Value="{DynamicResource Blue}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Shell" Property="Opacity" Value="0.3"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="DirTileOn" TargetType="Button">
+        <Setter Property="Foreground" Value="{DynamicResource BodyText}"/>
+        <Setter Property="Height" Value="76"/>
+        <Setter Property="Margin" Value="4"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Shell"
+                            Background="{DynamicResource Selection}"
+                            BorderBrush="{DynamicResource Blue}"
+                            BorderThickness="2" CornerRadius="4">
+                        <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>

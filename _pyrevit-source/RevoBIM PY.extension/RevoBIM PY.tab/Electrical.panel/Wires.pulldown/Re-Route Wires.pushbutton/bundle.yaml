@@ -1,0 +1,13 @@
+title: RevoBIM Re-Route Wires
+author: RevoBIM PY
+min_revit_version: 2024
+tooltip: >
+  Select a wire or a fitting on a circuit that is already wired.
+
+  Its existing wires and their tags are removed, and the circuit is redrawn to
+  the same rules Auto Wire uses - snake route, arc wires trimmed off the
+  symbols, wire type by the emergency parameter, home run arc to the switch,
+  one tag.
+
+  Shuffle and Previous step through the route options. Keep leaves one undo
+  step; Cancel puts the view back exactly as it was.

@@ -1,0 +1,7 @@
+title: Duct Accessory Resize
+tooltip: >-
+  RevoBIM Duct Accessory Resize. Resize ducts, duct accessory families and
+  air terminals to one new size in one go - rectangular or circular, with each
+  family's own width/height or diameter parameters. Modeless: Revit stays
+  usable while it is open.
+author: RevoBIM

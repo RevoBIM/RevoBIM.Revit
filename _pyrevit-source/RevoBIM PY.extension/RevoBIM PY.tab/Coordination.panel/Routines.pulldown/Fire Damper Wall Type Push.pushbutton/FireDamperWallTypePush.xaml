@@ -1,0 +1,454 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RevoBIM Fire Damper Wall Type Push"
+        Height="800" Width="1290"
+        MinHeight="620" MinWidth="980"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ResizeMode="CanResize"
+        ShowInTaskbar="True">
+
+  <Border x:Name="RootBorder"
+          CornerRadius="6"
+          BorderThickness="1"
+          BorderBrush="{DynamicResource OuterEdgeBrush}"
+          Background="{DynamicResource WindowBg}">
+    <Grid>
+
+      <Grid x:Name="LayoutGrid">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="46"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="46"/>
+        </Grid.RowDefinitions>
+
+        <!-- ==============================================================
+             header
+             ============================================================== -->
+        <Border x:Name="HeaderBar" Grid.Row="0"
+                Background="{DynamicResource BarBg}"
+                CornerRadius="6,6,0,0">
+          <Grid Margin="12,0,8,0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Image x:Name="HeaderIcon" Grid.Column="0"
+                   Width="24" Height="24"
+                   Margin="0,0,9,0"
+                   VerticalAlignment="Center"
+                   Stretch="Uniform"/>
+
+            <TextBlock Grid.Column="1"
+                       Text="RevoBIM"
+                       FontSize="20"
+                       FontWeight="Bold"
+                       Foreground="{DynamicResource BlueBrush}"
+                       VerticalAlignment="Center"/>
+
+            <TextBlock Grid.Column="2"
+                       Text="Fire Damper Wall Type Push"
+                       FontSize="15"
+                       Margin="9,3,0,0"
+                       Foreground="{DynamicResource OrangeBrush}"
+                       VerticalAlignment="Center"/>
+
+            <TextBlock x:Name="TxtPercent" Grid.Column="3"
+                       Text=""
+                       FontSize="12"
+                       FontWeight="SemiBold"
+                       Margin="0,0,16,0"
+                       HorizontalAlignment="Right"
+                       Visibility="Collapsed"
+                       Foreground="{DynamicResource BlueBrush}"
+                       VerticalAlignment="Center"/>
+
+            <Button x:Name="BtnTheme" Grid.Column="4"
+                    Content="Light"
+                    Style="{DynamicResource RevoChipButton}"
+                    Margin="0,0,14,0"
+                    VerticalAlignment="Center"/>
+
+            <TextBlock x:Name="TxtVersion" Grid.Column="5"
+                       Text="v0.0.0"
+                       FontSize="11"
+                       Margin="0,0,10,0"
+                       Foreground="{DynamicResource MutedText}"
+                       VerticalAlignment="Center"/>
+
+            <Button x:Name="BtnMax" Grid.Column="6"
+                    Content="&#x2750;"
+                    Style="{DynamicResource RevoCloseButton}"
+                    ToolTip="Full screen"
+                    VerticalAlignment="Center"/>
+
+            <Button x:Name="BtnClose" Grid.Column="7"
+                    Content="&#x2715;"
+                    Style="{DynamicResource RevoCloseButton}"
+                    VerticalAlignment="Center"/>
+          </Grid>
+        </Border>
+
+        <!-- ==============================================================
+             progress, along the top of the window. Shown only while Find is
+             running; the fill width is set in code from the percentage, which
+             is cheaper and more controllable than templating a ProgressBar.
+             ============================================================== -->
+        <Grid x:Name="ProgressTrack" Grid.Row="1"
+              Height="5"
+              Visibility="Collapsed"
+              Background="{DynamicResource FieldBg}">
+          <Border x:Name="ProgressFill"
+                  Width="0"
+                  HorizontalAlignment="Left"
+                  Background="{DynamicResource BlueBrush}"/>
+        </Grid>
+
+        <!-- ==============================================================
+             body
+             ============================================================== -->
+        <Grid Grid.Row="2" Margin="12,10,12,8">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+
+          <!-- settings ================================================= -->
+          <Border Grid.Row="0" Style="{DynamicResource CardBorder}" Margin="0,0,0,10">
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="18"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+
+              <!-- source ............................................... -->
+              <StackPanel Grid.Column="0">
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,9">
+                  <Border Style="{DynamicResource BlueTick}"/>
+                  <TextBlock Text="Read from the wall or floor" Style="{DynamicResource SectionText}"/>
+                </StackPanel>
+
+                <TextBlock Text="Model holding the walls and floors"
+                           Style="{DynamicResource LabelText}"/>
+                <ComboBox x:Name="CboLink" Margin="0,0,0,9"/>
+
+                <TextBlock Text="Intersect with" Style="{DynamicResource LabelText}"/>
+                <StackPanel Orientation="Horizontal" Margin="0,1,0,9">
+                  <CheckBox x:Name="ChkWalls" Content="Walls" Margin="0,0,20,0"/>
+                  <CheckBox x:Name="ChkFloors" Content="Floors"/>
+                </StackPanel>
+
+                <TextBlock Text="1st value - wall or floor type, taken from"
+                           Style="{DynamicResource LabelText}"/>
+                <Grid Margin="0,0,0,9">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="150"/>
+                    <ColumnDefinition Width="8"/>
+                    <ColumnDefinition Width="*"/>
+                  </Grid.ColumnDefinitions>
+                  <TextBox x:Name="TxtSrcTypeSearch" Grid.Column="0" Height="24"
+                           ToolTip="Type a keyword to isolate matching parameters"/>
+                  <ComboBox x:Name="CboSrcType" Grid.Column="2"/>
+                </Grid>
+
+                <TextBlock Text="2nd value - fire rating, taken from"
+                           Style="{DynamicResource LabelText}"/>
+                <Grid>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="150"/>
+                    <ColumnDefinition Width="8"/>
+                    <ColumnDefinition Width="*"/>
+                  </Grid.ColumnDefinitions>
+                  <TextBox x:Name="TxtSrcFireSearch" Grid.Column="0" Height="24"
+                           ToolTip="Type a keyword to isolate matching parameters"/>
+                  <ComboBox x:Name="CboSrcFire" Grid.Column="2"/>
+                </Grid>
+              </StackPanel>
+
+              <!-- target ............................................... -->
+              <StackPanel Grid.Column="2">
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,9">
+                  <Border Style="{DynamicResource OrangeTick}"/>
+                  <TextBlock Text="Write onto the duct accessory"
+                             Style="{DynamicResource SectionText}"/>
+                </StackPanel>
+
+                <TextBlock x:Name="TxtSearchHint"
+                           Text="Search box on the left of each dropdown isolates the parameters"
+                           Style="{DynamicResource LabelText}"/>
+
+                <TextBlock Text="1st value goes into" Style="{DynamicResource LabelText}"/>
+                <Grid Margin="0,0,0,9">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="150"/>
+                    <ColumnDefinition Width="8"/>
+                    <ColumnDefinition Width="*"/>
+                  </Grid.ColumnDefinitions>
+                  <TextBox x:Name="TxtTgtTypeSearch" Grid.Column="0" Height="24"
+                           ToolTip="Type a keyword to isolate matching parameters"/>
+                  <ComboBox x:Name="CboTgtType" Grid.Column="2"/>
+                </Grid>
+
+                <TextBlock Text="2nd value goes into" Style="{DynamicResource LabelText}"/>
+                <Grid Margin="0,0,0,9">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="150"/>
+                    <ColumnDefinition Width="8"/>
+                    <ColumnDefinition Width="*"/>
+                  </Grid.ColumnDefinitions>
+                  <TextBox x:Name="TxtTgtFireSearch" Grid.Column="0" Height="24"
+                           ToolTip="Type a keyword to isolate matching parameters"/>
+                  <ComboBox x:Name="CboTgtFire" Grid.Column="2"/>
+                </Grid>
+
+                <StackPanel Orientation="Horizontal">
+                  <CheckBox x:Name="ChkOverwrite" Content="Overwrite values already there"
+                            Margin="0,0,18,0"/>
+                  <CheckBox x:Name="ChkOnlyRated" Content="Only fire rated hosts"
+                            Margin="0,0,18,0"/>
+                  <CheckBox x:Name="ChkViewOnly" Content="Active view only"/>
+                </StackPanel>
+              </StackPanel>
+            </Grid>
+          </Border>
+
+          <!-- families and preview ===================================== -->
+          <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition x:Name="ColFamilies" Width="262" MinWidth="150"/>
+              <ColumnDefinition Width="9"/>
+              <ColumnDefinition Width="*" MinWidth="360"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- families .............................................. -->
+            <Border Grid.Column="0" Style="{DynamicResource CardBorder}" Padding="10">
+              <Grid>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="*"/>
+                  <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
+                  <Border Style="{DynamicResource BlueTick}"/>
+                  <TextBlock x:Name="TxtFamilyHeading"
+                             Text="Duct accessory families"
+                             Style="{DynamicResource SectionText}"
+                             TextTrimming="CharacterEllipsis"/>
+                </StackPanel>
+
+                <TextBox x:Name="TxtFamilySearch" Grid.Row="1" Height="24" Margin="0,0,0,8"
+                         ToolTip="Keyword search"/>
+
+                <Border Grid.Row="2"
+                        Background="{DynamicResource FieldBg}"
+                        BorderBrush="{DynamicResource EdgeBrush}"
+                        BorderThickness="1"
+                        CornerRadius="3">
+                  <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                HorizontalScrollBarVisibility="Disabled"
+                                Padding="8,6,4,6">
+                    <StackPanel x:Name="PnlFamilies"/>
+                  </ScrollViewer>
+                </Border>
+
+                <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,8,0,0">
+                  <Button x:Name="BtnFamAll" Content="All" Padding="12,3,12,3" Margin="0,0,6,0"/>
+                  <Button x:Name="BtnFamNone" Content="None" Padding="12,3,12,3"/>
+                </StackPanel>
+              </Grid>
+            </Border>
+
+            <!-- the splitter .......................................... -->
+            <GridSplitter x:Name="SplitFamilies" Grid.Column="1"
+                          Style="{DynamicResource RevoSplitter}"
+                          HorizontalAlignment="Stretch"
+                          VerticalAlignment="Stretch"
+                          ResizeBehavior="PreviousAndNext"
+                          ResizeDirection="Columns"
+                          ShowsPreview="False"
+                          ToolTip="Drag to resize the family list"/>
+
+            <!-- preview ............................................... -->
+            <Border Grid.Column="2" Style="{DynamicResource CardBorder}" Padding="10">
+              <Grid>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0" Margin="0,0,0,8">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                  </Grid.ColumnDefinitions>
+                  <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <Border Style="{DynamicResource OrangeTick}"/>
+                    <TextBlock x:Name="TxtPreviewHeading"
+                               Text="Preview - nothing is written until Apply"
+                               Style="{DynamicResource SectionText}"
+                               TextTrimming="CharacterEllipsis"/>
+                  </StackPanel>
+                  <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Width="9" Height="9" CornerRadius="2" Margin="0,0,5,0"
+                            Background="{DynamicResource OrangeBrush}" VerticalAlignment="Center"/>
+                    <TextBlock Text="will change" FontSize="11" Margin="0,0,12,0"
+                               Foreground="{DynamicResource MutedText}" VerticalAlignment="Center"/>
+                    <Border Width="9" Height="9" CornerRadius="2" Margin="0,0,5,0"
+                            Background="{DynamicResource GreenBrush}" VerticalAlignment="Center"/>
+                    <TextBlock Text="already correct" FontSize="11" Margin="0,0,12,0"
+                               Foreground="{DynamicResource MutedText}" VerticalAlignment="Center"/>
+                    <Border Width="9" Height="9" CornerRadius="2" Margin="0,0,5,0"
+                            Background="{DynamicResource RedBrush}" VerticalAlignment="Center"/>
+                    <TextBlock Text="needs a look" FontSize="11"
+                               Foreground="{DynamicResource MutedText}" VerticalAlignment="Center"/>
+                  </StackPanel>
+                </Grid>
+
+                <!-- column headings ................................... -->
+                <Border Grid.Row="1"
+                        Background="{DynamicResource BarBg}"
+                        BorderBrush="{DynamicResource EdgeBrush}"
+                        BorderThickness="1,1,1,0"
+                        CornerRadius="3,3,0,0"
+                        Padding="8,6,8,4">
+                  <Grid x:Name="GrdHeadings">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="26"/>
+                      <ColumnDefinition Width="235"/>
+                      <ColumnDefinition Width="58"/>
+                      <ColumnDefinition Width="70"/>
+                      <ColumnDefinition Width="55"/>
+                      <ColumnDefinition Width="175"/>
+                      <ColumnDefinition Width="90"/>
+                      <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                      <RowDefinition Height="Auto"/>
+                      <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="" Style="{DynamicResource LabelText}"/>
+                    <TextBlock Grid.Row="0" Grid.Column="1" Text="Duct accessory" Style="{DynamicResource LabelText}"/>
+                    <TextBlock Grid.Row="0" Grid.Column="2" Text="Mark" Style="{DynamicResource LabelText}"/>
+                    <TextBlock Grid.Row="0" Grid.Column="3" Text="Level" Style="{DynamicResource LabelText}"/>
+                    <TextBlock Grid.Row="0" Grid.Column="4" Text="Host" Style="{DynamicResource LabelText}"/>
+                    <TextBlock Grid.Row="0" Grid.Column="5" Text="Host type" Style="{DynamicResource LabelText}"/>
+                    <TextBlock Grid.Row="0" Grid.Column="6" Text="Fire rating" Style="{DynamicResource LabelText}"/>
+                    <TextBlock Grid.Row="0" Grid.Column="7" Text="Status" Style="{DynamicResource LabelText}"/>
+
+                    <TextBox x:Name="TxtColAccessory" Grid.Row="1" Grid.Column="1" Height="21" Margin="0,0,6,0"/>
+                    <TextBox x:Name="TxtColMark" Grid.Row="1" Grid.Column="2" Height="21" Margin="0,0,6,0"/>
+                    <TextBox x:Name="TxtColLevel" Grid.Row="1" Grid.Column="3" Height="21" Margin="0,0,6,0"/>
+                    <TextBox x:Name="TxtColHost" Grid.Row="1" Grid.Column="4" Height="21" Margin="0,0,6,0"/>
+                    <TextBox x:Name="TxtColHostType" Grid.Row="1" Grid.Column="5" Height="21" Margin="0,0,6,0"/>
+                    <TextBox x:Name="TxtColRating" Grid.Row="1" Grid.Column="6" Height="21" Margin="0,0,6,0"/>
+                    <ComboBox x:Name="CboColStatus" Grid.Row="1" Grid.Column="7" Height="21"/>
+                  </Grid>
+                </Border>
+
+                <Border Grid.Row="2"
+                        Background="{DynamicResource FieldBg}"
+                        BorderBrush="{DynamicResource EdgeBrush}"
+                        BorderThickness="1"
+                        CornerRadius="0,0,3,3">
+                  <ScrollViewer x:Name="ScrRows"
+                                VerticalScrollBarVisibility="Auto"
+                                HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel x:Name="PnlRows" Margin="0,2,2,2"/>
+                  </ScrollViewer>
+                </Border>
+              </Grid>
+            </Border>
+          </Grid>
+        </Grid>
+
+        <!-- ==============================================================
+             footer
+             ============================================================== -->
+        <Border Grid.Row="3"
+                Background="{DynamicResource BarBg}"
+                CornerRadius="0,0,6,6">
+          <Grid Margin="14,0,12,0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock x:Name="TxtStatus" Grid.Column="0"
+                       Text="Ready."
+                       FontSize="11"
+                       Foreground="{DynamicResource MutedText}"
+                       VerticalAlignment="Center"
+                       TextTrimming="CharacterEllipsis"/>
+
+            <Button x:Name="BtnExport" Grid.Column="1"
+                    Content="Export list"
+                    Style="{DynamicResource RevoOrangeButton}"
+                    Margin="0,0,8,0"
+                    IsEnabled="False"
+                    VerticalAlignment="Center"/>
+
+            <Button x:Name="BtnFind" Grid.Column="2"
+                    Content="Find intersections"
+                    Margin="0,0,8,0"
+                    VerticalAlignment="Center"/>
+
+            <Button x:Name="BtnApply" Grid.Column="3"
+                    Content="Apply"
+                    Style="{DynamicResource RevoGreenButton}"
+                    IsEnabled="False"
+                    VerticalAlignment="Center"/>
+          </Grid>
+        </Border>
+      </Grid>
+
+      <!-- ================================================================
+           resize grips. WindowStyle=None plus AllowsTransparency means the
+           window gets no hit testing on its frame, so there is nothing to
+           drag: these invisible thumbs are the frame.  Last in the tree, so
+           they sit on top of everything.
+           ================================================================ -->
+      <Thumb x:Name="GripN" Style="{DynamicResource ResizeGrip}"
+             Height="5" VerticalAlignment="Top" HorizontalAlignment="Stretch"
+             Margin="10,0,10,0" Cursor="SizeNS"/>
+      <Thumb x:Name="GripS" Style="{DynamicResource ResizeGrip}"
+             Height="5" VerticalAlignment="Bottom" HorizontalAlignment="Stretch"
+             Margin="10,0,10,0" Cursor="SizeNS"/>
+      <Thumb x:Name="GripW" Style="{DynamicResource ResizeGrip}"
+             Width="5" HorizontalAlignment="Left" VerticalAlignment="Stretch"
+             Margin="0,10,0,10" Cursor="SizeWE"/>
+      <Thumb x:Name="GripE" Style="{DynamicResource ResizeGrip}"
+             Width="5" HorizontalAlignment="Right" VerticalAlignment="Stretch"
+             Margin="0,10,0,10" Cursor="SizeWE"/>
+      <Thumb x:Name="GripNW" Style="{DynamicResource ResizeGrip}"
+             Width="10" Height="10" HorizontalAlignment="Left" VerticalAlignment="Top"
+             Cursor="SizeNWSE"/>
+      <Thumb x:Name="GripNE" Style="{DynamicResource ResizeGrip}"
+             Width="10" Height="10" HorizontalAlignment="Right" VerticalAlignment="Top"
+             Cursor="SizeNESW"/>
+      <Thumb x:Name="GripSW" Style="{DynamicResource ResizeGrip}"
+             Width="10" Height="10" HorizontalAlignment="Left" VerticalAlignment="Bottom"
+             Cursor="SizeNESW"/>
+      <Thumb x:Name="GripSE" Style="{DynamicResource ResizeGrip}"
+             Width="14" Height="14" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+             Cursor="SizeNWSE"/>
+    </Grid>
+  </Border>
+</Window>

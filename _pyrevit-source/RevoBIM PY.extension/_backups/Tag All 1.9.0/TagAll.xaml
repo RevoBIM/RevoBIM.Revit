@@ -1,0 +1,408 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RevoBIM Tag All"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent" ResizeMode="NoResize"
+        Width="1560" Height="880" MinWidth="1240" MinHeight="680"
+        ShowInTaskbar="False" WindowStartupLocation="CenterScreen"
+        FontFamily="Segoe UI" FontSize="12.5"
+        Foreground="{DynamicResource TextBrush}">
+    <Grid>
+        <Border Background="{DynamicResource WindowBrush}"
+                BorderBrush="{DynamicResource ChromeEdgeBrush}" BorderThickness="1" CornerRadius="6">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- ============ header ============ -->
+                <Border x:Name="HeaderBar" Background="{DynamicResource BarBrush}" CornerRadius="6,6,0,0" Padding="12,8">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Border x:Name="LogoHost" Width="34" Height="34" Margin="0,0,10,0" Background="Transparent" Cursor="Hand">
+                            <Image x:Name="LogoImage" Width="30" Height="30" Stretch="Uniform"/>
+                        </Border>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="RevoBIM" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource BlueBrush}" VerticalAlignment="Bottom"/>
+                            <TextBlock x:Name="ToolTitle" Text="Tag All" FontSize="15" Foreground="{DynamicResource OrangeBrush}" Margin="8,0,0,1" VerticalAlignment="Bottom"/>
+                        </StackPanel>
+                        <Button x:Name="ThemeChip" Grid.Column="3" Style="{DynamicResource ChipButton}" Content="Auto" Margin="0,0,10,0" ToolTip="Auto follows the Revit canvas theme. Click to pin Dark or Light."/>
+                        <TextBlock x:Name="VersionText" Grid.Column="4" Text="v" FontSize="11" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <Button x:Name="ShrinkButton" Grid.Column="5" Style="{DynamicResource HeaderButton}" ToolTip="Shrink to the taskbar, to see the model (Ctrl+Shift+H)"/>
+                        <Button x:Name="FullScreenButton" Grid.Column="6" Style="{DynamicResource HeaderButton}" ToolTip="Full screen (F11)">
+                            <Grid Width="12" Height="12">
+                                <Border BorderBrush="{DynamicResource MutedBrush}" BorderThickness="1.5" CornerRadius="1"/>
+                                <Border BorderBrush="{DynamicResource MutedBrush}" BorderThickness="1.5" CornerRadius="1" Width="7" Height="7" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Background="{DynamicResource BarBrush}"/>
+                            </Grid>
+                        </Button>
+                        <Button x:Name="CloseButton" Grid.Column="7" Style="{DynamicResource CloseButton}" Content="&#x2715;" ToolTip="Close"/>
+                    </Grid>
+                </Border>
+
+                <!-- ============ progress band ============ -->
+
+                <!-- ============ body ============ -->
+                <TabControl x:Name="Tabs" Grid.Row="2" Margin="12,8,12,8">
+
+                    <!-- ============ family tags: three groups stacked, each collapsing to its header, then the options ============ -->
+                    <TabItem Header="Family Tags">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition x:Name="ViewsGroupRow" Height="*"/>
+                                <RowDefinition x:Name="CategoriesGroupRow" Height="Auto"/>
+                                <RowDefinition x:Name="FamiliesGroupRow" Height="Auto"/>
+                                <RowDefinition x:Name="GroupsFillerRow" Height="0"/>
+                            </Grid.RowDefinitions>
+
+                        <!-- ============ views or sheets: both tables are built in code, and the tab showing when Tag All is pressed is the one the run uses ============ -->
+                        <Border Grid.Row="0" Style="{DynamicResource Card}" Padding="10,6,10,10" Margin="0,0,0,8">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Grid x:Name="ViewsGroupHeader" Background="Transparent" Cursor="Hand" ToolTip="Click to expand or collapse">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Style="{DynamicResource BlueTick}" Height="18"/>
+                                    <Button x:Name="ViewsGroupToggle" Grid.Column="1" Style="{DynamicResource GroupToggle}"/>
+                                    <!-- what Tag All runs on: the view in front of you, the views ticked below, or the views on the ticked sheets -->
+                                    <StackPanel Grid.Column="4" Grid.ColumnSpan="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Button x:Name="SourceCurrent" Style="{DynamicResource ChipButton}" Content="Current view" Margin="0,0,6,0" ToolTip="Tag the view that is open in Revit"/>
+                                        <Button x:Name="SourceTicked" Style="{DynamicResource ChipButton}" Content="Ticked views" Margin="0,0,6,0" ToolTip="Tag the views ticked in the list"/>
+                                        <Button x:Name="SourceSheets" Style="{DynamicResource ChipButton}" Content="Sheets" ToolTip="Tag every view on the ticked sheets"/>
+                                    </StackPanel>
+                                </Grid>
+                                <!-- the slide clips the body while it opens or shuts; the body itself is pinned at its full height -->
+                                <Border x:Name="ViewsGroupSlide" Grid.Row="1" ClipToBounds="True">
+                                    <Grid x:Name="ViewsGroupBody" Margin="0,8,0,0">
+                                            <TabControl x:Name="FamilyListTabs">
+                                                <TabItem Header="Views">
+                                                    <Border x:Name="FamilyViewHost"/>
+                                                </TabItem>
+                                                <TabItem Header="Sheets">
+                                                    <Border x:Name="FamilySheetHost"/>
+                                                </TabItem>
+                                            </TabControl>
+                                    </Grid>
+                                </Border>
+                            </Grid>
+                        </Border>
+
+                        <!-- ============ categories, with the linked models at the top ============ -->
+                        <Border Grid.Row="1" Style="{DynamicResource Card}" Padding="10,6,10,10" Margin="0,0,0,8">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Grid x:Name="CategoriesGroupHeader" Background="Transparent" Cursor="Hand" ToolTip="Click to expand or collapse">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Style="{DynamicResource BlueTick}" Height="18"/>
+                                    <Button x:Name="CategoriesGroupToggle" Grid.Column="1" Style="{DynamicResource GroupToggle}"/>
+                                    <TextBlock x:Name="TreeCount" Grid.Column="2" Style="{DynamicResource Muted}" Margin="8,0,0,0"/>
+                                </Grid>
+                                <!-- the slide clips the body while it opens or shuts; the body itself is pinned at its full height -->
+                                <Border x:Name="CategoriesGroupSlide" Grid.Row="1" ClipToBounds="True">
+                                    <Grid x:Name="CategoriesGroupBody" Margin="0,8,0,0">
+                                        <!-- row 0 was the old heading, now in the group header -->
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="0"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                            <Border Grid.Row="1" Style="{DynamicResource Card}" Padding="0" Margin="0,0,0,8">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="4"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Border Background="{DynamicResource LinkBrush}" CornerRadius="3,0,0,3"/>
+                                                    <StackPanel Grid.Column="1" Margin="9,7,9,8">
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="Auto"/>
+                                                                <ColumnDefinition Width="Auto"/>
+                                                                <ColumnDefinition Width="*"/>
+                                                                <ColumnDefinition Width="Auto"/>
+                                                            </Grid.ColumnDefinitions>
+                                                            <Button x:Name="LinksToggle" Content="Linked models" HorizontalAlignment="Left" VerticalAlignment="Center" Padding="0" MinHeight="22" BorderThickness="0" Background="Transparent" FontSize="13.5" FontWeight="SemiBold" Foreground="{DynamicResource LinkBrush}"/>
+                                                            <Border x:Name="LinksBadge" Grid.Column="1" Background="{DynamicResource LinkBrush}" CornerRadius="9" Padding="7,1" Margin="8,0,0,0" VerticalAlignment="Center" Visibility="Collapsed">
+                                                                <TextBlock x:Name="LinksCount" Text="0" Foreground="{DynamicResource OnAccentBrush}" FontSize="11" FontWeight="SemiBold"/>
+                                                            </Border>
+                                                            <Border x:Name="LinksDirty" Grid.Column="3" Width="9" Height="9" CornerRadius="5" Background="{DynamicResource OrangeBrush}" Visibility="Collapsed" VerticalAlignment="Center" ToolTip="The ticked models have changed - reading them in"/>
+                                                        </Grid>
+                                                        <WrapPanel Margin="0,6,0,0">
+                                                            <Button x:Name="LinksAll" Content="All" Padding="7,1" MinHeight="22" FontSize="11" Margin="0,0,4,4"/>
+                                                            <Button x:Name="LinksNone" Content="None" Padding="7,1" MinHeight="22" FontSize="11" Margin="0,0,4,4"/>
+                                                            <Button x:Name="LinksRefresh" Content="Refresh" Padding="8,1" MinHeight="22" FontSize="11" Margin="0,0,0,4" ToolTip="Read the categories, families and types again from the views and models ticked"/>
+                                                        </WrapPanel>
+                                                        <Border x:Name="LinksPanel" Margin="0,2,0,0">
+                                                            <StackPanel>
+                                                                <ScrollViewer x:Name="LinksScroll" MaxHeight="110" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                                                    <StackPanel x:Name="LinksList"/>
+                                                                </ScrollViewer>
+                                                                <!-- drag down to see more links; double-click puts it back -->
+                                                                <Thumb x:Name="LinksGrip" Style="{DynamicResource RowGrip}" Height="10" Cursor="SizeNS" ToolTip="Drag down to show more linked models. Double-click to put it back."/>
+                                                            </StackPanel>
+                                                        </Border>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Border>
+
+                                            <TextBox x:Name="FamilySearch" Grid.Row="2" Tag="Search categories, families and types" Margin="0,0,0,6"/>
+                                            <Grid Grid.Row="3" Margin="0,0,0,6">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock x:Name="TreeScope" Style="{DynamicResource Muted}" FontSize="11"/>
+                                                <Button x:Name="ExpandAll" Grid.Column="1" Content="Expand" Padding="7,1" MinHeight="22" FontSize="11" Margin="6,0,4,0"/>
+                                                <Button x:Name="CollapseAll" Grid.Column="2" Content="Collapse" Padding="7,1" MinHeight="22" FontSize="11"/>
+                                            </Grid>
+                                            <Border Grid.Row="4" Style="{DynamicResource Field}">
+                                                <Grid>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="*"/>
+                                                    </Grid.RowDefinitions>
+                                                    <Border x:Name="TreeHeader" Background="{DynamicResource HeaderRowBrush}" BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="0,0,0,1" Padding="2,4,12,4"/>
+                                                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                                        <StackPanel x:Name="TreeHost" Margin="2"/>
+                                                    </ScrollViewer>
+                                                </Grid>
+                                            </Border>
+                                            <WrapPanel Grid.Row="5" Margin="0,8,0,0">
+                                                <Button x:Name="AddSelected" Style="{DynamicResource ActionButton}" Content="Add ticked" Padding="12,5" MinHeight="28" Margin="0,0,6,6"/>
+                                                <Button x:Name="AddFromRevit" Content="From selection" Margin="0,0,6,6" ToolTip="Select elements in Revit first, then press this to add their types"/>
+                                                <Button x:Name="ClearTicks" Content="Untick all" Margin="0,0,0,6"/>
+                                            </WrapPanel>
+                                    </Grid>
+                                </Border>
+                            </Grid>
+                        </Border>
+
+                        <!-- ============ families to tag ============ -->
+                        <Border Grid.Row="2" Style="{DynamicResource Card}" Padding="10,6,10,10" Margin="0,0,0,8">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Grid x:Name="FamiliesGroupHeader" Background="Transparent" Cursor="Hand" ToolTip="Click to expand or collapse">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Style="{DynamicResource OrangeTick}" Height="18"/>
+                                    <Button x:Name="FamiliesGroupToggle" Grid.Column="1" Style="{DynamicResource GroupToggle}"/>
+                                    <TextBlock x:Name="TableCount" Grid.Column="2" Style="{DynamicResource Muted}" Margin="8,0,0,0"/>
+                                    <Button x:Name="RemoveHighlighted" Grid.Column="4" Content="Remove" Padding="8,2" MinHeight="24" Margin="0,0,4,0" ToolTip="Remove the highlighted rows"/>
+                                    <Button x:Name="ClearTable" Grid.Column="5" Content="Clear" Padding="8,2" MinHeight="24"/>
+                                </Grid>
+                                <!-- the slide clips the body while it opens or shuts; the body itself is pinned at its full height -->
+                                <Border x:Name="FamiliesGroupSlide" Grid.Row="1" ClipToBounds="True">
+                                    <Grid x:Name="FamiliesGroupBody" Margin="0,8,0,0">
+                                        <!-- row 0 was the old heading, now in the group header -->
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="0"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                            <Grid Grid.Row="1" Margin="0,0,0,6">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Style="{DynamicResource Body}" Text="Tag for highlighted" Margin="0,0,8,0"/>
+                                                <ComboBox x:Name="HighlightTag" Grid.Column="1" IsEnabled="False"/>
+                                            </Grid>
+                                            <Border Grid.Row="2" Style="{DynamicResource Field}">
+                                                <Grid>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="*"/>
+                                                    </Grid.RowDefinitions>
+                                                    <Border x:Name="TableHeader" Background="{DynamicResource HeaderRowBrush}" BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="0,0,0,1" Padding="6,4"/>
+                                                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                                        <StackPanel x:Name="TableHost" Margin="2"/>
+                                                    </ScrollViewer>
+                                                </Grid>
+                                            </Border>
+                                            <TextBlock Grid.Row="3" Style="{DynamicResource Muted}" FontSize="11" Margin="0,6,0,0"
+                                                       Text="Every row starts at &lt;None&gt;. Click a row to highlight it, Shift or Ctrl+click for more, then pick a tag - here or on any highlighted row - and it goes on all of them."/>
+                                        <!-- the tagging options travel with the families they apply to -->
+                                        <Border Grid.Row="4" Style="{DynamicResource Card}" Padding="12,10" Margin="0,8,0,0">
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                </Grid.RowDefinitions>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="18"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel Grid.ColumnSpan="3" Orientation="Horizontal" Margin="0,0,0,8">
+                                                    <Border Style="{DynamicResource BlueTick}"/>
+                                                    <TextBlock Style="{DynamicResource Heading}" Text="Tagging options"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Row="1">
+                                                    <CheckBox x:Name="LeaderCheck" Content="Tag with leader" Margin="0,3"/>
+                                                    <TextBlock Style="{DynamicResource Body}" Text="Tag position from host" Margin="0,8,0,4"/>
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="76"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="76"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock Style="{DynamicResource Body}" Text="X" Margin="0,0,6,0"/>
+                                                        <TextBox x:Name="OffsetX" Grid.Column="1" MinHeight="26" Padding="4,1"/>
+                                                        <TextBlock Grid.Column="2" Style="{DynamicResource Body}" Text="Y" Margin="12,0,6,0"/>
+                                                        <TextBox x:Name="OffsetY" Grid.Column="3" MinHeight="26" Padding="4,1"/>
+                                                        <TextBlock Grid.Column="4" Style="{DynamicResource Muted}" Text="mm, model space" Margin="8,0,0,0"/>
+                                                    </Grid>
+                                                    <Grid Margin="0,10,0,0">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="76"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <CheckBox x:Name="ElbowCheck" Content="Leader elbow" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                                        <TextBox x:Name="ElbowMm" Grid.Column="1" MinHeight="26" Padding="4,1"/>
+                                                        <TextBlock Grid.Column="2" Style="{DynamicResource Muted}" Text="mm from the tag" Margin="8,0,0,0"/>
+                                                    </Grid>
+                                                </StackPanel>
+                                                <StackPanel Grid.Row="1" Grid.Column="2">
+                                                    <CheckBox x:Name="RemovePrevious" Content="Remove previous tags" Margin="0,3"/>
+                                                    <TextBlock Style="{DynamicResource Muted}" Margin="22,0,0,8" Text="Existing tags on the elements being tagged are removed and replaced."/>
+                                                    <CheckBox x:Name="OnlyUntagged" Content="Tag all not tagged" Margin="0,3"/>
+                                                    <TextBlock Style="{DynamicResource Muted}" Margin="22,0,0,0" Text="Elements that already carry a tag in the view are left alone. With both ticked, nothing is removed."/>
+                                                    <CheckBox x:Name="UntangleCheck" Content="Untangle tags vertically" Margin="0,11,0,3"/>
+                                                    <TextBlock Style="{DynamicResource Muted}" Margin="22,0,0,0" Text="Once a view is tagged, tags that touch are moved down, keeping their side, until none touch. Leader elbows are set again to match."/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                            </Grid>
+                        </Border>
+
+                        </Grid>
+                    </TabItem>
+
+                    <!-- ============ room tags ============ -->
+                    <TabItem Header="Room Tags">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="0.8*" MinWidth="340"/>
+                                <ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="1.6*" MinWidth="520"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Style="{DynamicResource Card}" Padding="12">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                        <Border Style="{DynamicResource BlueTick}"/>
+                                        <TextBlock Style="{DynamicResource Heading}" Text="Rooms"/>
+                                    </StackPanel>
+                                    <TextBlock Style="{DynamicResource Body}" Text="Model holding the rooms" Margin="0,0,0,4"/>
+                                    <ComboBox x:Name="RoomSource" Margin="0,0,0,4"/>
+                                    <TextBlock x:Name="RoomInfo" Style="{DynamicResource Muted}" Margin="0,0,0,12"/>
+                                    <TextBlock Style="{DynamicResource Body}" Text="Room tag family and type" Margin="0,0,0,4"/>
+                                    <ComboBox x:Name="RoomTagType" Margin="0,0,0,12"/>
+                                    <TextBlock Style="{DynamicResource Body}" Text="Tag the rooms in" Margin="0,0,0,4"/>
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                                        <RadioButton x:Name="RoomByViews" Content="Views" GroupName="RoomList" Margin="0,0,16,0"/>
+                                        <RadioButton x:Name="RoomBySheets" Content="Sheets" GroupName="RoomList"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                        <Border Style="{DynamicResource OrangeTick}"/>
+                                        <TextBlock Style="{DynamicResource Heading}" Text="Options"/>
+                                    </StackPanel>
+                                    <CheckBox x:Name="RoomRemoveUnassigned" Content="Remove unassigned room tags (the ones showing ?)" Margin="0,3"/>
+                                    <CheckBox x:Name="RoomOnlyUntagged" Content="Only tag rooms that have no tag in the view" Margin="0,3"/>
+                                    <TextBlock Style="{DynamicResource Muted}" Margin="0,10,0,0"
+                                               Text="A room is tagged in a plan view when the view's cut plane passes through it and, where the view is cropped, its point sits inside the crop. The tag lands on the room's own point."/>
+                                </StackPanel>
+                            </Border>
+                            <GridSplitter Grid.Column="1" Width="8" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ResizeBehavior="PreviousAndNext"/>
+                            <Grid Grid.Column="2">
+                                <!-- views: the same view table as the Family Tags tab, built in code -->
+                                <Border x:Name="RoomViewHost" Style="{DynamicResource Card}" Padding="10"/>
+                                <!-- sheets: the same sheet table as the Family Tags tab, built in code -->
+                                <Border x:Name="RoomSheetsPanel" Style="{DynamicResource Card}" Padding="10" Visibility="Collapsed">
+                                    <Border x:Name="RoomSheetHost"/>
+                                </Border>
+                            </Grid>
+                        </Grid>
+                    </TabItem>
+                </TabControl>
+
+                <!-- ============ footer ============ -->
+                <Border Grid.Row="3" Background="{DynamicResource BarBrush}" CornerRadius="0,0,6,6" Padding="12,8">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock x:Name="StatusText" Style="{DynamicResource Muted}" FontSize="12" Text="Ready"/>
+                        <StackPanel x:Name="ProgressPanel" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0,14,0" Visibility="Collapsed">
+                            <ProgressBar x:Name="Progress" Width="280" Height="12" Minimum="0" Maximum="100" Value="0" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="ProgressPercent" Text="0%" Width="40" Margin="8,0,0,0" FontWeight="SemiBold" Foreground="{DynamicResource OrangeBrush}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <Button x:Name="TagAllButton" Grid.Column="2" Style="{DynamicResource ActionButton}" Content="Tag All" MinWidth="130"/>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- ============ resize grips: no Background, so everything under them stays clickable ============ -->
+        <Grid>
+            <Thumb x:Name="GripN" Style="{DynamicResource Grip}" Height="5" VerticalAlignment="Top" Margin="8,0" Cursor="SizeNS"/>
+            <Thumb x:Name="GripS" Style="{DynamicResource Grip}" Height="5" VerticalAlignment="Bottom" Margin="8,0" Cursor="SizeNS"/>
+            <Thumb x:Name="GripW" Style="{DynamicResource Grip}" Width="5" HorizontalAlignment="Left" Margin="0,8" Cursor="SizeWE"/>
+            <Thumb x:Name="GripE" Style="{DynamicResource Grip}" Width="5" HorizontalAlignment="Right" Margin="0,8" Cursor="SizeWE"/>
+            <Thumb x:Name="GripNW" Style="{DynamicResource Grip}" Width="8" Height="8" HorizontalAlignment="Left" VerticalAlignment="Top" Cursor="SizeNWSE"/>
+            <Thumb x:Name="GripNE" Style="{DynamicResource Grip}" Width="8" Height="8" HorizontalAlignment="Right" VerticalAlignment="Top" Cursor="SizeNESW"/>
+            <Thumb x:Name="GripSW" Style="{DynamicResource Grip}" Width="8" Height="8" HorizontalAlignment="Left" VerticalAlignment="Bottom" Cursor="SizeNESW"/>
+            <Thumb x:Name="GripSE" Style="{DynamicResource Grip}" Width="8" Height="8" HorizontalAlignment="Right" VerticalAlignment="Bottom" Cursor="SizeNWSE"/>
+        </Grid>
+    </Grid>
+</Window>

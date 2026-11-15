@@ -1,0 +1,7 @@
+title: Service Spacing
+tooltip: >
+  RevoBIM PY - Service Spacing.
+  Spaces selected services centre to centre on the minimum clearance rule,
+  and cable trays edge to edge.  The command runs on the current selection
+  with no window; Settings sits behind the second button.
+author: RevoBIM PY

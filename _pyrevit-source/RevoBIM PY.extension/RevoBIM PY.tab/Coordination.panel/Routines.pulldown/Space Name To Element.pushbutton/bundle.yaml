@@ -1,0 +1,9 @@
+title: Space Name To Element
+tooltip: >-
+  Writes "Space Name - Space Number" from every intersecting space onto the
+  elements you pick, into an instance parameter you pick. Elements sitting in
+  several spaces get all of them, joined by " / ".
+  Pick whole categories or expand down to individual families and types.
+  Revit stays usable while the window is open.
+author: RevoBIM
+highlight: new

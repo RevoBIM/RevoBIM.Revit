@@ -1,0 +1,430 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RevoBIM PY - Schematic Builder" Width="1180" Height="760" MinWidth="980" MinHeight="620"
+        WindowStartupLocation="CenterScreen" WindowStyle="None" AllowsTransparency="True"
+        Background="Transparent" ShowInTaskbar="True" ResizeMode="NoResize">
+  <Grid>
+    <Border CornerRadius="6" Background="{DynamicResource ShellBg}" BorderBrush="{DynamicResource EdgeBrush}"
+            BorderThickness="1">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="54"/>
+          <RowDefinition Height="38"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="48"/>
+        </Grid.RowDefinitions>
+
+        <!-- ============ header ============ -->
+        <Border x:Name="HeaderBar" Grid.Row="0" Background="{DynamicResource BarBg}" CornerRadius="6,6,0,0">
+          <Grid>
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="14,0,0,0">
+              <TextBlock Text="RevoBIM" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource BlueBrush}"
+                         VerticalAlignment="Bottom"/>
+              <TextBlock Text="Schematic Builder" FontSize="15" Margin="10,0,0,2"
+                         Foreground="{DynamicResource OrangeBrush}" VerticalAlignment="Bottom"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center"
+                        Margin="0,0,6,0">
+              <Button x:Name="BtnRefresh" Style="{DynamicResource Chip}" Content="Refresh model"/>
+              <Button x:Name="BtnTheme" Style="{DynamicResource Chip}" Content="Light"/>
+              <Button x:Name="BtnSettings" Style="{DynamicResource Chip}" Content="Settings"/>
+              <TextBlock x:Name="TxtVersion" Text="v0.0.0" Style="{DynamicResource Dim}"
+                         VerticalAlignment="Center" Margin="6,0,10,0"/>
+              <Button x:Name="BtnShrink" Style="{DynamicResource BtnShrink}"
+                      ToolTip="Shrink to the bottom of the screen (Ctrl+Shift+H)"/>
+              <Button x:Name="BtnFull" Style="{DynamicResource BtnHeader}" ToolTip="Full screen (F11)">
+                <Border Width="11" Height="11" BorderBrush="{DynamicResource DimBrush}" BorderThickness="1.5"/>
+              </Button>
+              <Button x:Name="BtnClose" Style="{DynamicResource BtnClose}" Content="&#10005;"/>
+            </StackPanel>
+          </Grid>
+        </Border>
+
+        <!-- ============ tab strip ============ -->
+        <Border Grid.Row="1" Background="{DynamicResource BarBg}" BorderBrush="{DynamicResource LineBrush}"
+                BorderThickness="0,0,0,1">
+          <StackPanel x:Name="TabStrip" Orientation="Horizontal" Margin="8,0,0,0" VerticalAlignment="Bottom">
+            <Button x:Name="TabVentilation" Style="{DynamicResource Tab}" Content="Ventilation Schematic"/>
+            <Button x:Name="TabLv" Style="{DynamicResource Tab}" Content="LV Schematic"/>
+            <Button x:Name="TabDrainage" Style="{DynamicResource Tab}" Content="Drainage Schematic"/>
+            <Button x:Name="TabRainwater" Style="{DynamicResource Tab}" Content="Rainwater Schematic"/>
+            <Button x:Name="TabWater" Style="{DynamicResource Tab}" Content="Water Services Schematic"/>
+            <Border Width="1" Background="{DynamicResource LineBrush}" Margin="10,8,10,8"/>
+            <Button x:Name="TabMarried" Style="{DynamicResource TabGreen}" Content="Married Element List"/>
+          </StackPanel>
+        </Border>
+
+        <!-- ============ pages ============ -->
+        <Grid Grid.Row="2" Margin="12,12,12,6">
+
+          <!-- Ventilation -->
+          <Grid x:Name="PageVentilation">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0" Style="{DynamicResource Card}" Padding="12,10" Margin="0,0,0,10">
+              <StackPanel>
+                <StackPanel Orientation="Horizontal">
+                  <Border Style="{DynamicResource TickBlue}"/>
+                  <TextBlock Text="View" Style="{DynamicResource Heading}"/>
+                  <TextBlock x:Name="TxtViewNameVentilation" Style="{DynamicResource Dim}" Margin="12,0,0,0"
+                             VerticalAlignment="Center"/>
+                </StackPanel>
+                <TextBlock x:Name="TxtLevelsVentilation" Style="{DynamicResource Dim}" Margin="12,6,0,0"
+                           TextWrapping="Wrap"/>
+              </StackPanel>
+            </Border>
+
+            <Border Grid.Row="1" Style="{DynamicResource Card}" Padding="12,10" Margin="0,0,0,10">
+              <StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                  <Border Style="{DynamicResource TickBlue}"/>
+                  <TextBlock Text="Project browser grouping" Style="{DynamicResource Heading}"/>
+                  <TextBlock Text="values written onto the new view; pick a value already in use or type one"
+                             Style="{DynamicResource Dim}" Margin="12,0,0,0" VerticalAlignment="Center"/>
+                </StackPanel>
+                <StackPanel x:Name="BrowserVentilation"/>
+              </StackPanel>
+            </Border>
+
+            <Border Grid.Row="2" Style="{DynamicResource Card}" Padding="12,10">
+              <Grid>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="22"/>
+                  <RowDefinition Height="*"/>
+                  <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0" Margin="0,0,0,8">
+                  <StackPanel Orientation="Horizontal">
+                    <Border Style="{DynamicResource TickOrange}"/>
+                    <TextBlock Text="Equipment" Style="{DynamicResource Heading}"/>
+                    <TextBlock Text="equipment type  -  family and type in the model  -  detail item drawn on the schematic"
+                               Style="{DynamicResource Dim}" Margin="12,0,0,0" VerticalAlignment="Center"/>
+                  </StackPanel>
+                  <Button x:Name="BtnEquipment" Style="{DynamicResource BtnOrange}" Content="Equipment..."
+                          HorizontalAlignment="Right" Width="130"/>
+                </Grid>
+                <Border Grid.Row="1" Background="{DynamicResource BarBg}" BorderBrush="{DynamicResource LineBrush}"
+                        BorderThickness="1,1,1,0">
+                  <Grid Margin="6,0">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="1.0*"/>
+                      <ColumnDefinition Width="1.5*"/>
+                      <ColumnDefinition Width="1.5*"/>
+                      <ColumnDefinition Width="130"/>
+                      <ColumnDefinition Width="60"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="EQUIPMENT TYPE" Style="{DynamicResource Dim}" FontSize="10"/>
+                    <TextBlock Grid.Column="1" Text="FAMILIES" Style="{DynamicResource Dim}" FontSize="10"/>
+                    <TextBlock Grid.Column="2" Text="DETAIL ITEM" Style="{DynamicResource Dim}" FontSize="10"/>
+                    <TextBlock Grid.Column="3" Text="PARAMETERS" Style="{DynamicResource Dim}" FontSize="10"/>
+                    <TextBlock Grid.Column="4" Text="IN MODEL" Style="{DynamicResource Dim}" FontSize="10"
+                               HorizontalAlignment="Right"/>
+                  </Grid>
+                </Border>
+                <ListBox x:Name="LstEquipment" Grid.Row="2" Style="{DynamicResource List}"/>
+                <TextBlock x:Name="TxtEquipmentInfo" Grid.Row="3" Style="{DynamicResource Dim}" Margin="0,6,0,0"/>
+              </Grid>
+            </Border>
+          </Grid>
+
+          <!-- LV -->
+          <Grid x:Name="PageLv" Visibility="Collapsed">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0" Style="{DynamicResource Card}" Padding="12,10" Margin="0,0,0,10">
+              <StackPanel>
+                <StackPanel Orientation="Horizontal">
+                  <Border Style="{DynamicResource TickBlue}"/>
+                  <TextBlock Text="View" Style="{DynamicResource Heading}"/>
+                  <TextBlock x:Name="TxtViewNameLv" Style="{DynamicResource Dim}" Margin="12,0,0,0"
+                             VerticalAlignment="Center"/>
+                </StackPanel>
+                <TextBlock x:Name="TxtLevelsLv" Style="{DynamicResource Dim}" Margin="12,6,0,0" TextWrapping="Wrap"/>
+              </StackPanel>
+            </Border>
+
+            <Border Grid.Row="1" Style="{DynamicResource Card}" Padding="12,10" Margin="0,0,0,10">
+              <StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                  <Border Style="{DynamicResource TickBlue}"/>
+                  <TextBlock Text="Project browser grouping" Style="{DynamicResource Heading}"/>
+                  <TextBlock Text="values written onto the new view; pick a value already in use or type one"
+                             Style="{DynamicResource Dim}" Margin="12,0,0,0" VerticalAlignment="Center"/>
+                </StackPanel>
+                <StackPanel x:Name="BrowserLv"/>
+              </StackPanel>
+            </Border>
+
+            <Border Grid.Row="2" Style="{DynamicResource Card}" Padding="12,10">
+              <Grid>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="22"/>
+                  <RowDefinition Height="*"/>
+                  <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0" Margin="0,0,0,8">
+                  <StackPanel Orientation="Horizontal">
+                    <Border Style="{DynamicResource TickOrange}"/>
+                    <TextBlock Text="Electrical equipment" Style="{DynamicResource Heading}"/>
+                    <TextBlock Text="panels in the model  -  detail item drawn for each  -  feeders drawn from their circuits"
+                               Style="{DynamicResource Dim}" Margin="12,0,0,0" VerticalAlignment="Center"/>
+                  </StackPanel>
+                  <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <CheckBox x:Name="ChkPanelsOnly" Style="{DynamicResource Check}" Margin="0,0,16,0"
+                              Content="Boards with a panel schedule only"
+                              ToolTip="Untick to place every paired element, whether or not it has a panel schedule. The same setting lives in Settings &gt; LV."/>
+                    <TextBlock Text="Main LV board" Style="{DynamicResource Heading}" VerticalAlignment="Center"/>
+                    <ComboBox x:Name="CmbMainPanel" Style="{DynamicResource Combo}" IsEditable="True" Width="230"
+                              Margin="8,0,0,0" Tag="none - every board is treated the same"/>
+                    <Button x:Name="BtnReadPanels" Style="{DynamicResource Btn}" Content="Read panels" Height="26"
+                            Margin="6,0,10,0" ToolTip="List the electrical equipment in the model to pick from"/>
+                    <Button x:Name="BtnEquipmentLv" Style="{DynamicResource BtnOrange}" Content="Equipment..."
+                            Width="130"/>
+                  </StackPanel>
+                </Grid>
+                <Border Grid.Row="1" Background="{DynamicResource BarBg}" BorderBrush="{DynamicResource LineBrush}"
+                        BorderThickness="1,1,1,0">
+                  <Grid Margin="6,0">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="1.0*"/>
+                      <ColumnDefinition Width="1.5*"/>
+                      <ColumnDefinition Width="1.5*"/>
+                      <ColumnDefinition Width="130"/>
+                      <ColumnDefinition Width="60"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="EQUIPMENT TYPE" Style="{DynamicResource Dim}" FontSize="10"/>
+                    <TextBlock Grid.Column="1" Text="FAMILIES" Style="{DynamicResource Dim}" FontSize="10"/>
+                    <TextBlock Grid.Column="2" Text="DETAIL ITEM" Style="{DynamicResource Dim}" FontSize="10"/>
+                    <TextBlock Grid.Column="3" Text="PARAMETERS" Style="{DynamicResource Dim}" FontSize="10"/>
+                    <TextBlock Grid.Column="4" Text="IN MODEL" Style="{DynamicResource Dim}" FontSize="10"
+                               HorizontalAlignment="Right"/>
+                  </Grid>
+                </Border>
+                <ListBox x:Name="LstEquipmentLv" Grid.Row="2" Style="{DynamicResource List}"/>
+                <TextBlock x:Name="TxtEquipmentInfoLv" Grid.Row="3" Style="{DynamicResource Dim}" Margin="0,6,0,0"/>
+              </Grid>
+            </Border>
+          </Grid>
+
+          <!-- placeholders -->
+          <Grid x:Name="PageDrainage" Visibility="Collapsed">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Border Grid.Row="0" Style="{DynamicResource Card}" Padding="12,10" Margin="0,0,0,10">
+              <StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                  <Border Style="{DynamicResource TickBlue}"/>
+                  <TextBlock Text="Project browser grouping" Style="{DynamicResource Heading}"/>
+                </StackPanel>
+                <StackPanel x:Name="BrowserDrainage"/>
+              </StackPanel>
+            </Border>
+            <Border Grid.Row="1" Style="{DynamicResource Card}" Padding="12,10">
+              <TextBlock x:Name="TxtPlaceholderDrainage" Style="{DynamicResource Dim}" TextWrapping="Wrap"
+                         VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="13"/>
+            </Border>
+          </Grid>
+
+          <Grid x:Name="PageRainwater" Visibility="Collapsed">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Border Grid.Row="0" Style="{DynamicResource Card}" Padding="12,10" Margin="0,0,0,10">
+              <StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                  <Border Style="{DynamicResource TickBlue}"/>
+                  <TextBlock Text="Project browser grouping" Style="{DynamicResource Heading}"/>
+                </StackPanel>
+                <StackPanel x:Name="BrowserRainwater"/>
+              </StackPanel>
+            </Border>
+            <Border Grid.Row="1" Style="{DynamicResource Card}" Padding="12,10">
+              <TextBlock x:Name="TxtPlaceholderRainwater" Style="{DynamicResource Dim}" TextWrapping="Wrap"
+                         VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="13"/>
+            </Border>
+          </Grid>
+
+          <Grid x:Name="PageWater" Visibility="Collapsed">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Border Grid.Row="0" Style="{DynamicResource Card}" Padding="12,10" Margin="0,0,0,10">
+              <StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                  <Border Style="{DynamicResource TickBlue}"/>
+                  <TextBlock Text="Project browser grouping" Style="{DynamicResource Heading}"/>
+                </StackPanel>
+                <StackPanel x:Name="BrowserWater"/>
+              </StackPanel>
+            </Border>
+            <Border Grid.Row="1" Style="{DynamicResource Card}" Padding="12,10">
+              <TextBlock x:Name="TxtPlaceholderWater" Style="{DynamicResource Dim}" TextWrapping="Wrap"
+                         VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="13"/>
+            </Border>
+          </Grid>
+
+          <!-- Married Element List -->
+          <Grid x:Name="PageMarried" Visibility="Collapsed">
+            <Grid.RowDefinitions>
+              <RowDefinition x:Name="RowMarriedList" Height="1.3*" MinHeight="140"/>
+              <RowDefinition Height="12"/>
+              <RowDefinition x:Name="RowMarriedTemplate" Height="1*" MinHeight="120"/>
+            </Grid.RowDefinitions>
+            <GridSplitter x:Name="SplitMarried" Grid.Row="1" Style="{DynamicResource Splitter}"
+                          ResizeBehavior="PreviousAndNext" ResizeDirection="Rows"
+                          ToolTip="Drag to make the template panel bigger or smaller"/>
+
+            <Border Grid.Row="0" Style="{DynamicResource Card}" Padding="12,10">
+              <Grid>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="22"/>
+                  <RowDefinition Height="*"/>
+                  <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0" Margin="0,0,0,8">
+                  <StackPanel Orientation="Horizontal">
+                    <Border Style="{DynamicResource TickGreen}"/>
+                    <TextBlock Text="Detail items married to a model element" Style="{DynamicResource Heading}"/>
+                    <TextBlock x:Name="TxtMarriedParam" Style="{DynamicResource Dim}" Margin="12,0,0,0"
+                               VerticalAlignment="Center"/>
+                  </StackPanel>
+                  <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <TextBox x:Name="TxtMarriedSearch" Style="{DynamicResource Field}" Width="220"
+                             Tag="search view, detail item or model element" Margin="0,0,10,0"/>
+                    <Button x:Name="BtnMarriedAll" Style="{DynamicResource Btn}" Content="Tick all shown"
+                            Height="24" Margin="0,0,6,0"/>
+                    <Button x:Name="BtnMarriedNone" Style="{DynamicResource Btn}" Content="None"
+                            Height="24" Margin="0,0,10,0"/>
+                    <Button x:Name="BtnMarriedAssign" Style="{DynamicResource BtnGreen}"
+                            Content="Assign template" Height="24" Width="140" Margin="0,0,6,0"
+                            ToolTip="Assign the template below to every row ticked or selected"/>
+                    <Button x:Name="BtnMarriedUnassign" Style="{DynamicResource Btn}" Content="Unassign"
+                            Height="24" Margin="0,0,10,0"/>
+                    <Button x:Name="BtnMarriedRefresh" Style="{DynamicResource BtnOrange}"
+                            Content="Read the model" Height="24" Width="130"/>
+                  </StackPanel>
+                </Grid>
+                <Border Grid.Row="1" Background="{DynamicResource BarBg}" BorderBrush="{DynamicResource LineBrush}"
+                        BorderThickness="1,1,1,0">
+                  <Grid Margin="6,0">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="26"/>
+                      <ColumnDefinition Width="1.1*"/>
+                      <ColumnDefinition Width="1.2*"/>
+                      <ColumnDefinition Width="70"/>
+                      <ColumnDefinition Width="1.5*"/>
+                      <ColumnDefinition Width="140"/>
+                      <ColumnDefinition Width="130"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="1" Text="DRAFTING VIEW" Style="{DynamicResource Dim}" FontSize="10"/>
+                    <TextBlock Grid.Column="2" Text="DETAIL ITEM" Style="{DynamicResource Dim}" FontSize="10"/>
+                    <TextBlock Grid.Column="3" Text="LINKED ID" Style="{DynamicResource Dim}" FontSize="10"/>
+                    <TextBlock Grid.Column="4" Text="MODEL ELEMENT" Style="{DynamicResource Dim}" FontSize="10"/>
+                    <TextBlock Grid.Column="5" Text="TEMPLATE" Style="{DynamicResource Dim}" FontSize="10"/>
+                    <TextBlock Grid.Column="6" Text="STATUS" Style="{DynamicResource Dim}" FontSize="10"/>
+                  </Grid>
+                </Border>
+                <ListBox x:Name="LstMarried" Grid.Row="2" Style="{DynamicResource List}"
+                         SelectionMode="Extended"/>
+                <TextBlock x:Name="TxtMarriedInfo" Grid.Row="3" Style="{DynamicResource Dim}" Margin="0,6,0,0"/>
+              </Grid>
+            </Border>
+
+            <Border Grid.Row="2" Style="{DynamicResource Card}" Padding="12,10">
+              <Grid>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="22"/>
+                  <RowDefinition Height="*"/>
+                  <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0" Margin="0,0,0,8">
+                  <StackPanel Orientation="Horizontal">
+                    <Border Style="{DynamicResource TickGreen}"/>
+                    <TextBlock Text="Parameter template" Style="{DynamicResource Heading}" VerticalAlignment="Center"/>
+                    <ComboBox x:Name="CmbTemplate" Style="{DynamicResource Combo}" IsEditable="True" Width="200"
+                              Margin="12,0,0,0" Tag="template name"/>
+                    <Button x:Name="BtnTemplateNew" Style="{DynamicResource BtnGreen}" Content="New" Height="24"
+                            Width="60" Margin="6,0,0,0" ToolTip="Start an empty template"/>
+                    <Button x:Name="BtnTemplateSave" Style="{DynamicResource Btn}" Content="Save" Height="24"
+                            Margin="6,0,0,0" ToolTip="Save under the name shown, replacing it if it exists"/>
+                    <Button x:Name="BtnTemplateSaveAs" Style="{DynamicResource Btn}" Content="Save as new"
+                            Height="24" Margin="6,0,0,0"
+                            ToolTip="Type a new name in the box, then press this to keep the original as well"/>
+                    <Button x:Name="BtnTemplateDelete" Style="{DynamicResource Btn}" Content="Delete" Height="24"
+                            Margin="6,0,0,0"/>
+                    <TextBlock Text="model element  &#8594;  detail item" Style="{DynamicResource Dim}"
+                               Margin="14,0,0,0" VerticalAlignment="Center"/>
+                  </StackPanel>
+                  <Button x:Name="BtnTemplateAdd" Style="{DynamicResource BtnGreen}" Content="+ Add row" Height="24"
+                          HorizontalAlignment="Right" Width="110"/>
+                </Grid>
+                <Border Grid.Row="1" Background="{DynamicResource BarBg}" BorderBrush="{DynamicResource LineBrush}"
+                        BorderThickness="1,1,1,0">
+                  <Grid Margin="6,0">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*"/>
+                      <ColumnDefinition Width="34"/>
+                      <ColumnDefinition Width="*"/>
+                      <ColumnDefinition Width="32"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="FROM - PARAMETER ON THE MODEL ELEMENT" Style="{DynamicResource Dim}" FontSize="10"/>
+                    <TextBlock Grid.Column="2" Text="TO - INSTANCE PARAMETER ON THE DETAIL ITEM" Style="{DynamicResource Dim}" FontSize="10"/>
+                  </Grid>
+                </Border>
+                <ListBox x:Name="LstTemplate" Grid.Row="2" Style="{DynamicResource List}"/>
+                <TextBlock x:Name="TxtTemplateInfo" Grid.Row="3" Style="{DynamicResource Dim}" Margin="0,6,0,0"
+                           TextWrapping="Wrap"/>
+              </Grid>
+            </Border>
+          </Grid>
+        </Grid>
+
+        <!-- ============ footer ============ -->
+        <Border Grid.Row="3" Background="{DynamicResource BarBg}" CornerRadius="0,0,6,6">
+          <Grid Margin="14,0">
+            <TextBlock x:Name="TxtStatus" Text="Ready." Style="{DynamicResource Dim}" FontSize="12"
+                       VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,200,0"/>
+            <Button x:Name="BtnCreate" Style="{DynamicResource BtnGreen}" Content="Create"
+                    HorizontalAlignment="Right" VerticalAlignment="Center" Width="170"/>
+          </Grid>
+        </Border>
+      </Grid>
+    </Border>
+
+    <!-- resize grips: no Background on this grid so the window underneath stays clickable -->
+    <Grid>
+      <Thumb x:Name="GripN" Style="{DynamicResource Grip}" Height="5" VerticalAlignment="Top"
+             Margin="8,0,8,0" Cursor="SizeNS"/>
+      <Thumb x:Name="GripS" Style="{DynamicResource Grip}" Height="5" VerticalAlignment="Bottom"
+             Margin="8,0,8,0" Cursor="SizeNS"/>
+      <Thumb x:Name="GripW" Style="{DynamicResource Grip}" Width="5" HorizontalAlignment="Left"
+             Margin="0,8,0,8" Cursor="SizeWE"/>
+      <Thumb x:Name="GripE" Style="{DynamicResource Grip}" Width="5" HorizontalAlignment="Right"
+             Margin="0,8,0,8" Cursor="SizeWE"/>
+      <Thumb x:Name="GripNW" Style="{DynamicResource Grip}" Width="8" Height="8" HorizontalAlignment="Left"
+             VerticalAlignment="Top" Cursor="SizeNWSE"/>
+      <Thumb x:Name="GripNE" Style="{DynamicResource Grip}" Width="8" Height="8" HorizontalAlignment="Right"
+             VerticalAlignment="Top" Cursor="SizeNESW"/>
+      <Thumb x:Name="GripSW" Style="{DynamicResource Grip}" Width="8" Height="8" HorizontalAlignment="Left"
+             VerticalAlignment="Bottom" Cursor="SizeNESW"/>
+      <Thumb x:Name="GripSE" Style="{DynamicResource Grip}" Width="8" Height="8" HorizontalAlignment="Right"
+             VerticalAlignment="Bottom" Cursor="SizeNWSE"/>
+    </Grid>
+  </Grid>
+</Window>

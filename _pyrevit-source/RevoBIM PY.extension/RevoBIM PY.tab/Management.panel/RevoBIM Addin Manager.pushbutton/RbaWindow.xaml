@@ -1,0 +1,45 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RevoBIM Addin Manager"
+        Width="380" Height="900"
+        MinWidth="320" MinHeight="320"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ShowInTaskbar="False">
+
+    <!-- The pane's own control is the whole of this window: its header is
+         the window's header and, shrunk, the bar left floating above the
+         taskbar. So there is no title strip of the window's own. -->
+    <Grid>
+        <Border x:Name="Chrome" Background="{DynamicResource BgWindow}"
+                BorderBrush="{DynamicResource BrdWindow}" BorderThickness="1" CornerRadius="6"
+                ClipToBounds="True">
+            <ContentControl x:Name="Host" />
+        </Border>
+
+        <!-- ========================= resize grips ========================= -->
+        <!-- A borderless AllowsTransparency window has nothing hit testable   -->
+        <!-- in its frame, so WPF never fires the resize border however        -->
+        <!-- ResizeMode is set. These eight thumbs are the frame. The grid     -->
+        <!-- carries no Background, so everything underneath stays clickable.  -->
+        <Grid x:Name="Grips">
+            <Thumb x:Name="GripL" Style="{DynamicResource GripThumb}" Width="5"
+                   HorizontalAlignment="Left" VerticalAlignment="Stretch" />
+            <Thumb x:Name="GripR" Style="{DynamicResource GripThumb}" Width="5"
+                   HorizontalAlignment="Right" VerticalAlignment="Stretch" />
+            <Thumb x:Name="GripT" Style="{DynamicResource GripThumb}" Height="5"
+                   VerticalAlignment="Top" HorizontalAlignment="Stretch" />
+            <Thumb x:Name="GripB" Style="{DynamicResource GripThumb}" Height="5"
+                   VerticalAlignment="Bottom" HorizontalAlignment="Stretch" />
+            <Thumb x:Name="GripTL" Style="{DynamicResource GripThumb}" Width="9" Height="9"
+                   HorizontalAlignment="Left" VerticalAlignment="Top" />
+            <Thumb x:Name="GripTR" Style="{DynamicResource GripThumb}" Width="9" Height="9"
+                   HorizontalAlignment="Right" VerticalAlignment="Top" />
+            <Thumb x:Name="GripBL" Style="{DynamicResource GripThumb}" Width="9" Height="9"
+                   HorizontalAlignment="Left" VerticalAlignment="Bottom" />
+            <Thumb x:Name="GripBR" Style="{DynamicResource GripThumb}" Width="9" Height="9"
+                   HorizontalAlignment="Right" VerticalAlignment="Bottom" />
+        </Grid>
+    </Grid>
+</Window>

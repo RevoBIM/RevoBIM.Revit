@@ -1,0 +1,4 @@
+title: Legend Creator
+author: RevoBIM PY
+tooltip: "Builds legends from the model. Family Legend lists the family types placed in the project, per category or combined. System Colour Legend builds Containment, Ductwork and Pipework colour keys from filter and system overrides. Debug tick for a pasteable report."
+context: doc-project

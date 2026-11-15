@@ -1,0 +1,129 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RevoBIM Callout to 3D Settings" Width="1020" Height="740"
+        MinWidth="760" MinHeight="480"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ResizeMode="NoResize" ShowInTaskbar="False"
+        WindowStartupLocation="CenterScreen">
+
+  <Grid>
+    <Border CornerRadius="6" Background="{DynamicResource WindowBrush}"
+            BorderBrush="{DynamicResource FrameBrush}" BorderThickness="1">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="48"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="52"/>
+        </Grid.RowDefinitions>
+
+        <!-- ===================== header ===================== -->
+        <Border x:Name="HeaderBar" Grid.Row="0" CornerRadius="6,6,0,0"
+                Background="{DynamicResource BarBrush}">
+          <Grid Margin="12,0,8,0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Border x:Name="LogoZone" Grid.Column="0" Background="Transparent"
+                    ToolTip="RevoBIM PY">
+              <StackPanel Orientation="Horizontal">
+                <Image x:Name="LogoImage" Width="26" Height="26" VerticalAlignment="Center"/>
+                <TextBlock Text="RevoBIM" Margin="8,0,0,0" Style="{DynamicResource TitleText}"/>
+                <TextBlock Text="Callout to 3D Settings" Style="{DynamicResource SubtitleText}"/>
+              </StackPanel>
+            </Border>
+
+            <Button x:Name="ThemeChip" Grid.Column="2" Content="Dark"
+                    Margin="0,0,10,0" Style="{DynamicResource ChipButton}"/>
+            <TextBlock x:Name="VersionText" Grid.Column="3" Text="v1.0.0"
+                       Margin="0,0,10,0" Style="{DynamicResource MutedText}"/>
+            <StackPanel Grid.Column="4" Orientation="Horizontal">
+              <Button x:Name="ShrinkButton" Content="" Margin="0,0,2,0"
+                      Style="{DynamicResource ShrinkButton}"/>
+              <Button x:Name="FullScreenButton"
+                      Style="{DynamicResource IconButton}" ToolTip="Full screen (F11)">
+                <Border Width="12" Height="10" BorderThickness="1.4"
+                        BorderBrush="{DynamicResource MutedBrush}"/>
+              </Button>
+            </StackPanel>
+            <Button x:Name="CloseButton" Grid.Column="5" Content="&#x2715;"
+                    Style="{DynamicResource CloseButton}"/>
+          </Grid>
+        </Border>
+
+        <!-- ===================== body ===================== -->
+        <Grid Grid.Row="1" Margin="14,10,14,6">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition x:Name="RailColumn" Width="238" MinWidth="180"/>
+            <ColumnDefinition Width="12"/>
+            <ColumnDefinition Width="*" MinWidth="360"/>
+          </Grid.ColumnDefinitions>
+
+          <Border Grid.Column="0" CornerRadius="5"
+                  Background="{DynamicResource CardBrush}"
+                  BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="1">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="6,8,4,8">
+              <StackPanel x:Name="GroupRail"/>
+            </ScrollViewer>
+          </Border>
+
+          <Border Grid.Column="2" CornerRadius="5"
+                  Background="{DynamicResource CardBrush}"
+                  BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="1">
+            <Grid>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+              </Grid.RowDefinitions>
+
+              <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="16,14,16,4">
+                <Border x:Name="GroupTick" Width="4" Height="20" CornerRadius="2"
+                        Background="{DynamicResource BlueBrush}" VerticalAlignment="Center"/>
+                <TextBlock x:Name="GroupTitle" Text="" Margin="9,0,0,0"
+                           FontSize="15" FontWeight="Bold"
+                           Foreground="{DynamicResource TextBrush}"
+                           VerticalAlignment="Center"/>
+                <TextBlock x:Name="GroupBlurb" Text="" Margin="12,2,0,0"
+                           Style="{DynamicResource MutedText}"/>
+              </StackPanel>
+
+              <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                            HorizontalScrollBarVisibility="Disabled"
+                            Margin="16,6,10,14">
+                <StackPanel x:Name="GroupHost"/>
+              </ScrollViewer>
+            </Grid>
+          </Border>
+        </Grid>
+
+        <!-- ===================== footer ===================== -->
+        <Border Grid.Row="2" CornerRadius="0,0,6,6" Background="{DynamicResource BarBrush}">
+          <Grid Margin="14,0,14,0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Button x:Name="ResetButton" Grid.Column="0" Content="Back to defaults"
+                    Style="{DynamicResource AccentButton}"/>
+            <TextBlock x:Name="StatusText" Grid.Column="1" Margin="14,0,14,0"
+                       Style="{DynamicResource MutedText}"/>
+            <Button x:Name="CancelButton" Grid.Column="2" Content="Cancel"
+                    Margin="0,0,8,0" Style="{DynamicResource GhostButton}"/>
+            <Button x:Name="ApplyButton" Grid.Column="3" Content="Apply"
+                    Style="{DynamicResource PrimaryButton}"/>
+          </Grid>
+        </Border>
+      </Grid>
+    </Border>
+
+    <Grid x:Name="GripGrid"/>
+  </Grid>
+</Window>

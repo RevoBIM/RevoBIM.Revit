@@ -1,0 +1,32 @@
+RevoBIM PY - Wires v3.6.0
+=========================
+
+Extracting this zip MERGES with what is already installed - it does not remove
+anything. Several folders have been renamed or moved across versions and will
+still be sitting in your extension, still on the ribbon, still running their
+old code.
+
+Delete all of these, if they are there:
+
+  RevoBIM PY.tab\MEP.panel\Wires.pulldown\
+      the whole tool moved to Electrical.panel at v2.3.0
+
+  RevoBIM PY.tab\MEP.panel\Wire Fix.pulldown\
+      renamed to Wires.pulldown at v2.0.0
+
+  ...\Wires.pulldown\Wire Circuits.pushbutton\
+  ...\Wires.pulldown\Auto Wire In View.pushbutton\
+      both renamed to Auto Wire.pushbutton
+
+  ...\Wires.pulldown\Re-jig Circuit.pushbutton\
+      renamed to Re-Route Wires.pushbutton at v2.3.0
+
+  ...\Wires.pulldown\Tidy Wires.pushbutton\
+      removed at v2.3.0
+
+If MEP.panel now holds nothing else, delete it too.
+
+No Electrical.panel\bundle.yaml is shipped, so whatever Panel Schedule Template
+Manager already set for that panel is left alone.
+
+Then reload pyRevit. You can delete this text file afterwards.

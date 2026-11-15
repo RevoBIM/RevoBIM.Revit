@@ -1,0 +1,81 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RevoBIM"
+        SizeToContent="Height" Width="520"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ResizeMode="NoResize" ShowInTaskbar="False" SnapsToDevicePixels="True">
+
+  <Border Background="{DynamicResource BgWindow}"
+          BorderBrush="{DynamicResource BrdWindow}" BorderThickness="1"
+          CornerRadius="6">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+
+      <!-- ============================= header ============================= -->
+      <Border x:Name="PromptHeaderBar" Grid.Row="0"
+              Background="{DynamicResource BgBar}" CornerRadius="5,5,0,0"
+              Padding="14,9">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+
+          <TextBlock Grid.Column="0" Text="RevoBIM"
+                     Style="{DynamicResource Wordmark}"/>
+          <TextBlock Grid.Column="1" Text="Family Find &amp; Replace"
+                     Style="{DynamicResource ToolName}"/>
+          <TextBlock x:Name="PromptVersion" Grid.Column="3" Text=""
+                     VerticalAlignment="Center" Margin="0,0,10,0"
+                     Style="{DynamicResource VersionLabel}"/>
+
+          <Button x:Name="PromptShrinkBtn" Grid.Column="4" Margin="0"
+                  Style="{DynamicResource BtnShrink}"/>
+        </Grid>
+      </Border>
+
+      <!-- ============================= message ============================ -->
+      <Border Grid.Row="1" Padding="16,14">
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+
+          <TextBlock x:Name="PromptHeadline" Grid.Row="0" TextWrapping="Wrap"
+                     FontSize="14" FontWeight="SemiBold"
+                     Foreground="{DynamicResource FgBody}" Text=""/>
+
+          <TextBlock x:Name="PromptBody" Grid.Row="1" Margin="0,10,0,0"
+                     TextWrapping="Wrap" LineHeight="18"
+                     Style="{DynamicResource Muted}" Text=""/>
+        </Grid>
+      </Border>
+
+      <!-- ============================= buttons ============================ -->
+      <Border Grid.Row="2" Background="{DynamicResource BgBar}"
+              CornerRadius="0,0,5,5" Padding="14,10">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+
+          <Button x:Name="PromptCancelBtn" Grid.Column="1" Content="Cancel"
+                  Style="{DynamicResource BtnGhost}" Margin="0,0,8,0"/>
+          <Button x:Name="PromptOkBtn" Grid.Column="2" Content="Yes"
+                  Style="{DynamicResource BtnGreen}"/>
+        </Grid>
+      </Border>
+    </Grid>
+  </Border>
+</Window>

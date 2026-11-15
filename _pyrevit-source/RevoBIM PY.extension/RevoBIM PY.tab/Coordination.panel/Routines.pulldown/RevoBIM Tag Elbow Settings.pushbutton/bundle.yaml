@@ -1,0 +1,6 @@
+title: RevoBIM Tag Elbow Settings
+tooltip: >-
+  Settings for RevoBIM Tag Leader Elbow: the leg length and the view scale it
+  is quoted at, which way the leg goes, what to do with tags that already have
+  an elbow, and the theme.
+author: RevoBIM PY

@@ -1,0 +1,8 @@
+title: Number Sequencer
+tooltip: >-
+  RevoBIM Number Sequencer - number duct and pipe systems into a parameter you
+  choose, branches first then on up the main. Sequencer tab: tab-select or pick
+  systems. System Selector tab: every duct or pipe system in the active view,
+  ordered in a table (drag to re-order), isolated with their tags and coloured
+  to match the list, then Run. Revit stays usable while it is open.
+author: RevoBIM

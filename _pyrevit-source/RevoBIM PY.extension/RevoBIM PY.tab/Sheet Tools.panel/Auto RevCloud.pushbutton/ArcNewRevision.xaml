@@ -1,0 +1,131 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RevoBIM new revision" Width="560" Height="500"
+        MinWidth="420" MinHeight="380"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
+  <Grid x:Name="Root">
+    <Border x:Name="Shell" CornerRadius="6" Background="{DynamicResource WindowBg}"
+            BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="1">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="52"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="52"/>
+        </Grid.RowDefinitions>
+
+        <!-- ============================ header ============================ -->
+        <Border x:Name="Header" Grid.Row="0" Background="{DynamicResource BarBg}"
+                CornerRadius="5,5,0,0">
+          <Grid Margin="14,0,10,0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+              <TextBlock x:Name="RevoBimLogo" Text="RevoBIM" FontSize="20" FontWeight="Bold"
+                         Foreground="{DynamicResource BlueBrush}" VerticalAlignment="Bottom"/>
+              <TextBlock x:Name="TitleText" Text="New revision" FontSize="15" Margin="8,0,0,2"
+                         Foreground="{DynamicResource OrangeBrush}" VerticalAlignment="Bottom"/>
+            </StackPanel>
+            <TextBlock x:Name="VersionText" Grid.Column="1" Style="{DynamicResource ArcMuted}"
+                       FontSize="11" HorizontalAlignment="Right" VerticalAlignment="Center"
+                       Margin="0,0,10,0"/>
+            <Button x:Name="CloseButton" Grid.Column="2" Style="{DynamicResource ArcCloseButton}"
+                    Content="&#x2715;"/>
+          </Grid>
+        </Border>
+
+        <!-- ============================ fields ============================ -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+          <StackPanel Margin="16,12,16,12">
+            <Border Style="{DynamicResource ArcCard}">
+              <Grid>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="120"/>
+                  <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="36"/>
+                  <RowDefinition Height="36"/>
+                  <RowDefinition Height="36"/>
+                  <RowDefinition Height="36"/>
+                  <RowDefinition Height="36"/>
+                  <RowDefinition Height="36"/>
+                  <RowDefinition Height="36"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Style="{DynamicResource ArcLabel}" Text="Sequence"/>
+                <TextBlock x:Name="SequenceText" Grid.Row="0" Grid.Column="1"
+                           Style="{DynamicResource ArcMuted}" VerticalAlignment="Center"
+                           Text="next in the project"/>
+
+                <TextBlock Grid.Row="1" Style="{DynamicResource ArcLabel}" Text="Numbering"/>
+                <ComboBox x:Name="NumberingCombo" Grid.Row="1" Grid.Column="1"
+                          Style="{DynamicResource ArcComboBox}"
+                          ToolTip="Which numbering sequence the revision uses. Revit 2022 replaced the old Numeric / Alphanumeric setting with named sequences; whichever this release has is what is offered."/>
+
+                <TextBlock Grid.Row="2" Style="{DynamicResource ArcLabel}" Text="Date"/>
+                <TextBox x:Name="DateBox" Grid.Row="2" Grid.Column="1"
+                         Style="{DynamicResource ArcTextBox}"
+                         ToolTip="Free text, exactly as Revit stores it - type TBC if that is what the sheet says."/>
+
+                <TextBlock Grid.Row="3" Style="{DynamicResource ArcLabel}" Text="Description"/>
+                <TextBox x:Name="DescriptionBox" Grid.Row="3" Grid.Column="1"
+                         Style="{DynamicResource ArcTextBox}"/>
+
+                <TextBlock Grid.Row="4" Style="{DynamicResource ArcLabel}" Text="Issued by"/>
+                <TextBox x:Name="IssuedByBox" Grid.Row="4" Grid.Column="1"
+                         Style="{DynamicResource ArcTextBox}"/>
+
+                <TextBlock Grid.Row="5" Style="{DynamicResource ArcLabel}" Text="Issued to"/>
+                <TextBox x:Name="IssuedToBox" Grid.Row="5" Grid.Column="1"
+                         Style="{DynamicResource ArcTextBox}"/>
+
+                <TextBlock Grid.Row="6" Style="{DynamicResource ArcLabel}" Text="Show"/>
+                <ComboBox x:Name="ShowCombo" Grid.Row="6" Grid.Column="1"
+                          Style="{DynamicResource ArcComboBox}"
+                          ToolTip="What the revision draws on the sheet: the cloud and its tag, the tag alone, or nothing."/>
+              </Grid>
+            </Border>
+
+            <CheckBox x:Name="IssuedCheck" Style="{DynamicResource ArcCheckBox}"
+                      Margin="0,10,0,0" Content="Issued"
+                      ToolTip="An issued revision is read-only and will not take new clouds. Tick this only for a revision you are recording rather than clouding to."/>
+            <TextBlock x:Name="IssuedWarning" Style="{DynamicResource ArcMuted}" FontSize="11"
+                       TextWrapping="Wrap" Margin="24,2,0,0"
+                       Text="Ticking Issued means this revision cannot be used for the clouds this run is about to draw."/>
+          </StackPanel>
+        </ScrollViewer>
+
+        <!-- ============================ footer ============================ -->
+        <Border Grid.Row="2" Background="{DynamicResource BarBg}" CornerRadius="0,0,5,5">
+          <Grid Margin="14,0,14,0">
+            <TextBlock x:Name="StatusText" Style="{DynamicResource ArcMuted}"
+                       VerticalAlignment="Center" Text=""/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+              <Button x:Name="CancelButton" Style="{DynamicResource ArcSmallButton}"
+                      Content="Cancel" Padding="16,4" Margin="0,0,8,0"/>
+              <Button x:Name="OkButton" Style="{DynamicResource ArcGreenButton}"
+                      Content="Create" Padding="20,5"/>
+            </StackPanel>
+          </Grid>
+        </Border>
+      </Grid>
+    </Border>
+
+    <!-- ============================ resize grips ======================== -->
+    <Grid x:Name="Grips">
+      <Thumb x:Name="GripLeft" Style="{DynamicResource ArcGrip}" Width="6" HorizontalAlignment="Left" Margin="0,8,0,8" Cursor="SizeWE"/>
+      <Thumb x:Name="GripRight" Style="{DynamicResource ArcGrip}" Width="6" HorizontalAlignment="Right" Margin="0,8,0,8" Cursor="SizeWE"/>
+      <Thumb x:Name="GripTop" Style="{DynamicResource ArcGrip}" Height="6" VerticalAlignment="Top" Margin="8,0,8,0" Cursor="SizeNS"/>
+      <Thumb x:Name="GripBottom" Style="{DynamicResource ArcGrip}" Height="6" VerticalAlignment="Bottom" Margin="8,0,8,0" Cursor="SizeNS"/>
+      <Thumb x:Name="GripTopLeft" Style="{DynamicResource ArcGrip}" Width="10" Height="10" HorizontalAlignment="Left" VerticalAlignment="Top" Cursor="SizeNWSE"/>
+      <Thumb x:Name="GripTopRight" Style="{DynamicResource ArcGrip}" Width="10" Height="10" HorizontalAlignment="Right" VerticalAlignment="Top" Cursor="SizeNESW"/>
+      <Thumb x:Name="GripBottomLeft" Style="{DynamicResource ArcGrip}" Width="10" Height="10" HorizontalAlignment="Left" VerticalAlignment="Bottom" Cursor="SizeNESW"/>
+      <Thumb x:Name="GripBottomRight" Style="{DynamicResource ArcGrip}" Width="10" Height="10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Cursor="SizeNWSE"/>
+    </Grid>
+  </Grid>
+</Window>

@@ -1,0 +1,7 @@
+title: Click to RVT Element
+tooltip: >-
+  Click a scanned object in a linked point cloud and get the Revit element it is
+  (pipe, duct, cable tray, conduit, wall, floor, ceiling, column or beam) at the
+  closest type and size the project has. Runs are followed along the cloud to
+  their ends; walls and slabs to their edges.
+author: RevoBIM

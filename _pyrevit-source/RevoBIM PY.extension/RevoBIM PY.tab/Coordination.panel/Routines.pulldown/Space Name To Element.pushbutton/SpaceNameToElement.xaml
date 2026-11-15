@@ -1,0 +1,249 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RevoBIM - Space Name To Element"
+        Height="760" Width="620"
+        MinHeight="540" MinWidth="470"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ResizeMode="NoResize"
+        ShowInTaskbar="True"
+        FontFamily="Segoe UI"
+        SnapsToDevicePixels="True">
+
+    <Border Background="{DynamicResource WinBg}" CornerRadius="6"
+            BorderBrush="{DynamicResource EdgeSoft}" BorderThickness="1">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- ===================== HEADER ===================== -->
+            <Border Grid.Row="0" x:Name="header_bar"
+                    Background="{DynamicResource BarBg}" CornerRadius="5,5,0,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Image x:Name="logo_img" Grid.Column="0" Width="28" Height="28"
+                           Margin="12,8,0,8" VerticalAlignment="Center"/>
+
+                    <StackPanel Grid.Column="1" Margin="10,7,0,7" VerticalAlignment="Center">
+                        <TextBlock Text="RevoBIM" FontSize="20" FontWeight="Bold"
+                                   Foreground="{DynamicResource BlueBrush}"/>
+                        <TextBlock Text="Space Name To Element" FontSize="12.5"
+                                   Foreground="{DynamicResource OrangeBrush}" Margin="0,-3,0,0"/>
+                    </StackPanel>
+
+                    <Button Grid.Column="3" x:Name="theme_chip" Content="Light"
+                            Style="{DynamicResource BtnChip}" VerticalAlignment="Center"
+                            Margin="0,0,10,0"/>
+
+                    <TextBlock Grid.Column="4" x:Name="ver_txt" Text="v2.0.2" FontSize="11"
+                               Foreground="{DynamicResource DimBrush}" VerticalAlignment="Center"
+                               Margin="0,0,6,0"/>
+
+                    <Button Grid.Column="5" x:Name="full_btn" Style="{DynamicResource BtnIcon}"
+                            VerticalAlignment="Center" Margin="0,0,2,0"
+                            ToolTip="Full screen (F11)"/>
+
+                    <Button Grid.Column="6" x:Name="close_btn" Content="&#x2715;"
+                            Style="{DynamicResource BtnClose}" VerticalAlignment="Center"
+                            Margin="0,0,6,0" ToolTip="Close"/>
+                </Grid>
+            </Border>
+
+            <!-- ===================== INFO ===================== -->
+            <Border Grid.Row="1" Background="{DynamicResource CardBg}" Padding="14,9,14,9"
+                    BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="0,1,0,1">
+                <StackPanel>
+                    <TextBlock x:Name="info_txt" TextWrapping="Wrap" FontSize="11.5"
+                               Foreground="{DynamicResource DimBrush}"
+                               Text="Reading the model..."/>
+                    <TextBlock Margin="0,5,0,0" TextWrapping="Wrap" FontSize="11.5"
+                               Foreground="{DynamicResource DimBrush}">
+                        Writes <Run FontWeight="SemiBold">Space Name - Space Number</Run>
+                        into the chosen parameter. Several spaces are joined with
+                        <Run FontWeight="SemiBold">" / "</Run>. Revit stays usable while
+                        this window is open.
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+
+            <!-- ===================== TREE SEARCH ===================== -->
+            <Grid Grid.Row="2" Margin="14,12,14,8">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Row="0" Grid.ColumnSpan="4" Orientation="Horizontal"
+                            Margin="0,0,0,7">
+                    <Border Style="{DynamicResource TickBlue}"/>
+                    <TextBlock Text="Categories, families and types" FontSize="12"
+                               FontWeight="SemiBold" Foreground="{DynamicResource TextBrush}"
+                               VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <TextBox Grid.Row="1" Grid.Column="0" x:Name="search_tb"
+                         Style="{DynamicResource DarkBox}"
+                         Tag="Search category, family or type..."/>
+                <Button Grid.Row="1" Grid.Column="1" x:Name="all_btn" Content="All" Width="48"
+                        Margin="6,0,0,0" Style="{DynamicResource BtnSmall}"/>
+                <Button Grid.Row="1" Grid.Column="2" x:Name="none_btn" Content="None" Width="54"
+                        Margin="6,0,0,0" Style="{DynamicResource BtnSmall}"/>
+                <Button Grid.Row="1" Grid.Column="3" x:Name="refresh_btn" Content="Refresh" Width="64"
+                        Margin="6,0,0,0" Style="{DynamicResource BtnSmall}"
+                        ToolTip="Re-read the model (F5)"/>
+            </Grid>
+
+            <!-- ===================== TREE ===================== -->
+            <Border Grid.Row="3" Margin="14,0,14,0" Background="{DynamicResource FieldBg}"
+                    BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="1" CornerRadius="2">
+                <Grid>
+                    <!-- the TreeView scrolls itself. Nesting it in a ScrollViewer
+                         let it grow to its full height, so its own scroll viewer
+                         never had anything to scroll - and it still marked the
+                         wheel handled, so the outer one never saw it either. -->
+                    <TreeView x:Name="cat_tree" Background="Transparent"
+                              BorderThickness="0" Margin="6,4,2,4"
+                              ScrollViewer.VerticalScrollBarVisibility="Auto"
+                              ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                              ScrollViewer.CanContentScroll="False"/>
+                    <TextBlock x:Name="tree_empty" Text="Nothing matches that search."
+                               FontSize="12" Foreground="{DynamicResource DimBrush}"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                               Visibility="Collapsed"/>
+                </Grid>
+            </Border>
+
+            <!-- ===================== PARAMETER ===================== -->
+            <Grid Grid.Row="4" Margin="14,12,14,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,6">
+                    <Border Style="{DynamicResource TickOrange}"/>
+                    <TextBlock Text="Write to parameter" FontSize="12" FontWeight="SemiBold"
+                               Foreground="{DynamicResource TextBrush}" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <ComboBox Grid.Row="1" x:Name="param_cb" Style="{DynamicResource DarkCombo}"
+                          IsEditable="True" IsTextSearchEnabled="False"
+                          StaysOpenOnEdit="True"/>
+
+                <TextBlock Grid.Row="2" x:Name="param_info" TextWrapping="Wrap" FontSize="11"
+                           Margin="1,5,0,0" Foreground="{DynamicResource DimBrush}"
+                           Text="Type a keyword to narrow the list."/>
+            </Grid>
+
+            <!-- ===================== OPTIONS ===================== -->
+            <StackPanel Grid.Row="5" Margin="14,10,14,0">
+                <CheckBox x:Name="opt_overwrite" Style="{DynamicResource DarkCheck}"
+                          Content="Overwrite values already in the target parameter"/>
+                <CheckBox x:Name="opt_clear" Style="{DynamicResource DarkCheck}" Margin="0,6,0,0"
+                          Content="Clear the target parameter where no space is found"/>
+                <CheckBox x:Name="opt_bind" Style="{DynamicResource DarkCheck}" Margin="0,6,0,0"
+                          Content="Add missing categories to the project parameter"/>
+            </StackPanel>
+
+            <!-- ===================== FOOTER ===================== -->
+            <Border Grid.Row="6" Background="{DynamicResource BarBg}" CornerRadius="0,0,5,5"
+                    Margin="0,12,0,0" Padding="14,10,14,10"
+                    BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="0,1,0,0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- progress band, inside the window -->
+                    <Grid x:Name="prog_panel" Grid.Row="0" Grid.ColumnSpan="3"
+                          Margin="0,0,0,9" Visibility="Collapsed">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Row="0" Grid.Column="0" x:Name="prog_label"
+                                   FontSize="11" Foreground="{DynamicResource TextBrush}"
+                                   Text="Working..."/>
+                        <TextBlock Grid.Row="0" Grid.Column="1" x:Name="prog_pct"
+                                   FontSize="11" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource BlueBrush}" Text="0%"/>
+                        <ProgressBar Grid.Row="1" Grid.ColumnSpan="2" x:Name="prog_bar"
+                                     Style="{DynamicResource SnteProgress}" Margin="0,5,0,0"
+                                     Minimum="0" Maximum="100" Value="0"/>
+                    </Grid>
+
+                    <TextBlock Grid.Row="1" Grid.Column="0" x:Name="status_txt"
+                               VerticalAlignment="Center" FontSize="11" TextTrimming="CharacterEllipsis"
+                               Foreground="{DynamicResource DimBrush}" Text="Nothing selected"/>
+
+                    <Button Grid.Row="1" Grid.Column="1" x:Name="cancel_btn" Content="Cancel"
+                            Width="84" Margin="0,0,8,0" Style="{DynamicResource BtnGhost}" Visibility="Collapsed"/>
+
+                    <Button Grid.Row="1" Grid.Column="2" x:Name="run_btn"
+                            Content="Transfer Space Data" Width="176"
+                            Style="{DynamicResource BtnGreen}"/>
+                </Grid>
+            </Border>
+
+            <!-- ===================== RESIZE GRIPS =====================
+                 A borderless AllowsTransparency window has nothing hit
+                 testable in its frame, so it carries its own.
+                 No Background on this grid, so everything under it stays
+                 clickable.
+            ========================================================== -->
+            <Grid x:Name="grip_layer" Grid.RowSpan="7">
+                <Thumb x:Name="grip_l" Width="5" HorizontalAlignment="Left"
+                       VerticalAlignment="Stretch" Cursor="SizeWE" Opacity="0"/>
+                <Thumb x:Name="grip_r" Width="5" HorizontalAlignment="Right"
+                       VerticalAlignment="Stretch" Cursor="SizeWE" Opacity="0"/>
+                <Thumb x:Name="grip_t" Height="5" VerticalAlignment="Top"
+                       HorizontalAlignment="Stretch" Cursor="SizeNS" Opacity="0"/>
+                <Thumb x:Name="grip_b" Height="5" VerticalAlignment="Bottom"
+                       HorizontalAlignment="Stretch" Cursor="SizeNS" Opacity="0"/>
+                <Thumb x:Name="grip_tl" Width="8" Height="8" HorizontalAlignment="Left"
+                       VerticalAlignment="Top" Cursor="SizeNWSE" Opacity="0"/>
+                <Thumb x:Name="grip_tr" Width="8" Height="8" HorizontalAlignment="Right"
+                       VerticalAlignment="Top" Cursor="SizeNESW" Opacity="0"/>
+                <Thumb x:Name="grip_bl" Width="8" Height="8" HorizontalAlignment="Left"
+                       VerticalAlignment="Bottom" Cursor="SizeNESW" Opacity="0"/>
+                <Thumb x:Name="grip_br" Width="8" Height="8" HorizontalAlignment="Right"
+                       VerticalAlignment="Bottom" Cursor="SizeNWSE" Opacity="0"/>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>

@@ -1,0 +1,8 @@
+title: RevoBIM Isolate Service Settings
+tooltip: >
+  Settings for both Isolate Service Type and Hide Service Type: which
+  parameter holds the service type for each discipline, which categories
+  travel with it, what happens when the picked element has no value, and
+  whether Hide puts elements away temporarily or as Hide in View. Remembered
+  for next time.
+author: RevoBIM PY

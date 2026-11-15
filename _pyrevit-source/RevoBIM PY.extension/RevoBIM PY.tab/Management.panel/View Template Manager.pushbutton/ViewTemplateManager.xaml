@@ -1,0 +1,307 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RevoBIM View Template Manager"
+        Width="1420" Height="820" MinWidth="900" MinHeight="520"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ResizeMode="NoResize" ShowInTaskbar="True" SnapsToDevicePixels="True"
+        TextOptions.TextFormattingMode="Display">
+
+  <Grid>
+  <Border x:Name="WindowShell" CornerRadius="6" BorderThickness="1"
+          Background="{DynamicResource BrushWindow}"
+          BorderBrush="{DynamicResource BrushEdge}">
+    <DockPanel LastChildFill="True">
+
+      <!-- ================= header ================= -->
+      <Border x:Name="HeaderBar" DockPanel.Dock="Top" Height="52"
+              CornerRadius="5,5,0,0" Background="{DynamicResource BrushBar}"
+              BorderBrush="{DynamicResource BrushBorder}" BorderThickness="0,0,0,1">
+        <Grid Margin="12,0,6,0">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+
+          <Image x:Name="IconImage" Grid.Column="0" Width="28" Height="28"
+                 VerticalAlignment="Center" Margin="0,0,10,0"/>
+
+          <StackPanel Grid.Column="1" VerticalAlignment="Center">
+            <TextBlock Text="RevoBIM" FontSize="20" FontWeight="Bold"
+                       Foreground="{DynamicResource BrushBlue}" Margin="0,-2,0,0"/>
+            <TextBlock Text="View Template Manager" FontSize="15"
+                       Foreground="{DynamicResource BrushOrange}" Margin="0,-3,0,0"/>
+          </StackPanel>
+
+          <!-- theme chip: Auto follows Revit's canvas, then Dark, then Light -->
+          <Button x:Name="ThemeButton" Grid.Column="3" Style="{DynamicResource BtnChip}"
+                  VerticalAlignment="Center" Margin="0,0,6,0"
+                  ToolTip="Theme: Auto follows Revit's canvas. Click for Dark, then Light.">
+            <StackPanel Orientation="Horizontal">
+              <Canvas Width="12" Height="12" VerticalAlignment="Center">
+                <Path Data="M 6,0.5 A 5.5,5.5 0 1 1 6,11.5 A 5.5,5.5 0 1 1 6,0.5 Z"
+                      StrokeThickness="1.2"
+                      Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                <Path Data="M 6,0.5 A 5.5,5.5 0 0 1 6,11.5 Z"
+                      Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+              </Canvas>
+              <TextBlock x:Name="ThemeLabel" Text="Auto" Margin="6,0,0,0"
+                         VerticalAlignment="Center"/>
+            </StackPanel>
+          </Button>
+
+          <TextBlock x:Name="VersionText" Grid.Column="4" Text="v1.3.1" FontSize="11"
+                     Foreground="{DynamicResource BrushMuted}"
+                     VerticalAlignment="Center" Margin="0,0,8,0"/>
+
+          <Button x:Name="ShrinkButton" Grid.Column="5" Style="{DynamicResource BtnShrink}"
+                  VerticalAlignment="Center"/>
+
+          <Button x:Name="FullScreenButton" Grid.Column="6" Style="{DynamicResource BtnChip}"
+                  VerticalAlignment="Center" ToolTip="Full screen (F11)">
+            <Border Width="11" Height="9" BorderThickness="1.4"
+                    BorderBrush="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+          </Button>
+
+          <Button x:Name="CloseButton" Grid.Column="7" Content="&#x2715;"
+                  Style="{DynamicResource BtnClose}" VerticalAlignment="Center"/>
+        </Grid>
+      </Border>
+
+      <!-- ================= tool bar ================= -->
+      <Border DockPanel.Dock="Top" Background="{DynamicResource BrushCard}"
+              BorderBrush="{DynamicResource BrushBorder}" BorderThickness="0,0,0,1"
+              Padding="12,8">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="220"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="170"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+
+          <TextBlock Grid.Column="0" Text="Search" VerticalAlignment="Center"
+                     Foreground="{DynamicResource BrushMuted}" FontSize="12"
+                     Margin="0,0,8,0"/>
+          <TextBox x:Name="SearchBox" Grid.Column="1" Style="{DynamicResource FieldText}"
+                   Tag="Template name or view type"/>
+
+          <TextBlock Grid.Column="2" Text="View type" VerticalAlignment="Center"
+                     Foreground="{DynamicResource BrushMuted}" FontSize="12"
+                     Margin="14,0,8,0"/>
+          <ComboBox x:Name="TypeCombo" Grid.Column="3" Style="{DynamicResource FieldCombo}"/>
+
+          <ToggleButton x:Name="UnusedToggle" Grid.Column="4" Margin="14,0,0,0"
+                        Style="{DynamicResource BtnToggle}" Content="Unused only"/>
+
+          <Button x:Name="ResetFiltersButton" Grid.Column="5" Margin="6,0,0,0"
+                  Style="{DynamicResource BtnOrange}" Content="Reset filters"
+                  IsEnabled="False"
+                  ToolTip="Clear every column filter, the search box, the view type and Unused only"/>
+
+          <StackPanel Grid.Column="7" Orientation="Horizontal" Margin="0,0,8,0">
+            <TextBlock Text="Show" VerticalAlignment="Center" FontSize="12"
+                       Foreground="{DynamicResource BrushMuted}" Margin="0,0,8,0"/>
+            <ToggleButton x:Name="ValuesToggle" Style="{DynamicResource BtnToggle}"
+                          Content="Values" IsChecked="True" Width="86"/>
+            <ToggleButton x:Name="ControlledToggle" Style="{DynamicResource BtnToggle}"
+                          Content="Include ticks" Margin="6,0,0,0" Width="98"/>
+          </StackPanel>
+
+          <Button x:Name="ColumnsButton" Grid.Column="8" Content="Columns..."
+                  Style="{DynamicResource BtnBase}" Margin="0,0,6,0"/>
+          <Button x:Name="RefreshButton" Grid.Column="9" Content="Refresh"
+                  Style="{DynamicResource BtnBase}"/>
+        </Grid>
+      </Border>
+
+      <!-- ================= footer ================= -->
+      <Border DockPanel.Dock="Bottom" Background="{DynamicResource BrushBar}"
+              CornerRadius="0,0,5,5"
+              BorderBrush="{DynamicResource BrushBorder}" BorderThickness="0,1,0,0"
+              Padding="12,9">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+
+          <Button x:Name="DeleteSelectedButton" Grid.Column="0" Content="Delete selected"
+                  Style="{DynamicResource BtnOrange}" IsEnabled="False" Margin="0,0,6,0"/>
+          <Button x:Name="DeleteUnusedButton" Grid.Column="1" Content="Delete unused"
+                  Style="{DynamicResource BtnRed}"/>
+
+          <TextBlock x:Name="StatusText" Grid.Column="2" VerticalAlignment="Center"
+                     Margin="16,0,16,0" FontSize="12" TextTrimming="CharacterEllipsis"
+                     Foreground="{DynamicResource BrushMuted}" Text=""/>
+
+          <Button x:Name="RevertButton" Grid.Column="3" Content="Revert edits"
+                  Style="{DynamicResource BtnBase}" IsEnabled="False" Margin="0,0,6,0"/>
+          <Button x:Name="ApplyButton" Grid.Column="4" Content="Apply"
+                  Style="{DynamicResource BtnGreen}" IsEnabled="False" MinWidth="110"/>
+        </Grid>
+      </Border>
+
+      <!-- ================= the table ================= -->
+      <Grid Margin="12,10,12,10">
+        <DataGrid x:Name="TemplateGrid" Style="{DynamicResource VtmGrid}"
+                  AutoGenerateColumns="False" CanUserAddRows="False"
+                  CanUserDeleteRows="False" CanUserReorderColumns="True"
+                  CanUserSortColumns="False" IsReadOnly="True"
+                  SelectionMode="Extended" SelectionUnit="CellOrRowHeader"
+                  ClipboardCopyMode="ExcludeHeader"
+                  EnableRowVirtualization="True" EnableColumnVirtualization="True"
+                  VirtualizingPanel.VirtualizationMode="Recycling"
+                  ScrollViewer.CanContentScroll="True"/>
+
+        <Canvas x:Name="EditorLayer" IsHitTestVisible="True" Background="Transparent"
+                Visibility="Collapsed"/>
+
+        <!-- ===== one column's sort and filter ===== -->
+        <Popup x:Name="FilterPopup" Placement="Bottom" StaysOpen="False"
+               AllowsTransparency="True" Width="300">
+          <Border Background="{DynamicResource BrushCard}"
+                  BorderBrush="{DynamicResource BrushEdge}" BorderThickness="1"
+                  CornerRadius="4" Padding="10">
+            <DockPanel LastChildFill="True" Height="430">
+              <TextBlock x:Name="FilterColumnName" DockPanel.Dock="Top" Text=""
+                         FontSize="13" FontWeight="SemiBold" Margin="0,0,0,8"
+                         TextTrimming="CharacterEllipsis"
+                         Foreground="{DynamicResource BrushBlue}"/>
+
+              <Button x:Name="SortAscButton" DockPanel.Dock="Top"
+                      Style="{DynamicResource BtnMenu}" Content="Sort A to Z  /  low to high"/>
+              <Button x:Name="SortDescButton" DockPanel.Dock="Top"
+                      Style="{DynamicResource BtnMenu}" Content="Sort Z to A  /  high to low"/>
+              <Button x:Name="SortClearButton" DockPanel.Dock="Top"
+                      Style="{DynamicResource BtnMenu}" Content="Clear sort"
+                      Margin="0,0,0,6"/>
+
+              <Border DockPanel.Dock="Top" Height="1" Margin="0,0,0,8"
+                      Background="{DynamicResource BrushBorder}"/>
+
+              <TextBox x:Name="FilterSearch" DockPanel.Dock="Top"
+                       Style="{DynamicResource FieldText}" Tag="Search values"
+                       Margin="0,0,0,6"/>
+              <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,8">
+                <Button x:Name="FilterAll" Content="All" Style="{DynamicResource BtnBase}"
+                        Padding="10,3" Margin="0,0,6,0"/>
+                <Button x:Name="FilterNone" Content="None" Style="{DynamicResource BtnBase}"
+                        Padding="10,3" Margin="0,0,8,0"/>
+                <TextBlock x:Name="FilterCount" VerticalAlignment="Center" FontSize="11"
+                           Foreground="{DynamicResource BrushMuted}" Text=""/>
+              </StackPanel>
+
+              <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal"
+                          HorizontalAlignment="Right" Margin="0,8,0,0">
+                <Button x:Name="FilterClear" Content="Clear filter"
+                        Style="{DynamicResource BtnBase}" Margin="0,0,6,0"/>
+                <Button x:Name="FilterApply" Content="Apply filter"
+                        Style="{DynamicResource BtnGreen}" MinWidth="100"/>
+              </StackPanel>
+
+              <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel x:Name="FilterList"/>
+              </ScrollViewer>
+            </DockPanel>
+          </Border>
+        </Popup>
+
+        <!-- ===== which columns ===== -->
+        <Popup x:Name="ColumnsPopup" Placement="Bottom" StaysOpen="False"
+               AllowsTransparency="True" Width="360">
+          <Border Background="{DynamicResource BrushCard}"
+                  BorderBrush="{DynamicResource BrushEdge}" BorderThickness="1"
+                  CornerRadius="4" Padding="10">
+            <DockPanel LastChildFill="True" Height="440">
+              <TextBlock DockPanel.Dock="Top" Text="Columns" FontSize="13"
+                         FontWeight="SemiBold" Margin="0,0,0,8"
+                         Foreground="{DynamicResource BrushBlue}"/>
+              <TextBox x:Name="ColumnSearch" DockPanel.Dock="Top"
+                       Style="{DynamicResource FieldText}" Tag="Search parameters"
+                       Margin="0,0,0,6"/>
+              <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,8">
+                <Button x:Name="ColumnsAll" Content="All" Style="{DynamicResource BtnBase}"
+                        Padding="10,3" Margin="0,0,6,0"/>
+                <Button x:Name="ColumnsNone" Content="None" Style="{DynamicResource BtnBase}"
+                        Padding="10,3" Margin="0,0,6,0"/>
+                <Button x:Name="ColumnsCore" Content="Core set"
+                        Style="{DynamicResource BtnBase}" Padding="10,3" Margin="0,0,6,0"/>
+                <Button x:Name="ColumnsUsed" Content="In use only"
+                        Style="{DynamicResource BtnBase}" Padding="10,3"/>
+              </StackPanel>
+              <Button x:Name="ColumnsResetOrder" DockPanel.Dock="Bottom"
+                      Content="Reset column order and widths"
+                      Style="{DynamicResource BtnBase}" Margin="0,8,0,0"/>
+              <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel x:Name="ColumnList"/>
+              </ScrollViewer>
+            </DockPanel>
+          </Border>
+        </Popup>
+
+        <!-- ===== right-click on a cell ===== -->
+        <Popup x:Name="CellMenu" Placement="MousePoint" StaysOpen="False"
+               AllowsTransparency="True" Width="230">
+          <Border Background="{DynamicResource BrushCard}"
+                  BorderBrush="{DynamicResource BrushEdge}" BorderThickness="1"
+                  CornerRadius="4" Padding="4">
+            <StackPanel>
+              <Button x:Name="MenuCopy" Style="{DynamicResource BtnMenu}">
+                <DockPanel>
+                  <TextBlock DockPanel.Dock="Right" Text="Ctrl+C" FontSize="11"
+                             Foreground="{DynamicResource BrushMuted}"/>
+                  <TextBlock Text="Copy"/>
+                </DockPanel>
+              </Button>
+              <Button x:Name="MenuPaste" Style="{DynamicResource BtnMenu}">
+                <DockPanel>
+                  <TextBlock DockPanel.Dock="Right" Text="Ctrl+V" FontSize="11"
+                             Foreground="{DynamicResource BrushMuted}"/>
+                  <TextBlock Text="Paste"/>
+                </DockPanel>
+              </Button>
+              <Button x:Name="MenuEdit" Style="{DynamicResource BtnMenu}">
+                <DockPanel>
+                  <TextBlock DockPanel.Dock="Right" Text="F2" FontSize="11"
+                             Foreground="{DynamicResource BrushMuted}"/>
+                  <TextBlock Text="Edit cell"/>
+                </DockPanel>
+              </Button>
+              <Border Height="1" Margin="4,4" Background="{DynamicResource BrushBorder}"/>
+              <Button x:Name="MenuRevert" Style="{DynamicResource BtnMenu}" Content="Revert edits in selection"/>
+              <Button x:Name="MenuClearMarks" Style="{DynamicResource BtnMenu}">
+                <DockPanel>
+                  <TextBlock DockPanel.Dock="Right" Text="Esc" FontSize="11"
+                             Foreground="{DynamicResource BrushMuted}"/>
+                  <TextBlock Text="Clear copy marks"/>
+                </DockPanel>
+              </Button>
+            </StackPanel>
+          </Border>
+        </Popup>
+      </Grid>
+
+    </DockPanel>
+  </Border>
+
+  <!-- Resize grips. No Background on this Grid, so everything under it stays
+       clickable; vtm_window fills it with eight Thumbs. -->
+  <Grid x:Name="GripLayer"/>
+  </Grid>
+</Window>

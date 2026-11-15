@@ -1,0 +1,8 @@
+title: Find Room
+tooltip: >-
+  Find a room or space and go to it on a floor plan. Choose this model or a
+  linked model (spaces come from this model), browse rooms grouped by level,
+  pick one, then click a floor plan on its level: the plan opens in Temporary
+  View Properties with room references and colour fill on, the room coloured
+  and zoomed to. Clear highlight puts the view back.
+author: RevoBIM

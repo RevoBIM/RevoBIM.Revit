@@ -1,0 +1,8 @@
+title: Family Editor Tools
+tooltip: >
+  RevoBIM Family Editor Tools. Load shared parameters from a file or a saved
+  template, preload materials, line styles and annotation styles, and set a
+  family out on standard reference planes with the dimensions labelled.
+  Runs inside the family editor only.
+author: RevoBIM
+highlight: new

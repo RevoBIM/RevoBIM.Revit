@@ -1,0 +1,63 @@
+# -*- coding: utf-8 -*-
+# ==========================================================
+# RevoBIM Project Browser Pro - register the dockable panes
+# Paste into the existing startup.py. Do not overwrite it.
+#
+# Revit only sets a dockable pane up while it is building
+# its user interface, so this has to run from startup.py.
+# Without it the button still works, as a floating window.
+#
+# Safe to paste twice and safe across a pyRevit reload: the
+# registration is guarded in the AppDomain, and the whole
+# block is wrapped so it can never stop the extension
+# loading. A pyRevit reload is NOT enough to add the panes -
+# restart Revit after pasting.
+# ==========================================================
+try:
+    import os as _pbp_os
+    import sys as _pbp_sys
+
+    def _pbp_tool_folder():
+        here = _pbp_os.path.dirname(_pbp_os.path.abspath(__file__))
+        candidate = _pbp_os.path.join(
+            here, u"RevoBIM PY.tab", u"Management.panel",
+            u"Project Browser Pro.pushbutton")
+        if _pbp_os.path.isdir(candidate):
+            return candidate
+        # Fall back to a walk, so moving the tool to another panel does not
+        # silently stop the panes registering.
+        for root, folders, files in _pbp_os.walk(here):
+            for folder in folders:
+                if folder.lower() == u"project browser pro.pushbutton":
+                    return _pbp_os.path.join(root, folder)
+        return None
+
+    _pbp_folder = _pbp_tool_folder()
+    if _pbp_folder:
+        if _pbp_folder not in _pbp_sys.path:
+            _pbp_sys.path.append(_pbp_folder)
+        import pbp_dock as _pbp_dock
+        # Which name pyRevit uses for the application, and whether it is a
+        # global or a builtin, varies by pyRevit build - offer every one
+        # that resolves and let register() ask each for RegisterDockablePane.
+        _pbp_candidates = []
+        try:
+            _pbp_candidates.append(__uiControlledApplication__)  # noqa: F821
+        except NameError:
+            pass
+        try:
+            _pbp_candidates.append(__uicontrolledapplication__)  # noqa: F821
+        except NameError:
+            pass
+        try:
+            _pbp_candidates.append(__revit__)  # noqa: F821
+        except NameError:
+            pass
+        _pbp_dock.register(*_pbp_candidates)
+except Exception:
+    try:
+        import pbp_log as _pbp_log
+        _pbp_log.exc(u"startup fragment")
+    except Exception:
+        pass
+# ==========================================================

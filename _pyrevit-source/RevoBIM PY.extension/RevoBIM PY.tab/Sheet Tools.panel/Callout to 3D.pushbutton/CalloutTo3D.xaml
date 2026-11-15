@@ -1,0 +1,651 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RevoBIM Callout to 3D" Width="1380" Height="840"
+        MinWidth="1040" MinHeight="620"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ResizeMode="NoResize" ShowInTaskbar="True"
+        WindowStartupLocation="CenterScreen">
+
+  <Grid>
+    <Border CornerRadius="6" Background="{DynamicResource WindowBrush}"
+            BorderBrush="{DynamicResource FrameBrush}" BorderThickness="1">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="48"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="42"/>
+        </Grid.RowDefinitions>
+
+        <!-- ===================== header ===================== -->
+        <Border x:Name="HeaderBar" Grid.Row="0" CornerRadius="6,6,0,0"
+                Background="{DynamicResource BarBrush}">
+          <Grid>
+          <Border x:Name="ProgressTrack" Height="4" VerticalAlignment="Bottom"
+                  Visibility="Collapsed"
+                  Background="{DynamicResource FieldBrush}">
+            <Border x:Name="ProgressFill" Width="0" HorizontalAlignment="Left"
+                    Background="{DynamicResource BlueBrush}"/>
+          </Border>
+          <Grid Margin="12,0,8,0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Border x:Name="LogoZone" Grid.Column="0" Background="Transparent"
+                    ToolTip="RevoBIM PY">
+              <StackPanel Orientation="Horizontal">
+                <Image x:Name="LogoImage" Width="26" Height="26" VerticalAlignment="Center"/>
+                <TextBlock Text="RevoBIM" Margin="8,0,0,0" Style="{DynamicResource TitleText}"/>
+                <TextBlock Text="Callout to 3D" Style="{DynamicResource SubtitleText}"/>
+              </StackPanel>
+            </Border>
+
+            <TextBlock x:Name="ProgressText" Grid.Column="1" Margin="18,0,10,0"
+                       VerticalAlignment="Center" Visibility="Collapsed"
+                       TextTrimming="CharacterEllipsis"
+                       Style="{DynamicResource MutedText}"/>
+
+            <Button x:Name="SettingsChip" Grid.Column="2" Margin="0,0,6,0"
+                    Style="{DynamicResource IconButton}"
+                    ToolTip="Settings - everything the tool remembers">
+              <Path Width="15" Height="15" StrokeThickness="1.5"
+                    StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                    Stroke="{DynamicResource MutedBrush}"
+                    Data="M 7.5,1 L 7.5,3 M 7.5,12 L 7.5,14 M 1,7.5 L 3,7.5 M 12,7.5 L 14,7.5 M 2.9,2.9 L 4.3,4.3 M 10.7,10.7 L 12.1,12.1 M 2.9,12.1 L 4.3,10.7 M 10.7,4.3 L 12.1,2.9 M 7.5,4 A 3.5,3.5 0 1 1 7.49,4 Z"/>
+            </Button>
+            <Button x:Name="ThemeChip" Grid.Column="3" Content="Dark"
+                    Margin="0,0,10,0" Style="{DynamicResource ChipButton}"
+                    ToolTip="Dark or light. Auto follows Revit's own canvas theme."/>
+            <TextBlock x:Name="VersionText" Grid.Column="4" Text="v"
+                       Margin="0,0,10,0" Style="{DynamicResource MutedText}"/>
+            <StackPanel Grid.Column="5" Orientation="Horizontal">
+              <Button x:Name="ShrinkButton" Content="" Margin="0,0,2,0"
+                      Style="{DynamicResource ShrinkButton}"/>
+              <Button x:Name="FullScreenButton"
+                      Style="{DynamicResource IconButton}" ToolTip="Full screen (F11)">
+                <Border Width="12" Height="10" BorderThickness="1.4"
+                        BorderBrush="{DynamicResource MutedBrush}"/>
+              </Button>
+            </StackPanel>
+            <Button x:Name="CloseButton" Grid.Column="6" Content="&#x2715;"
+                    Style="{DynamicResource CloseButton}"/>
+          </Grid>
+          </Grid>
+        </Border>
+
+        <!-- ===================== the three groups, stacked ===================== -->
+        <Grid Grid.Row="1">
+        <ScrollViewer x:Name="GroupScroll" VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+          <StackPanel x:Name="GroupStack" Margin="14,10,14,8">
+
+          <!-- 1. callout selection -->
+          <Border x:Name="SelectionGroup" Margin="0,0,0,10" CornerRadius="5" Background="{DynamicResource CardBrush}"
+                  BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="1">
+          <StackPanel>
+            <Button x:Name="SelectionHeader" Style="{DynamicResource GroupHeader}"
+                    ToolTip="Click to fold this group away, or open it again">
+              <Grid>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Path x:Name="SelectionChevron" Grid.Column="0" Width="10" Height="10"
+                      RenderTransformOrigin="0.5,0.5" VerticalAlignment="Center"
+                      Stroke="{DynamicResource TextBrush}" StrokeThickness="1.6"
+                      StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                      Data="M 1,3 L 5,7 L 9,3"/>
+                <Border Grid.Column="1" Width="4" Height="18" CornerRadius="2" Margin="10,0,0,0"
+                        Background="{DynamicResource BlueBrush}" VerticalAlignment="Center"/>
+                <TextBlock Grid.Column="2" Text="Callout selection" Margin="8,0,0,0"
+                           Style="{DynamicResource SectionLabel}"/>
+                <TextBlock x:Name="SelectionSummary" Grid.Column="3" Margin="14,0,0,0"
+                           TextTrimming="CharacterEllipsis"
+                           Style="{DynamicResource MutedText}"/>
+              </Grid>
+            </Button>
+            <Border x:Name="SelectionBody">
+              <StackPanel Margin="12,0,12,8">
+                <Grid Margin="0,0,0,2">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                  </Grid.ColumnDefinitions>
+                  <Border Style="{DynamicResource SettingBox}" Grid.Column="0">
+                    <StackPanel>
+                      <TextBlock Text="Show" Style="{DynamicResource BoxCaption}"/>
+                    <StackPanel Orientation="Horizontal">
+                        <StackPanel Margin="0,0,10,0" VerticalAlignment="Top">
+                          <TextBlock Text="Views" Margin="1,0,0,3" Style="{DynamicResource MutedText}"/>
+                        <ComboBox x:Name="ViewFilterCombo" Width="230" Style="{DynamicResource ThemedComboBox}"
+                                  ToolTip="Callouts only - views confirmed as callouts by their marker in the view they were drawn in. Floor plans are the cropped plans that are not callouts."/>
+                        </StackPanel>
+                        <StackPanel Margin="0,0,0,0" VerticalAlignment="Top">
+                          <TextBlock Text="Filters" Margin="1,0,0,3" Style="{DynamicResource MutedText}"/>
+                          <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                            <CheckBox x:Name="NotOnSheetCheck" Content="Not on a sheet" VerticalAlignment="Center"
+                                      Style="{DynamicResource ThemedCheckBox}"
+                                      ToolTip="Hide the views that are already placed on a sheet"/>
+                            <CheckBox x:Name="SelectedOnlyCheck" Content="Selected in Revit" Margin="14,0,0,0"
+                                      VerticalAlignment="Center" Visibility="Collapsed"
+                                      Style="{DynamicResource ThemedCheckBox}"
+                                      ToolTip="Only the callouts that were selected in the project browser or the view when the tool opened"/>
+                          </StackPanel>
+                        </StackPanel>
+                    </StackPanel>
+                    </StackPanel>
+                  </Border>
+                  <Border Style="{DynamicResource SettingBox}" Grid.Column="1" Margin="0,0,0,8">
+                    <StackPanel>
+                      <TextBlock Text="Find" Style="{DynamicResource BoxCaption}"/>
+                    <Grid>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                      </Grid.ColumnDefinitions>
+                      <TextBox x:Name="SearchBox" Grid.Column="0" Tag="Search every column"
+                               Style="{DynamicResource ThemedTextBox}"/>
+                      <Button x:Name="AllButton" Grid.Column="1" Content="Tick all"
+                              Margin="8,0,0,0" Style="{DynamicResource GhostButton}"/>
+                      <Button x:Name="NoneButton" Grid.Column="2" Content="None"
+                              Margin="6,0,0,0" Style="{DynamicResource GhostButton}"/>
+                    </Grid>
+                    </StackPanel>
+                  </Border>
+                </Grid>
+                <DataGrid x:Name="CalloutGrid" Height="300"
+                          Style="{DynamicResource ThemedGrid}"
+                          AutoGenerateColumns="False" CanUserAddRows="False"
+                          CanUserDeleteRows="False" CanUserResizeRows="False"
+                          HeadersVisibility="Column" SelectionMode="Extended"
+                          AlternationCount="2" GridLinesVisibility="All"
+                          IsReadOnly="True" ScrollViewer.CanContentScroll="True"/>
+                <Border x:Name="SelectionGrip" Height="9" Margin="0,2,0,0"
+                        Background="{DynamicResource TransparentHitBrush}"
+                        ToolTip="Drag to make this taller or shorter">
+                  <Border Width="36" Height="3" CornerRadius="1.5"
+                          Background="{DynamicResource EdgeBrush}"/>
+                </Border>
+              </StackPanel>
+            </Border>
+          </StackPanel>
+          </Border>
+
+          <!-- 2. section array -->
+          <Border x:Name="ArrayGroup" Margin="0,0,0,10" CornerRadius="5" Background="{DynamicResource CardBrush}"
+                  BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="1">
+          <StackPanel>
+            <Button x:Name="ArrayHeader" Style="{DynamicResource GroupHeader}"
+                    ToolTip="Click to fold this group away, or open it again">
+              <Grid>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Path x:Name="ArrayChevron" Grid.Column="0" Width="10" Height="10"
+                      RenderTransformOrigin="0.5,0.5" VerticalAlignment="Center"
+                      Stroke="{DynamicResource TextBrush}" StrokeThickness="1.6"
+                      StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                      Data="M 1,3 L 5,7 L 9,3"/>
+                <Border Grid.Column="1" Width="4" Height="18" CornerRadius="2" Margin="10,0,0,0"
+                        Background="{DynamicResource OrangeBrush}" VerticalAlignment="Center"/>
+                <TextBlock Grid.Column="2" Text="Section array" Margin="8,0,0,0"
+                           Style="{DynamicResource SectionLabel}"/>
+                <TextBlock x:Name="ArraySummary" Grid.Column="3" Margin="14,0,0,0"
+                           TextTrimming="CharacterEllipsis"
+                           Style="{DynamicResource MutedText}"/>
+              </Grid>
+            </Button>
+            <Border x:Name="ArrayBody">
+              <StackPanel Margin="12,0,12,8">
+                <WrapPanel Margin="0,0,0,2">
+                  <Border Style="{DynamicResource SettingBox}">
+                    <StackPanel>
+                      <TextBlock Text="Section views" Style="{DynamicResource BoxCaption}"/>
+                    <StackPanel Orientation="Horizontal">
+                      <StackPanel Margin="0,0,10,0" VerticalAlignment="Top">
+                        <TextBlock Text="Section type" Margin="1,0,0,3" Style="{DynamicResource MutedText}"/>
+                        <ComboBox x:Name="SecTypeCombo" Width="210" Style="{DynamicResource ThemedComboBox}"
+                                  ToolTip="The section view family type every section is cut with"/>
+                      </StackPanel>
+                      <StackPanel Margin="0,0,0,0" VerticalAlignment="Top">
+                        <TextBlock Text="Template" Margin="1,0,0,3" Style="{DynamicResource MutedText}"/>
+                        <ComboBox x:Name="SecTemplateCombo" Width="210" Style="{DynamicResource ThemedComboBox}"
+                                  ToolTip="The view template the sections get"/>
+                      </StackPanel>
+                    </StackPanel>
+                    </StackPanel>
+                  </Border>
+                  <Border Style="{DynamicResource SettingBox}">
+                    <StackPanel>
+                      <TextBlock Text="Cuts" Style="{DynamicResource BoxCaption}"/>
+                    <StackPanel Orientation="Horizontal">
+                      <StackPanel Margin="0,0,10,0" VerticalAlignment="Top">
+                        <TextBlock Text="X axis" Margin="1,0,0,3" Style="{DynamicResource MutedText}"/>
+                        <StackPanel Orientation="Horizontal">
+                          <Button x:Name="XDownButton" Width="30" Padding="0" Style="{DynamicResource GhostButton}"
+                                  ToolTip="One fewer X axis section">
+                            <Border Width="11" Height="2" CornerRadius="1" Background="{DynamicResource TextBrush}"/>
+                          </Button>
+                          <TextBox x:Name="XCountBox" Width="46" Margin="4,0,4,0"
+                                   TextAlignment="Center" Style="{DynamicResource ThemedTextBox}"/>
+                          <Button x:Name="XUpButton" Width="30" Padding="0" Style="{DynamicResource GhostButton}"
+                                  ToolTip="One more X axis section">
+                          <Grid Width="11" Height="11">
+                            <Border Width="11" Height="2" CornerRadius="1" VerticalAlignment="Center"
+                                    Background="{DynamicResource TextBrush}"/>
+                            <Border Width="2" Height="11" CornerRadius="1" HorizontalAlignment="Center"
+                                    Background="{DynamicResource TextBrush}"/>
+                          </Grid>
+                          </Button>
+                        </StackPanel>
+                      </StackPanel>
+                      <StackPanel Margin="0,0,10,0" VerticalAlignment="Top">
+                        <TextBlock Text="Y axis" Margin="1,0,0,3" Style="{DynamicResource MutedText}"/>
+                        <StackPanel Orientation="Horizontal">
+                          <Button x:Name="YDownButton" Width="30" Padding="0" Style="{DynamicResource GhostButton}"
+                                  ToolTip="One fewer Y axis section">
+                            <Border Width="11" Height="2" CornerRadius="1" Background="{DynamicResource TextBrush}"/>
+                          </Button>
+                          <TextBox x:Name="YCountBox" Width="46" Margin="4,0,4,0"
+                                   TextAlignment="Center" Style="{DynamicResource ThemedTextBox}"/>
+                          <Button x:Name="YUpButton" Width="30" Padding="0" Style="{DynamicResource GhostButton}"
+                                  ToolTip="One more Y axis section">
+                          <Grid Width="11" Height="11">
+                            <Border Width="11" Height="2" CornerRadius="1" VerticalAlignment="Center"
+                                    Background="{DynamicResource TextBrush}"/>
+                            <Border Width="2" Height="11" CornerRadius="1" HorizontalAlignment="Center"
+                                    Background="{DynamicResource TextBrush}"/>
+                          </Grid>
+                          </Button>
+                        </StackPanel>
+                      </StackPanel>
+                      <StackPanel Margin="0,0,10,0" VerticalAlignment="Top">
+                        <TextBlock Text="Cut depth" Margin="1,0,0,3" Style="{DynamicResource MutedText}"/>
+                        <StackPanel Orientation="Horizontal">
+                          <TextBox x:Name="DepthBox" Width="66" TextAlignment="Center"
+                                   Style="{DynamicResource ThemedTextBox}"
+                                   ToolTip="How far each section looks past its cut line"/>
+                          <TextBlock Text="mm" Margin="5,0,0,0" VerticalAlignment="Center"
+                                     Style="{DynamicResource MutedText}"/>
+                        </StackPanel>
+                      </StackPanel>
+                      <StackPanel Margin="0,0,10,0" VerticalAlignment="Top">
+                        <TextBlock Text="Flip" Margin="1,0,0,3" Style="{DynamicResource MutedText}"/>
+                        <StackPanel Orientation="Horizontal">
+                          <Button x:Name="FlipXButton" Width="44" Padding="0" Margin="0,0,4,0"
+                                  Style="{DynamicResource GhostButton}"
+                                  ToolTip="Turn the X axis sections round to look the other way"/>
+                          <Button x:Name="FlipYButton" Width="44" Padding="0"
+                                  Style="{DynamicResource GhostButton}"
+                                  ToolTip="Turn the Y axis sections round to look the other way"/>
+                        </StackPanel>
+                      </StackPanel>
+                      <StackPanel Margin="0,0,0,0" VerticalAlignment="Top">
+                        <TextBlock Text=" " Margin="1,0,0,3" Style="{DynamicResource MutedText}"/>
+                        <Button x:Name="ApplyRowsButton" Content="Set on ticked rows"
+                                Style="{DynamicResource AccentButton}"/>
+                      </StackPanel>
+                    </StackPanel>
+                    </StackPanel>
+                  </Border>
+                  <Border Style="{DynamicResource SettingBox}">
+                    <StackPanel>
+                      <TextBlock Text="Section reach" Style="{DynamicResource BoxCaption}"/>
+                    <StackPanel Orientation="Horizontal">
+                      <StackPanel Margin="0,0,10,0" VerticalAlignment="Top">
+                        <TextBlock Text="Below level" Margin="1,0,0,3" Style="{DynamicResource MutedText}"/>
+                        <StackPanel Orientation="Horizontal">
+                          <TextBox x:Name="BelowBox" Width="58" TextAlignment="Center"
+                                   Style="{DynamicResource ThemedTextBox}"
+                                   ToolTip="Open the sections up below the bottom of the band, to show the slab"/>
+                          <TextBlock Text="mm" Margin="5,0,0,0" VerticalAlignment="Center"
+                                     Style="{DynamicResource MutedText}"/>
+                        </StackPanel>
+                      </StackPanel>
+                      <StackPanel Margin="0,0,0,0" VerticalAlignment="Top">
+                        <TextBlock Text="Above top" Margin="1,0,0,3" Style="{DynamicResource MutedText}"/>
+                        <StackPanel Orientation="Horizontal">
+                          <TextBox x:Name="AboveBox" Width="58" TextAlignment="Center"
+                                   Style="{DynamicResource ThemedTextBox}"
+                                   ToolTip="Open the sections up above the top of the band, to show the void or the floor above"/>
+                          <TextBlock Text="mm" Margin="5,0,0,0" VerticalAlignment="Center"
+                                     Style="{DynamicResource MutedText}"/>
+                        </StackPanel>
+                      </StackPanel>
+                    </StackPanel>
+                    </StackPanel>
+                  </Border>
+                  <Border Style="{DynamicResource SettingBox}">
+                    <StackPanel>
+                      <TextBlock Text="3D section box" Style="{DynamicResource BoxCaption}"/>
+                    <StackPanel Orientation="Horizontal">
+                      <StackPanel Margin="0,0,10,0" VerticalAlignment="Top">
+                        <TextBlock Text="Crop offset" Margin="1,0,0,3" Style="{DynamicResource MutedText}"/>
+                        <StackPanel Orientation="Horizontal">
+                          <TextBox x:Name="BoxSideBox" Width="58" TextAlignment="Center"
+                                   Style="{DynamicResource ThemedTextBox}"
+                                   ToolTip="Grow the section box past the callout's crop in X and Y. Negative pulls it in."/>
+                          <TextBlock Text="mm" Margin="5,0,0,0" VerticalAlignment="Center"
+                                     Style="{DynamicResource MutedText}"/>
+                        </StackPanel>
+                      </StackPanel>
+                      <StackPanel Margin="0,0,10,0" VerticalAlignment="Top">
+                        <TextBlock Text="Top" Margin="1,0,0,3" Style="{DynamicResource MutedText}"/>
+                        <StackPanel Orientation="Horizontal">
+                          <TextBox x:Name="BoxTopBox" Width="58" TextAlignment="Center"
+                                   Style="{DynamicResource ThemedTextBox}"
+                                   ToolTip="From the top of the view range or the level above. Negative is below it - -200 keeps the slab out."/>
+                          <TextBlock Text="mm" Margin="5,0,0,0" VerticalAlignment="Center"
+                                     Style="{DynamicResource MutedText}"/>
+                        </StackPanel>
+                      </StackPanel>
+                      <StackPanel Margin="0,0,0,0" VerticalAlignment="Top">
+                        <TextBlock Text="Bottom" Margin="1,0,0,3" Style="{DynamicResource MutedText}"/>
+                        <StackPanel Orientation="Horizontal">
+                          <TextBox x:Name="BoxBottomBox" Width="58" TextAlignment="Center"
+                                   Style="{DynamicResource ThemedTextBox}"
+                                   ToolTip="How far below the bottom of the view range or the level the box starts."/>
+                          <TextBlock Text="mm" Margin="5,0,0,0" VerticalAlignment="Center"
+                                     Style="{DynamicResource MutedText}"/>
+                        </StackPanel>
+                      </StackPanel>
+                    </StackPanel>
+                    </StackPanel>
+                  </Border>
+                  <Border Style="{DynamicResource SettingBox}">
+                    <StackPanel>
+                      <TextBlock Text="Scales" Style="{DynamicResource BoxCaption}"/>
+                    <StackPanel Orientation="Horizontal">
+                      <StackPanel Margin="0,0,10,0" VerticalAlignment="Top">
+                        <TextBlock Text="Callout" Margin="1,0,0,3" Style="{DynamicResource MutedText}"/>
+                        <ComboBox x:Name="CalloutScaleCombo" Width="140" Style="{DynamicResource ThemedComboBox}"
+                                  ToolTip="The callout's scale. Left on the default it keeps its own. Only applied where its view template leaves the scale unlocked."/>
+                      </StackPanel>
+                      <StackPanel Margin="0,0,10,0" VerticalAlignment="Top">
+                        <TextBlock Text="3D view" Margin="1,0,0,3" Style="{DynamicResource MutedText}"/>
+                        <ComboBox x:Name="ThreeDScaleCombo" Width="140" Style="{DynamicResource ThemedComboBox}"
+                                  ToolTip="The 3D's scale. Only applied where its view template leaves the scale unlocked - a template that holds the scale wins."/>
+                      </StackPanel>
+                      <StackPanel Margin="0,0,0,0" VerticalAlignment="Top">
+                        <TextBlock Text="Sections" Margin="1,0,0,3" Style="{DynamicResource MutedText}"/>
+                        <ComboBox x:Name="SecScaleCombo" Width="140" Style="{DynamicResource ThemedComboBox}"
+                                  ToolTip="The sections' scale. Only applied where the section's view template leaves the scale unlocked - a template that holds the scale wins."/>
+                      </StackPanel>
+                    </StackPanel>
+                    </StackPanel>
+                  </Border>
+                  <Border Style="{DynamicResource SettingBox}">
+                    <StackPanel>
+                      <TextBlock Text="Annotation" Style="{DynamicResource BoxCaption}"/>
+                    <StackPanel Orientation="Horizontal">
+                      <StackPanel Margin="0,0,18,0" VerticalAlignment="Top">
+                        <TextBlock Text="Grids" Margin="1,0,0,3" Style="{DynamicResource MutedText}"/>
+                        <CheckBox x:Name="CropGridsCheck" Content="Crop grids to the view" Margin="0,5,0,0"
+                                  Style="{DynamicResource ThemedCheckBox}"
+                                  ToolTip="Cut every grid in each new section down to the top and bottom of the section's crop - in that section only"/>
+                      </StackPanel>
+                      <StackPanel Margin="0,0,0,0" VerticalAlignment="Top">
+                        <TextBlock Text="Rooms" Margin="1,0,0,3" Style="{DynamicResource MutedText}"/>
+                        <StackPanel Orientation="Horizontal">
+                          <CheckBox x:Name="TagRoomsCheck" Content="Tag rooms" VerticalAlignment="Center"
+                                    Style="{DynamicResource ThemedCheckBox}"
+                                    ToolTip="Tag every room a new section cuts that is not tagged there yet"/>
+                          <ComboBox x:Name="RoomTagCombo" Width="200" Margin="8,0,0,0"
+                                    Style="{DynamicResource ThemedComboBox}"
+                                    ToolTip="The room tag used - the project's default unless one is picked"/>
+                        </StackPanel>
+                      </StackPanel>
+                    </StackPanel>
+                    </StackPanel>
+                  </Border>
+                </WrapPanel>
+                <Grid x:Name="ArrayPanel" Height="300">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="60*"/>
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="40*"/>
+                  </Grid.ColumnDefinitions>
+                  <Border Grid.Column="0" CornerRadius="5"
+                          Background="{DynamicResource PreviewFillBrush}"
+                          BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="1">
+                    <Canvas x:Name="PreviewCanvas" ClipToBounds="True"/>
+                  </Border>
+                  <Grid Grid.Column="2">
+                    <Grid.RowDefinitions>
+                      <RowDefinition Height="Auto"/>
+                      <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Text="What will be created" Margin="0,0,0,6"
+                               Style="{DynamicResource BodyText}"/>
+                    <Border Grid.Row="1" CornerRadius="5"
+                            Background="{DynamicResource FieldBrush}"
+                            BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="1">
+                      <ScrollViewer Margin="10,8,6,8" VerticalScrollBarVisibility="Auto"
+                                    HorizontalScrollBarVisibility="Auto">
+                        <TextBlock x:Name="PlanText" TextWrapping="NoWrap"
+                                   FontFamily="Consolas" FontSize="11.5"
+                                   Foreground="{DynamicResource TextBrush}"/>
+                      </ScrollViewer>
+                    </Border>
+                  </Grid>
+                </Grid>
+                <Border x:Name="ArrayGrip" Height="9" Margin="0,2,0,0"
+                        Background="{DynamicResource TransparentHitBrush}"
+                        ToolTip="Drag to make this taller or shorter">
+                  <Border Width="36" Height="3" CornerRadius="1.5"
+                          Background="{DynamicResource EdgeBrush}"/>
+                </Border>
+              </StackPanel>
+            </Border>
+          </StackPanel>
+          </Border>
+
+          <!-- 3. sheet settings and naming -->
+          <Border x:Name="SheetGroup" CornerRadius="5" Background="{DynamicResource CardBrush}"
+                  BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="1">
+          <StackPanel>
+            <Button x:Name="SheetHeader" Style="{DynamicResource GroupHeader}"
+                    ToolTip="Click to fold this group away, or open it again">
+              <Grid>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Path x:Name="SheetChevron" Grid.Column="0" Width="10" Height="10"
+                      RenderTransformOrigin="0.5,0.5" VerticalAlignment="Center"
+                      Stroke="{DynamicResource TextBrush}" StrokeThickness="1.6"
+                      StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                      Data="M 1,3 L 5,7 L 9,3"/>
+                <Border Grid.Column="1" Width="4" Height="18" CornerRadius="2" Margin="10,0,0,0"
+                        Background="{DynamicResource GreenBrush}" VerticalAlignment="Center"/>
+                <TextBlock Grid.Column="2" Text="Sheet settings and naming" Margin="8,0,0,0"
+                           Style="{DynamicResource SectionLabel}"/>
+                <TextBlock x:Name="SheetSummary" Grid.Column="3" Margin="14,0,0,0"
+                           TextTrimming="CharacterEllipsis"
+                           Style="{DynamicResource MutedText}"/>
+              </Grid>
+            </Button>
+            <Border x:Name="SheetBody">
+              <StackPanel Margin="12,0,12,8">
+                <WrapPanel Margin="0,0,0,2">
+                  <Border Style="{DynamicResource SettingBox}">
+                    <StackPanel>
+                      <TextBlock Text="Sheet" Style="{DynamicResource BoxCaption}"/>
+                      <StackPanel Margin="0,0,0,0" VerticalAlignment="Top">
+                        <TextBlock Text="Paper size" Margin="1,0,0,3" Style="{DynamicResource MutedText}"/>
+                        <ComboBox x:Name="SizeCombo" Width="86" Style="{DynamicResource ThemedComboBox}"/>
+                      </StackPanel>
+                    </StackPanel>
+                  </Border>
+                  <Border Style="{DynamicResource SettingBox}">
+                    <StackPanel>
+                      <TextBlock Text="Numbering and naming" Style="{DynamicResource BoxCaption}"/>
+                    <StackPanel Orientation="Horizontal">
+                      <StackPanel Margin="0,0,14,0" VerticalAlignment="Top">
+                        <TextBlock Text="Numbering rule" Margin="1,0,0,3" Style="{DynamicResource MutedText}"/>
+                        <StackPanel Orientation="Horizontal">
+                          <TextBox x:Name="NumberRuleBox" Width="180" Style="{DynamicResource ThemedTextBox}"
+                                   ToolTip="{}{level} {abbrev} {callout} - and {n} {nn} {nnn}, which count up until the number is free"/>
+                          <TextBlock Text="from" Margin="8,0,6,0" VerticalAlignment="Center" Style="{DynamicResource MutedText}"/>
+                          <TextBox x:Name="NumberStartBox" Width="46" TextAlignment="Center"
+                                   Style="{DynamicResource ThemedTextBox}"
+                                   ToolTip="The first number tried for {n}"/>
+                        </StackPanel>
+                        <TextBlock x:Name="NumberExample" Margin="0,4,0,0" Style="{DynamicResource MutedText}"/>
+                      </StackPanel>
+                      <StackPanel Margin="0,0,14,0" VerticalAlignment="Top">
+                        <TextBlock Text="Naming rule" Margin="1,0,0,3" Style="{DynamicResource MutedText}"/>
+                        <TextBox x:Name="NameRuleBox" Width="300" Style="{DynamicResource ThemedTextBox}"
+                                 ToolTip="{}{level} {abbrev} {callout} - and {d} {dd}, which count the details on a level"/>
+                        <TextBlock x:Name="NameExample" Margin="0,4,0,0" Style="{DynamicResource MutedText}"/>
+                      </StackPanel>
+                      <StackPanel Margin="0,0,0,0" VerticalAlignment="Top">
+                        <TextBlock Text="Tokens" Margin="1,0,0,3" Style="{DynamicResource MutedText}"/>
+                        <TextBlock x:Name="TokenText" TextWrapping="Wrap" MaxWidth="260"
+                                   Style="{DynamicResource MutedText}"/>
+                      </StackPanel>
+                    </StackPanel>
+                    </StackPanel>
+                  </Border>
+                  <Border Style="{DynamicResource SettingBox}">
+                    <StackPanel>
+                      <TextBlock Text="Viewports" Style="{DynamicResource BoxCaption}"/>
+                    <StackPanel Orientation="Horizontal">
+                      <StackPanel Margin="0,0,6,0" VerticalAlignment="Top">
+                        <TextBlock Text="Callout" Margin="1,0,0,3" Style="{DynamicResource MutedText}"/>
+                        <ComboBox x:Name="VpCalloutCombo" Width="170" Style="{DynamicResource ThemedComboBox}"
+                                  ToolTip="The viewport type - its title header - the callout is placed with"/>
+                      </StackPanel>
+                      <StackPanel Margin="0,0,6,0" VerticalAlignment="Top">
+                        <TextBlock Text="3D view" Margin="1,0,0,3" Style="{DynamicResource MutedText}"/>
+                        <ComboBox x:Name="Vp3dCombo" Width="170" Style="{DynamicResource ThemedComboBox}"
+                                  ToolTip="The viewport type the 3D is placed with"/>
+                      </StackPanel>
+                      <StackPanel Margin="0,0,14,0" VerticalAlignment="Top">
+                        <TextBlock Text="Sections" Margin="1,0,0,3" Style="{DynamicResource MutedText}"/>
+                        <ComboBox x:Name="VpSectionCombo" Width="170" Style="{DynamicResource ThemedComboBox}"
+                                  ToolTip="The viewport type every section is placed with"/>
+                      </StackPanel>
+                      <StackPanel Margin="0,0,0,0" VerticalAlignment="Top">
+                        <TextBlock Text="Title gap" Margin="1,0,0,3" Style="{DynamicResource MutedText}"/>
+                        <StackPanel Orientation="Horizontal">
+                          <TextBox x:Name="TitleGapBox" Width="50" TextAlignment="Center"
+                                   Style="{DynamicResource ThemedTextBox}"
+                                   ToolTip="Pull each viewport's title up to this far under the base of its view (sheet mm). Empty leaves the titles where Revit puts them."/>
+                          <TextBlock Text="mm under the view" Margin="6,0,0,0" VerticalAlignment="Center"
+                                     Style="{DynamicResource MutedText}"/>
+                        </StackPanel>
+                      </StackPanel>
+                    </StackPanel>
+                    </StackPanel>
+                  </Border>
+                </WrapPanel>
+                <Grid x:Name="SheetPanel" Height="340">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="*"/>
+                  </Grid.ColumnDefinitions>
+                  <StackPanel Grid.Column="0" Width="262">
+                    <Grid Margin="0,0,0,8">
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                      </Grid.ColumnDefinitions>
+                      <Button x:Name="PresetBackButton" Grid.Column="0" Width="30" Padding="0"
+                              Style="{DynamicResource GhostButton}" ToolTip="The layout before">
+                        <Path Width="8" Height="10" Fill="{DynamicResource TextBrush}" Data="M 8,0 L 8,10 L 0,5 Z"/>
+                      </Button>
+                      <TextBlock x:Name="PresetTitle" Grid.Column="1" Margin="8,0,8,0"
+                                 TextAlignment="Center" TextTrimming="CharacterEllipsis"
+                                 Style="{DynamicResource BodyText}"/>
+                      <Button x:Name="PresetNextButton" Grid.Column="2" Width="30" Padding="0"
+                              Style="{DynamicResource GhostButton}" ToolTip="The layout after">
+                        <Path Width="8" Height="10" Fill="{DynamicResource TextBrush}" Data="M 0,0 L 0,10 L 8,5 Z"/>
+                      </Button>
+                    </Grid>
+                    <WrapPanel x:Name="PresetCards" Margin="0,0,0,6"/>
+                    <TextBlock x:Name="PresetDetail" TextWrapping="Wrap" Margin="0,0,0,10"
+                               Style="{DynamicResource MutedText}"/>
+                    <Button x:Name="ResetMovesButton" Content="Clear the custom setout" HorizontalAlignment="Left"
+                            Style="{DynamicResource GhostButton}"
+                            ToolTip="Forget the dragged positions and go back to the layout they started from"/>
+                    <TextBlock x:Name="SheetCaption" TextWrapping="Wrap" Margin="0,10,0,0"
+                               Style="{DynamicResource BodyText}"/>
+                    <TextBlock TextWrapping="Wrap" Margin="0,6,0,0" Style="{DynamicResource MutedText}"
+                               Text="The title block is drawn to scale. Drag a box to move it and the layout becomes a custom setout, used for every sheet the run makes; right click a box to put it back. Red is two overlapping. The boxes are estimates - the run measures the real viewports and centres each where its box was left."/>
+                  </StackPanel>
+                  <Border Grid.Column="2" CornerRadius="5"
+                          Background="{DynamicResource PreviewFillBrush}"
+                          BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="1">
+                    <Canvas x:Name="SheetCanvas" ClipToBounds="True" Background="{DynamicResource TransparentHitBrush}"/>
+                  </Border>
+                </Grid>
+                <Border x:Name="SheetGrip" Height="9" Margin="0,2,0,0"
+                        Background="{DynamicResource TransparentHitBrush}"
+                        ToolTip="Drag to make this taller or shorter">
+                  <Border Width="36" Height="3" CornerRadius="1.5"
+                          Background="{DynamicResource EdgeBrush}"/>
+                </Border>
+              </StackPanel>
+            </Border>
+          </StackPanel>
+          </Border>
+
+          </StackPanel>
+        </ScrollViewer>
+        <!-- the headers of groups scrolled out of sight stay in view, top and bottom -->
+        <StackPanel x:Name="TopDock" VerticalAlignment="Top" Margin="14,0,30,0"/>
+        <StackPanel x:Name="BottomDock" VerticalAlignment="Bottom" Margin="14,0,30,0"/>
+        </Grid>
+
+        <!-- ===================== footer ===================== -->
+        <Border Grid.Row="2" CornerRadius="0,0,6,6" Background="{DynamicResource BarBrush}">
+          <Grid Margin="14,0,14,0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Button x:Name="OpenViewButton" Grid.Column="0" Content="Open callout view"
+                    IsEnabled="False" Style="{DynamicResource AccentButton}"/>
+            <CheckBox x:Name="DebugCheck" Grid.Column="1" Content="Debug report"
+                      Margin="14,0,0,0" VerticalAlignment="Center"
+                      Style="{DynamicResource ThemedCheckBox}"
+                      ToolTip="Open the full debug report in its own window when the run finishes, ready to copy"/>
+            <TextBlock x:Name="StatusText" Grid.Column="2" Margin="14,0,14,0"
+                       TextTrimming="CharacterEllipsis"
+                       Style="{DynamicResource MutedText}"/>
+            <Button x:Name="RefreshButton" Grid.Column="3" Content="Refresh"
+                    Margin="0,0,8,0" Style="{DynamicResource GhostButton}"/>
+            <Button x:Name="PlanButton" Grid.Column="4" Content="Show the plan"
+                    Margin="0,0,8,0" Style="{DynamicResource GhostButton}"/>
+            <Button x:Name="CreateButton" Grid.Column="5" Content="Create views and sheets"
+                    Style="{DynamicResource PrimaryButton}"/>
+          </Grid>
+        </Border>
+      </Grid>
+    </Border>
+
+    <Grid x:Name="GripGrid"/>
+  </Grid>
+</Window>

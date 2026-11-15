@@ -1,0 +1,16 @@
+title: RevoBIM Service Spacing
+tooltip: >
+  Space the selected services centre to centre.
+
+  Centre to centre = half width + half width + clear gap + insulation,
+  rounded up to the nearest 5mm.  Services default to 75mm clear edge to
+  edge, cable trays to 50mm, and trunking to 70mm against anything else.
+  Part of the selection sitting more than 60mm above or below the rest is
+  spaced as its own row.
+
+  Runs straight off the current selection with no window and no prompts.
+  With nothing selected it asks for the services - press Return to finish.
+
+  The ribbon name is unique and prefixed RevoBIM so it can be found in
+  View > User Interface > Keyboard Shortcuts.
+author: RevoBIM PY

@@ -1,0 +1,40 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RevoBIM Project Browser Pro" Width="380" Height="720" MinWidth="300" MinHeight="360"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ResizeMode="NoResize" ShowInTaskbar="False" FontFamily="Segoe UI" FontSize="12">
+
+    <!-- ==========================================================
+         Project Browser Pro - floating host, used when the dockable
+         panes are not registered (startup.py block not pasted) or a
+         tab is popped out without them. A borderless transparent
+         window gets no resize border from WPF, so it carries eight
+         Thumb grips in an overlay with no Background.
+         ========================================================== -->
+    <Border x:Name="Frame" CornerRadius="6" BorderThickness="1" Background="{DynamicResource BgBrush}"
+            BorderBrush="{DynamicResource ChromeEdgeBrush}">
+        <Grid>
+            <Border x:Name="Host" CornerRadius="6" ClipToBounds="True"/>
+            <Grid x:Name="Grips">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="5"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="5"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="5"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="5"/>
+                </Grid.ColumnDefinitions>
+                <Thumb x:Name="GripNW" Grid.Row="0" Grid.Column="0" Cursor="SizeNWSE" Style="{DynamicResource GripThumb}"/>
+                <Thumb x:Name="GripN" Grid.Row="0" Grid.Column="1" Cursor="SizeNS" Style="{DynamicResource GripThumb}"/>
+                <Thumb x:Name="GripNE" Grid.Row="0" Grid.Column="2" Cursor="SizeNESW" Style="{DynamicResource GripThumb}"/>
+                <Thumb x:Name="GripW" Grid.Row="1" Grid.Column="0" Cursor="SizeWE" Style="{DynamicResource GripThumb}"/>
+                <Thumb x:Name="GripE" Grid.Row="1" Grid.Column="2" Cursor="SizeWE" Style="{DynamicResource GripThumb}"/>
+                <Thumb x:Name="GripSW" Grid.Row="2" Grid.Column="0" Cursor="SizeNESW" Style="{DynamicResource GripThumb}"/>
+                <Thumb x:Name="GripS" Grid.Row="2" Grid.Column="1" Cursor="SizeNS" Style="{DynamicResource GripThumb}"/>
+                <Thumb x:Name="GripSE" Grid.Row="2" Grid.Column="2" Cursor="SizeNWSE" Style="{DynamicResource GripThumb}"/>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>

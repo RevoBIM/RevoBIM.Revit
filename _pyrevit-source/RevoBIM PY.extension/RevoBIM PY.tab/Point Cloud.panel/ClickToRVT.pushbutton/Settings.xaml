@@ -1,0 +1,61 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RevoBIM - Click to RVT Element settings" Width="640" Height="600" MinWidth="560" MinHeight="420"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent" ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False" FontFamily="Segoe UI" FontSize="12">
+  <Border x:Name="RootBorder" CornerRadius="6" BorderThickness="1" BorderBrush="{DynamicResource Edge}"
+          Background="{DynamicResource Bg}">
+    <Grid x:Name="Root">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+
+      <!-- ===== header ===== -->
+      <Border x:Name="Header" Grid.Row="0" Background="{DynamicResource Bar}" CornerRadius="6,6,0,0" Padding="10,6,8,6">
+        <DockPanel>
+          <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+            <TextBlock x:Name="VersionText" Text="v" Foreground="{DynamicResource Muted}" FontSize="11"
+                       VerticalAlignment="Center" Margin="10,0,6,0"/>
+            <Button x:Name="ShrinkBtn" Style="{DynamicResource ShrinkBtn}"/>
+            <Button x:Name="CloseBtn" Style="{DynamicResource CloseBtn}" ToolTip="Close without saving"/>
+          </StackPanel>
+          <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+            <Image x:Name="Logo" Width="26" Height="26" Margin="0,0,8,0" VerticalAlignment="Center"/>
+            <StackPanel VerticalAlignment="Center">
+              <TextBlock Text="RevoBIM" Foreground="{DynamicResource Blue}" FontSize="17" FontWeight="Bold"/>
+              <TextBlock Text="Click to RVT Element - Settings" Foreground="{DynamicResource Orange}" FontSize="12" Margin="1,-3,0,0"/>
+            </StackPanel>
+          </StackPanel>
+        </DockPanel>
+      </Border>
+
+      <!-- ===== fields, built in code ===== -->
+      <ScrollViewer x:Name="Body" Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="10">
+        <Border Background="{DynamicResource Card}" CornerRadius="5" Padding="12,8">
+          <Grid x:Name="Fields"/>
+        </Border>
+      </ScrollViewer>
+
+      <!-- ===== footer ===== -->
+      <Border x:Name="Footer" Grid.Row="2" Background="{DynamicResource Bar}" CornerRadius="0,0,6,6" Padding="10,7">
+        <DockPanel>
+          <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+            <Button x:Name="CancelBtn" Content="Cancel" Margin="0,0,8,0"/>
+            <Button x:Name="SaveBtn" Style="{DynamicResource PrimaryBtn}" Content="Save"/>
+          </StackPanel>
+          <Button x:Name="ResetBtn" Content="Reset to defaults" DockPanel.Dock="Left" Foreground="{DynamicResource Orange}"/>
+          <TextBlock x:Name="StatusText" Foreground="{DynamicResource Muted}" VerticalAlignment="Center" Margin="12,0,0,0"
+                     TextTrimming="CharacterEllipsis"/>
+        </DockPanel>
+      </Border>
+
+      <Grid x:Name="Grips" Grid.RowSpan="3">
+        <Thumb x:Name="GripR" Style="{DynamicResource GripThumb}" Width="5" HorizontalAlignment="Right" Cursor="SizeWE" Margin="0,8"/>
+        <Thumb x:Name="GripB" Style="{DynamicResource GripThumb}" Height="5" VerticalAlignment="Bottom" Cursor="SizeNS" Margin="8,0"/>
+        <Thumb x:Name="GripBR" Style="{DynamicResource GripThumb}" Width="8" Height="8" HorizontalAlignment="Right" VerticalAlignment="Bottom" Cursor="SizeNWSE"/>
+      </Grid>
+    </Grid>
+  </Border>
+</Window>

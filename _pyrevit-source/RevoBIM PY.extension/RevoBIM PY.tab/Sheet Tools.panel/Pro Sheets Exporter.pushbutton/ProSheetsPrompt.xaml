@@ -1,0 +1,147 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RevoBIM Pro Sheets Exporter"
+        Width="760" Height="520" MinWidth="520" MinHeight="300"
+        WindowStartupLocation="CenterOwner"
+        WindowStyle="None" AllowsTransparency="True"
+        Background="Transparent" ResizeMode="NoResize"
+        ShowInTaskbar="False" SnapsToDevicePixels="True">
+
+  <Grid>
+    <Border Background="{DynamicResource WindowBg}"
+            BorderBrush="{DynamicResource WindowEdgeBrush}"
+            BorderThickness="1" CornerRadius="6">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Border x:Name="HeaderBar" Grid.Row="0"
+                Background="{DynamicResource BarBg}"
+                CornerRadius="5,5,0,0" Padding="14,9">
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Border x:Name="LogoHost" Grid.Column="0" Width="28" Height="28"
+                    CornerRadius="4" Margin="0,0,11,0"
+                    Background="{DynamicResource ChipBg}" Cursor="Hand">
+              <Image x:Name="LogoImage" Stretch="Uniform" Margin="3"/>
+            </Border>
+
+            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+              <TextBlock Text="RevoBIM" FontSize="17" FontWeight="Bold"
+                         Foreground="{DynamicResource BlueBrush}"/>
+              <TextBlock x:Name="SubtitleText" Text="Pro Sheets Exporter"
+                         FontSize="13" Margin="0,-3,0,0"
+                         Foreground="{DynamicResource OrangeBrush}"/>
+            </StackPanel>
+
+            <TextBlock x:Name="VersionText" Grid.Column="2"
+                       Style="{DynamicResource MutedText}"
+                       HorizontalAlignment="Right" VerticalAlignment="Center"
+                       Margin="0,0,10,0" Text="v0.0.0"/>
+
+            <StackPanel Grid.Column="3" Orientation="Horizontal"
+                        VerticalAlignment="Center">
+              <Button x:Name="ShrinkButton" Style="{DynamicResource ShrinkButton}"
+                      ToolTip="Shrink to the bottom of the screen"/>
+              <Button x:Name="CloseButton"
+                      Style="{DynamicResource CloseButton}"
+                      Content="&#x2715;"/>
+            </StackPanel>
+          </Grid>
+        </Border>
+
+        <Border Grid.Row="1" Margin="14,14,14,0" Padding="13,11"
+                Background="{DynamicResource CardBg}"
+                BorderBrush="{DynamicResource EdgeBrush}"
+                BorderThickness="1" CornerRadius="4">
+          <StackPanel>
+            <TextBlock x:Name="HeadlineText" FontSize="14" FontWeight="SemiBold"
+                       TextWrapping="Wrap" Text=""/>
+            <TextBlock x:Name="MessageText" Margin="0,7,0,0"
+                       TextWrapping="Wrap"
+                       Foreground="{DynamicResource MutedBrush}" Text=""/>
+          </StackPanel>
+        </Border>
+
+        <Border Grid.Row="2" Margin="14,12,14,0"
+                Background="{DynamicResource FieldBg}"
+                BorderBrush="{DynamicResource EdgeBrush}"
+                BorderThickness="1" CornerRadius="4">
+          <!-- The detail pane WRAPS. It used to scroll horizontally so that
+               file paths stayed on one line, and the cost of that was the
+               only sentence that mattered - the one saying what went wrong
+               and what to do about it - running off the right hand edge
+               behind a scrollbar nobody drags. A wrapped path is untidy; an
+               unreadable reason is a broken report. -->
+          <ScrollViewer x:Name="DetailScroller" Margin="2"
+                        VerticalScrollBarVisibility="Auto"
+                        HorizontalScrollBarVisibility="Disabled">
+            <TextBlock x:Name="DetailText" Margin="10,8" FontFamily="Consolas"
+                       FontSize="11.5" TextWrapping="Wrap" Text=""/>
+          </ScrollViewer>
+        </Border>
+
+        <Border Grid.Row="3" Margin="0,14,0,0"
+                Background="{DynamicResource BarBg}"
+                CornerRadius="0,0,5,5" Padding="14,9">
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Button x:Name="CopyButton" Grid.Column="0" Content="Copy detail"
+                    Style="{DynamicResource ChipButton}"
+                    HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+              <Button x:Name="ExtraButton" Content="Open folder" Width="128"
+                      Margin="0,0,9,0" Visibility="Collapsed"/>
+              <Button x:Name="SecondaryButton" Content="Cancel" Width="108"
+                      Margin="0,0,9,0" Visibility="Collapsed"/>
+              <Button x:Name="PrimaryButton" Content="Close" Width="108"
+                      Style="{DynamicResource PrimaryButton}"/>
+            </StackPanel>
+          </Grid>
+        </Border>
+      </Grid>
+    </Border>
+
+    <Grid x:Name="GripLayer">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="5"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="5"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="5"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="5"/>
+      </Grid.ColumnDefinitions>
+      <Thumb x:Name="GripNW" Grid.Row="0" Grid.Column="0" Cursor="SizeNWSE"
+             Style="{DynamicResource GripThumb}"/>
+      <Thumb x:Name="GripN"  Grid.Row="0" Grid.Column="1" Cursor="SizeNS"
+             Style="{DynamicResource GripThumb}"/>
+      <Thumb x:Name="GripNE" Grid.Row="0" Grid.Column="2" Cursor="SizeNESW"
+             Style="{DynamicResource GripThumb}"/>
+      <Thumb x:Name="GripW"  Grid.Row="1" Grid.Column="0" Cursor="SizeWE"
+             Style="{DynamicResource GripThumb}"/>
+      <Thumb x:Name="GripE"  Grid.Row="1" Grid.Column="2" Cursor="SizeWE"
+             Style="{DynamicResource GripThumb}"/>
+      <Thumb x:Name="GripSW" Grid.Row="2" Grid.Column="0" Cursor="SizeNESW"
+             Style="{DynamicResource GripThumb}"/>
+      <Thumb x:Name="GripS"  Grid.Row="2" Grid.Column="1" Cursor="SizeNS"
+             Style="{DynamicResource GripThumb}"/>
+      <Thumb x:Name="GripSE" Grid.Row="2" Grid.Column="2" Cursor="SizeNWSE"
+             Style="{DynamicResource GripThumb}"/>
+    </Grid>
+  </Grid>
+</Window>

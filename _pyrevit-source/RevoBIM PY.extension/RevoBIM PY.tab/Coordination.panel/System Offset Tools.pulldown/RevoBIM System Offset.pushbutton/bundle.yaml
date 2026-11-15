@@ -1,0 +1,15 @@
+title: RevoBIM System Offset
+tooltip: >-
+  Two clicks and a run is offset. Click the start of the offset on a pipe, duct,
+  cable tray or conduit, then click the end on the side it should go to. The
+  middle length moves across at the set distance and the four bends take elbow
+  fittings from the element's own type.
+
+
+  No window: it reads the saved settings and goes straight to the picks, so it
+  can be bound to a key in View > User Interface > Keyboard Shortcuts. Search
+  for "RevoBIM System Offset".
+
+
+  Escape finishes.
+highlight: new

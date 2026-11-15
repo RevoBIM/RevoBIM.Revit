@@ -1,0 +1,10 @@
+tooltip: >
+  RevoBIM PY - Filter Manager.
+  Tab 1 lists every view filter in the project and exposes its categories
+  and rules for editing, with Create and Delete. Tab 2 is the Filter Pusher:
+  push filters and their graphic override settings from one host view
+  template, or from the project's filter table, into any number of target
+  view templates and views. Every change is logged.
+author: RevoBIM PY
+min_revit_version: 2021
+max_revit_version: 2027

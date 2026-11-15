@@ -1,0 +1,77 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RevoBIM Delete Level" Width="640" Height="680" MinWidth="480" MinHeight="460"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent" ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False" FontFamily="Segoe UI" FontSize="12">
+    <Border CornerRadius="6" BorderThickness="1" BorderBrush="{DynamicResource Red}" Background="{DynamicResource Bg}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- ==================== header ==================== -->
+            <Border x:Name="Header" Background="{DynamicResource Bar}" CornerRadius="6,6,0,0" Height="46">
+                <DockPanel LastChildFill="False" Margin="12,0,6,0">
+                    <Image x:Name="Logo" DockPanel.Dock="Left" Width="26" Height="26" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                    <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="RevoBIM" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource Blue}" VerticalAlignment="Bottom"/>
+                        <TextBlock Text="Delete Level" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource Orange}"
+                                   Margin="8,0,0,1" VerticalAlignment="Bottom"/>
+                    </StackPanel>
+                    <Button x:Name="CloseBtn" DockPanel.Dock="Right" Style="{DynamicResource CloseButton}" ToolTip="Cancel">
+                        <Path Data="M0,0 L10,10 M10,0 L0,10" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                              StrokeThickness="1.4"/>
+                    </Button>
+                    <Button x:Name="ShrinkBtn" DockPanel.Dock="Right" Style="{DynamicResource WinButton}"
+                            ToolTip="Shrink to the taskbar so Revit can be seen (Ctrl+Shift+H)">
+                        <Grid Width="12" Height="12">
+                            <Path x:Name="ShrinkGlyph" Data="M6,0.5 L6,7.6 M2.8,4.5 L6,7.7 L9.2,4.5 M1,11 L11,11"
+                                  Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.4"/>
+                            <Path x:Name="ExpandGlyph" Data="M6,11.5 L6,1.6 M1.8,5.8 L6,1.6 L10.2,5.8"
+                                  Stroke="{DynamicResource Green}" StrokeThickness="2" Visibility="Collapsed"/>
+                        </Grid>
+                    </Button>
+                    <TextBlock x:Name="VersionTxt" DockPanel.Dock="Right" Text="v0.0.0" Foreground="{DynamicResource Muted}"
+                               FontSize="11" VerticalAlignment="Center" Margin="4,0,10,0"/>
+                </DockPanel>
+            </Border>
+
+            <StackPanel Grid.Row="1" Margin="14,12,14,8">
+                <TextBlock x:Name="QuestionTxt" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource Red}"
+                           TextWrapping="Wrap" Text="Delete this level?"/>
+                <StackPanel Orientation="Horizontal" Margin="0,12,0,6">
+                    <Border Width="4" Height="14" Background="{DynamicResource Blue}" CornerRadius="1" Margin="0,0,7,0"/>
+                    <TextBlock Text="Assign all its elements to" FontWeight="SemiBold" Foreground="{DynamicResource Text}"/>
+                </StackPanel>
+                <TextBox x:Name="FilterBox" Height="26" Tag="Search levels..."/>
+            </StackPanel>
+
+            <ListBox x:Name="LevelList" Grid.Row="2" Margin="14,0,14,0" ScrollViewer.HorizontalScrollBarVisibility="Disabled"/>
+
+            <Border Grid.Row="3" Margin="14,10,14,0" Padding="10,8" CornerRadius="4" Background="{DynamicResource Card}">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                        <Border Width="4" Height="14" Background="{DynamicResource Orange}" CornerRadius="1" Margin="0,0,7,0"/>
+                        <TextBlock Text="What happens" FontWeight="SemiBold" Foreground="{DynamicResource Text}"/>
+                    </StackPanel>
+                    <ScrollViewer MaxHeight="170" VerticalScrollBarVisibility="Auto">
+                        <StackPanel x:Name="ImpactPanel"/>
+                    </ScrollViewer>
+                    <TextBlock x:Name="BlockTxt" Foreground="{DynamicResource Red}" FontWeight="SemiBold" TextWrapping="Wrap"
+                               Margin="0,6,0,0" Visibility="Collapsed"/>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Row="4" Background="{DynamicResource Bar}" CornerRadius="0,0,6,6" Margin="0,12,0,0">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="12,8,12,8">
+                    <Button x:Name="CancelBtn" Content="Cancel" Height="30" Margin="0,0,8,0"/>
+                    <Button x:Name="OkBtn" Style="{DynamicResource DangerButton}" Height="30" IsEnabled="False"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

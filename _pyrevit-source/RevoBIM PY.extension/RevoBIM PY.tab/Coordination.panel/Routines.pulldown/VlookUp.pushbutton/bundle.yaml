@@ -1,0 +1,6 @@
+title: VlookUp
+author: RevoBIM
+tooltip: >-
+  Excel VLOOKUP into Revit. Match elements to spreadsheet rows on a key
+  parameter, choose which column is the lookup and which columns feed which
+  parameters, then write the lot in one transaction.

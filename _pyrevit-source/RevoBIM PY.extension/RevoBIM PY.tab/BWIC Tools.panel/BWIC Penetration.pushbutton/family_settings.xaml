@@ -1,0 +1,593 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RevoBIM BWIC Penetration - Family settings"
+        Height="640" Width="500"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        WindowStartupLocation="Manual"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False"
+        Background="Transparent"
+        Foreground="#FFEEF1F5"
+        FontFamily="Segoe UI">
+
+    <Window.Resources>
+
+        <!-- Revit dark theme palette, sampled from Revit 2024's own
+             Project Browser: blue-grey, not neutral grey -->
+        <SolidColorBrush x:Key="BgShell"  Color="#FF3C4454"/>
+        <SolidColorBrush x:Key="BgPanel"  Color="#FF323C48"/>
+        <SolidColorBrush x:Key="BgField"  Color="#FF2D3441"/>
+        <SolidColorBrush x:Key="BgCanvas" Color="#FF2D3441"/>
+        <SolidColorBrush x:Key="Line"     Color="#FF505968"/>
+        <SolidColorBrush x:Key="LineSoft" Color="#FF404353"/>
+        <SolidColorBrush x:Key="TextMain" Color="#FFEEF1F5"/>
+        <SolidColorBrush x:Key="TextDim"  Color="#FF9DA4B2"/>
+        <SolidColorBrush x:Key="Blue"     Color="#FF4A9EDB"/>
+        <SolidColorBrush x:Key="Orange"   Color="#FFE8862A"/>
+        <SolidColorBrush x:Key="Green"    Color="#FF3FA75A"/>
+        <SolidColorBrush x:Key="Red"      Color="#FFC0392B"/>
+        <SolidColorBrush x:Key="RedHover" Color="#FFD9483A"/>
+        <SolidColorBrush x:Key="RedDown"  Color="#FF992D22"/>
+
+        <Style x:Key="FieldBox" TargetType="TextBox">
+            <Setter Property="Background" Value="{StaticResource BgField}"/>
+            <Setter Property="Foreground" Value="{StaticResource TextMain}"/>
+            <Setter Property="CaretBrush" Value="{StaticResource TextMain}"/>
+            <Setter Property="SelectionBrush" Value="{StaticResource Blue}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource Line}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="6,4"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="FlatButton" TargetType="Button">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Background" Value="{StaticResource Red}"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="2"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"
+                                              Margin="10,8"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background"
+                                        Value="{StaticResource RedHover}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="bd" Property="Background"
+                                        Value="{StaticResource RedDown}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="bd" Property="Background"
+                                        Value="#FF465062"/>
+                                <Setter Property="Foreground" Value="#FF7B8290"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="OrangeButton" TargetType="Button" BasedOn="{StaticResource FlatButton}">
+            <Setter Property="Background" Value="{StaticResource Orange}"/>
+        </Style>
+
+        <Style x:Key="GhostButton" TargetType="Button" BasedOn="{StaticResource FlatButton}">
+            <Setter Property="Background" Value="#FF4A5366"/>
+            <Setter Property="Foreground" Value="{StaticResource TextMain}"/>
+            <Setter Property="FontWeight" Value="Normal"/>
+        </Style>
+
+        <!-- window chrome close button -->
+        <Style x:Key="ChromeClose" TargetType="Button">
+            <Setter Property="Foreground" Value="{StaticResource TextDim}"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Width" Value="26"/>
+            <Setter Property="Height" Value="24"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="Transparent" CornerRadius="2">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background"
+                                        Value="{StaticResource Red}"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- shrink to the taskbar: the glyph is a template, swapped to a
+             green up arrow by Tag="shrunk" -->
+        <Style x:Key="ChromeShrink" TargetType="Button">
+            <Setter Property="Foreground" Value="{StaticResource TextDim}"/>
+            <Setter Property="FontFamily" Value="Segoe UI Symbol"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Width" Value="26"/>
+            <Setter Property="Height" Value="24"/>
+            <Setter Property="Tag" Value=""/>
+            <Setter Property="ToolTip" Value="Shrink to the taskbar  (Ctrl+Shift+H)"/>
+            <Setter Property="ContentTemplate">
+                <Setter.Value>
+                    <DataTemplate>
+                        <TextBlock Text="&#x2913;"
+                                   Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                    </DataTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="Transparent" CornerRadius="2">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background"
+                                        Value="{StaticResource Line}"/>
+                                <Setter Property="Foreground"
+                                        Value="{StaticResource TextMain}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="Tag" Value="shrunk">
+                    <Setter Property="ContentTemplate">
+                        <Setter.Value>
+                            <DataTemplate>
+                                <TextBlock Text="&#x2912;" FontWeight="Bold"
+                                           Foreground="{StaticResource Green}"/>
+                            </DataTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+
+        <Style x:Key="DarkComboItem" TargetType="ComboBoxItem">
+            <Setter Property="Foreground" Value="{StaticResource TextMain}"/>
+            <Setter Property="Padding" Value="8,5"/>
+            <Setter Property="FontSize" Value="12.5"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBoxItem">
+                        <Border x:Name="bd" Background="Transparent"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter TargetName="bd" Property="Background"
+                                        Value="{StaticResource Blue}"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="DarkCombo" TargetType="ComboBox">
+            <Setter Property="Foreground" Value="{StaticResource TextMain}"/>
+            <Setter Property="FontSize" Value="12.5"/>
+            <Setter Property="Height" Value="26"/>
+            <Setter Property="ItemContainerStyle" Value="{StaticResource DarkComboItem}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <ToggleButton Focusable="False" ClickMode="Press"
+                                          IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border x:Name="tbd"
+                                                Background="{StaticResource BgField}"
+                                                BorderBrush="{StaticResource Line}"
+                                                BorderThickness="1" CornerRadius="2">
+                                            <Path HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                  Margin="0,0,9,0" Data="M 0 0 L 9 0 L 4.5 5 Z"
+                                                  Fill="{StaticResource TextDim}"/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="tbd" Property="BorderBrush"
+                                                        Value="{StaticResource Blue}"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                            <ContentPresenter Margin="8,0,26,0" VerticalAlignment="Center"
+                                              IsHitTestVisible="False"
+                                              Content="{TemplateBinding SelectionBoxItem}"
+                                              ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"/>
+                            <Popup IsOpen="{TemplateBinding IsDropDownOpen}" Placement="Bottom"
+                                   AllowsTransparency="True" Focusable="False">
+                                <Border Background="{StaticResource BgPanel}"
+                                        BorderBrush="{StaticResource Line}" BorderThickness="1"
+                                        MinWidth="{TemplateBinding ActualWidth}" MaxHeight="240">
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                        <StackPanel IsItemsHost="True"/>
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="DimCheck" TargetType="CheckBox">
+            <Setter Property="Foreground" Value="{StaticResource TextDim}"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+
+
+        <!-- tabs -->
+        <Style x:Key="DarkTabItem" TargetType="TabItem">
+            <Setter Property="Foreground" Value="{StaticResource TextDim}"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Border x:Name="tab" Background="{StaticResource BgField}"
+                                BorderBrush="{StaticResource Line}"
+                                BorderThickness="1,1,1,0"
+                                CornerRadius="2,2,0,0" Margin="0,0,3,0"
+                                Padding="16,7">
+                            <ContentPresenter ContentSource="Header"
+                                              HorizontalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="tab" Property="Background"
+                                        Value="{StaticResource BgPanel}"/>
+                                <Setter TargetName="tab" Property="BorderBrush"
+                                        Value="{StaticResource Blue}"/>
+                                <Setter Property="Foreground"
+                                        Value="{StaticResource TextMain}"/>
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                            </Trigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsSelected" Value="False"/>
+                                    <Condition Property="IsMouseOver" Value="True"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Foreground"
+                                        Value="{StaticResource TextMain}"/>
+                            </MultiTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="DarkTabControl" TargetType="TabControl">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabControl">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <TabPanel Grid.Row="0" IsItemsHost="True"
+                                      Panel.ZIndex="1"/>
+                            <Border Grid.Row="1"
+                                    Background="{StaticResource BgPanel}"
+                                    BorderBrush="{StaticResource Line}"
+                                    BorderThickness="1" CornerRadius="0,2,2,2">
+                                <ContentPresenter ContentSource="SelectedContent"/>
+                            </Border>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- small header glyph button, e.g. the settings gear -->
+        <Style x:Key="ChromeGlyph" TargetType="Button" BasedOn="{StaticResource ChromeClose}">
+            <Setter Property="FontSize" Value="13"/>
+        </Style>
+
+        <Style x:Key="SectionHead" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{StaticResource TextMain}"/>
+            <Setter Property="Margin" Value="0,0,0,6"/>
+        </Style>
+
+        <Style x:Key="FieldLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="{StaticResource TextDim}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+
+        <!-- tab icons: line drawings in the tab's own text colour, so they
+             brighten with the label when the tab is selected or hovered -->
+        <Style x:Key="TabIcon" TargetType="Path">
+            <Setter Property="Width" Value="16"/>
+            <Setter Property="Height" Value="16"/>
+            <Setter Property="Stretch" Value="None"/>
+            <Setter Property="StrokeThickness" Value="1.3"/>
+            <Setter Property="StrokeLineJoin" Value="Round"/>
+            <Setter Property="StrokeStartLineCap" Value="Round"/>
+            <Setter Property="StrokeEndLineCap" Value="Round"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,7,0"/>
+            <Setter Property="Stroke"
+                    Value="{Binding Foreground, RelativeSource={RelativeSource AncestorType=TabItem}}"/>
+        </Style>
+
+        <!-- sub tabs: a segmented strip inside a tab, for the family shape -->
+        <Style x:Key="SubTabControl" TargetType="TabControl">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabControl">
+                        <DockPanel>
+                            <Border DockPanel.Dock="Top" Background="{StaticResource BgField}"
+                                    BorderBrush="{StaticResource LineSoft}" BorderThickness="1"
+                                    CornerRadius="4" Padding="3" HorizontalAlignment="Stretch">
+                                <UniformGrid Rows="1" IsItemsHost="True"/>
+                            </Border>
+                            <ContentPresenter ContentSource="SelectedContent"
+                                              Margin="0,10,0,0"/>
+                        </DockPanel>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="SubTabItem" TargetType="TabItem">
+            <Setter Property="Foreground" Value="{StaticResource TextDim}"/>
+            <Setter Property="FontSize" Value="12.5"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Border x:Name="seg" Background="Transparent" CornerRadius="3"
+                                Padding="8,5" Margin="1,0">
+                            <ContentPresenter ContentSource="Header"
+                                              HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="{StaticResource TextMain}"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="seg" Property="Background"
+                                        Value="{StaticResource Blue}"/>
+                                <Setter Property="Foreground" Value="#FFFFFFFF"/>
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    </Window.Resources>
+
+    <Border Background="{StaticResource BgShell}"
+            BorderBrush="#FF212932" BorderThickness="1"
+            CornerRadius="6">
+        <Grid Margin="16,12,16,14">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <StackPanel x:Name="header_pnl" Grid.Row="0" Background="Transparent"
+                        MouseLeftButtonDown="drag_window">
+                <Grid>
+                    <TextBlock VerticalAlignment="Center">
+                        <Run Text="RevoBIM" FontSize="20" FontWeight="Bold"
+                             Foreground="{StaticResource Blue}"/>
+                        <Run Text=" Family settings" FontSize="15"
+                             Foreground="{StaticResource TextMain}"/>
+                    </TextBlock>
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Right" VerticalAlignment="Top"
+                                Margin="0,-4,-6,0">
+                        <Button x:Name="shrink_btn" Style="{StaticResource ChromeShrink}"
+                                Click="shrink_click"/>
+                        <Button Style="{StaticResource ChromeClose}" Content="&#x2715;"
+                                Click="cancel_click" ToolTip="Close"/>
+                    </StackPanel>
+                </Grid>
+                <Border Height="1" Background="{StaticResource Orange}" Margin="0,10,0,0"/>
+            </StackPanel>
+
+            <!-- the family: what it looks like, what it is, how it is shaped -->
+            <Grid Grid.Row="1" Margin="0,14,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0" Width="112" Height="112" VerticalAlignment="Top"
+                        Background="#FFEEF1F5" BorderBrush="{StaticResource LineSoft}"
+                        BorderThickness="1" CornerRadius="3">
+                    <Grid>
+                        <TextBlock x:Name="fs_noprev_tb" Text="No preview" FontSize="10.5"
+                                   Foreground="#FF7B8290" HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+                        <Image x:Name="fs_preview_img" Stretch="Uniform" Margin="5"
+                               RenderOptions.BitmapScalingMode="HighQuality"/>
+                    </Grid>
+                </Border>
+                <StackPanel Grid.Column="1" Margin="14,0,0,0">
+                    <TextBlock x:Name="fs_slot_tb" Text="" FontSize="11"
+                               Foreground="{StaticResource TextDim}"/>
+                    <TextBlock x:Name="fs_family_tb" Text="" FontSize="14"
+                               FontWeight="SemiBold" TextWrapping="Wrap"
+                               Foreground="{StaticResource TextMain}" Margin="0,2,0,0"/>
+                    <TextBlock x:Name="fs_count_tb" Text="" FontSize="11"
+                               Foreground="{StaticResource TextDim}" Margin="0,2,0,8"
+                               TextWrapping="Wrap"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Shape"
+                                   Style="{StaticResource FieldLabel}" Margin="0,0,10,4"/>
+                        <ComboBox Grid.Row="0" Grid.Column="1" x:Name="fs_shape_cb"
+                                  Style="{StaticResource DarkCombo}" Margin="0,0,0,4"/>
+                        <TextBlock x:Name="fs_holds_lbl" Grid.Row="1" Grid.Column="0"
+                                   Text="Round size is" Style="{StaticResource FieldLabel}"
+                                   Margin="0,0,10,0"/>
+                        <ComboBox Grid.Row="1" Grid.Column="1" x:Name="fs_holds_cb"
+                                  Style="{StaticResource DarkCombo}"/>
+                    </Grid>
+
+                    <!-- the family's clearance: the one place it is set -->
+                    <Border BorderBrush="{StaticResource Blue}" BorderThickness="2"
+                            CornerRadius="3" Padding="10,8" Margin="0,4,0,12">
+                        <StackPanel>
+                            <TextBlock Text="Clearance" FontWeight="Bold" FontSize="13"
+                                       Foreground="{StaticResource TextMain}" Margin="0,0,0,6"/>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBox x:Name="fs_clearance_tb" Width="70"
+                                         Style="{StaticResource FieldBox}" Text="50"
+                                         FontWeight="Bold"
+                                         ToolTip="Clearance each side of the services for this family, in mm. On a circular family it is the gap around the pipe."/>
+                                <TextBlock x:Name="fs_clearance_tb_hint" Text="mm each side"
+                                           Style="{StaticResource FieldLabel}" Margin="8,0,0,0"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Grid>
+
+            <!-- one row per role, built from bwic_families.ROLES -->
+            <ScrollViewer Grid.Row="2" Margin="0,14,0,0"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled">
+                <StackPanel>
+                    <!-- how a rectangular family is driven: one parameter per
+                         size, or a Minus / Plus pair per axis -->
+                    <TabControl x:Name="fs_drive_tabs" Style="{StaticResource SubTabControl}"
+                                ItemContainerStyle="{StaticResource SubTabItem}">
+                        <TabItem>
+                            <TabItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Style="{StaticResource TabIcon}" Margin="0,0,6,0"
+                                          Data="M2.5,4 H13.5 V12 H2.5 Z M8,6.5 V9.5 M6.5,8 H9.5"/>
+                                    <TextBlock Text="Standard" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </TabItem.Header>
+                        </TabItem>
+                        <TabItem>
+                            <TabItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Style="{StaticResource TabIcon}" Margin="0,0,6,0"
+                                          Data="M2.5,4 H13.5 V12 H2.5 Z M8,4 V12 M4.5,8 H6.5 M10.5,7 V9 M9.5,8 H11.5"/>
+                                    <TextBlock x:Name="fs_split_tab_tb" Text="X+ / X&#x2212;" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </TabItem.Header>
+                        </TabItem>
+                    </TabControl>
+
+                    <!-- each sub tab has its own workset; the tab the family
+                         is set to decides which one its BWICs go on -->
+                    <StackPanel>
+                        <TextBlock x:Name="fs_workset_head_tb" Text="Workset"
+                                   Style="{StaticResource SectionHead}"/>
+                        <ComboBox x:Name="fs_workset_cb" Style="{StaticResource DarkCombo}"
+                                  Margin="0,0,0,4"
+                                  ToolTip="The workset BWICs sized this way are placed on. As Settings uses the workset chosen in Settings; a model that is not workshared ignores it."/>
+                        <TextBlock x:Name="fs_workset_tb" Text="" FontSize="10.5"
+                                   Foreground="{StaticResource TextDim}"
+                                   TextWrapping="Wrap" Margin="0,0,0,12"/>
+                    </StackPanel>
+
+                    <StackPanel x:Name="fs_standard_pnl">
+                        <TextBlock Text="Size parameters" Style="{StaticResource SectionHead}"/>
+                        <TextBlock Text="Which of this family's parameters the tool writes each size to. Only length parameters are listed."
+                                   FontSize="11" Foreground="{StaticResource TextDim}"
+                                   TextWrapping="Wrap" Margin="0,0,0,8"/>
+                        <Grid x:Name="fs_size_grid" Margin="0,0,0,12"/>
+                    </StackPanel>
+
+                    <StackPanel x:Name="fs_split_pnl" Visibility="Collapsed">
+                        <TextBlock Text="Minus / Plus parameters" Style="{StaticResource SectionHead}"/>
+                        <TextBlock Text="For families not driven equally from the centre, sized by a parameter on each side. Each side takes half the overall size, so Minus + Plus = the overall size, and the two always stay equal."
+                                   FontSize="11" Foreground="{StaticResource TextDim}"
+                                   TextWrapping="Wrap" Margin="0,0,0,8"/>
+                        <Grid x:Name="fs_split_grid" Margin="0,0,0,12"/>
+                    </StackPanel>
+
+                    <StackPanel x:Name="fs_position_pnl">
+                        <TextBlock Text="Position and level" Style="{StaticResource SectionHead}"/>
+                        <TextBlock Text="Leave a row on &lt;none&gt; if the family does not have it. Single-level families use the first three, two-level families the next four."
+                                   FontSize="11" Foreground="{StaticResource TextDim}"
+                                   TextWrapping="Wrap" Margin="0,0,0,8"/>
+                        <Grid x:Name="fs_position_grid"/>
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+
+            <Border Grid.Row="3" x:Name="fs_problems_bd" Margin="0,12,0,0"
+                    Background="{StaticResource BgCanvas}" BorderBrush="{StaticResource Orange}"
+                    BorderThickness="1" CornerRadius="2" Padding="10,7">
+                <TextBlock x:Name="fs_problems_tb" FontSize="11.5" TextWrapping="Wrap"
+                           Foreground="{StaticResource TextMain}" Text=""/>
+            </Border>
+
+            <Grid Grid.Row="4" Margin="0,14,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="0" Style="{StaticResource GhostButton}"
+                        Content="Suggest from names" Padding="12,0" Click="suggest_click"
+                        ToolTip="Fill the rows by matching this family's parameter names - Length, Width, Height, Diameter and so on"/>
+                <Button Grid.Column="2" Style="{StaticResource GhostButton}"
+                        Content="Cancel" Width="90" Click="cancel_click"/>
+                <Button Grid.Column="4" Style="{StaticResource FlatButton}"
+                        Content="Save" Width="90" Click="save_click"/>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>

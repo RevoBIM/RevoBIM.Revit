@@ -1,0 +1,24 @@
+title: RevoBIM Clash Offset
+tooltip: >-
+  Jog services around whatever is in the way. Select the services and the things
+  to avoid together and press the button, or select nothing and it asks: the
+  services, then what is in the way in this model, then what is in the way in a
+  link.
+
+
+  The tool finds where the clash sits along the run, works out which way round
+  is both sensible and cheap, and offsets the services clear of it.
+
+
+  A column is gone round, a beam is gone under, and a preference that costs far
+  more than the alternative is given up for the shorter way. The offset clears
+  the real solid, not a bounding box, so a beam running at an angle is not
+  treated as far bigger than it is.
+
+
+  Several parallel services move as a bank, staying parallel and evenly spaced.
+
+
+  It shows what it worked out before it writes anything, and the direction can
+  be overruled per clash.
+highlight: new

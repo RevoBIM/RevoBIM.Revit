@@ -1,0 +1,13 @@
+title: RevoBIM Tag Tidy
+tooltip: >-
+  Select a set of tags and run this to tidy them into a neat column, one under
+  another, beside the elements they tag. Each leader leaves its tag level and
+  turns 45 degrees onto its target, ordered so no leaders cross. Tags and
+  leaders keep clear of other annotation and of pipes, ducts, trays, conduit,
+  walls and grids; when a clear spot cannot be found nearby, the clash is
+  reported by name. You get a preview to keep, undo, or try on the other side,
+  and the whole thing is one undo step.
+
+  Keyboard shortcut: View > User Interface > Keyboard Shortcuts, search
+  "RevoBIM Tag Tidy".
+author: RevoBIM PY

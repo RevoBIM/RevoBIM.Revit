@@ -1,0 +1,131 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RevoBIM Level Manager" Width="1240" Height="760" MinWidth="780" MinHeight="440"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent" ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen" ShowInTaskbar="True" FontFamily="Segoe UI" FontSize="12">
+    <Grid>
+        <Border x:Name="Frame" CornerRadius="6" BorderThickness="1" BorderBrush="{DynamicResource Frame}"
+                Background="{DynamicResource Bg}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- ==================== header ==================== -->
+                <Border x:Name="Header" Grid.Row="0" Background="{DynamicResource Bar}" CornerRadius="6,6,0,0" Height="50">
+                    <DockPanel LastChildFill="False" Margin="12,0,6,0">
+                        <Image x:Name="Logo" DockPanel.Dock="Left" Width="30" Height="30" Margin="0,0,10,0"
+                               VerticalAlignment="Center" Cursor="Hand"/>
+                        <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="RevoBIM" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource Blue}"
+                                       VerticalAlignment="Bottom"/>
+                            <TextBlock x:Name="ToolTitle" Text="Level Manager" FontSize="15" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource Orange}" Margin="8,0,0,1" VerticalAlignment="Bottom"/>
+                        </StackPanel>
+                        <Button x:Name="CloseBtn" DockPanel.Dock="Right" Style="{DynamicResource CloseButton}" ToolTip="Close">
+                            <Path Data="M0,0 L10,10 M10,0 L0,10" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                  StrokeThickness="1.4"/>
+                        </Button>
+                        <Button x:Name="FullBtn" DockPanel.Dock="Right" Style="{DynamicResource WinButton}" ToolTip="Full screen (F11)">
+                            <Border x:Name="FullGlyph" Width="11" Height="11" BorderThickness="1.4"
+                                    BorderBrush="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                        </Button>
+                        <Button x:Name="ShrinkBtn" DockPanel.Dock="Right" Style="{DynamicResource WinButton}"
+                                ToolTip="Shrink to the taskbar so Revit can be seen (Ctrl+Shift+H)">
+                            <Grid Width="12" Height="12">
+                                <Path x:Name="ShrinkGlyph" Data="M6,0.5 L6,7.6 M2.8,4.5 L6,7.7 L9.2,4.5 M1,11 L11,11"
+                                      Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.4"/>
+                                <Path x:Name="ExpandGlyph" Data="M6,11.5 L6,1.6 M1.8,5.8 L6,1.6 L10.2,5.8"
+                                      Stroke="{DynamicResource Green}" StrokeThickness="2" Visibility="Collapsed"/>
+                            </Grid>
+                        </Button>
+                        <TextBlock x:Name="VersionTxt" DockPanel.Dock="Right" Text="v0.0.0" Foreground="{DynamicResource Muted}"
+                                   FontSize="11" VerticalAlignment="Center" Margin="4,0,10,0"/>
+                        <Button x:Name="ThemeBtn" DockPanel.Dock="Right" Style="{DynamicResource ChipButton}"
+                                ToolTip="Theme: Auto follows Revit's canvas - click for Dark, Light, Auto"/>
+                    </DockPanel>
+                </Border>
+
+                <!-- ==================== progress ==================== -->
+                <Grid x:Name="ProgressRow" Grid.Row="1" Margin="12,8,12,0" Visibility="Collapsed">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <ProgressBar x:Name="Progress" Minimum="0" Maximum="100" Value="0" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="ProgressTxt" Grid.Column="1" Text="0%" Foreground="{DynamicResource Muted}"
+                               Margin="10,0,0,0" MinWidth="36"/>
+                </Grid>
+
+                <!-- ==================== toolbar ==================== -->
+                <WrapPanel Grid.Row="2" Margin="12,10,12,0">
+                    <TextBox x:Name="SearchBox" Width="300" Height="28" Margin="0,0,10,6"
+                             Tag="Search levels, categories, families, types..."/>
+                    <Button x:Name="ExpandLevelsBtn" Height="28" Margin="0,0,6,6" ToolTip="Show the categories under every level"/>
+                    <Button x:Name="ExpandBtn" Height="28" Margin="0,0,6,6" ToolTip="Show every element"/>
+                    <Button x:Name="CollapseBtn" Height="28" Margin="0,0,14,6" ToolTip="Back to the list of levels"/>
+                    <Button x:Name="ClearFiltersBtn" Height="28" Margin="0,0,6,6" ToolTip="Clear the search and every column filter"/>
+                    <Button x:Name="UntickBtn" Height="28" Margin="0,0,6,6" ToolTip="Untick everything"/>
+                    <Button x:Name="FromRevitBtn" Height="28" Margin="0,0,14,6"
+                            ToolTip="Tick whatever is selected in Revit and open its levels"/>
+                    <Button x:Name="AddParamBtn" Height="28" Margin="0,0,6,6" ToolTip="Add a project parameter as a column to filter by"/>
+                    <Button x:Name="RefreshBtn" Height="28" Margin="0,0,6,6" ToolTip="Read the model again"/>
+                </WrapPanel>
+
+                <!-- ==================== extra parameter columns ==================== -->
+                <WrapPanel x:Name="ChipsRow" Grid.Row="3" Margin="12,2,12,6" Visibility="Collapsed">
+                    <TextBlock Text="Parameter columns:" Foreground="{DynamicResource Muted}" VerticalAlignment="Center" Margin="0,0,8,4"/>
+                    <WrapPanel x:Name="Chips"/>
+                </WrapPanel>
+
+                <!-- ==================== the table ==================== -->
+                <DataGrid x:Name="Table" Grid.Row="4" Margin="12,0,12,0" AutoGenerateColumns="False" IsReadOnly="True"
+                          CanUserAddRows="False" CanUserDeleteRows="False" CanUserReorderColumns="False"
+                          CanUserSortColumns="False" CanUserResizeColumns="True" CanUserResizeRows="False"
+                          SelectionMode="Extended" SelectionUnit="FullRow"
+                          EnableRowVirtualization="True" EnableColumnVirtualization="False"
+                          VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"
+                          ScrollViewer.HorizontalScrollBarVisibility="Auto"/>
+
+                <!-- ==================== footer: actions, then debug and status ==================== -->
+                <Border Grid.Row="5" Background="{DynamicResource Bar}" CornerRadius="0,0,6,6" Margin="0,10,0,0">
+                    <Grid Margin="12,8,12,8">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <WrapPanel VerticalAlignment="Center">
+                            <Button x:Name="SelectBtn" Height="30" Style="{DynamicResource OrangeButton}" Margin="0,0,8,4"
+                                    ToolTip="Select the chosen elements in Revit"/>
+                            <Button x:Name="IsolateBtn" Height="30" Style="{DynamicResource OrangeButton}" Margin="0,0,8,4"
+                                    ToolTip="Open the default 3D view, fit the section box round the chosen elements and temporarily isolate them with the levels and the section box"/>
+                            <Button x:Name="DeleteLevelBtn" Height="30" Style="{DynamicResource DangerButton}" Margin="0,0,8,4"
+                                    ToolTip="Highlight one level row, then delete it - its elements are moved to a level you choose first"/>
+                        </WrapPanel>
+                        <Button x:Name="AssignBtn" Grid.Column="1" Style="{DynamicResource AccentButton}" IsEnabled="False"
+                                VerticalAlignment="Center" Margin="0,0,0,4"
+                                ToolTip="Associate the chosen elements with another level - nothing moves"/>
+                        <DockPanel Grid.Row="1" Grid.ColumnSpan="2" Margin="0,4,0,0">
+                            <CheckBox x:Name="DebugChk" Content="Debug" Margin="0,0,10,0" VerticalAlignment="Center"
+                                      ToolTip="Write a debug log of every read and run, to send to Claude"/>
+                            <Button x:Name="CopyDebugBtn" Height="24" Margin="0,0,14,0" ToolTip="Copy the debug log to the clipboard"/>
+                            <TextBlock x:Name="StatusTxt" Foreground="{DynamicResource Muted}" VerticalAlignment="Center"
+                                       TextTrimming="CharacterEllipsis"/>
+                        </DockPanel>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
+        <!-- ==================== resize grips, added in code ==================== -->
+        <Grid x:Name="Grips"/>
+    </Grid>
+</Window>

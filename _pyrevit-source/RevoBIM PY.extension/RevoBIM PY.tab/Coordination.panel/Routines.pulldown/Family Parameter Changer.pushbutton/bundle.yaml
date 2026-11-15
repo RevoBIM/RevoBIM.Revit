@@ -1,0 +1,8 @@
+title: Family Parameter Changer
+tooltip: >
+  RevoBIM PY - Family Parameter Changer
+
+  Browse every loaded family in the project grouped by category, expose
+  all their parameters, and rebind one onto a shared parameter from the
+  shared parameter file - keeping its current value, formula and grouping.
+author: RevoBIM PY

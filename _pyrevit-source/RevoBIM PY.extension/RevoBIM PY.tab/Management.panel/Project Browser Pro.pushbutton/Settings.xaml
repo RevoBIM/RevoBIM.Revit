@@ -1,0 +1,131 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RevoBIM Settings" Width="460" SizeToContent="Height"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ResizeMode="NoResize" ShowInTaskbar="False" WindowStartupLocation="CenterOwner"
+        FontFamily="Segoe UI" FontSize="12" TextOptions.TextFormattingMode="Display">
+
+    <!-- ==========================================================
+         Project Browser Pro - settings: heading colours, highlighted
+         rows, the user's own colours. Nothing is saved until Save.
+         ========================================================== -->
+    <Border Background="{DynamicResource BgBrush}" CornerRadius="6" BorderThickness="1"
+            BorderBrush="{DynamicResource ChromeEdgeBrush}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Border x:Name="Header" Background="{DynamicResource BarBrush}" CornerRadius="6,6,0,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Image x:Name="LogoImage" Width="22" Height="22" Margin="10,6,8,6"/>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="RevoBIM" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource BlueBrush}"/>
+                        <TextBlock Text="Project Browser Pro settings" Margin="8,0,0,0" FontSize="12"
+                                   VerticalAlignment="Center" Foreground="{DynamicResource OrangeBrush}"/>
+                    </StackPanel>
+                    <TextBlock x:Name="VersionText" Grid.Column="2" FontSize="11" Margin="0,0,6,0"
+                               VerticalAlignment="Center" Foreground="{DynamicResource MutedBrush}"/>
+                    <Button x:Name="CloseButton" Grid.Column="3" Style="{DynamicResource CloseButton}" Margin="0,0,6,0">
+                        <Path Data="M1,1 L9,9 M9,1 L1,9" StrokeThickness="1.5" Width="10" Height="10"
+                              Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                    </Button>
+                </Grid>
+            </Border>
+
+            <!-- heading colours -->
+            <StackPanel Grid.Row="1" Margin="16,12,16,4">
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                    <Border Width="4" Height="14" Background="{DynamicResource BlueBrush}" Margin="0,0,6,0"/>
+                    <TextBlock Text="Heading colours" FontWeight="SemiBold" Foreground="{DynamicResource TextBrush}"/>
+                </StackPanel>
+                <RadioButton x:Name="ModeColour" GroupName="PbpColourMode" Style="{DynamicResource OptionRadio}"
+                             Content="Colour - each trade's gradient (and the colours you give)"/>
+                <RadioButton x:Name="ModeGrey" GroupName="PbpColourMode" Style="{DynamicResource OptionRadio}"
+                             Content="Greyscale - grey bars"/>
+                <RadioButton x:Name="ModeCustom" GroupName="PbpColourMode" Style="{DynamicResource OptionRadio}"
+                             Content="Custom - grey, except headings you give a colour"/>
+            </StackPanel>
+
+            <!-- highlighted rows -->
+            <StackPanel Grid.Row="2" Margin="16,8,16,4">
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                    <Border Width="4" Height="14" Background="{DynamicResource FavBrush}" Margin="0,0,6,0"/>
+                    <TextBlock Text="Highlighted rows" FontWeight="SemiBold" Foreground="{DynamicResource TextBrush}"/>
+                </StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="90"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Dark theme" VerticalAlignment="Center" Foreground="{DynamicResource TextBrush}"/>
+                    <Button x:Name="DarkFill" Grid.Column="1" Style="{DynamicResource PlainButton}" Content="Fill..."/>
+                    <Button x:Name="DarkText" Grid.Column="2" Style="{DynamicResource PlainButton}" Content="Text..."/>
+                    <Border x:Name="DarkSample" Grid.Column="3" Margin="8,2,0,2" CornerRadius="4" Padding="8,3">
+                        <TextBlock x:Name="DarkSampleText" Text="L1 Power"/>
+                    </Border>
+                    <TextBlock Grid.Row="1" Text="Light theme" VerticalAlignment="Center"
+                               Foreground="{DynamicResource TextBrush}"/>
+                    <Button x:Name="LightFill" Grid.Row="1" Grid.Column="1" Style="{DynamicResource PlainButton}"
+                            Content="Fill..." Margin="3,6,0,0"/>
+                    <Button x:Name="LightText" Grid.Row="1" Grid.Column="2" Style="{DynamicResource PlainButton}"
+                            Content="Text..." Margin="3,6,0,0"/>
+                    <Border x:Name="LightSample" Grid.Row="1" Grid.Column="3" Margin="8,8,0,2" CornerRadius="4"
+                            Padding="8,3">
+                        <TextBlock x:Name="LightSampleText" Text="L1 Power"/>
+                    </Border>
+                </Grid>
+                <CheckBox x:Name="BoldTick" Content="Bold text on highlighted rows" Margin="0,8,0,0"/>
+            </StackPanel>
+
+            <!-- the user's own colours -->
+            <StackPanel Grid.Row="3" Margin="16,8,16,12">
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                    <Border Width="4" Height="14" Background="{DynamicResource PanelBrush}" Margin="0,0,6,0"/>
+                    <TextBlock Text="Your colours" FontWeight="SemiBold" Foreground="{DynamicResource TextBrush}"/>
+                </StackPanel>
+                <WrapPanel x:Name="CustomSwatches"/>
+                <Grid Margin="0,4,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock x:Name="CustomNote" FontSize="11" TextWrapping="Wrap" VerticalAlignment="Center"
+                               Foreground="{DynamicResource MutedBrush}"
+                               Text="Offered wherever a colour is picked. Right click one to remove it."/>
+                    <Button x:Name="AddCustom" Grid.Column="1" Style="{DynamicResource PlainButton}" Content="Add colour..."/>
+                </Grid>
+            </StackPanel>
+
+            <Border Grid.Row="4" Background="{DynamicResource BarBrush}" CornerRadius="0,0,6,6" Padding="10,8">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Button x:Name="ResetButton" Style="{DynamicResource PlainButton}" Content="Highlight defaults"/>
+                    <Button x:Name="CancelButton" Grid.Column="2" Style="{DynamicResource PlainButton}" Content="Cancel"/>
+                    <Button x:Name="SaveButton" Grid.Column="3" Style="{DynamicResource GreenButton}" Padding="16,4"
+                            Margin="6,0,0,0" Content="Save"/>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

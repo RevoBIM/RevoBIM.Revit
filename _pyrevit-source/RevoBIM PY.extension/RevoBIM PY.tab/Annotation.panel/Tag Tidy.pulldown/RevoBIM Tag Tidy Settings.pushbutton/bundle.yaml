@@ -1,0 +1,7 @@
+title: RevoBIM Tag Tidy Settings
+tooltip: >-
+  Settings for RevoBIM Tag Tidy: which side the column goes, the leader angle,
+  the gap between tags, how far a tag may be pulled to line up, what counts as
+  in the way, how hard to search for a clear position, how to treat pinned
+  tags and tags with no leader, the debug report and the theme.
+author: RevoBIM PY

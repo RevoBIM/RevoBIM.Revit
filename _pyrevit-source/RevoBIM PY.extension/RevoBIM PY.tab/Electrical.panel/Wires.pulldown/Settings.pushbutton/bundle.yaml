@@ -1,0 +1,10 @@
+title: RevoBIM Wires Settings
+author: RevoBIM PY
+min_revit_version: 2024
+tooltip: >
+  Search radius, which categories count as wireable, how far out of true an
+  end has to be before it is worth pulling, and how results are reported.
+
+  Written to %APPDATA%\RevoBIM\wires.txt as plain key=value text - readable
+  and hand-editable, with no dependency on a JSON module whose availability
+  varies with the IronPython engine.

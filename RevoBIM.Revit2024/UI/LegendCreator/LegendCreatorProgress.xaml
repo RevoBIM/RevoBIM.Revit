@@ -1,0 +1,51 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="RevoBIM.UI.LegendCreator.LegendCreatorProgress"
+        Title="RevoBIM - Legend Creator"
+        Width="420" SizeToContent="Height"
+        WindowStartupLocation="CenterScreen"
+        ShowInTaskbar="False"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        ResizeMode="NoResize"
+        Background="Transparent"
+        Topmost="True"
+        TextOptions.TextFormattingMode="Display"
+        FontFamily="Segoe UI" FontSize="12">
+
+  <!-- Stands in for pyRevit's forms.ProgressBar: "Legend n of m", with Cancel. -->
+  <Window.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="Theme.xaml"/>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </Window.Resources>
+
+  <Border Background="{DynamicResource Base}" BorderBrush="{DynamicResource Edge}"
+          BorderThickness="1" CornerRadius="6" Padding="18,14">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="Auto"/>
+      </Grid.ColumnDefinitions>
+
+      <TextBlock x:Name="title_tb" Grid.ColumnSpan="2" Text="Creating legends"
+                 Foreground="{DynamicResource Ink}" FontWeight="SemiBold"
+                 Margin="0,0,0,10"/>
+      <Border Grid.Row="1" Height="8" CornerRadius="4" VerticalAlignment="Center"
+              Background="{DynamicResource Field}">
+        <Grid x:Name="track">
+          <Border x:Name="fill_bar" HorizontalAlignment="Left" Width="0"
+                  CornerRadius="4" Background="{DynamicResource Blue}"/>
+        </Grid>
+      </Border>
+      <Button x:Name="cancel_btn" Grid.Row="1" Grid.Column="1" Style="{StaticResource Quiet}"
+              Margin="12,0,0,0" Content="Cancel" IsCancel="True"/>
+    </Grid>
+  </Border>
+</Window>

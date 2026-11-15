@@ -1,0 +1,22 @@
+title: RevoBIM Auto Wire
+author: RevoBIM PY
+min_revit_version: 2024
+tooltip: >
+  Select fittings and only their circuits are wired. Select nothing and every
+  circuit in the active plan that has no wires yet is wired.
+
+  One continuous snake per circuit rather than a spider, arc wires between
+  fitting centres, trimmed back so the wire never runs over a symbol.
+
+  The wire type comes from the fitting: emergency where the emergency
+  parameter reads yes, permanent live where the run crosses from one switch
+  system to the next, the lighting type otherwise.
+
+  The home run is a short arc leaving the light the switch is wired to,
+  pointing at that switch, its length 10mm on paper times the view scale.
+  Home runs pointing back at the panel are removed once it is placed.
+
+  One tag per circuit, with a leader.
+
+  Shuffle and Previous step through the route options. Keep leaves one undo
+  step; Cancel puts the view back.

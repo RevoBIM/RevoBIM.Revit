@@ -1,0 +1,4 @@
+title: Tag Untangle Vertical
+tooltip: >-
+  Spaces the selected tags out evenly top to bottom so none overlap: each tag's own height plus text height / 2 clear, scaled by the view (editable in Tag Aligner Settings). Side-to-side positions are kept.
+author: RevoBIM

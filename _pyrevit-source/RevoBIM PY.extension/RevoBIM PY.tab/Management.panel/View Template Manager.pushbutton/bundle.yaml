@@ -1,0 +1,8 @@
+title: View Template Manager
+tooltip: >-
+  Every view template in the project as an editable table: what each one is set
+  to, how many views use it, and which settings it actually controls.
+  Double click to edit, copy and paste across cells, drag columns into the
+  order you want, Apply to write, and delete the templates nothing is using.
+author: RevoBIM PY
+highlight: new

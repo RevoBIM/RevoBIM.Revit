@@ -1,0 +1,199 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent" ResizeMode="NoResize" ShowInTaskbar="True"
+        FontFamily="Segoe UI" FontSize="12.5" Foreground="{DynamicResource Text}"
+        Width="1290" Height="640" MinWidth="960" MinHeight="420" WindowStartupLocation="CenterScreen" Title="ParaManager">
+<Border x:Name="Root" Background="{DynamicResource WindowBg}" BorderBrush="{DynamicResource Edge}" BorderThickness="1" CornerRadius="6">
+<Grid x:Name="Body">
+  <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+  @@HEADER@@
+
+  <!-- ===== tabs and progress ===== -->
+  <DockPanel Grid.Row="1" Margin="10,8,10,0">
+    <Grid DockPanel.Dock="Right" Width="370" Height="24" Margin="0,0,0,3">
+      <ProgressBar x:Name="ProgBar" Minimum="0" Maximum="100" Value="0" Background="{DynamicResource FieldBg}" Foreground="{DynamicResource Green}" BorderBrush="{DynamicResource Edge}"/>
+      <TextBlock x:Name="ProgText" Text="Completed 0%" Margin="10,0" VerticalAlignment="Center"/>
+    </Grid>
+    <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
+      <RadioButton x:Name="TabParams" Style="{DynamicResource TabBtn}" Content="Parameters" IsChecked="True"/>
+      <RadioButton x:Name="TabCats" Style="{DynamicResource TabBtn}" Content="Categories"/>
+      <RadioButton x:Name="TabTransfer" Style="{DynamicResource TabBtn}" Content="Transfer"/>
+      <RadioButton x:Name="TabFamilies" Style="{DynamicResource TabBtn}" Content="Families"/>
+      <RadioButton x:Name="TabShared" Style="{DynamicResource TabBtn}" Content="Shared Editor"/>
+    </StackPanel>
+  </DockPanel>
+
+  <Grid x:Name="Content" Grid.Row="2" Margin="10,0,10,0">
+
+    <!-- ===== Parameters ===== -->
+    <DockPanel x:Name="PanelParams">
+      <DockPanel DockPanel.Dock="Top" Margin="0,8,0,8">
+        <TextBox x:Name="SearchP" DockPanel.Dock="Right" Width="230" Height="32" Tag="Search"/>
+        <StackPanel Orientation="Horizontal">
+          <Button x:Name="AddParamBtn" Style="{DynamicResource ToolBtn}">
+            <StackPanel Orientation="Horizontal">
+              <Path Data="M7,0 L7,14 M0,7 L14,7" Stroke="{DynamicResource Orange}" StrokeThickness="3" Margin="0,0,10,0" VerticalAlignment="Center"/>
+              <TextBlock Text="Add Parameter"/>
+            </StackPanel>
+          </Button>
+          <Button x:Name="ImportExportBtn" Style="{DynamicResource ToolBtn}" Content="Import/Export  v"/>
+          <Button x:Name="BatchBtn" Style="{DynamicResource ToolBtn}" Content="Batch Actions  v"/>
+          <CheckBox x:Name="ShowExistingP" Content="Show Existing Parameters" IsChecked="True" Margin="4,0,0,0"/>
+        </StackPanel>
+      </DockPanel>
+      <DataGrid x:Name="ParamGrid">
+        <DataGrid.Columns>
+          <DataGridTemplateColumn Width="32" CanUserSort="False" CanUserResize="False">
+            <DataGridTemplateColumn.Header><CheckBox x:Name="TickAllP"/></DataGridTemplateColumn.Header>
+            <DataGridTemplateColumn.CellTemplate><DataTemplate><CheckBox HorizontalAlignment="Center" IsChecked="{Binding tick, UpdateSourceTrigger=PropertyChanged}"/></DataTemplate></DataGridTemplateColumn.CellTemplate>
+          </DataGridTemplateColumn>
+          <DataGridTemplateColumn Width="24" CanUserSort="False" CanUserResize="False">
+            <DataGridTemplateColumn.Header><Path Data="M0,10 L2,10 L10,2 L8,0 L0,8 Z" Fill="{DynamicResource Muted}"/></DataGridTemplateColumn.Header>
+          </DataGridTemplateColumn>
+          <DataGridTemplateColumn Header="Parameter Name" Width="2.2*" MinWidth="170" SortMemberPath="name">
+            <DataGridTemplateColumn.CellTemplate><DataTemplate><TextBox Style="{DynamicResource ParamNameBox}" Text="{Binding name, UpdateSourceTrigger=LostFocus}"/></DataTemplate></DataGridTemplateColumn.CellTemplate>
+          </DataGridTemplateColumn>
+          <DataGridTemplateColumn Width="1.3*" MinWidth="130" CanUserSort="False">
+            <DataGridTemplateColumn.Header><ComboBox x:Name="KindP" Width="140"/></DataGridTemplateColumn.Header>
+            <DataGridTemplateColumn.CellTemplate><DataTemplate><TextBlock Text="{Binding kind}" VerticalAlignment="Center" Margin="4,0"/></DataTemplate></DataGridTemplateColumn.CellTemplate>
+          </DataGridTemplateColumn>
+          <DataGridTemplateColumn Header="Discipline" Width="1.3*" MinWidth="110" SortMemberPath="disc">
+            <DataGridTemplateColumn.CellTemplate><DataTemplate><ComboBox Margin="1" ItemsSource="{DynamicResource DiscList}" IsEnabled="{Binding free}" SelectedItem="{Binding disc, UpdateSourceTrigger=PropertyChanged}"/></DataTemplate></DataGridTemplateColumn.CellTemplate>
+          </DataGridTemplateColumn>
+          <DataGridTemplateColumn Header="Group Under" Width="1.4*" MinWidth="130" SortMemberPath="group">
+            <DataGridTemplateColumn.CellTemplate><DataTemplate><ComboBox Margin="1" ItemsSource="{DynamicResource GroupItems}" SelectedItem="{Binding group, UpdateSourceTrigger=PropertyChanged}"/></DataTemplate></DataGridTemplateColumn.CellTemplate>
+          </DataGridTemplateColumn>
+          <DataGridTemplateColumn Header="Instance/Type" Width="96" SortMemberPath="scope">
+            <DataGridTemplateColumn.CellTemplate><DataTemplate><ComboBox Margin="1" ItemsSource="{DynamicResource ScopeItems}" SelectedItem="{Binding scope, UpdateSourceTrigger=PropertyChanged}"/></DataTemplate></DataGridTemplateColumn.CellTemplate>
+          </DataGridTemplateColumn>
+        </DataGrid.Columns>
+      </DataGrid>
+    </DockPanel>
+
+    <!-- ===== Categories ===== -->
+    <DockPanel x:Name="PanelCats" Visibility="Collapsed">
+      <DockPanel DockPanel.Dock="Top" Margin="0,8,0,8">
+        <TextBox x:Name="SearchC" DockPanel.Dock="Right" Width="230" Height="32" Tag="Search"/>
+        <StackPanel Orientation="Horizontal">
+          <Button x:Name="AssignBtn" Style="{DynamicResource ToolBtn}" ToolTip="Assign categories to every ticked parameter">
+            <StackPanel Orientation="Horizontal">
+              <Path Data="M7,0 L7,14 M0,7 L14,7" Stroke="{DynamicResource Orange}" StrokeThickness="3" Margin="0,0,10,0" VerticalAlignment="Center"/>
+              <TextBlock Text="Assign Categories"/>
+            </StackPanel>
+          </Button>
+          <Button x:Name="ImportExportBtn2" Style="{DynamicResource ToolBtn}" Content="Import/Export  v"/>
+          <CheckBox x:Name="ShowExistingC" Content="Show Existing Parameters" IsChecked="True" Margin="4,0,0,0"/>
+        </StackPanel>
+      </DockPanel>
+      <DataGrid x:Name="CatsGrid">
+        <DataGrid.Columns>
+          <DataGridTemplateColumn Width="32" CanUserSort="False" CanUserResize="False">
+            <DataGridTemplateColumn.Header><CheckBox x:Name="TickAllC"/></DataGridTemplateColumn.Header>
+            <DataGridTemplateColumn.CellTemplate><DataTemplate><CheckBox HorizontalAlignment="Center" IsChecked="{Binding tick, UpdateSourceTrigger=PropertyChanged}"/></DataTemplate></DataGridTemplateColumn.CellTemplate>
+          </DataGridTemplateColumn>
+          <DataGridTemplateColumn Width="24" CanUserSort="False" CanUserResize="False">
+            <DataGridTemplateColumn.Header><Path Data="M0,10 L2,10 L10,2 L8,0 L0,8 Z" Fill="{DynamicResource Muted}"/></DataGridTemplateColumn.Header>
+          </DataGridTemplateColumn>
+          <DataGridTemplateColumn Header="Parameter Name" Width="2*" MinWidth="170" SortMemberPath="name">
+            <DataGridTemplateColumn.CellTemplate><DataTemplate><TextBlock Text="{Binding name}" Foreground="{DynamicResource Muted}" VerticalAlignment="Center" Margin="6,0"/></DataTemplate></DataGridTemplateColumn.CellTemplate>
+          </DataGridTemplateColumn>
+          <DataGridTemplateColumn Width="1.2*" MinWidth="130" CanUserSort="False">
+            <DataGridTemplateColumn.Header><ComboBox x:Name="KindC" Width="140"/></DataGridTemplateColumn.Header>
+            <DataGridTemplateColumn.CellTemplate><DataTemplate><TextBlock Text="{Binding kind}" VerticalAlignment="Center" Margin="4,0"/></DataTemplate></DataGridTemplateColumn.CellTemplate>
+          </DataGridTemplateColumn>
+          <DataGridTemplateColumn Header="Assign Categories" Width="150" CanUserSort="False">
+            <DataGridTemplateColumn.CellTemplate><DataTemplate><Button Style="{DynamicResource GridBtn}" Content="Categories ..." Tag="cats"/></DataTemplate></DataGridTemplateColumn.CellTemplate>
+          </DataGridTemplateColumn>
+          <DataGridTemplateColumn Header="Categories" Width="4*" MinWidth="200" SortMemberPath="cats">
+            <DataGridTemplateColumn.CellTemplate><DataTemplate><TextBlock Text="{Binding cats}" Foreground="{DynamicResource Muted}" TextTrimming="CharacterEllipsis" ToolTip="{Binding cats}" VerticalAlignment="Center" Margin="6,0"/></DataTemplate></DataGridTemplateColumn.CellTemplate>
+          </DataGridTemplateColumn>
+        </DataGrid.Columns>
+      </DataGrid>
+    </DockPanel>
+
+    <!-- ===== Placeholders ===== -->
+    <Border x:Name="PanelTransfer" Visibility="Collapsed" Background="{DynamicResource FieldBg}" BorderBrush="{DynamicResource Edge}" BorderThickness="1" Margin="0,8,0,0">
+      <TextBlock Text="Transfer: coming soon" Foreground="{DynamicResource Muted}" FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    </Border>
+    <Border x:Name="PanelFamilies" Visibility="Collapsed" Background="{DynamicResource FieldBg}" BorderBrush="{DynamicResource Edge}" BorderThickness="1" Margin="0,8,0,0">
+      <TextBlock Text="Families: coming soon" Foreground="{DynamicResource Muted}" FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    </Border>
+
+    <!-- ===== Shared Editor ===== -->
+    <DockPanel x:Name="PanelShared" Visibility="Collapsed">
+      <DockPanel DockPanel.Dock="Top" Margin="0,8,0,8">
+        <TextBox x:Name="SearchS" DockPanel.Dock="Right" Width="230" Height="32" Tag="Search"/>
+        <StackPanel Orientation="Horizontal">
+          <Button x:Name="LoadSpBtn" Style="{DynamicResource ToolBtn}">
+            <StackPanel Orientation="Horizontal">
+              <Path Data="M7,0 L7,9 M2,5 L7,10 L12,5 M0,14 L14,14" Stroke="{DynamicResource Orange}" StrokeThickness="2.4" Margin="0,0,10,0" VerticalAlignment="Center"/>
+              <TextBlock Text="Load SP File"/>
+            </StackPanel>
+          </Button>
+          <Button x:Name="AddSpBtn" Style="{DynamicResource ToolBtn}">
+            <StackPanel Orientation="Horizontal">
+              <Path Data="M7,0 L7,14 M0,7 L14,7" Stroke="{DynamicResource Orange}" StrokeThickness="3" Margin="0,0,10,0" VerticalAlignment="Center"/>
+              <TextBlock Text="Add Parameter"/>
+            </StackPanel>
+          </Button>
+          <Button x:Name="GroupsBtn" Style="{DynamicResource ToolBtn}" Content="Groups" IsEnabled="False"/>
+          <Button x:Name="RenameBtn" Style="{DynamicResource ToolBtn}" Content="Rename" IsEnabled="False" ToolTip="Rename the ticked parameters"/>
+          <Button x:Name="BatchSpBtn" Style="{DynamicResource ToolBtn}" Content="Batch Actions  v" IsEnabled="False"/>
+          <Button x:Name="RefreshBtn" Style="{DynamicResource ToolBtn}" Width="34" Padding="0" IsEnabled="False" ToolTip="Reload the file from disk">
+            <Path Data="M12,3 A6,6 0 1 0 13,8 M12,0 L12,4 L8,4" Stroke="{DynamicResource Orange}" StrokeThickness="2"/>
+          </Button>
+        </StackPanel>
+      </DockPanel>
+      <DataGrid x:Name="SpGrid">
+        <DataGrid.Columns>
+          <DataGridTemplateColumn Width="32" CanUserSort="False" CanUserResize="False">
+            <DataGridTemplateColumn.Header><CheckBox x:Name="TickAllS"/></DataGridTemplateColumn.Header>
+            <DataGridTemplateColumn.CellTemplate><DataTemplate><CheckBox HorizontalAlignment="Center" IsChecked="{Binding tick, UpdateSourceTrigger=PropertyChanged}"/></DataTemplate></DataGridTemplateColumn.CellTemplate>
+          </DataGridTemplateColumn>
+          <DataGridTemplateColumn Width="24" CanUserSort="False" CanUserResize="False">
+            <DataGridTemplateColumn.Header><Path Data="M0,10 L2,10 L10,2 L8,0 L0,8 Z" Fill="{DynamicResource Muted}"/></DataGridTemplateColumn.Header>
+          </DataGridTemplateColumn>
+          <DataGridTemplateColumn Header="Parameter Name" Width="1.9*" MinWidth="140" SortMemberPath="name">
+            <DataGridTemplateColumn.CellTemplate><DataTemplate><TextBox Style="{DynamicResource GridBox}" Text="{Binding name, UpdateSourceTrigger=LostFocus}"/></DataTemplate></DataGridTemplateColumn.CellTemplate>
+          </DataGridTemplateColumn>
+          <DataGridTemplateColumn Header="Type of Parameter" Width="1.6*" MinWidth="130" SortMemberPath="ptype">
+            <DataGridTemplateColumn.CellTemplate><DataTemplate><ComboBox Margin="1" ItemsSource="{DynamicResource SpTypeItems}" SelectedItem="{Binding ptype, UpdateSourceTrigger=PropertyChanged}"/></DataTemplate></DataGridTemplateColumn.CellTemplate>
+          </DataGridTemplateColumn>
+          <DataGridTemplateColumn Header="Group" Width="1.1*" MinWidth="110" SortMemberPath="group">
+            <DataGridTemplateColumn.CellTemplate><DataTemplate><ComboBox Margin="1" ItemsSource="{DynamicResource SpGroupItems}" SelectedItem="{Binding group, UpdateSourceTrigger=PropertyChanged}"/></DataTemplate></DataGridTemplateColumn.CellTemplate>
+          </DataGridTemplateColumn>
+          <DataGridTemplateColumn Header="Description" Width="1.8*" MinWidth="130" SortMemberPath="desc">
+            <DataGridTemplateColumn.CellTemplate><DataTemplate><TextBox Style="{DynamicResource GridBox}" Text="{Binding desc, UpdateSourceTrigger=LostFocus}"/></DataTemplate></DataGridTemplateColumn.CellTemplate>
+          </DataGridTemplateColumn>
+          <DataGridTemplateColumn Header="User Modifiable" Width="96" SortMemberPath="user">
+            <DataGridTemplateColumn.CellTemplate><DataTemplate><ComboBox Margin="1" ItemsSource="{DynamicResource YesNoItems}" SelectedItem="{Binding user, UpdateSourceTrigger=PropertyChanged}"/></DataTemplate></DataGridTemplateColumn.CellTemplate>
+          </DataGridTemplateColumn>
+          <DataGridTemplateColumn Header="Visibility" Width="80" SortMemberPath="shown">
+            <DataGridTemplateColumn.CellTemplate><DataTemplate><ComboBox Margin="1" ItemsSource="{DynamicResource YesNoItems}" SelectedItem="{Binding shown, UpdateSourceTrigger=PropertyChanged}"/></DataTemplate></DataGridTemplateColumn.CellTemplate>
+          </DataGridTemplateColumn>
+          <DataGridTemplateColumn Header="GUID" Width="1.6*" MinWidth="130" SortMemberPath="guid">
+            <DataGridTemplateColumn.CellTemplate><DataTemplate><TextBox Style="{DynamicResource GridBox}" IsReadOnly="True" Text="{Binding guid, Mode=OneWay}"/></DataTemplate></DataGridTemplateColumn.CellTemplate>
+          </DataGridTemplateColumn>
+          <DataGridTemplateColumn Header="Hide When No Value" Width="110" SortMemberPath="hide">
+            <DataGridTemplateColumn.CellTemplate><DataTemplate><ComboBox Margin="1" ItemsSource="{DynamicResource YesNoItems}" SelectedItem="{Binding hide, UpdateSourceTrigger=PropertyChanged}"/></DataTemplate></DataGridTemplateColumn.CellTemplate>
+          </DataGridTemplateColumn>
+        </DataGrid.Columns>
+      </DataGrid>
+    </DockPanel>
+  </Grid>
+
+  <!-- ===== footer ===== -->
+  <DockPanel Grid.Row="3" Margin="10,8,10,10">
+    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+      <Button x:Name="PrevBtn" Style="{DynamicResource ToolBtn}" Content="Previous" Visibility="Collapsed"/>
+      <Button x:Name="NextBtn" Style="{DynamicResource ToolBtn}" Content="Next"/>
+      <Button x:Name="ApplyBtn" Style="{DynamicResource GreenBtn}" Content="Apply" IsEnabled="False"/>
+      <Button x:Name="SaveBtn" Style="{DynamicResource GreenBtn}" Content="Save" IsEnabled="False" Visibility="Collapsed"/>
+    </StackPanel>
+    <CheckBox x:Name="DebugTick" DockPanel.Dock="Left" Content="Debug" Margin="0,0,16,0"/>
+    <TextBlock x:Name="StatusText" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+  </DockPanel>
+
+  <Grid x:Name="Grips" Grid.RowSpan="4"/>
+</Grid>
+</Border>
+</Window>

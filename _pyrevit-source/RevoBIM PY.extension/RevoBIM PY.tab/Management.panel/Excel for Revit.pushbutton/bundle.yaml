@@ -1,0 +1,10 @@
+title: Excel for Revit
+author: RevoBIM
+tooltip: >
+  Opens the active or selected schedule as an editable spreadsheet grid.
+  Instance parameter cells are blue, type parameter cells orange, cells that
+  cannot be edited light red. Copy, paste, fill down, drag to sequence,
+  formulas, numbering, prefixes, highlighting, find and replace, undo and redo,
+  with a dark or light canvas. Export to Excel for editing or for issuing, and
+  import an edited workbook back. Nothing is written to the model until APPLY,
+  which runs every edit in one transaction.

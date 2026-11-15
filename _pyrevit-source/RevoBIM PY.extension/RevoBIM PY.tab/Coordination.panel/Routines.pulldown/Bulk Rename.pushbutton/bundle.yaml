@@ -1,0 +1,6 @@
+title: Bulk Rename
+tooltip: >-
+  Select views, sheets, schedules or families in the Project Browser, then run
+  this to find and replace, add a prefix or add a suffix, with a live preview.
+  Nothing is written until Apply.
+author: RevoBIM

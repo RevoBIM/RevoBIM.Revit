@@ -1,0 +1,26 @@
+title: RevoBIM Align Wire Ends
+author: RevoBIM PY
+min_revit_version: 2024
+tooltip: >
+  Moves the point where a wire meets its fitting onto where it belongs - the
+  small node you would otherwise drag by hand - and changes nothing else.
+
+  Three routes are tried in order, because a connected end may not be the
+  vertex's to move: set the vertex, then disconnect and reconnect the end so
+  Revit re-seats it - what dragging the node by hand appears to do - then, as
+  a last resort, rebuild the wire. Each is read back, and only the rebuild
+  changes a wire's element id, which is reported when it happens.
+
+  Nothing is retyped, retagged or deleted.
+
+  Select wires and only those are done. Select circuits and every wire on them
+  is done. Select nothing and it asks before doing every wire in the active
+  plan.
+
+  Where the end sits is the same rule Auto Wire draws with, so a redrawn
+  circuit and a tidied one agree: short of the symbol by the trim setting, or
+  on the connector at the symbol centre. Set that under
+  Circuits > Drawing the run.
+
+  An end joined to nothing is left alone - there is no fitting to align it to,
+  and Reconnect Wires is the button for those.

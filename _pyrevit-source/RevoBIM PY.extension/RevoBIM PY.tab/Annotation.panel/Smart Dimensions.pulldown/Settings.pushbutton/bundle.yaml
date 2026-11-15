@@ -1,0 +1,8 @@
+title: RevoBIM Smart Dimension Settings
+tooltip: >-
+  What Smart Dimensions dimensions to, per category, plus the dimension type,
+  whether it asks for linked walls and columns, and whether it reports.
+
+  Settings are saved to %APPDATA%\RevoBIM\smart_dimensions.txt and every later
+  run uses them.
+author: RevoBIM

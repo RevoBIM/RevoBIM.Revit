@@ -1,0 +1,23 @@
+title: RevoBIM Click System
+tooltip: >-
+  Route a service by clicking. Click a pipe, duct, cable tray or conduit, then
+  click where it should go: the run carries on to the corner, a 90 degree bend
+  goes in, and a new length runs out to the click. Every click after that adds
+  another bend and another length from the end of the last one.
+
+
+  Where the first corner falls inside the run, the run is split there and
+  whatever lies beyond is let go, so the new route is its own system. Nothing
+  after that is ever cut - the whole route stays connected.
+
+
+  The new lengths are copied from the run itself, so size, type, system,
+  insulation, level and workset all come across.
+
+
+  No window: it can be bound to a key in View > User Interface > Keyboard
+  Shortcuts. Search for "RevoBIM Click System".
+
+
+  Escape finishes.
+highlight: new

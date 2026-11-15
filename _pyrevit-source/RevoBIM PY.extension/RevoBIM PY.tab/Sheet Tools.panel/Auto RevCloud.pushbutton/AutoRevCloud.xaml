@@ -1,0 +1,314 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RevoBIM Auto RevCloud" Width="1260" Height="820" MinWidth="980" MinHeight="660"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        WindowStartupLocation="CenterScreen" ShowInTaskbar="False" ResizeMode="NoResize"
+        FontFamily="Segoe UI" FontSize="12.5">
+  <Grid x:Name="Root">
+    <Border x:Name="Shell" CornerRadius="6" Background="{DynamicResource WindowBg}"
+            BorderBrush="{DynamicResource ShellEdge}" BorderThickness="1" Margin="5">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="52"/>
+          <RowDefinition x:Name="ProgressRow" Height="0"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition x:Name="DebugRow" Height="0"/>
+          <RowDefinition Height="48"/>
+        </Grid.RowDefinitions>
+
+        <!-- ============================ header ============================ -->
+        <Border x:Name="Header" Grid.Row="0" Background="{DynamicResource BarBg}" CornerRadius="5,5,0,0">
+          <Grid Margin="12,0,6,0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Image x:Name="HeaderIcon" Grid.Column="0" Width="28" Height="28" Margin="0,0,10,0" VerticalAlignment="Center"/>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+              <TextBlock x:Name="RevoBimLogo" Text="RevoBIM" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource BlueBrush}" VerticalAlignment="Bottom"/>
+              <TextBlock Text="Auto RevCloud" FontSize="15" Foreground="{DynamicResource OrangeBrush}" Margin="8,0,0,2" VerticalAlignment="Bottom"/>
+            </StackPanel>
+            <!-- Theme and settings. Every glyph is drawn from Path geometry
+                 rather than set in a symbol font, so none of them can come out
+                 as an empty box on a machine without that font. -->
+            <Button x:Name="ThemeButton" Grid.Column="3" Style="{DynamicResource ArcChip}"
+                    Padding="7,2" Margin="0,0,6,0"
+                    ToolTip="Switch between dark and light. Settings can make it follow Revit's canvas theme.">
+              <StackPanel Orientation="Horizontal">
+                <Path x:Name="ThemeGlyph"
+                      Data="M 11,2 A 6,6 0 1 0 11,14 A 5,5 0 1 1 11,2 Z"
+                      Fill="{DynamicResource MutedBrush}"
+                      Width="16" Height="16" Stretch="None" VerticalAlignment="Center"/>
+                <TextBlock x:Name="ThemeLabel" Text="Auto" Margin="5,0,0,0" VerticalAlignment="Center"/>
+              </StackPanel>
+            </Button>
+            <Button x:Name="SettingsButton" Grid.Column="4" Style="{DynamicResource ArcChip}" ToolTip="Settings" Padding="7,2">
+              <Path Data="M 8,4 A 4,4 0 1 1 8,12 A 4,4 0 1 1 8,4 M 8,0 L 8,3 M 8,13 L 8,16 M 0,8 L 3,8 M 13,8 L 16,8 M 2.3,2.3 L 4.5,4.5 M 11.5,11.5 L 13.7,13.7 M 13.7,2.3 L 11.5,4.5 M 4.5,11.5 L 2.3,13.7"
+                    Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.6" Width="16" Height="16" Stretch="None"/>
+            </Button>
+            <TextBlock x:Name="VersionText" Grid.Column="5" Style="{DynamicResource ArcMuted}" FontSize="11" Margin="12,0,6,0"/>
+            <Button x:Name="FullScreenButton" Grid.Column="6" Style="{DynamicResource ArcIconButton}" ToolTip="Full screen (F11)">
+              <Grid Width="14" Height="14">
+                <Path Data="M 0,4 L 0,0 L 4,0 M 10,0 L 14,0 L 14,4 M 14,10 L 14,14 L 10,14 M 4,14 L 0,14 L 0,10"
+                      Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.6" Stretch="None"/>
+              </Grid>
+            </Button>
+            <Button x:Name="CloseButton" Grid.Column="7" Style="{DynamicResource ArcCloseButton}" Content="&#x2715;" ToolTip="Close"/>
+          </Grid>
+        </Border>
+
+        <!-- ============================ progress ==========================
+             Collapsed to nothing until a run starts: the band only earns its
+             height while there is something to report. -->
+        <Border x:Name="ProgressBand" Grid.Row="1" Background="{DynamicResource BarBg}"
+                BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="0,1,0,1">
+          <Grid Margin="12,7,12,7">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="6"/>
+              <RowDefinition Height="6"/>
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+              </Grid.ColumnDefinitions>
+              <TextBlock x:Name="ProgressCount" Grid.Column="0" Style="{DynamicResource ArcMuted}"
+                         FontSize="11" VerticalAlignment="Center" MinWidth="86"/>
+              <TextBlock x:Name="ProgressSheet" Grid.Column="1" Style="{DynamicResource ArcText}"
+                         FontSize="12.5" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"
+                         Margin="4,0,10,0"/>
+              <TextBlock x:Name="ProgressStage" Grid.Column="2" Style="{DynamicResource ArcMuted}"
+                         FontSize="11" VerticalAlignment="Center"/>
+            </Grid>
+            <Grid Grid.Row="2" Background="{DynamicResource ProgressBg}">
+              <Border x:Name="ProgressTrack" Background="Transparent"/>
+              <Border x:Name="ProgressFill" Background="{DynamicResource BlueBrush}"
+                      HorizontalAlignment="Left" Width="0" CornerRadius="3"/>
+            </Grid>
+          </Grid>
+        </Border>
+
+        <!-- ============================ body ============================== -->
+        <Grid Grid.Row="2" Margin="10,10,10,4">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+
+          <!-- ==== the link to compare against ====
+               One row rather than a column of its own: there is only ever one
+               link chosen, and a full height list to say so was the widest
+               thing in the window for the least information in it. -->
+          <Border Grid.Row="0" Style="{DynamicResource ArcCard}" Margin="0,0,0,8">
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+              </Grid.ColumnDefinitions>
+              <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center"
+                          Margin="0,0,10,0">
+                <Border Style="{DynamicResource ArcTickBlue}"/>
+                <TextBlock Style="{DynamicResource ArcHeading}" Text="Compare against"/>
+              </StackPanel>
+              <ComboBox x:Name="LinkCombo" Grid.Column="1" Style="{DynamicResource ArcComboBox}"
+                        ToolTip="The Revit link holding the previous version of this model"/>
+              <TextBlock x:Name="LinkHint" Grid.Column="2" Style="{DynamicResource ArcMuted}"
+                         VerticalAlignment="Center" Margin="10,0,10,0"/>
+              <Button x:Name="ReloadLinksButton" Grid.Column="3" Style="{DynamicResource ArcSmallButton}"
+                      Content="Refresh" Padding="12,3" ToolTip="Re-read the links in the project"/>
+            </Grid>
+          </Border>
+
+          <!-- ==== right: the sheets ==== -->
+          <Border Grid.Row="1" Style="{DynamicResource ArcCard}">
+            <Grid>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+              </Grid.RowDefinitions>
+              <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
+                <Border Style="{DynamicResource ArcTickOrange}"/>
+                <TextBlock Style="{DynamicResource ArcHeading}" Text="Sheets in the project - the current state"/>
+                <TextBlock x:Name="SheetCount" Style="{DynamicResource ArcMuted}" Margin="10,0,0,0"/>
+              </StackPanel>
+              <WrapPanel Grid.Row="1" Margin="0,0,0,8">
+                <Button x:Name="AddSheetsButton" Style="{DynamicResource ArcButton}" Margin="0,0,6,0" ToolTip="Pick sheets from the project">
+                  <StackPanel Orientation="Horizontal">
+                    <Path Data="M 1,2 L 9,2 L 9,12 L 1,12 Z M 11,6 L 11,12 M 8,9 L 14,9" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.5"
+                          Width="14" Height="14" Stretch="None" VerticalAlignment="Center"/>
+                    <TextBlock Text="Add sheets..." Margin="5,0,0,0" VerticalAlignment="Center"/>
+                  </StackPanel>
+                </Button>
+                <Button x:Name="AddViewsButton" Style="{DynamicResource ArcButton}" Margin="0,0,6,0" ToolTip="Pick views directly, for anything not placed on a sheet">
+                  <StackPanel Orientation="Horizontal">
+                    <Path Data="M 1,3 L 11,3 L 11,11 L 1,11 Z M 3,5 L 9,5 M 3,8 L 7,8" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.5"
+                          Width="14" Height="14" Stretch="None" VerticalAlignment="Center"/>
+                    <TextBlock Text="Add views..." Margin="5,0,0,0" VerticalAlignment="Center"/>
+                  </StackPanel>
+                </Button>
+                <Button x:Name="AutoSelectButton" Style="{DynamicResource ArcButton}" Margin="0,0,6,0" ToolTip="Replace each sheet with the views placed on it - the comparison reads a view">
+                  <StackPanel Orientation="Horizontal">
+                    <Path Data="M 2,3 L 12,3 M 2,7 L 12,7 M 2,11 L 8,11" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.5"
+                          Width="14" Height="14" Stretch="None" VerticalAlignment="Center"/>
+                    <TextBlock Text="Use the views on them" Margin="5,0,0,0" VerticalAlignment="Center"/>
+                  </StackPanel>
+                </Button>
+                <Button x:Name="SetCategoriesButton" Style="{DynamicResource ArcButton}" Margin="0,0,6,0" ToolTip="Assign categories, or a saved template, to every row selected in the list below">
+                  <StackPanel Orientation="Horizontal">
+                    <Path Data="M 1,7 L 6,2 L 13,2 L 13,9 L 8,14 Z M 10,5 L 10.1,5" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.5"
+                          Width="14" Height="14" Stretch="None" VerticalAlignment="Center"/>
+                    <TextBlock Text="Set categories..." Margin="5,0,0,0" VerticalAlignment="Center"/>
+                  </StackPanel>
+                </Button>
+                <Button x:Name="SetRevisionButton" Style="{DynamicResource ArcButton}" Margin="0,0,6,0" ToolTip="Assign a revision to every row selected in the list below">
+                  <StackPanel Orientation="Horizontal">
+                    <Path Data="M 2,4 A 5,5 0 1 1 2,10 M 2,1 L 2,5 L 6,5" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.5"
+                          Width="14" Height="14" Stretch="None" VerticalAlignment="Center"/>
+                    <TextBlock Text="Set revision..." Margin="5,0,0,0" VerticalAlignment="Center"/>
+                  </StackPanel>
+                </Button>
+                <Button x:Name="UndoButton" Style="{DynamicResource ArcButton}" Margin="0,0,14,0" ToolTip="Nothing to undo">
+                  <StackPanel Orientation="Horizontal">
+                    <Path Data="M 5,3 L 1,7 L 5,11 M 1,7 L 9,7 A 3.5,3.5 0 0 1 9,14 L 7,14" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.5"
+                          Width="14" Height="14" Stretch="None" VerticalAlignment="Center"/>
+                    <TextBlock Text="Undo" Margin="5,0,0,0" VerticalAlignment="Center"/>
+                  </StackPanel>
+                </Button>
+                <Button x:Name="SheetUpButton" Style="{DynamicResource ArcSmallButton}" Margin="0,0,6,0" ToolTip="Move up">
+                  <StackPanel Orientation="Horizontal">
+                    <Path Data="M 7,11 L 7,3 M 3,7 L 7,3 L 11,7" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.5"
+                          Width="14" Height="14" Stretch="None" VerticalAlignment="Center"/>
+                    <TextBlock Text="" Margin="5,0,0,0" VerticalAlignment="Center"/>
+                  </StackPanel>
+                </Button>
+                <Button x:Name="SheetDownButton" Style="{DynamicResource ArcSmallButton}" Margin="0,0,6,0" ToolTip="Move down">
+                  <StackPanel Orientation="Horizontal">
+                    <Path Data="M 7,3 L 7,11 M 3,7 L 7,11 L 11,7" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.5"
+                          Width="14" Height="14" Stretch="None" VerticalAlignment="Center"/>
+                    <TextBlock Text="" Margin="5,0,0,0" VerticalAlignment="Center"/>
+                  </StackPanel>
+                </Button>
+                <Button x:Name="SheetRemoveButton" Style="{DynamicResource ArcSmallButton}" Margin="0,0,6,0" ToolTip="Remove the selected rows">
+                  <StackPanel Orientation="Horizontal">
+                    <Path Data="M 3,4 L 11,4 M 5,4 L 5,12 M 9,4 L 9,12 M 2,4 L 12,4 M 4,4 L 4,12 L 10,12 L 10,4" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.5"
+                          Width="14" Height="14" Stretch="None" VerticalAlignment="Center"/>
+                    <TextBlock Text="Remove" Margin="5,0,0,0" VerticalAlignment="Center"/>
+                  </StackPanel>
+                </Button>
+                <Button x:Name="SheetClearButton" Style="{DynamicResource ArcSmallButton}" Margin="0" ToolTip="Clear the list">
+                  <StackPanel Orientation="Horizontal">
+                    <Path Data="M 3,3 L 11,11 M 11,3 L 3,11" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.5"
+                          Width="14" Height="14" Stretch="None" VerticalAlignment="Center"/>
+                    <TextBlock Text="Clear" Margin="5,0,0,0" VerticalAlignment="Center"/>
+                  </StackPanel>
+                </Button>
+              </WrapPanel>
+              <Grid Grid.Row="2" Margin="6,0,6,3">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="28"/>
+                  <ColumnDefinition Width="88"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="74"/>
+                  <ColumnDefinition Width="104"/>
+                  <ColumnDefinition Width="104"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Style="{DynamicResource ArcMuted}" Text="#"/>
+                <TextBlock Grid.Column="1" Style="{DynamicResource ArcMuted}" Text="Number"/>
+                <TextBlock Grid.Column="2" Style="{DynamicResource ArcMuted}" Text="Sheet name"/>
+                <TextBlock Grid.Column="3" Style="{DynamicResource ArcMuted}" Text="Status"/>
+                <TextBlock Grid.Column="4" Style="{DynamicResource ArcMuted}" Text="Categories"/>
+                <TextBlock Grid.Column="5" Style="{DynamicResource ArcMuted}" Text="Revision"/>
+              </Grid>
+              <ListBox x:Name="SheetList" Grid.Row="3" Style="{DynamicResource ArcList}" SelectionMode="Extended"/>
+              <TextBlock x:Name="SheetHint" Grid.Row="4" Style="{DynamicResource ArcMuted}" Margin="0,6,0,0"
+                         Text="Every view listed is compared against the same view of the linked model."
+                         TextWrapping="Wrap"/>
+            </Grid>
+          </Border>
+        </Grid>
+
+        <!-- ============================ revisions ========================= -->
+
+        <!-- ============================ debug =============================
+             Collapsed to nothing until asked for. Everything the run knows,
+             in one selectable box with a Copy button, so a problem can be
+             sent on without going and finding a log file. -->
+        <Border x:Name="DebugPanel" Grid.Row="3" Background="{DynamicResource BarBg}"
+                BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="0,1,0,0"
+                Visibility="Collapsed">
+          <Grid Margin="12,8,12,8">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0" Margin="0,0,0,6">
+              <TextBlock Style="{DynamicResource ArcHeading}" Text="Run detail"
+                         HorizontalAlignment="Left" VerticalAlignment="Center"/>
+              <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button x:Name="DebugCopyButton" Style="{DynamicResource ArcSmallButton}"
+                        Content="Copy" Padding="12,3" Margin="0,0,6,0"/>
+                <Button x:Name="DebugLogButton" Style="{DynamicResource ArcSmallButton}"
+                        Content="Open log folder" Padding="12,3" Margin="0,0,6,0"/>
+                <Button x:Name="DebugHideButton" Style="{DynamicResource ArcSmallButton}"
+                        Content="Hide" Padding="12,3"/>
+              </StackPanel>
+            </Grid>
+            <TextBox x:Name="DebugText" Grid.Row="1" Style="{DynamicResource ArcTextArea}"
+                     IsReadOnly="True" AcceptsReturn="True" TextWrapping="NoWrap"
+                     VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"/>
+          </Grid>
+        </Border>
+
+        <!-- ============================ footer ============================ -->
+        <Border Grid.Row="4" Background="{DynamicResource BarBg}" CornerRadius="0,0,5,5">
+          <Grid Margin="12,0,12,0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" Orientation="Horizontal">
+              <Button x:Name="DebugToggle" Style="{DynamicResource ArcSmallButton}" Content="Debug"
+                      Margin="0,0,10,0" Padding="10,3"
+                      ToolTip="Show the detail of the last run, ready to copy"/>
+              <TextBlock x:Name="StatusText" Style="{DynamicResource ArcMuted}" VerticalAlignment="Center" Text="Ready."/>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+              <!-- Appears only once a run has finished and something was clouded. -->
+              <Button x:Name="CompletedButton" Style="{DynamicResource ArcOrangeButton}" Content="Completed"
+                      Padding="18,5" Margin="0,0,8,0" Visibility="Collapsed"
+                      ToolTip="The run has finished - open the sheets that were clouded"/>
+              <Button x:Name="CompareButton" Style="{DynamicResource ArcGreenButton}" Content="Compare Sheets"
+                      Padding="18,5" Margin="0" IsEnabled="False"
+                      ToolTip="Export each sheet, compare it with its PDF and cloud the changes on the picked revision"/>
+            </StackPanel>
+          </Grid>
+        </Border>
+      </Grid>
+    </Border>
+
+    <!-- ============================ resize grips ======================== -->
+    <Grid x:Name="Grips">
+      <Thumb x:Name="GripLeft" Style="{DynamicResource ArcGrip}" Width="6" HorizontalAlignment="Left" Margin="0,8,0,8" Cursor="SizeWE"/>
+      <Thumb x:Name="GripRight" Style="{DynamicResource ArcGrip}" Width="6" HorizontalAlignment="Right" Margin="0,8,0,8" Cursor="SizeWE"/>
+      <Thumb x:Name="GripTop" Style="{DynamicResource ArcGrip}" Height="6" VerticalAlignment="Top" Margin="8,0,8,0" Cursor="SizeNS"/>
+      <Thumb x:Name="GripBottom" Style="{DynamicResource ArcGrip}" Height="6" VerticalAlignment="Bottom" Margin="8,0,8,0" Cursor="SizeNS"/>
+      <Thumb x:Name="GripTopLeft" Style="{DynamicResource ArcGrip}" Width="10" Height="10" HorizontalAlignment="Left" VerticalAlignment="Top" Cursor="SizeNWSE"/>
+      <Thumb x:Name="GripTopRight" Style="{DynamicResource ArcGrip}" Width="10" Height="10" HorizontalAlignment="Right" VerticalAlignment="Top" Cursor="SizeNESW"/>
+      <Thumb x:Name="GripBottomLeft" Style="{DynamicResource ArcGrip}" Width="10" Height="10" HorizontalAlignment="Left" VerticalAlignment="Bottom" Cursor="SizeNESW"/>
+      <Thumb x:Name="GripBottomRight" Style="{DynamicResource ArcGrip}" Width="10" Height="10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Cursor="SizeNWSE"/>
+    </Grid>
+  </Grid>
+</Window>

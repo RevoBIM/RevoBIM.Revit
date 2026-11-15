@@ -1,0 +1,341 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RevoBIM Parameter Push Templates" Width="620" Height="800" MinWidth="440" MinHeight="700"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent" ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False"
+        FontFamily="Segoe UI" FontSize="12" UseLayoutRounding="True">
+    <Grid>
+        <Border CornerRadius="6" BorderThickness="1"
+                BorderBrush="{DynamicResource FrameBrush}" Background="{DynamicResource BgBrush}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="48"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="50"/>
+                </Grid.RowDefinitions>
+
+                <!-- ======================= header ======================= -->
+                <Border x:Name="HeaderBar" Grid.Row="0" Background="{DynamicResource BarBrush}" CornerRadius="6,6,0,0">
+                    <DockPanel Margin="12,0,6,0" LastChildFill="False">
+                        <Image x:Name="HeaderIcon" DockPanel.Dock="Left" Width="28" Height="28" Margin="0,0,10,0"
+                               VerticalAlignment="Center"/>
+                        <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="RevoBIM" FontSize="20" FontWeight="Bold"
+                                       Foreground="{DynamicResource BlueBrush}" VerticalAlignment="Bottom"/>
+                            <TextBlock Text="Parameter Push Templates" FontSize="15" FontWeight="SemiBold" Margin="9,0,0,2"
+                                       Foreground="{DynamicResource OrangeBrush}" VerticalAlignment="Bottom"/>
+                        </StackPanel>
+                        <Button x:Name="BtnClose" DockPanel.Dock="Right" Style="{DynamicResource CloseBtn}" ToolTip="Close">
+                            <Path Data="M0,0 L10,10 M10,0 L0,10" StrokeThickness="1.6"
+                                  Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                        </Button>
+                        <Button x:Name="BtnFull" DockPanel.Dock="Right" Style="{DynamicResource IconBtn}"
+                                ToolTip="Full screen (F11)">
+                            <Border Width="11" Height="11" BorderThickness="1.6"
+                                    BorderBrush="{DynamicResource MutedBrush}" CornerRadius="1"/>
+                        </Button>
+                        <Button x:Name="BtnDrawer" DockPanel.Dock="Right" Style="{DynamicResource IconBtn}"
+                                ToolTip="Shrink to the taskbar - drop the window down to just this bar so Revit can be seen">
+                            <Grid Width="14" Height="14">
+                                <Path x:Name="DrawerDown" Data="M2,2 L7,7 L12,2 M1,12 L13,12" StrokeThickness="1.7"
+                                      Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                                <Grid x:Name="DrawerUp" Visibility="Collapsed">
+                                    <Ellipse Fill="{DynamicResource GreenBrush}"/>
+                                    <Path Data="M3.5,8.5 L7,5 L10.5,8.5" StrokeThickness="2" Stroke="{DynamicResource OnAccentBrush}"/>
+                                </Grid>
+                            </Grid>
+                        </Button>
+                        <TextBlock x:Name="TxtVersion" DockPanel.Dock="Right" Style="{DynamicResource Muted}"
+                                   Margin="10,0,8,0" Text="v1.8.0"/>
+                        <Button x:Name="BtnTheme" DockPanel.Dock="Right" Style="{DynamicResource ChipBtn}"
+                                ToolTip="Theme: Auto follows Revit's canvas. Click to cycle Auto / Dark / Light.">
+                            <StackPanel Orientation="Horizontal">
+                                <Grid Width="13" Height="13" Margin="0,0,6,0" VerticalAlignment="Center">
+                                    <Ellipse Stroke="{DynamicResource OrangeBrush}" StrokeThickness="1.5"/>
+                                    <Path Data="M6.5,0.5 A6,6 0 0 0 6.5,12.5 Z" Fill="{DynamicResource OrangeBrush}"/>
+                                </Grid>
+                                <TextBlock x:Name="TxtTheme" Text="Auto" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                    </DockPanel>
+                </Border>
+
+                <!-- ======================= body ======================= -->
+                <Grid Grid.Row="1" Margin="14">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition x:Name="ColList" Width="*" MinWidth="380"/>
+                        <ColumnDefinition x:Name="ColSplit" Width="0"/>
+                        <ColumnDefinition x:Name="ColEdit" Width="0"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- ===== template list ===== -->
+                    <Border Grid.Column="0" Style="{DynamicResource Card}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <DockPanel LastChildFill="True">
+                                <Button x:Name="BtnPin" DockPanel.Dock="Right" Style="{DynamicResource ChipBtn}" Margin="6,0,0,0"
+                                        ToolTip="Pin the editor open (it stops sliding in and out)">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Path Data="M3,0 L9,0 M4,0 L4,5 L1,8 L11,8 L8,5 L8,0 M6,8 L6,13" StrokeThickness="1.5"
+                                              Stroke="{DynamicResource MutedBrush}" Width="12" Height="13" Margin="0,0,5,0"
+                                              VerticalAlignment="Center"/>
+                                        <TextBlock x:Name="TxtPin" Text="Pin" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
+                                <Button x:Name="BtnSlide" DockPanel.Dock="Right" Style="{DynamicResource ChipBtn}"
+                                        ToolTip="Slide the template editor out or back in">
+                                    <TextBlock x:Name="TxtSlide" Text="Editor  &#x203A;" VerticalAlignment="Center"/>
+                                </Button>
+                                <StackPanel Orientation="Horizontal">
+                                    <Border Style="{DynamicResource BlueTick}"/>
+                                    <TextBlock Text="Templates" Style="{DynamicResource Heading}"/>
+                                    <TextBlock x:Name="TxtTplCount" Style="{DynamicResource Muted}" Margin="10,0,0,0"/>
+                                </StackPanel>
+                            </DockPanel>
+                            <TextBox x:Name="TxtTplSearch" Grid.Row="1" Margin="0,10,0,8" Tag="Search templates, categories..."/>
+                            <DataGrid x:Name="GridTemplates" Grid.Row="2"/>
+                            <WrapPanel Grid.Row="3" Margin="0,10,0,0">
+                                <Button x:Name="BtnNew" Style="{DynamicResource GreenBtn}" Margin="0,0,6,6"
+                                        ToolTip="Start a new template (categories taken from the marriage selected in the main window, if any)">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Path Data="M6,0 L6,12 M0,6 L12,6" StrokeThickness="2" Stroke="{DynamicResource OnAccentBrush}"
+                                              Width="12" Height="12" Margin="0,0,7,0"/>
+                                        <TextBlock Text="New"/>
+                                    </StackPanel>
+                                </Button>
+                                <Button x:Name="BtnEdit" Style="{DynamicResource BlueBtn}" Margin="0,0,6,6" IsEnabled="False"
+                                        ToolTip="Edit the selected template (or double-click it)">
+                                    <TextBlock Text="Edit"/>
+                                </Button>
+                                <Button x:Name="BtnDuplicate" Margin="0,0,6,6" IsEnabled="False" ToolTip="Copy the selected template">
+                                    <TextBlock Text="Duplicate"/>
+                                </Button>
+                                <Button x:Name="BtnMerge" Margin="0,0,6,6" IsEnabled="False"
+                                        ToolTip="Select two or more templates for the same categories, then merge them into one">
+                                    <TextBlock x:Name="TxtMerge" Text="Merge"/>
+                                </Button>
+                                <Button x:Name="BtnDelete" Style="{DynamicResource RedBtn}" Margin="0,0,6,6" IsEnabled="False"
+                                        ToolTip="Delete the selected templates. Marriages using them are left without a template.">
+                                    <TextBlock x:Name="TxtDelete" Text="Delete"/>
+                                </Button>
+                            </WrapPanel>
+                            <DockPanel Grid.Row="4" LastChildFill="False">
+                                <TextBlock Text="Library file" Style="{DynamicResource Muted}" DockPanel.Dock="Left" Margin="0,0,8,0"/>
+                                <Button x:Name="BtnImport" DockPanel.Dock="Left" Margin="0,0,6,0" Padding="10,3"
+                                        ToolTip="Bring templates in from a library file - e.g. one kept on ACC and shared by the team">
+                                    <TextBlock Text="Import..."/>
+                                </Button>
+                                <Button x:Name="BtnExport" DockPanel.Dock="Left" Padding="10,3"
+                                        ToolTip="Write the selected templates (or all of them) to a library file other projects can import">
+                                    <TextBlock x:Name="TxtExport" Text="Export all..."/>
+                                </Button>
+                            </DockPanel>
+                        </Grid>
+                    </Border>
+
+                    <GridSplitter x:Name="Splitter" Grid.Column="1" Style="{DynamicResource Splitter}" ResizeBehavior="PreviousAndNext"
+                                  Visibility="Collapsed"/>
+
+                    <!-- ===== editor ===== -->
+                    <Border x:Name="EditorCard" Grid.Column="2" Style="{DynamicResource Card}" IsEnabled="False" Opacity="0.5"
+                            Visibility="Collapsed">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="5*" MinHeight="150"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="4*" MinHeight="120"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <DockPanel LastChildFill="True">
+                                <Button x:Name="BtnTplRedo" DockPanel.Dock="Right" Style="{DynamicResource IconBtn}" IsEnabled="False"
+                                        ToolTip="Redo (Ctrl+Y)">
+                                    <Path Data="M10,1 L13,4 L10,7 M13,4 L5,4 A4,4 0 0 0 5,12 L8,12" StrokeThickness="1.7" Width="14" Height="13"
+                                          Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                                </Button>
+                                <Button x:Name="BtnTplUndo" DockPanel.Dock="Right" Style="{DynamicResource IconBtn}" IsEnabled="False"
+                                        ToolTip="Undo (Ctrl+Z)">
+                                    <Path Data="M4,1 L1,4 L4,7 M1,4 L9,4 A4,4 0 0 1 9,12 L6,12" StrokeThickness="1.7" Width="14" Height="13"
+                                          Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                                </Button>
+                                <StackPanel Orientation="Horizontal">
+                                    <Border Style="{DynamicResource OrangeTick}"/>
+                                    <TextBlock Text="Template" Style="{DynamicResource Heading}"/>
+                                    <TextBlock x:Name="TxtEditState" Style="{DynamicResource Muted}" Margin="10,0,0,0"
+                                               Text="Pick a template on the left or press New"/>
+                                </StackPanel>
+                            </DockPanel>
+
+                            <Grid Grid.Row="1" Margin="0,10,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="110"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Template name" Style="{DynamicResource Body}"/>
+                                <TextBox x:Name="TxtName" Grid.Column="1" Tag="e.g. Pipes to schematic valves" IsEnabled="False"/>
+                            </Grid>
+
+                            <Grid Grid.Row="2" Margin="0,10,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="16"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Source category" Style="{DynamicResource Muted}" Foreground="{DynamicResource BlueBrush}" Margin="0,0,0,3"/>
+                                    <Grid>
+                                        <TextBox x:Name="TxtSrcCat" Tag="Type to search categories..." IsEnabled="False" Padding="6,4,26,4"/>
+                                        <Path HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0" IsHitTestVisible="False"
+                                              Data="M0,0 L4,4 L8,0" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.5"/>
+                                        <Popup x:Name="PopSrcCat" PlacementTarget="{Binding ElementName=TxtSrcCat}" Placement="Bottom"
+                                               StaysOpen="False" AllowsTransparency="True" PopupAnimation="None">
+                                            <Border Margin="0,2,0,0" Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource BlueBrush}"
+                                                    BorderThickness="1" CornerRadius="4"
+                                                    Width="{Binding ActualWidth, ElementName=TxtSrcCat}">
+                                                <ListBox x:Name="LstSrcCat" BorderThickness="0" MaxHeight="320" Focusable="False"
+                                                         Background="{DynamicResource CardBrush}"/>
+                                            </Border>
+                                        </Popup>
+                                    </Grid>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Target category" Style="{DynamicResource Muted}" Foreground="{DynamicResource OrangeBrush}" Margin="0,0,0,3"/>
+                                    <Grid>
+                                        <TextBox x:Name="TxtTgtCat" Tag="Type to search categories..." IsEnabled="False" Padding="6,4,26,4"/>
+                                        <Path HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0" IsHitTestVisible="False"
+                                              Data="M0,0 L4,4 L8,0" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.5"/>
+                                        <Popup x:Name="PopTgtCat" PlacementTarget="{Binding ElementName=TxtTgtCat}" Placement="Bottom"
+                                               StaysOpen="False" AllowsTransparency="True" PopupAnimation="None">
+                                            <Border Margin="0,2,0,0" Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource OrangeBrush}"
+                                                    BorderThickness="1" CornerRadius="4"
+                                                    Width="{Binding ActualWidth, ElementName=TxtTgtCat}">
+                                                <ListBox x:Name="LstTgtCat" BorderThickness="0" MaxHeight="320" Focusable="False"
+                                                         Background="{DynamicResource CardBrush}"/>
+                                            </Border>
+                                        </Popup>
+                                    </Grid>
+                                </StackPanel>
+                            </Grid>
+
+                            <Grid Grid.Row="3" Margin="0,12,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid Grid.Column="0">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+                                    <TextBlock x:Name="TxtSrcParHead" Text="Source parameters" Style="{DynamicResource Body}" FontWeight="SemiBold"/>
+                                    <TextBox x:Name="TxtSrcParSearch" Grid.Row="1" Margin="0,4,0,4" Tag="Search source parameters..." IsEnabled="False"/>
+                                    <ListBox x:Name="LstSrcPar" Grid.Row="2"/>
+                                </Grid>
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0">
+                                    <Button x:Name="BtnAddPush" Style="{DynamicResource GreenBtn}" IsEnabled="False"
+                                            ToolTip="Push the selected source parameter into the selected target parameter (or double-click a target)">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="Add"/>
+                                            <Path Data="M0,5 L10,5 M6,1 L10,5 L6,9" StrokeThickness="2" Stroke="{DynamicResource OnAccentBrush}"
+                                                  Width="11" Height="10" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+                                <Grid Grid.Column="2">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+                                    <TextBlock x:Name="TxtTgtParHead" Text="Target parameters (writable)" Style="{DynamicResource Body}" FontWeight="SemiBold"/>
+                                    <TextBox x:Name="TxtTgtParSearch" Grid.Row="1" Margin="0,4,0,4" Tag="Search target parameters..." IsEnabled="False"/>
+                                    <ListBox x:Name="LstTgtPar" Grid.Row="2"/>
+                                </Grid>
+                            </Grid>
+
+                            <DockPanel Grid.Row="4" Margin="0,12,0,6" LastChildFill="False">
+                                <Border DockPanel.Dock="Left" Style="{DynamicResource BlueTick}"/>
+                                <TextBlock DockPanel.Dock="Left" Text="Parameter pushes" Style="{DynamicResource Heading}"/>
+                                <TextBlock x:Name="TxtPushCount" DockPanel.Dock="Left" Style="{DynamicResource Muted}" Margin="10,0,0,0"/>
+                                <Button x:Name="BtnRemovePush" DockPanel.Dock="Right" Style="{DynamicResource OrangeBtn}" IsEnabled="False"
+                                        Padding="10,3">
+                                    <TextBlock Text="Remove selected push"/>
+                                </Button>
+                            </DockPanel>
+
+                            <DataGrid x:Name="GridPushes" Grid.Row="5"/>
+
+                            <CheckBox x:Name="ChkClearEmpty" Grid.Row="6" Margin="0,10,0,0" IsEnabled="False"
+                                      Content="When a source value is empty, clear the target's text too (otherwise it is left alone)"/>
+
+                            <StackPanel Grid.Row="7" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
+                                <Button x:Name="BtnRevert" Margin="0,0,8,0" IsEnabled="False"
+                                        ToolTip="Stop editing and throw away unsaved changes">
+                                    <TextBlock x:Name="TxtRevert" Text="Cancel"/>
+                                </Button>
+                                <Button x:Name="BtnSave" Style="{DynamicResource GreenBtn}" IsEnabled="False">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Path Data="M0,6 L4,10 L12,1" StrokeThickness="2" Stroke="{DynamicResource OnAccentBrush}"
+                                              Width="12" Height="11" Margin="0,0,8,0"/>
+                                        <TextBlock x:Name="TxtSave" Text="Save Template"/>
+                                    </StackPanel>
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <!-- ======================= progress ======================= -->
+                <Grid x:Name="ProgressBand" Grid.Row="2" Height="24" Visibility="Collapsed">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition x:Name="ColFill" Width="0*"/>
+                        <ColumnDefinition x:Name="ColRest" Width="1*"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" Background="{DynamicResource BlueBrush}"/>
+                    <Border Grid.Column="1" Background="{DynamicResource FieldBrush}"/>
+                    <TextBlock x:Name="TxtProgress" Grid.ColumnSpan="2" HorizontalAlignment="Center"
+                               VerticalAlignment="Center" Foreground="{DynamicResource TextBrush}" FontWeight="SemiBold"/>
+                </Grid>
+
+                <!-- ======================= footer ======================= -->
+                <Border Grid.Row="3" Background="{DynamicResource BarBrush}" CornerRadius="0,0,6,6">
+                    <DockPanel Margin="14,0,14,0" LastChildFill="True">
+                        <Button x:Name="BtnBack" DockPanel.Dock="Right" Style="{DynamicResource BlueBtn}"
+                                ToolTip="Close this window and go back to the marriages">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Data="M11,6 L0,6 M4,2 L0,6 L4,10" StrokeThickness="2"
+                                      Stroke="{DynamicResource OnAccentBrush}" Width="12" Height="12" Margin="0,0,8,0"/>
+                                <TextBlock Text="Close back to Marriages"/>
+                            </StackPanel>
+                        </Button>
+                        <TextBlock x:Name="TxtStatus" Style="{DynamicResource Muted}" FontSize="12" Margin="0,0,14,0"/>
+                    </DockPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <Grid>
+            <Thumb x:Name="ThW" Style="{DynamicResource GripThumb}" Width="5" HorizontalAlignment="Left" Cursor="SizeWE" Margin="0,10"/>
+            <Thumb x:Name="ThE" Style="{DynamicResource GripThumb}" Width="5" HorizontalAlignment="Right" Cursor="SizeWE" Margin="0,10"/>
+            <Thumb x:Name="ThN" Style="{DynamicResource GripThumb}" Height="5" VerticalAlignment="Top" Cursor="SizeNS" Margin="10,0"/>
+            <Thumb x:Name="ThS" Style="{DynamicResource GripThumb}" Height="5" VerticalAlignment="Bottom" Cursor="SizeNS" Margin="10,0"/>
+            <Thumb x:Name="ThNW" Style="{DynamicResource GripThumb}" Width="10" Height="10" HorizontalAlignment="Left" VerticalAlignment="Top" Cursor="SizeNWSE"/>
+            <Thumb x:Name="ThNE" Style="{DynamicResource GripThumb}" Width="10" Height="10" HorizontalAlignment="Right" VerticalAlignment="Top" Cursor="SizeNESW"/>
+            <Thumb x:Name="ThSW" Style="{DynamicResource GripThumb}" Width="10" Height="10" HorizontalAlignment="Left" VerticalAlignment="Bottom" Cursor="SizeNESW"/>
+            <Thumb x:Name="ThSE" Style="{DynamicResource GripThumb}" Width="10" Height="10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Cursor="SizeNWSE"/>
+        </Grid>
+    </Grid>
+</Window>

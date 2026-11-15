@@ -1,0 +1,328 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RevoBIM Duct Accessory Resize"
+        Width="1040" Height="730" MinWidth="860" MinHeight="620"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent" ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen" ShowInTaskbar="False"
+        FontFamily="Segoe UI" FontSize="12.5" SnapsToDevicePixels="True">
+    <Grid>
+        <Border x:Name="RootBorder" Background="{DynamicResource BgBrush}"
+                BorderBrush="{DynamicResource WindowEdgeBrush}" BorderThickness="1" CornerRadius="6">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- ============== header ============== -->
+                <Border x:Name="HeaderBar" Grid.Row="0" Background="{DynamicResource BarBrush}"
+                        CornerRadius="6,6,0,0" Padding="12,8,8,8">
+                    <DockPanel LastChildFill="False">
+                        <Border x:Name="LogoHost" DockPanel.Dock="Left" Width="38" Height="38"
+                                Background="Transparent" VerticalAlignment="Center">
+                            <Image x:Name="LogoImage" Width="34" Height="34"/>
+                        </Border>
+                        <StackPanel DockPanel.Dock="Left" Margin="10,0,0,0" VerticalAlignment="Center">
+                            <TextBlock x:Name="BrandText" Text="RevoBIM" FontSize="20" FontWeight="Bold"
+                                       Foreground="{DynamicResource BlueBrush}"/>
+                            <TextBlock Text="Duct Accessory Resize" FontSize="15" Margin="0,-3,0,0"
+                                       Foreground="{DynamicResource OrangeBrush}"/>
+                        </StackPanel>
+
+                        <Button x:Name="CloseButton" DockPanel.Dock="Right" Style="{DynamicResource BtnClose}"
+                                Content="&#x2715;" ToolTip="Close" VerticalAlignment="Center"/>
+                        <Button x:Name="FullScreenButton" DockPanel.Dock="Right" Style="{DynamicResource BtnChrome}"
+                                ToolTip="Full screen (F11)" VerticalAlignment="Center" Margin="0,0,2,0">
+                            <Border Width="12" Height="10" BorderThickness="1.5"
+                                    BorderBrush="{DynamicResource MutedBrush}"/>
+                        </Button>
+                        <Button x:Name="ShrinkButton" DockPanel.Dock="Right" Style="{DynamicResource BtnShrink}"
+                                Content="" VerticalAlignment="Center" Margin="0,0,2,0"/>
+                        <TextBlock x:Name="VersionText" DockPanel.Dock="Right" FontSize="11" Margin="10,0,8,0"
+                                   VerticalAlignment="Center" Foreground="{DynamicResource MutedBrush}"/>
+                        <Button x:Name="ThemeChip" DockPanel.Dock="Right" Style="{DynamicResource BtnChip}"
+                                VerticalAlignment="Center"
+                                ToolTip="Auto follows Revit's canvas - click for Dark, then Light">
+                            <StackPanel Orientation="Horizontal">
+                                <Grid Width="12" Height="12" VerticalAlignment="Center">
+                                    <Ellipse Stroke="{DynamicResource TextBrush}" StrokeThickness="1.3"/>
+                                    <Path Data="M 6 0 A 6 6 0 0 1 6 12 Z" Fill="{DynamicResource TextBrush}"/>
+                                </Grid>
+                                <TextBlock x:Name="ThemeChipText" Text="Auto" Margin="7,0,0,0"
+                                           VerticalAlignment="Center" Foreground="{DynamicResource TextBrush}"/>
+                            </StackPanel>
+                        </Button>
+                    </DockPanel>
+                </Border>
+
+                <!-- ============== body ============== -->
+                <Grid Grid.Row="1" Margin="12,12,12,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="0.36*" MinWidth="300"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="*" MinWidth="500"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- ====== left: what to resize ====== -->
+                    <Border Grid.Column="0" Background="{DynamicResource CardBrush}" CornerRadius="5"
+                            BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="1" Padding="14,12">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <StackPanel Margin="0,0,6,0">
+                            <DockPanel Margin="0,0,0,8">
+                                <Border Width="4" Height="16" CornerRadius="2" Background="{DynamicResource BlueBrush}"
+                                        VerticalAlignment="Center"/>
+                                <TextBlock Text="Duct and family shape" FontWeight="SemiBold" Margin="8,0,0,0"
+                                           Foreground="{DynamicResource TextBrush}"/>
+                            </DockPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
+                                <RadioButton x:Name="ShapeRect" GroupName="Shape" Content="Rectangular"/>
+                                <RadioButton x:Name="ShapeRound" GroupName="Shape" Content="Circular" Margin="22,0,0,0"/>
+                            </StackPanel>
+
+                            <DockPanel Margin="0,0,0,4">
+                                <Border Width="4" Height="16" CornerRadius="2" Background="{DynamicResource BlueBrush}"
+                                        VerticalAlignment="Center"/>
+                                <TextBlock Text="Duct accessory size parameters" FontWeight="SemiBold" Margin="8,0,0,0"
+                                           Foreground="{DynamicResource TextBrush}"/>
+                            </DockPanel>
+                            <TextBlock x:Name="AccParamHint" TextWrapping="Wrap" FontSize="11.5" Margin="0,0,0,8"
+                                       Foreground="{DynamicResource MutedBrush}"
+                                       Text="Length parameters found on the duct accessories in this model."/>
+                            <StackPanel x:Name="AccWidthBlock" Margin="0,0,0,8">
+                                <TextBlock Text="Width" Foreground="{DynamicResource MutedBrush}" Margin="0,0,0,3"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="6"/>
+                                        <ColumnDefinition Width="0.55*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <ComboBox x:Name="AccWidthCombo" Grid.Column="0"/>
+                                    <TextBox x:Name="AccWidthSearch" Grid.Column="2" Tag="search"/>
+                                </Grid>
+                            </StackPanel>
+                            <StackPanel x:Name="AccHeightBlock" Margin="0,0,0,8">
+                                <TextBlock Text="Height" Foreground="{DynamicResource MutedBrush}" Margin="0,0,0,3"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="6"/>
+                                        <ColumnDefinition Width="0.55*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <ComboBox x:Name="AccHeightCombo" Grid.Column="0"/>
+                                    <TextBox x:Name="AccHeightSearch" Grid.Column="2" Tag="search"/>
+                                </Grid>
+                            </StackPanel>
+                            <StackPanel x:Name="AccDiameterBlock" Margin="0,0,0,8">
+                                <TextBlock Text="Diameter" Foreground="{DynamicResource MutedBrush}" Margin="0,0,0,3"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="6"/>
+                                        <ColumnDefinition Width="0.55*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <ComboBox x:Name="AccDiameterCombo" Grid.Column="0"/>
+                                    <TextBox x:Name="AccDiameterSearch" Grid.Column="2" Tag="search"/>
+                                </Grid>
+                            </StackPanel>
+
+                            <TextBlock x:Name="AccParamWarning" TextWrapping="Wrap" Margin="0,0,0,8"
+                                       Visibility="Collapsed" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource RedBrush}"/>
+
+                            <DockPanel Margin="0,4,0,4">
+                                <Border Width="4" Height="16" CornerRadius="2" Background="{DynamicResource BlueBrush}"
+                                        VerticalAlignment="Center"/>
+                                <TextBlock Text="Air terminal size parameters" FontWeight="SemiBold" Margin="8,0,0,0"
+                                           Foreground="{DynamicResource TextBrush}"/>
+                            </DockPanel>
+                            <TextBlock x:Name="TermParamHint" TextWrapping="Wrap" FontSize="11.5" Margin="0,0,0,8"
+                                       Foreground="{DynamicResource MutedBrush}"
+                                       Text="Length parameters found on the air terminals in this model."/>
+                            <StackPanel x:Name="TermWidthBlock" Margin="0,0,0,8">
+                                <TextBlock Text="Width" Foreground="{DynamicResource MutedBrush}" Margin="0,0,0,3"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="6"/>
+                                        <ColumnDefinition Width="0.55*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <ComboBox x:Name="TermWidthCombo" Grid.Column="0"/>
+                                    <TextBox x:Name="TermWidthSearch" Grid.Column="2" Tag="search"/>
+                                </Grid>
+                            </StackPanel>
+                            <StackPanel x:Name="TermHeightBlock" Margin="0,0,0,8">
+                                <TextBlock Text="Height" Foreground="{DynamicResource MutedBrush}" Margin="0,0,0,3"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="6"/>
+                                        <ColumnDefinition Width="0.55*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <ComboBox x:Name="TermHeightCombo" Grid.Column="0"/>
+                                    <TextBox x:Name="TermHeightSearch" Grid.Column="2" Tag="search"/>
+                                </Grid>
+                            </StackPanel>
+                            <StackPanel x:Name="TermDiameterBlock" Margin="0,0,0,8">
+                                <TextBlock Text="Diameter" Foreground="{DynamicResource MutedBrush}" Margin="0,0,0,3"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="6"/>
+                                        <ColumnDefinition Width="0.55*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <ComboBox x:Name="TermDiameterCombo" Grid.Column="0"/>
+                                    <TextBox x:Name="TermDiameterSearch" Grid.Column="2" Tag="search"/>
+                                </Grid>
+                            </StackPanel>
+
+                            <TextBlock x:Name="TermParamWarning" TextWrapping="Wrap" Margin="0,0,0,8"
+                                       Visibility="Collapsed" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource RedBrush}"/>
+                            <Button x:Name="RefreshParamsButton" Style="{DynamicResource BtnGhost}"
+                                    Content="Re-read parameters" HorizontalAlignment="Left" Margin="0,2,0,14"/>
+
+                            <DockPanel Margin="0,0,0,8">
+                                <Border Width="4" Height="16" CornerRadius="2" Background="{DynamicResource OrangeBrush}"
+                                        VerticalAlignment="Center"/>
+                                <TextBlock Text="Options" FontWeight="SemiBold" Margin="8,0,0,0"
+                                           Foreground="{DynamicResource TextBrush}"/>
+                            </DockPanel>
+                            <CheckBox x:Name="IncludeDucts" Content="Resize the ducts" Margin="0,0,0,6"/>
+                            <CheckBox x:Name="IncludeAccessories" Content="Resize the duct accessories" Margin="0,0,0,6"/>
+                            <CheckBox x:Name="IncludeTerminals" Content="Resize the air terminals" Margin="0,0,0,10"/>
+                            <TextBlock Text="Where the size is a type parameter" Margin="0,0,0,5"
+                                       Foreground="{DynamicResource MutedBrush}"/>
+                            <RadioButton x:Name="TypeSwitch" GroupName="TypeMode" Margin="0,0,0,6"
+                                         Content="Switch to a type of that size (duplicate if none)"/>
+                            <RadioButton x:Name="TypeEdit" GroupName="TypeMode"
+                                         Content="Edit the type (every instance of it changes)"/>
+                        </StackPanel>
+                        </ScrollViewer>
+                    </Border>
+
+                    <!-- ====== right: selection, table, new size ====== -->
+                    <Grid Grid.Column="2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <DockPanel Grid.Row="0" LastChildFill="False" Margin="0,0,0,10">
+                            <Button x:Name="SelectButton" DockPanel.Dock="Left" Style="{DynamicResource BtnBlue}"
+                                    Content="Select Elements for Change"
+                                    ToolTip="Pick ducts, duct accessories and air terminals in the model, then Finish"/>
+                            <Button x:Name="UseSelectionButton" DockPanel.Dock="Left" Style="{DynamicResource BtnGhost}"
+                                    Content="Use Revit selection" Margin="8,0,0,0"/>
+                            <Button x:Name="ClearButton" DockPanel.Dock="Left" Style="{DynamicResource BtnGhost}"
+                                    Content="Clear" Margin="8,0,0,0"/>
+                        </DockPanel>
+
+                        <Border Grid.Row="1" Background="{DynamicResource CardBrush}" CornerRadius="5"
+                                BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="1" Padding="14,10"
+                                Margin="0,0,0,10">
+                            <StackPanel>
+                                <DockPanel>
+                                    <Border Width="4" Height="16" CornerRadius="2" Background="{DynamicResource BlueBrush}"
+                                            VerticalAlignment="Center"/>
+                                    <TextBlock Text="Current size of the selection" FontWeight="SemiBold"
+                                               Margin="8,0,0,0" Foreground="{DynamicResource TextBrush}"/>
+                                    <TextBlock x:Name="CountText" Margin="12,0,0,0" HorizontalAlignment="Right"
+                                               Foreground="{DynamicResource MutedBrush}"/>
+                                </DockPanel>
+                                <TextBlock x:Name="CurrentText" FontSize="17" FontWeight="SemiBold" Margin="0,6,0,0"
+                                           TextWrapping="Wrap" Foreground="{DynamicResource OrangeBrush}"
+                                           Text="Nothing selected yet"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Row="2" Background="{DynamicResource CardBrush}" CornerRadius="5"
+                                BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="1" Margin="0,0,0,10">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Border Grid.Row="0" Background="{DynamicResource BarBrush}" CornerRadius="5,5,0,0"
+                                        Padding="0,7">
+                                    <Grid x:Name="TableHeader"/>
+                                </Border>
+                                <ScrollViewer x:Name="TableScroll" Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                                              HorizontalScrollBarVisibility="Disabled">
+                                    <StackPanel x:Name="TableRows"/>
+                                </ScrollViewer>
+                                <TextBlock x:Name="EmptyHint" Grid.Row="1" HorizontalAlignment="Center"
+                                           VerticalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"
+                                           Margin="20" Foreground="{DynamicResource MutedBrush}"
+                                           Text="Set the shape and parameters, then press Select Elements for Change."/>
+                            </Grid>
+                        </Border>
+
+                        <Border Grid.Row="3" Background="{DynamicResource CardBrush}" CornerRadius="5"
+                                BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="1" Padding="14,10">
+                            <StackPanel>
+                                <DockPanel Margin="0,0,0,8">
+                                    <Border Width="4" Height="16" CornerRadius="2" Background="{DynamicResource GreenBrush}"
+                                            VerticalAlignment="Center"/>
+                                    <TextBlock Text="New size" FontWeight="SemiBold" Margin="8,0,0,0"
+                                               Foreground="{DynamicResource TextBrush}"/>
+                                    <TextBlock Text="Leave a box empty to keep that dimension" Margin="12,0,0,0"
+                                               FontSize="11.5" VerticalAlignment="Center"
+                                               Foreground="{DynamicResource MutedBrush}"/>
+                                </DockPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <StackPanel x:Name="NewWidthBlock" Orientation="Horizontal" Margin="0,0,20,0">
+                                        <TextBlock Text="Width" VerticalAlignment="Center" Margin="0,0,8,0"
+                                                   Foreground="{DynamicResource MutedBrush}"/>
+                                        <TextBox x:Name="NewWidth" Width="96" Tag="mm"/>
+                                        <TextBlock Text="mm" VerticalAlignment="Center" Margin="6,0,0,0"
+                                                   Foreground="{DynamicResource MutedBrush}"/>
+                                    </StackPanel>
+                                    <StackPanel x:Name="NewHeightBlock" Orientation="Horizontal" Margin="0,0,20,0">
+                                        <TextBlock Text="Height" VerticalAlignment="Center" Margin="0,0,8,0"
+                                                   Foreground="{DynamicResource MutedBrush}"/>
+                                        <TextBox x:Name="NewHeight" Width="96" Tag="mm"/>
+                                        <TextBlock Text="mm" VerticalAlignment="Center" Margin="6,0,0,0"
+                                                   Foreground="{DynamicResource MutedBrush}"/>
+                                    </StackPanel>
+                                    <StackPanel x:Name="NewDiameterBlock" Orientation="Horizontal">
+                                        <TextBlock Text="Diameter" VerticalAlignment="Center" Margin="0,0,8,0"
+                                                   Foreground="{DynamicResource MutedBrush}"/>
+                                        <TextBox x:Name="NewDiameter" Width="96" Tag="mm"/>
+                                        <TextBlock Text="mm" VerticalAlignment="Center" Margin="6,0,0,0"
+                                                   Foreground="{DynamicResource MutedBrush}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                                <TextBlock x:Name="InputError" Margin="0,6,0,0" Visibility="Collapsed"
+                                           Foreground="{DynamicResource RedBrush}"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </Grid>
+
+                <!-- ============== footer ============== -->
+                <Border Grid.Row="2" Background="{DynamicResource BarBrush}" CornerRadius="0,0,6,6"
+                        Padding="12,8">
+                    <DockPanel LastChildFill="True">
+                        <CheckBox x:Name="DebugCheck" DockPanel.Dock="Left" Content="Debug" VerticalAlignment="Center"
+                                  ToolTip="Log every step to send back for fault finding"/>
+                        <Button x:Name="CopyDebugButton" DockPanel.Dock="Left" Style="{DynamicResource BtnGhost}"
+                                Content="Copy debug" Margin="10,0,0,0" Padding="10,4"
+                                ToolTip="Copy the debug log to the clipboard"/>
+                        <Button x:Name="ResizeButton" DockPanel.Dock="Right" Style="{DynamicResource BtnGreen}"
+                                Padding="22,6" MinWidth="130">
+                            <TextBlock x:Name="ResizeLabel" Text="Resize" Foreground="{DynamicResource OnAccentBrush}"/>
+                        </Button>
+                        <TextBlock x:Name="StatusText" Margin="14,0,14,0" VerticalAlignment="Center"
+                                   TextTrimming="CharacterEllipsis" Foreground="{DynamicResource MutedBrush}"/>
+                    </DockPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- resize grips are added here in code; no Background so the window stays clickable -->
+        <Grid x:Name="GripLayer"/>
+    </Grid>
+</Window>

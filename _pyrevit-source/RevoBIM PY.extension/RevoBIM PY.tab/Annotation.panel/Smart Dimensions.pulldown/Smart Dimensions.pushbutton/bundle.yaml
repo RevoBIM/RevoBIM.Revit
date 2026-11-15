@@ -1,0 +1,20 @@
+title: RevoBIM Smart Dimensions
+tooltip: >-
+  Dimensions across a bank of services in one continuous string.
+
+  Pre-select the pipes, ducts, cable trays, conduits or generic models - or run
+  the tool and pick them - then click one linked wall or column (Esc to skip),
+  then click where the dimension line should sit.
+
+  Pipes, conduits and round ducts are dimensioned to their centrelines; cable
+  trays and rectangular ducts to both of their edges; generic models are
+  handled like ducts. Linked walls and columns are dimensioned to the face
+  nearest the service beside them.
+
+  Anything measuring under the threshold for the view's scale has its text
+  leadered out clear of the string.
+
+  Opens no window, so it can be bound to a key in
+  View > User Interface > Keyboard Shortcuts - search "RevoBIM Smart
+  Dimensions".
+author: RevoBIM

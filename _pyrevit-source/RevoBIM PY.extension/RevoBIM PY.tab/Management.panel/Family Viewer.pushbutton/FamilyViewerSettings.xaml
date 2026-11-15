@@ -1,0 +1,315 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RevoBIM Family Viewer Settings"
+        Width="820" SizeToContent="Height"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ShowInTaskbar="False" ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner">
+
+  <Border x:Name="SetRoot" CornerRadius="6" BorderThickness="1"
+          Background="{DynamicResource WindowBg}"
+          BorderBrush="{DynamicResource ChromeEdge}">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+
+      <Border x:Name="SetHeader" Grid.Row="0" CornerRadius="6,6,0,0"
+              Background="{DynamicResource BarBg}" Padding="14,9,8,9">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <StackPanel Grid.Column="0" Orientation="Vertical">
+            <TextBlock Text="RevoBIM" FontSize="20" FontWeight="Bold"
+                       FontFamily="{DynamicResource UiFont}"
+                       Foreground="{DynamicResource AccentBlue}"/>
+            <TextBlock Text="Family Viewer Settings" FontSize="15" Margin="1,-4,0,0"
+                       FontFamily="{DynamicResource UiFont}"
+                       Foreground="{DynamicResource AccentOrange}"/>
+          </StackPanel>
+          <TextBlock x:Name="SettingsVersion" Grid.Column="2" Text="v2.0.2"
+                     VerticalAlignment="Center" Margin="0,0,8,0" FontSize="11"
+                     FontFamily="{DynamicResource UiFont}"
+                     Foreground="{DynamicResource FgMuted}"/>
+          <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
+          <Button x:Name="SetShrink" Content="" Style="{DynamicResource ShrinkBtn}"/>
+          <Button x:Name="SetClose" Style="{DynamicResource CloseBtn}">
+            <Path Width="10" Height="10" StrokeThickness="1.5"
+                  Stroke="{DynamicResource FgMuted}"
+                  Data="M 0 0 L 10 10 M 10 0 L 0 10"/>
+          </Button>
+          </StackPanel>
+        </Grid>
+      </Border>
+
+      <Grid Grid.Row="1" Margin="14,12,14,6">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="18"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- ============ left column ============ -->
+        <StackPanel Grid.Column="0">
+
+          <StackPanel Orientation="Horizontal" Margin="0,0,0,7">
+            <Border Style="{DynamicResource TickBlueBar}" Height="17"/>
+            <TextBlock Text="Scale and appearance" Style="{DynamicResource SectionHeading}"/>
+          </StackPanel>
+
+          <Grid Margin="0,0,0,5">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="150"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="Palette" VerticalAlignment="Center"
+                       Style="{DynamicResource BodyText}"/>
+            <ComboBox x:Name="SetTheme" Grid.Column="1" Style="{DynamicResource ThemedCombo}"/>
+          </Grid>
+
+          <Grid Margin="0,0,0,5">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="150"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" VerticalAlignment="Center"
+                       Text="Window scale, per cent"
+                       Style="{DynamicResource BodyText}"/>
+            <ComboBox x:Name="SetUiScale" Grid.Column="1" Style="{DynamicResource ThemedCombo}"/>
+          </Grid>
+
+          <Grid Margin="0,0,0,5">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="150"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="Family image size, px" VerticalAlignment="Center"
+                       Style="{DynamicResource BodyText}"/>
+            <ComboBox x:Name="SetPreviewSize" Grid.Column="1" Style="{DynamicResource ThemedCombo}"/>
+          </Grid>
+
+          <Grid Margin="0,0,0,5">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="150"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="Family image shown on" VerticalAlignment="Center"
+                       Style="{DynamicResource BodyText}"/>
+            <ComboBox x:Name="SetPreviewOn" Grid.Column="1" Style="{DynamicResource ThemedCombo}"/>
+          </Grid>
+
+          <CheckBox x:Name="SetShowPreviews" Content="Show family images at all"
+                    Margin="0,4,0,0" Style="{DynamicResource ThemedCheck}"/>
+
+          <StackPanel Orientation="Horizontal" Margin="0,16,0,7">
+            <Border Style="{DynamicResource TickOrangeBar}" Height="17"/>
+            <TextBlock Text="What goes in the list" Style="{DynamicResource SectionHeading}"/>
+          </StackPanel>
+
+          <CheckBox x:Name="SetIncludeSystem" Margin="0,0,0,6"
+                    Content="Include system families (walls, pipes, ducts)"
+                    Style="{DynamicResource ThemedCheck}"/>
+          <CheckBox x:Name="SetIncludeAnnotation" Margin="0,0,0,6"
+                    Content="Include annotation categories (tags, symbols)"
+                    Style="{DynamicResource ThemedCheck}"/>
+          <Grid Margin="0,4,0,5">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="120"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="Family row shade" VerticalAlignment="Center"
+                       Style="{DynamicResource BodyText}"/>
+            <TextBox x:Name="SetFamilyShade" Grid.Column="1"
+                     Style="{DynamicResource ThemedTextBox}"
+                     ToolTip="A hex colour such as #2E333B. Leave blank to follow the palette."/>
+          </Grid>
+
+          <Grid Margin="0,0,0,6">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="120"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="Family name size, px" VerticalAlignment="Center"
+                       Style="{DynamicResource BodyText}"/>
+            <TextBox x:Name="SetFamilySize" Grid.Column="1"
+                     Style="{DynamicResource ThemedTextBox}"/>
+          </Grid>
+
+          <CheckBox x:Name="SetIgnoreNested" Margin="0,0,0,6"
+                    Content="Ignore instances nested inside another family"
+                    Style="{DynamicResource ThemedCheck}"/>
+          <CheckBox x:Name="SetFamiliesOpen" Margin="0,0,0,6"
+                    Content="Families open when the list is read"
+                    Style="{DynamicResource ThemedCheck}"/>
+
+          <Grid Margin="0,4,0,0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="150"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" VerticalAlignment="Center"
+                       Text="Rows drawn before the list truncates"
+                       Style="{DynamicResource BodyText}"/>
+            <TextBox x:Name="SetMaxRows" Grid.Column="1" Style="{DynamicResource ThemedTextBox}"/>
+          </Grid>
+
+          <Grid Margin="0,4,0,0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="150"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" VerticalAlignment="Center"
+                       Text="Most elements to list"
+                       Style="{DynamicResource BodyText}"/>
+            <TextBox x:Name="SetMaxInstances" Grid.Column="1"
+                     Style="{DynamicResource ThemedTextBox}"
+                     ToolTip="The cap when the elements under each type are shown"/>
+          </Grid>
+        </StackPanel>
+
+        <!-- ============ right column ============ -->
+        <StackPanel Grid.Column="2">
+
+          <StackPanel Orientation="Horizontal" Margin="0,0,0,7">
+            <Border Style="{DynamicResource TickBlueBar}" Height="17"/>
+            <TextBlock Text="Scope the list opens on" Style="{DynamicResource SectionHeading}"/>
+          </StackPanel>
+
+          <Grid Margin="0,0,0,5">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="180"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="Open on" VerticalAlignment="Center"
+                       Style="{DynamicResource BodyText}"/>
+            <ComboBox x:Name="SetScope" Grid.Column="1" Style="{DynamicResource ThemedCombo}"/>
+          </Grid>
+
+          <Grid Margin="0,0,0,5">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="180"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="Phase filter counts" VerticalAlignment="Center"
+                       Style="{DynamicResource BodyText}"/>
+            <ComboBox x:Name="SetPhaseMode" Grid.Column="1" Style="{DynamicResource ThemedCombo}"/>
+          </Grid>
+
+          <Grid Margin="0,0,0,5">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="180"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="Phase the list opens on" VerticalAlignment="Center"
+                       Style="{DynamicResource BodyText}"/>
+            <ComboBox x:Name="SetPhase" Grid.Column="1" Style="{DynamicResource ThemedCombo}"/>
+          </Grid>
+
+          <StackPanel Orientation="Horizontal" Margin="0,16,0,7">
+            <Border Style="{DynamicResource TickOrangeBar}" Height="17"/>
+            <TextBlock Text="Behaviour" Style="{DynamicResource SectionHeading}"/>
+          </StackPanel>
+
+          <CheckBox x:Name="SetWatch" Margin="0,0,0,6"
+                    Content="Re-read when the model changes"
+                    Style="{DynamicResource ThemedCheck}"/>
+          <Grid Margin="22,0,0,6">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="120"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="Settle delay, ms" VerticalAlignment="Center"
+                       Style="{DynamicResource MutedText}"/>
+            <TextBox x:Name="SetSettle" Grid.Column="1" Style="{DynamicResource ThemedTextBox}"/>
+          </Grid>
+          <CheckBox x:Name="SetZoom" Margin="0,0,0,6"
+                    Content="Zoom to the selection after Select"
+                    Style="{DynamicResource ThemedCheck}"/>
+
+          <Grid Margin="0,4,0,0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="180"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="Report after Select" VerticalAlignment="Center"
+                       Style="{DynamicResource BodyText}"/>
+            <ComboBox x:Name="SetShowResults" Grid.Column="1" Style="{DynamicResource ThemedCombo}"/>
+          </Grid>
+
+          <StackPanel Orientation="Horizontal" Margin="0,16,0,7">
+            <Border Style="{DynamicResource TickBlueBar}" Height="17"/>
+            <TextBlock Text="Docking to Revit" Style="{DynamicResource SectionHeading}"/>
+          </StackPanel>
+
+          <Grid Margin="0,0,0,5">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="200"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="Open in" VerticalAlignment="Center"
+                       Style="{DynamicResource BodyText}"/>
+            <ComboBox x:Name="SetOpenIn" Grid.Column="1"
+                      Style="{DynamicResource ThemedCombo}"
+                      ToolTip="Revit's own pane needs startup.py at the root of the extension, and a restart of Revit"/>
+          </Grid>
+
+          <Grid Margin="0,0,0,5">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="120"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="Floating docked width, px" VerticalAlignment="Center"
+                       Style="{DynamicResource BodyText}"/>
+            <TextBox x:Name="SetDockWidth" Grid.Column="1" Style="{DynamicResource ThemedTextBox}"/>
+          </Grid>
+          <Grid Margin="0,0,0,5">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="120"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" VerticalAlignment="Center"
+                       Text="Start below the ribbon by, px"
+                       Style="{DynamicResource BodyText}"/>
+            <TextBox x:Name="SetDockInset" Grid.Column="1" Style="{DynamicResource ThemedTextBox}"/>
+          </Grid>
+          <CheckBox x:Name="SetFollow" Margin="0,2,0,6"
+                    Content="A docked window follows Revit when it moves"
+                    Style="{DynamicResource ThemedCheck}"/>
+          <CheckBox x:Name="SetSnap" Margin="0,0,0,6"
+                    Content="Dragging to a screen edge snaps the window"
+                    Style="{DynamicResource ThemedCheck}"/>
+        </StackPanel>
+      </Grid>
+
+      <Border Grid.Row="2" CornerRadius="0,0,6,6"
+              Background="{DynamicResource BarBg}" Padding="14,10,14,10">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Button x:Name="SetReset" Grid.Column="0" Content="Reset to defaults"
+                  Style="{DynamicResource BtnGhost}"/>
+          <TextBlock x:Name="SetPath" Grid.Column="1" VerticalAlignment="Center"
+                     Margin="12,0,12,0" FontSize="10.5"
+                     FontFamily="{DynamicResource UiFont}"
+                     Foreground="{DynamicResource FgMuted}"
+                     TextTrimming="CharacterEllipsis"/>
+          <StackPanel Grid.Column="2" Orientation="Horizontal">
+            <Button x:Name="SetCancel" Content="Cancel" MinWidth="90"
+                    Style="{DynamicResource BtnGhost}"/>
+            <Button x:Name="SetApply" Content="Apply" MinWidth="110" Margin="8,0,0,0"
+                    Style="{DynamicResource BtnGreen}"/>
+          </StackPanel>
+        </Grid>
+      </Border>
+    </Grid>
+  </Border>
+</Window>

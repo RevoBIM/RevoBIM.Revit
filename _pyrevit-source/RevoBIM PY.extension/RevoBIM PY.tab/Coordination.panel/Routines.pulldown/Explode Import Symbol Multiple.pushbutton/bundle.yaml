@@ -1,0 +1,5 @@
+title: Explode Import Symbol Multiple
+tooltip: >-
+  Select several imported CAD symbols, then pick Partial Explode or Full Explode
+  and every one of them is exploded in turn. Linked CAD is skipped.
+author: RevoBIM

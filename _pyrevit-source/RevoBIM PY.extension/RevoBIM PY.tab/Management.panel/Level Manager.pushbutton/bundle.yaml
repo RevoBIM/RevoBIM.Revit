@@ -1,0 +1,6 @@
+title: Level Manager
+tooltip: >-
+  Every level with the elements associated to it, grouped by category, with
+  parameter columns to filter by. Tick a level or Shift/Ctrl-select elements,
+  then Assign Level - nothing moves, only the associated level changes.
+author: RevoBIM

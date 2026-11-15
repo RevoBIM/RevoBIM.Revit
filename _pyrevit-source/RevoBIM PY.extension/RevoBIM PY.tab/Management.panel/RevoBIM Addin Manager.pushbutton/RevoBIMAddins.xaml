@@ -1,0 +1,221 @@
+<UserControl xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             MinWidth="228"
+             Background="{DynamicResource BgWindow}">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- ============================ header ============================ -->
+        <!-- Two tight rows: the name and window controls, then every tool  -->
+        <!-- as a square icon button. Docked, Revit owns the frame and       -->
+        <!-- WindowControls stay collapsed. Floating, this header IS the     -->
+        <!-- window's header and, shrunk, the bar left above the taskbar.    -->
+        <Border x:Name="Header" Grid.Row="0" Background="{DynamicResource BgBar}"
+                BorderBrush="{DynamicResource BrdEdge}" BorderThickness="0,0,0,1"
+                Padding="9,5,6,6">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <!-- the name, on one line; trims rather than pushing the
+                     controls off the edge. Three slow clicks open the arcade. -->
+                <TextBlock x:Name="LogoBlock" Grid.Row="0" Grid.Column="0"
+                           FontFamily="Segoe UI" VerticalAlignment="Center"
+                           TextTrimming="CharacterEllipsis" Margin="0,0,8,0">
+                    <Run Text="RevoBIM" FontSize="15" FontWeight="Bold"
+                         Foreground="{DynamicResource AccBlue}" />
+                    <Run Text=" " FontSize="13" />
+                    <Run Text="Addin Manager" FontSize="13"
+                         Foreground="{DynamicResource AccOrange}" />
+                </TextBlock>
+
+                <!-- top right: version, then the window controls -->
+                <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal"
+                            HorizontalAlignment="Right" VerticalAlignment="Top">
+                    <TextBlock x:Name="VersionText" Text="v0.0.0" FontFamily="Segoe UI"
+                               FontSize="11" Foreground="{DynamicResource FgMuted}"
+                               VerticalAlignment="Center" Margin="0,0,4,0" />
+                    <StackPanel x:Name="WindowControls" Orientation="Horizontal"
+                                Visibility="Collapsed">
+                        <Button x:Name="DockLeftBtn" Style="{DynamicResource WinButton}"
+                                ToolTip="Dock to the left of Revit's view">
+                            <Path Stroke="{DynamicResource FgText}" StrokeThickness="1.5"
+                                  StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
+                                  Data="M 1,1 L 1,11 M 11,6 L 4,6 M 7,3 L 4,6 L 7,9" />
+                        </Button>
+                        <Button x:Name="DockRightBtn" Style="{DynamicResource WinButton}"
+                                ToolTip="Dock to the right of Revit's view">
+                            <Path Stroke="{DynamicResource FgText}" StrokeThickness="1.5"
+                                  StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
+                                  Data="M 11,1 L 11,11 M 1,6 L 8,6 M 5,3 L 8,6 L 5,9" />
+                        </Button>
+                        <Button x:Name="ShrinkBtn" Style="{DynamicResource WinButton}"
+                                Margin="3,0,0,0"
+                                ToolTip="Shrink to the taskbar so Revit can be seen (Ctrl+Shift+H)">
+                            <Grid>
+                                <Path x:Name="ShrinkGlyph" Stroke="{DynamicResource FgText}"
+                                      StrokeThickness="1.6" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
+                                      Data="M 6,1 L 6,9 M 2.5,5.5 L 6,9 L 9.5,5.5 M 1.5,12 L 10.5,12" />
+                                <Path x:Name="ExpandGlyph" Stroke="{DynamicResource AccGreen}"
+                                      StrokeThickness="2.2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
+                                      Visibility="Collapsed"
+                                      Data="M 6,12 L 6,2 M 1.5,6.5 L 6,2 L 10.5,6.5" />
+                            </Grid>
+                        </Button>
+                        <Button x:Name="FullBtn" Style="{DynamicResource WinButton}"
+                                ToolTip="Full screen (F11, or double click the header)">
+                            <Border Width="10" Height="10" BorderThickness="1.5"
+                                    BorderBrush="{DynamicResource FgText}" CornerRadius="1" />
+                        </Button>
+                        <Button x:Name="CloseBtn" Style="{DynamicResource CloseButton}"
+                                Margin="2,0,0,0" ToolTip="Close">
+                            <Path Stroke="{DynamicResource FgText}" StrokeThickness="1.5"
+                                  StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                                  Data="M 1,1 L 10,10 M 10,1 L 1,10" />
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- the tools, as square icons: list tools left, view and
+                     settings right -->
+                <Grid Grid.Row="1" Grid.ColumnSpan="2" Margin="0,5,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Orientation="Horizontal">
+                        <!-- switches between the full list and the favourites
+                             grid; lit while the grid shows -->
+                        <Button x:Name="FavBtn" Style="{DynamicResource IconButton}"
+                                Margin="0,0,3,0" ToolTip="Favourites">
+                            <Path Fill="{DynamicResource AccStar}"
+                                  Data="M 6,0.4 L 7.7,4.0 L 11.6,4.4 L 8.7,7.1 L 9.5,11 L 6,9 L 2.5,11 L 3.3,7.1 L 0.4,4.4 L 4.3,4.0 Z" />
+                        </Button>
+                        <!-- one button: collapses everything while anything is
+                             open, expands everything once it is all shut -->
+                        <Button x:Name="FoldBtn" Style="{DynamicResource IconButton}"
+                                ToolTip="Collapse every group">
+                            <Grid>
+                                <Path x:Name="FoldCloseGlyph" Stroke="{DynamicResource FgText}"
+                                      StrokeThickness="1.6" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
+                                      Data="M 2,1 L 6,4.5 L 10,1 M 2,11 L 6,7.5 L 10,11" />
+                                <Path x:Name="FoldOpenGlyph" Stroke="{DynamicResource FgText}"
+                                      StrokeThickness="1.6" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
+                                      Visibility="Collapsed"
+                                      Data="M 2,4.5 L 6,1 L 10,4.5 M 2,7.5 L 6,11 L 10,7.5" />
+                            </Grid>
+                        </Button>
+                        <Button x:Name="SmallerBtn" Style="{DynamicResource IconButton}"
+                                Margin="3,0,0,0" ToolTip="Smaller icons">
+                            <Path Stroke="{DynamicResource FgText}" StrokeThickness="1.6"
+                                  StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
+                                  Data="M 1,1 L 5,1 L 5,5 L 1,5 Z M 7,9 L 11,9" />
+                        </Button>
+                        <Button x:Name="BiggerBtn" Style="{DynamicResource IconButton}"
+                                Margin="3,0,0,0" ToolTip="Bigger icons">
+                            <Path Stroke="{DynamicResource FgText}" StrokeThickness="1.6"
+                                  StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
+                                  Data="M 1,1 L 7,1 L 7,7 L 1,7 Z M 7,10 L 11,10 M 9,8 L 9,12" />
+                        </Button>
+                        <Button x:Name="RefreshBtn" Style="{DynamicResource IconButton}"
+                                Margin="3,0,0,0" ToolTip="Re-read the addins folder now (F5)">
+                            <Path Stroke="{DynamicResource FgText}" StrokeThickness="1.6"
+                                  StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
+                                  Data="M 10.5,6.5 A 4.5,4.5 0 1 1 8.9,2.6 M 9.4,0.6 L 9.2,3.2 L 6.6,3.0" />
+                        </Button>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2" Orientation="Horizontal">
+                        <!-- favourites only: names under the tiles; lit while shown -->
+                        <Button x:Name="LabelsBtn" Style="{DynamicResource IconButton}"
+                                Margin="0,0,3,0" Visibility="Collapsed"
+                                ToolTip="Hide the names under favourites">
+                            <Path Stroke="{DynamicResource FgText}" StrokeThickness="1.5"
+                                  StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
+                                  Data="M 1.5,1.5 L 4.5,1.5 L 4.5,4.5 L 1.5,4.5 Z M 7.5,1.5 L 10.5,1.5 L 10.5,4.5 L 7.5,4.5 Z M 1,8 L 5,8 M 7,8 L 11,8 M 1,10.5 L 4,10.5 M 7,10.5 L 10,10.5" />
+                        </Button>
+                        <!-- lit while the status footer shows -->
+                        <Button x:Name="FooterBtn" Style="{DynamicResource IconButton}"
+                                ToolTip="Hide the status footer">
+                            <Path Stroke="{DynamicResource FgText}" StrokeThickness="1.4"
+                                  StrokeLineJoin="Round"
+                                  Data="M 1,1 L 11,1 L 11,11 L 1,11 Z M 1,8 L 11,8" />
+                        </Button>
+                        <!-- one glyph per theme mode; the code shows the live one -->
+                        <Button x:Name="ThemeBtn" Style="{DynamicResource IconButton}"
+                                Margin="3,0,0,0" ToolTip="Theme: Auto follows Revit's canvas">
+                            <Grid>
+                                <Grid x:Name="ThemeAutoGlyph">
+                                    <Path Stroke="{DynamicResource FgText}" StrokeThickness="1.4"
+                                          Data="M 1.5,6 A 4.5,4.5 0 1 1 10.5,6 A 4.5,4.5 0 1 1 1.5,6 Z" />
+                                    <Path Fill="{DynamicResource FgText}"
+                                          Data="M 6,1.5 A 4.5,4.5 0 0 0 6,10.5 Z" />
+                                </Grid>
+                                <Path x:Name="ThemeDarkGlyph" Fill="{DynamicResource FgText}"
+                                      Visibility="Collapsed"
+                                      Data="M 7.5,1 A 5,5 0 1 0 11,8.5 A 4,4 0 0 1 7.5,1 Z" />
+                                <Path x:Name="ThemeLightGlyph" Stroke="{DynamicResource FgText}"
+                                      StrokeThickness="1.4" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
+                                      Visibility="Collapsed"
+                                      Data="M 3.8,6 A 2.2,2.2 0 1 1 8.2,6 A 2.2,2.2 0 1 1 3.8,6 Z M 6,0.5 L 6,1.8 M 6,10.2 L 6,11.5 M 0.5,6 L 1.8,6 M 10.2,6 L 11.5,6 M 2.1,2.1 L 3,3 M 9,9 L 9.9,9.9 M 2.1,9.9 L 3,9 M 9,3 L 9.9,2.1" />
+                            </Grid>
+                        </Button>
+                        <Button x:Name="SettingsBtn" Style="{DynamicResource IconButton}"
+                                Margin="3,0,0,0"
+                                ToolTip="Settings: which folders to list, grouping, icon size and dock side">
+                            <Path Stroke="{DynamicResource FgText}" StrokeThickness="1.4"
+                                  StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
+                                  Data="M 3.7,6 A 2.3,2.3 0 1 1 8.3,6 A 2.3,2.3 0 1 1 3.7,6 Z M 6,0.5 L 6,2.2 M 6,9.8 L 6,11.5 M 0.5,6 L 2.2,6 M 9.8,6 L 11.5,6 M 2.1,2.1 L 3.3,3.3 M 8.7,8.7 L 9.9,9.9 M 2.1,9.9 L 3.3,8.7 M 8.7,3.3 L 9.9,2.1" />
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </Border>
+
+        <!-- ============================ search ============================ -->
+        <Border x:Name="SearchRow" Grid.Row="1" Background="{DynamicResource BgWindow}"
+                Padding="7,6,7,4">
+            <!-- orange edge, as Project Browser Pro's search; set locally so it
+                 stays orange when focused rather than turning blue -->
+            <TextBox x:Name="SearchBox" Tag="Search addins by name"
+                     BorderBrush="{DynamicResource AccOrange}" />
+        </Border>
+
+        <!-- ============================= list ============================= -->
+        <ScrollViewer Grid.Row="2" x:Name="ListScroll"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled"
+                      Padding="0,0,2,0">
+            <Grid>
+                <StackPanel x:Name="ListPanel" Margin="6,0,6,8" />
+                <!-- the favourites grid: uniform tiles, filled left to right
+                     and top to bottom, so it reads like a phone's home screen.
+                     Transparent background so a right click on the empty
+                     space reaches it. -->
+                <WrapPanel x:Name="FavPanel" Orientation="Horizontal"
+                           Margin="6,8,6,8" Background="Transparent"
+                           Visibility="Collapsed" />
+            </Grid>
+        </ScrollViewer>
+
+        <!-- ============================ footer ============================ -->
+        <Border x:Name="Footer" Grid.Row="3" Background="{DynamicResource BgBar}"
+                BorderBrush="{DynamicResource BrdEdge}" BorderThickness="0,1,0,0"
+                Padding="9,5,9,5">
+            <TextBlock x:Name="StatusText" Text="" FontFamily="Segoe UI" FontSize="11"
+                       Foreground="{DynamicResource FgMuted}" TextTrimming="CharacterEllipsis" />
+        </Border>
+    </Grid>
+</UserControl>

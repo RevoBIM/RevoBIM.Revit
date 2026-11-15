@@ -1,0 +1,7 @@
+title: RevoBIM Match Offset Bottom
+tooltip: >
+  Match Offset Bottom. First click takes the bottom offset off an element;
+  every click after it puts that element's bottom on the same offset.
+  Escape finishes. Give it a keyboard shortcut and the whole tool is
+  keys, click, click.
+author: RevoBIM

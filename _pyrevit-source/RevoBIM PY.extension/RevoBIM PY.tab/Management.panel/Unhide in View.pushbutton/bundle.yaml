@@ -1,0 +1,7 @@
+title: Unhide in View
+tooltip: >-
+  Lists every element hidden in a view (Hide in View > Elements) and every
+  category hidden in it, with a count of hidden elements for every view in the
+  project. Tick elements, categories or whole views and Unhide. Modeless -
+  Revit stays usable while it is open.
+author: RevoBIM

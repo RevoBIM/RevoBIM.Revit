@@ -1,0 +1,202 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RevoBIM Sheet Manager"
+        Width="1320" Height="760" MinWidth="900" MinHeight="480"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ResizeMode="NoResize" ShowInTaskbar="True" WindowStartupLocation="CenterScreen">
+
+  <Grid>
+    <Border CornerRadius="6" Background="{DynamicResource WindowBg}"
+            BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="1">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- ====================== header ====================== -->
+        <Border x:Name="HeaderBar" Grid.Row="0" Background="{DynamicResource BarBg}"
+                CornerRadius="6,6,0,0" Padding="12,8,8,8">
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" Orientation="Horizontal">
+              <Border x:Name="LogoHost" Width="34" Height="34" CornerRadius="4"
+                      Background="Transparent" Cursor="Hand" Margin="0,0,10,0">
+                <Image x:Name="LogoImage" Width="30" Height="30" Stretch="Uniform"/>
+              </Border>
+              <StackPanel VerticalAlignment="Center">
+                <TextBlock Text="RevoBIM" Foreground="{DynamicResource BlueBrush}"
+                           FontFamily="Segoe UI" FontSize="20" FontWeight="Bold"/>
+                <TextBlock Text="Sheet Manager" Foreground="{DynamicResource OrangeBrush}"
+                           FontFamily="Segoe UI" FontSize="15" Margin="1,-3,0,0"/>
+              </StackPanel>
+            </StackPanel>
+
+            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+              <Button x:Name="SettingsBtn" Style="{DynamicResource Btn.Chip}" Content="Settings"
+                      Margin="0,0,6,0" ToolTip="Sheet Manager settings"/>
+              <Button x:Name="ThemeChip" Style="{DynamicResource Btn.Chip}" Content="Theme: Auto"
+                      Margin="0,0,10,0" ToolTip="Auto follows Revit's own light or dark theme"/>
+              <TextBlock x:Name="VersionText" Style="{DynamicResource Lbl.Muted}" Text="v1.0.0"
+                         Margin="0,0,10,0"/>
+              <Button x:Name="ShrinkBtn" Style="{DynamicResource Btn.Shrink}" Margin="0,0,2,0"/>
+              <Button x:Name="FullBtn" Style="{DynamicResource Btn.Glyph}" ToolTip="Full screen (F11)">
+                <Border Width="12" Height="10" BorderBrush="{DynamicResource MutedBrush}"
+                        BorderThickness="1.4" CornerRadius="1"/>
+              </Button>
+              <Button x:Name="CloseBtn" Style="{DynamicResource Btn.Close}" Content="&#x2715;"/>
+            </StackPanel>
+          </Grid>
+        </Border>
+
+        <!-- ====================== toolbar ====================== -->
+        <Border Grid.Row="1" Background="{DynamicResource CardBg}" Padding="12,8,12,8"
+                BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="0,1,0,1">
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="260"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBox x:Name="SearchAll" Grid.Column="0" Style="{DynamicResource Txt.Field}"
+                     Tag="Search every column" VerticalAlignment="Center"/>
+
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="14,0,0,0" VerticalAlignment="Center">
+              <TextBlock Text="Group by" Style="{DynamicResource Lbl.Muted}" Margin="0,0,8,0"/>
+              <ComboBox x:Name="Group1" Style="{DynamicResource Cmb.Flat}" Width="150" Margin="0,0,5,0"/>
+              <ComboBox x:Name="Group2" Style="{DynamicResource Cmb.Flat}" Width="150" Margin="0,0,5,0"/>
+              <ComboBox x:Name="Group3" Style="{DynamicResource Cmb.Flat}" Width="150" Margin="0,0,8,0"/>
+              <Button x:Name="GroupBySortChip" Style="{DynamicResource Btn.Chip}" Content="Grouped"
+                      Margin="0,0,10,0"
+                      ToolTip="Group the table by whatever it is sorted by, so a shift-click second sort level becomes a second level of groups"/>
+              <Button x:Name="ExpandBtn" Style="{DynamicResource Btn.Flat}" Content="Expand all" Margin="0,0,5,0"/>
+              <Button x:Name="CollapseBtn" Style="{DynamicResource Btn.Flat}" Content="Collapse all"/>
+            </StackPanel>
+
+            <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
+              <Button x:Name="AddColumnBtn" Style="{DynamicResource Btn.Flat}" Content="+ Column"
+                      Margin="0,0,5,0" ToolTip="Add a sheet parameter as a column"/>
+              <Button x:Name="ClearFiltersBtn" Style="{DynamicResource Btn.Flat}" Content="Clear filters"
+                      Margin="0,0,5,0"/>
+              <Button x:Name="RefreshBtn" Style="{DynamicResource Btn.Flat}" Content="Refresh"
+                      Margin="0,0,14,0" ToolTip="Re-read the sheets (F5)"/>
+              <Button x:Name="EditBtn" Style="{DynamicResource Btn.Orange}" Content="Edit..."
+                      Margin="0,0,5,0"
+                      ToolTip="Find and replace, prefix and suffix, fill down - over the selected rows or every row shown. Double-click a cell to edit it on its own."/>
+              <Button x:Name="ImportBtn" Style="{DynamicResource Btn.Flat}" Content="Import xlsx"
+                      Margin="0,0,5,0"
+                      ToolTip="Read a spreadsheet exported from here back in, matched on Sheet Number, as pending edits"/>
+              <Button x:Name="ClearEditsBtn" Style="{DynamicResource Btn.Flat}" Content="Discard edits"
+                      Margin="0,0,5,0" IsEnabled="False"/>
+              <Button x:Name="FitBtn" Style="{DynamicResource Btn.Flat}" Content="Fit columns"
+                      ToolTip="Measure every column to its content and freeze it there"/>
+            </StackPanel>
+          </Grid>
+        </Border>
+
+        <!-- ============ the sheets picked in Revit before opening ============ -->
+        <Border x:Name="PickedStrip" Grid.Row="2" Background="{DynamicResource FieldBg}"
+                Padding="12,6,12,6" BorderBrush="{DynamicResource EdgeBrush}"
+                BorderThickness="0,0,0,1" Visibility="Collapsed">
+          <StackPanel Orientation="Horizontal">
+            <Border Width="4" Height="16" Background="{DynamicResource BlueBrush}" Margin="0,0,10,0"/>
+            <CheckBox x:Name="OnlyPickedBox" Style="{DynamicResource Chk.Flat}" FontWeight="SemiBold"
+                      Content="Only the sheets selected in Revit" VerticalAlignment="Center"
+                      ToolTip="Untick to show every sheet in the project"/>
+            <TextBlock x:Name="PickedNote" Style="{DynamicResource Lbl.Muted}" Margin="14,0,0,0"
+                       VerticalAlignment="Center" Text="untick to show every sheet"/>
+          </StackPanel>
+        </Border>
+
+        <!-- ====================== progress band ====================== -->
+        <Border x:Name="ProgressBand" Grid.Row="3" Height="18" Background="{DynamicResource FieldBg}"
+                Visibility="Collapsed">
+          <Grid>
+            <Border x:Name="ProgressFill" HorizontalAlignment="Left" Width="0"
+                    Background="{DynamicResource BlueBrush}"/>
+            <TextBlock x:Name="ProgressText" Style="{DynamicResource Lbl.Body}" FontSize="11"
+                       HorizontalAlignment="Center" VerticalAlignment="Center" Text=""/>
+          </Grid>
+        </Border>
+
+        <!-- ====================== table ====================== -->
+        <Border Grid.Row="4" Padding="12,10,12,10">
+          <DataGrid x:Name="SheetGrid" Style="{DynamicResource Grid.Flat}" SelectionMode="Extended"
+                    CanUserSortColumns="True" CanUserReorderColumns="False"
+                    CanUserResizeColumns="True" SelectionUnit="FullRow"
+                    ClipboardCopyMode="ExcludeHeader"
+                    VirtualizingPanel.VirtualizationMode="Recycling"/>
+        </Border>
+
+        <!-- ====================== footer ====================== -->
+        <Border Grid.Row="5" Background="{DynamicResource BarBg}" CornerRadius="0,0,6,6"
+                Padding="12,8,12,8" BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="0,1,0,0">
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Button x:Name="SelectShownBtn" Grid.Column="0" Style="{DynamicResource Btn.Orange}"
+                    Content="Select all shown" Margin="0,0,10,0"/>
+
+            <StackPanel Grid.Column="1" Margin="4,0,10,0" VerticalAlignment="Center">
+              <TextBlock x:Name="StatusText" Style="{DynamicResource Lbl.Muted}"
+                         Text="Reading the project..." TextTrimming="CharacterEllipsis"/>
+              <!-- the legend, named in full: a colour nobody can name is noise -->
+              <StackPanel x:Name="LegendBar" Orientation="Horizontal" Margin="0,3,0,0"/>
+            </StackPanel>
+
+            <StackPanel Grid.Column="2" Orientation="Horizontal">
+              <Button x:Name="DiagBtn" Style="{DynamicResource Btn.Flat}" Content="Diagnostics"
+                      Margin="0,0,8,0"
+                      ToolTip="Everything the tool knows about itself and the last run, to a file you can send back. Works even when nothing else does."/>
+              <CheckBox x:Name="DebugBox" Style="{DynamicResource Chk.Flat}" Content="Debug"
+                        Margin="0,0,12,0" VerticalAlignment="Center"
+                        ToolTip="Write a full report of the next run and show it afterwards, so it can be sent back as feedback"/>
+              <Button x:Name="ExportBtn" Style="{DynamicResource Btn.Flat}" Content="Export xlsx"
+                      Margin="0,0,8,0" ToolTip="The table as shown, pending edits included, to an .xlsx"/>
+              <Button x:Name="ApplyBtn" Style="{DynamicResource Btn.Orange}" Content="Apply edits"
+                      Margin="0,0,8,0" IsEnabled="False"
+                      ToolTip="Write every pending edit to the model. Nothing is written until this is pressed."/>
+              <Button x:Name="DuplicateBtn" Style="{DynamicResource Btn.Green}"
+                      Content="Duplicate Selected" IsEnabled="False"/>
+            </StackPanel>
+          </Grid>
+        </Border>
+      </Grid>
+    </Border>
+
+    <!-- ====================== resize grips ====================== -->
+    <Grid x:Name="GripLayer">
+      <Thumb x:Name="GripL" Style="{DynamicResource Grip}" Width="5" HorizontalAlignment="Left"
+             VerticalAlignment="Stretch" Cursor="SizeWE"/>
+      <Thumb x:Name="GripR" Style="{DynamicResource Grip}" Width="5" HorizontalAlignment="Right"
+             VerticalAlignment="Stretch" Cursor="SizeWE"/>
+      <Thumb x:Name="GripT" Style="{DynamicResource Grip}" Height="5" VerticalAlignment="Top"
+             HorizontalAlignment="Stretch" Cursor="SizeNS"/>
+      <Thumb x:Name="GripB" Style="{DynamicResource Grip}" Height="5" VerticalAlignment="Bottom"
+             HorizontalAlignment="Stretch" Cursor="SizeNS"/>
+      <Thumb x:Name="GripTL" Style="{DynamicResource Grip}" Width="9" Height="9"
+             HorizontalAlignment="Left" VerticalAlignment="Top" Cursor="SizeNWSE"/>
+      <Thumb x:Name="GripTR" Style="{DynamicResource Grip}" Width="9" Height="9"
+             HorizontalAlignment="Right" VerticalAlignment="Top" Cursor="SizeNESW"/>
+      <Thumb x:Name="GripBL" Style="{DynamicResource Grip}" Width="9" Height="9"
+             HorizontalAlignment="Left" VerticalAlignment="Bottom" Cursor="SizeNESW"/>
+      <Thumb x:Name="GripBR" Style="{DynamicResource Grip}" Width="9" Height="9"
+             HorizontalAlignment="Right" VerticalAlignment="Bottom" Cursor="SizeNWSE"/>
+    </Grid>
+  </Grid>
+</Window>

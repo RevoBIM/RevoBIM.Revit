@@ -1,0 +1,4 @@
+title: Tag Untangle Horizontal
+tooltip: >-
+  Spaces the selected tags out evenly left to right using each tag's measured width plus text height / 2 clear, scaled by the view (editable in Tag Aligner Settings). Up-and-down positions are kept.
+author: RevoBIM

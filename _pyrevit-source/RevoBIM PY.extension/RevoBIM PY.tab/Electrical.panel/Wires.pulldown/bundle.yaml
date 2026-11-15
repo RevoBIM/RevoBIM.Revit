@@ -1,0 +1,26 @@
+title: Wires
+author: RevoBIM PY
+highlight: new
+min_revit_version: 2024
+tooltip: >
+  Electrical wire annotation.
+
+  Auto Wire - select fittings and only their circuits are wired; select
+  nothing and every circuit in the view without wires is wired. Snake route,
+  arc wires, wire type by the fitting's emergency parameter, a home run arc
+  pointing at the switch, one tag per circuit. Shuffle and Previous step
+  through the route options.
+
+  Re-Route Wires - takes one circuit's wires and tags out and redraws them to
+  the same rules.
+
+  Apply Wire Types - sets the wire type on wires that are already drawn, by
+  the same rules Auto Wire uses, and changes nothing else.
+
+  Align Wire Ends - moves the point where a wire meets its fitting onto where
+  it belongs, and changes nothing else.
+
+  Reconnect Wires - joins loose wire ends back onto the circuited fittings
+  beside them.
+
+  Settings - tabbed: Circuits, Lighting, Power, Reconnect, Running.

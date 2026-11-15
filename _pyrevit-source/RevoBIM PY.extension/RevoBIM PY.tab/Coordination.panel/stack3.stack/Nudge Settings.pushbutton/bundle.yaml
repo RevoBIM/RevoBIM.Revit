@@ -1,0 +1,6 @@
+title: Nudge Settings
+tooltip: >
+  Set the increment used by Nudge Up and Nudge Down, and how they behave.
+  Default 50mm. Settings are shared by all three buttons and are kept
+  between sessions.
+author: RevoBIM PY

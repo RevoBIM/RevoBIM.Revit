@@ -1,0 +1,9 @@
+title: Space
+  Creator
+tooltip: >
+  Creates and manages MEP spaces. Automatic fills every room in the view
+  or project; Manual places spaces from rooms picked in a linked model;
+  Manage lists every space with editable Base / Limit offsets and pushes
+  selected spaces up to the underside of the floor above without running
+  into a space above. Nothing is written until Apply.
+tooltip_image: icon.png

@@ -1,0 +1,659 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RevoBIM PY - Workset Management"
+        Width="1260" Height="820" MinWidth="1020" MinHeight="600"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ResizeMode="NoResize" ShowInTaskbar="False"
+        WindowStartupLocation="CenterScreen" FontFamily="Segoe UI">
+
+  <!-- ================================================================
+       Layout only.  Every brush and style is a DynamicResource: Theme.xaml
+       is merged in after this file is parsed, and the palette is written
+       onto window.Resources so a swap re-resolves everything live.
+       ================================================================ -->
+
+  <Grid x:Name="RootGrid">
+    <Border x:Name="Frame" Background="{DynamicResource WindowBrush}"
+            BorderBrush="{DynamicResource ChromeBrush}" BorderThickness="1" CornerRadius="6">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="54"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="50"/>
+        </Grid.RowDefinitions>
+
+        <!-- ============================================ header -->
+        <Border x:Name="HeaderBar" Grid.Row="0" Background="{DynamicResource BarBrush}"
+                CornerRadius="5,5,0,0" Padding="14,0,8,0">
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Image x:Name="HeaderIcon" Grid.Column="0" Width="30" Height="30"
+                   Margin="0,0,10,0" VerticalAlignment="Center"/>
+
+            <StackPanel x:Name="LogoBlock" Grid.Column="1" VerticalAlignment="Center"
+                        Background="Transparent" Cursor="Hand">
+              <TextBlock x:Name="LogoText" Text="RevoBIM" FontSize="20" FontWeight="Bold"
+                         Foreground="{DynamicResource BlueBrush}"/>
+              <TextBlock Text="Workset Management" FontSize="15" Margin="1,-4,0,0"
+                         Foreground="{DynamicResource OrangeBrush}"/>
+            </StackPanel>
+
+            <Button x:Name="ThemeButton" Grid.Column="3" Style="{DynamicResource WsChip}"
+                    Margin="0,0,12,0" VerticalAlignment="Center"
+                    ToolTip="Theme: Auto follows Revit's canvas. Click to cycle Auto, Dark, Light.">
+              <StackPanel Orientation="Horizontal">
+                <Grid Width="13" Height="13" Margin="0,0,6,0" VerticalAlignment="Center">
+                  <Ellipse Stroke="{DynamicResource TextBrush}" StrokeThickness="1.4"/>
+                  <Path Data="M 6.5,0.7 A 5.8,5.8 0 0 0 6.5,12.3 Z"
+                        Fill="{DynamicResource TextBrush}"/>
+                </Grid>
+                <TextBlock x:Name="ThemeLabel" Text="Auto" VerticalAlignment="Center"/>
+              </StackPanel>
+            </Button>
+
+            <TextBlock x:Name="VersionText" Grid.Column="4" Text="v2.0.0" FontSize="11"
+                       Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center"
+                       Margin="0,0,12,0"/>
+
+            <Button x:Name="FullScreenButton" Grid.Column="5" Style="{DynamicResource WsCloseButton}"
+                    ToolTip="Full screen (F11)" Margin="0,0,2,0">
+              <Path Data="M 1,5 V 1 H 5 M 9,1 H 13 V 5 M 13,9 V 13 H 9 M 5,13 H 1 V 9"
+                    Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.5"
+                    Width="13" Height="13"/>
+            </Button>
+
+            <Button x:Name="CloseButton" Grid.Column="6" Style="{DynamicResource WsCloseButton}"
+                    Content="&#x2715;" ToolTip="Close"/>
+          </Grid>
+        </Border>
+
+        <!-- ============================================ tab strip -->
+        <Border Grid.Row="1" Padding="14,8,14,0" BorderBrush="{DynamicResource EdgeBrush}"
+                BorderThickness="0,0,0,1">
+          <StackPanel Orientation="Horizontal">
+            <Button x:Name="TabManage" Style="{DynamicResource WsTabActive}" Margin="0,0,4,0">
+              <StackPanel Orientation="Horizontal">
+                <Path Style="{DynamicResource WsIcon}" Stroke="{DynamicResource OrangeBrush}"
+                      Data="M 1,3 H 9 M 1,8 H 9 M 1,13 H 6 M 10,14 L 10.6,11.6 L 15,7.2 L 16.8,9 L 12.4,13.4 Z"/>
+                <TextBlock Text="Manage Worksets" VerticalAlignment="Center"/>
+              </StackPanel>
+            </Button>
+            <Button x:Name="TabScope" Style="{DynamicResource WsTab}" Margin="0,0,4,0">
+              <StackPanel Orientation="Horizontal">
+                <Path Style="{DynamicResource WsIcon}" Stroke="{DynamicResource GreenBrush}"
+                      Data="M 1,4 L 6,1 L 15,4 L 10,7 Z M 1,4 V 12 L 10,15 V 7 M 10,15 L 15,12 V 4"/>
+                <TextBlock Text="Scope Boxes" VerticalAlignment="Center"/>
+              </StackPanel>
+            </Button>
+            <Button x:Name="TabAssign" Style="{DynamicResource WsTab}">
+              <StackPanel Orientation="Horizontal">
+                <Path Style="{DynamicResource WsIcon}" Stroke="{DynamicResource BlueBrush}"
+                      Data="M 1,2 H 6 V 7 H 1 Z M 1,10 H 6 V 15 H 1 Z M 8,4.5 H 14 M 12,2.5 L 14,4.5 L 12,6.5 M 8,12.5 H 14 M 12,10.5 L 14,12.5 L 12,14.5"/>
+                <TextBlock Text="Workset Assigner" VerticalAlignment="Center"/>
+              </StackPanel>
+            </Button>
+          </StackPanel>
+        </Border>
+
+        <!-- ============================================ body -->
+        <Grid Grid.Row="2" Margin="14,12,14,0">
+
+          <!-- ======================== Manage Worksets -->
+          <Grid x:Name="ManagePanel">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0" Margin="0,0,0,10">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+              </Grid.RowDefinitions>
+
+              <!-- ======================== row 2: the 3D view -->
+              <Border Grid.Row="1" Grid.ColumnSpan="2" Margin="0,4,0,0" Padding="8,5,8,5"
+                      Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource EdgeBrush}"
+                      BorderThickness="1" CornerRadius="4">
+                <Grid>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                  </Grid.ColumnDefinitions>
+                  <Button x:Name="Show3DButton" Grid.Column="0" Style="{DynamicResource WsBlueButton}"
+                          Margin="0,0,6,0"
+                          ToolTip="Open the 'Workset Management' 3D view: everything showing, no links, each workset in its own colour">
+                    <StackPanel Orientation="Horizontal">
+                      <Path Style="{DynamicResource WsIcon}" Stroke="{DynamicResource OnAccentBrush}"
+                            Data="M 8,1 L 15,4.5 V 11.5 L 8,15 L 1,11.5 V 4.5 Z M 1,4.5 L 8,8 L 15,4.5 M 8,8 V 15"/>
+                      <TextBlock Text="Show in 3D" VerticalAlignment="Center"/>
+                    </StackPanel>
+                  </Button>
+                  <Button x:Name="IsolateButton" Grid.Column="1" Style="{DynamicResource WsButton}"
+                          Margin="0,0,6,0"
+                          ToolTip="Show only the selected worksets' elements in the 3D view">
+                    <StackPanel Orientation="Horizontal">
+                      <Path Style="{DynamicResource WsIcon}" Stroke="{DynamicResource BlueBrush}"
+                            Data="M 1,8 C 3.5,3.5 12.5,3.5 15,8 C 12.5,12.5 3.5,12.5 1,8 Z M 8,5.8 A 2.2,2.2 0 1 1 7.99,5.8"/>
+                      <TextBlock x:Name="IsolateLabel" Text="Isolate selected" VerticalAlignment="Center"/>
+                    </StackPanel>
+                  </Button>
+                  <Button x:Name="UnisolateButton" Grid.Column="2" Style="{DynamicResource WsButton}"
+                          Margin="0,0,12,0" ToolTip="Show every workset in the 3D view again">
+                    <StackPanel Orientation="Horizontal">
+                      <Path Style="{DynamicResource WsIcon}" Stroke="{DynamicResource MutedBrush}"
+                            Data="M 1,8 C 3.5,3.5 12.5,3.5 15,8 C 12.5,12.5 3.5,12.5 1,8 Z M 2,14 L 14,2"/>
+                      <TextBlock Text="Un-isolate" VerticalAlignment="Center"/>
+                    </StackPanel>
+                  </Button>
+                  <TextBlock x:Name="ViewHint" Grid.Column="3" VerticalAlignment="Center" FontSize="11"
+                             Foreground="{DynamicResource MutedBrush}" TextTrimming="CharacterEllipsis"/>
+                </Grid>
+              </Border>
+
+              <WrapPanel Grid.Column="0" Orientation="Horizontal">
+                <Button x:Name="ExportButton" Style="{DynamicResource WsGreenButton}" Margin="0,0,6,4"
+                        ToolTip="Write every workset to a spreadsheet - orange to rename, green to add">
+                  <StackPanel Orientation="Horizontal">
+                    <Path Style="{DynamicResource WsIcon}" Stroke="{DynamicResource OnAccentBrush}"
+                          Data="M 1,1 H 10 V 15 H 1 Z M 1,5.5 H 10 M 1,10 H 10 M 5.5,1 V 15 M 11,8 H 16 M 14,6 L 16,8 L 14,10"/>
+                    <TextBlock Text="Create worksets in Excel" VerticalAlignment="Center"/>
+                  </StackPanel>
+                </Button>
+                <Button x:Name="ImportButton" Style="{DynamicResource WsBlueButton}" Margin="0,0,14,4"
+                        ToolTip="Read an edited spreadsheet back - changes land in the table in red">
+                  <StackPanel Orientation="Horizontal">
+                    <Path Style="{DynamicResource WsIcon}" Stroke="{DynamicResource OnAccentBrush}"
+                          Data="M 6,1 H 15 V 15 H 6 Z M 6,5.5 H 15 M 6,10 H 15 M 10.5,1 V 15 M 0,8 H 5 M 3,6 L 5,8 L 3,10"/>
+                    <TextBlock Text="Import Excel" VerticalAlignment="Center"/>
+                  </StackPanel>
+                </Button>
+                <Button x:Name="NewButton" Style="{DynamicResource WsButton}" Margin="0,0,6,4"
+                        ToolTip="Add a new workset to the table (Ctrl+N)">
+                  <StackPanel Orientation="Horizontal">
+                    <Path Style="{DynamicResource WsIcon}" Stroke="{DynamicResource GreenBrush}"
+                          Data="M 8,2 V 14 M 2,8 H 14"/>
+                    <TextBlock Text="New workset" VerticalAlignment="Center"/>
+                  </StackPanel>
+                </Button>
+                <Button x:Name="EditableButton" Style="{DynamicResource WsButton}" Margin="0,0,6,4"
+                        ToolTip="Check the selected worksets out to you now">
+                  <StackPanel Orientation="Horizontal">
+                    <Path Style="{DynamicResource WsIcon}" Stroke="{DynamicResource BlueBrush}"
+                          Data="M 2,14 L 3,10.5 L 11,2.5 L 13.5,5 L 5.5,13 Z M 9.5,4 L 12,6.5"/>
+                    <TextBlock Text="Make editable" VerticalAlignment="Center"/>
+                  </StackPanel>
+                </Button>
+                <Button x:Name="DeleteButton" Style="{DynamicResource WsButton}" Margin="0,0,6,4"
+                        ToolTip="Stage the selected worksets for deletion, choosing where their elements go (Delete)">
+                  <StackPanel Orientation="Horizontal">
+                    <Path Style="{DynamicResource WsIcon}" Stroke="{DynamicResource RedBrush}"
+                          Data="M 2,4 H 14 M 6,4 V 2 H 10 V 4 M 3.5,4 L 4.5,15 H 11.5 L 12.5,4 M 6.5,7 V 12 M 9.5,7 V 12"/>
+                    <TextBlock Text="Delete selected" VerticalAlignment="Center"/>
+                  </StackPanel>
+                </Button>
+                <Button x:Name="MergeButton" Style="{DynamicResource WsButton}" Margin="0,0,6,4"
+                        ToolTip="Merge the selected worksets into one - you choose the master">
+                  <StackPanel Orientation="Horizontal">
+                    <Path Style="{DynamicResource WsIcon}" Stroke="{DynamicResource OrangeBrush}"
+                          Data="M 1,2 L 7,8 L 1,14 M 7,8 H 15 M 12,5 L 15,8 L 12,11"/>
+                    <TextBlock Text="Merge" VerticalAlignment="Center"/>
+                  </StackPanel>
+                </Button>
+                <Button x:Name="RevertButton" Style="{DynamicResource WsButton}" Margin="0,0,6,4"
+                        ToolTip="Undo whatever is staged on the selected rows">
+                  <StackPanel Orientation="Horizontal">
+                    <Path Style="{DynamicResource WsIcon}" Stroke="{DynamicResource MutedBrush}"
+                          Data="M 5,2 L 2,5 L 5,8 M 2,5 H 10 A 4,4 0 0 1 10,13 H 6"/>
+                    <TextBlock Text="Revert selected" VerticalAlignment="Center"/>
+                  </StackPanel>
+                </Button>
+              </WrapPanel>
+
+              <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">
+                <Button x:Name="ClearFiltersButton" Style="{DynamicResource WsButton}" Margin="0,0,6,4"
+                        ToolTip="Clear every column filter">
+                  <StackPanel Orientation="Horizontal">
+                    <Path Style="{DynamicResource WsIcon}" Stroke="{DynamicResource OrangeBrush}"
+                          Data="M 1,2 H 13 L 8.5,7.5 V 13 L 5.5,11.5 V 7.5 Z M 11,10 L 15,14 M 15,10 L 11,14"/>
+                    <TextBlock Text="Clear filters" VerticalAlignment="Center"/>
+                  </StackPanel>
+                </Button>
+                <Button x:Name="RefreshButton" Style="{DynamicResource WsButton}" Margin="0,0,0,4"
+                        ToolTip="Read the model again - staged changes are kept (F5 re-sorts and re-filters)">
+                  <StackPanel Orientation="Horizontal">
+                    <Path Style="{DynamicResource WsIcon}" Stroke="{DynamicResource TextBrush}"
+                          Data="M 13.5,8 A 5.5,5.5 0 1 1 11.9,4.1 M 12,1 V 4.2 H 15.2"/>
+                    <TextBlock Text="Refresh" VerticalAlignment="Center"/>
+                  </StackPanel>
+                </Button>
+              </StackPanel>
+            </Grid>
+
+            <Grid Grid.Row="1">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2.7*" MinWidth="560"/>
+                <ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="1*" MinWidth="300"/>
+              </Grid.ColumnDefinitions>
+
+              <DataGrid x:Name="WsGrid" Grid.Column="0" Style="{DynamicResource WsGrid}"
+                        AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False"
+                        CanUserReorderColumns="False" CanUserSortColumns="False"
+                        CanUserResizeRows="False" SelectionMode="Extended" SelectionUnit="FullRow"
+                        EnableRowVirtualization="True" VirtualizingPanel.VirtualizationMode="Standard"
+                        RowDetailsVisibilityMode="Collapsed" ClipboardCopyMode="ExcludeHeader">
+                <!-- the category breakdown under a row; filled in code when it opens.
+                     Standard virtualisation, not Recycling, so a breakdown is never
+                     handed to another workset's row -->
+                <DataGrid.RowDetailsTemplate>
+                  <DataTemplate>
+                    <Border Background="{DynamicResource CardBrush}"
+                            BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="0,1,0,1"
+                            Padding="38,8,12,10"/>
+                  </DataTemplate>
+                </DataGrid.RowDetailsTemplate>
+              </DataGrid>
+
+              <!-- ======================== bulk rename -->
+              <Border Grid.Column="2" Style="{DynamicResource WsCard}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                  <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
+                      <Border Width="4" Height="15" CornerRadius="2" Margin="0,0,8,0"
+                              Background="{DynamicResource OrangeBrush}" VerticalAlignment="Center"/>
+                      <TextBlock Text="Rename worksets" FontSize="14" FontWeight="SemiBold"
+                                 Foreground="{DynamicResource OrangeBrush}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <TextBlock x:Name="RenameScopeText" TextWrapping="Wrap" FontSize="11"
+                               Foreground="{DynamicResource MutedBrush}" Margin="12,2,0,4"/>
+
+                    <TextBlock Text="Find and replace" Style="{DynamicResource WsLabel}"/>
+                    <Grid>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="6"/>
+                        <ColumnDefinition Width="*"/>
+                      </Grid.ColumnDefinitions>
+                      <TextBox x:Name="FindBox" Grid.Column="0" Style="{DynamicResource WsTextBox}" Tag="Find"/>
+                      <TextBox x:Name="ReplaceBox" Grid.Column="2" Style="{DynamicResource WsTextBox}" Tag="Replace with"/>
+                    </Grid>
+                    <CheckBox x:Name="MatchCaseCheck" Style="{DynamicResource WsCheck}" Content="Match case"
+                              Margin="0,5,0,0"/>
+
+                    <TextBlock Text="Add" Style="{DynamicResource WsLabel}"/>
+                    <Grid>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="6"/>
+                        <ColumnDefinition Width="*"/>
+                      </Grid.ColumnDefinitions>
+                      <TextBox x:Name="PrefixBox" Grid.Column="0" Style="{DynamicResource WsTextBox}" Tag="Prefix"/>
+                      <TextBox x:Name="SuffixBox" Grid.Column="2" Style="{DynamicResource WsTextBox}" Tag="Suffix"/>
+                    </Grid>
+
+                    <TextBlock Text="Remove characters" Style="{DynamicResource WsLabel}"/>
+                    <Grid>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="6"/>
+                        <ColumnDefinition Width="*"/>
+                      </Grid.ColumnDefinitions>
+                      <TextBox x:Name="RemoveFirstBox" Grid.Column="0" Style="{DynamicResource WsTextBox}"
+                               Tag="From the start (count)"/>
+                      <TextBox x:Name="RemoveLastBox" Grid.Column="2" Style="{DynamicResource WsTextBox}"
+                               Tag="From the end (count)"/>
+                    </Grid>
+
+                    <TextBlock Text="Case" Style="{DynamicResource WsLabel}"/>
+                    <StackPanel Orientation="Horizontal">
+                      <Button x:Name="CaseKeep" Style="{DynamicResource WsSegmentOn}" Content="Keep" Margin="0,0,4,0"/>
+                      <Button x:Name="CaseUpper" Style="{DynamicResource WsSegment}" Content="UPPER" Margin="0,0,4,0"/>
+                      <Button x:Name="CaseLower" Style="{DynamicResource WsSegment}" Content="lower" Margin="0,0,4,0"/>
+                      <Button x:Name="CaseTitle" Style="{DynamicResource WsSegment}" Content="Title"/>
+                    </StackPanel>
+
+                    <CheckBox x:Name="TidyCheck" Style="{DynamicResource WsCheck}" Margin="0,10,0,0"
+                              Content="Tidy spaces (trim, single spaces)"/>
+
+                    <TextBlock Text="Preview" Style="{DynamicResource WsLabel}" Margin="0,12,0,3"/>
+                    <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource EdgeBrush}"
+                            BorderThickness="1" CornerRadius="3" Padding="8,6,8,6" MinHeight="60">
+                      <StackPanel x:Name="RenamePreviewHost"/>
+                    </Border>
+
+                    <Grid Margin="0,10,0,0">
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                      </Grid.ColumnDefinitions>
+                      <Button x:Name="RenameResetButton" Grid.Column="0" Style="{DynamicResource WsButton}"
+                              HorizontalAlignment="Left" Content="Reset"/>
+                      <Button x:Name="RenameStageButton" Grid.Column="1" Style="{DynamicResource WsGreenButton}"
+                              ToolTip="Stage these names - nothing is written until Apply">
+                        <StackPanel Orientation="Horizontal">
+                          <Path Style="{DynamicResource WsIcon}" Stroke="{DynamicResource OnAccentBrush}"
+                                Data="M 2,8.5 L 6,12.5 L 14,3.5"/>
+                          <TextBlock x:Name="RenameStageLabel" Text="Stage rename" VerticalAlignment="Center"/>
+                        </StackPanel>
+                      </Button>
+                    </Grid>
+                  </StackPanel>
+                </ScrollViewer>
+              </Border>
+            </Grid>
+          </Grid>
+
+          <!-- ======================== Scope Boxes -->
+          <Grid x:Name="ScopePanel" Visibility="Collapsed">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0" Margin="0,0,0,10">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+              </Grid.ColumnDefinitions>
+              <WrapPanel Grid.Column="0" Orientation="Horizontal">
+                <Button x:Name="ScDeleteButton" Style="{DynamicResource WsButton}" Margin="0,0,6,4"
+                        ToolTip="Stage the selected scope boxes for deletion (Delete)">
+                  <StackPanel Orientation="Horizontal">
+                    <Path Style="{DynamicResource WsIcon}" Stroke="{DynamicResource RedBrush}"
+                          Data="M 2,4 H 14 M 6,4 V 2 H 10 V 4 M 3.5,4 L 4.5,15 H 11.5 L 12.5,4 M 6.5,7 V 12 M 9.5,7 V 12"/>
+                    <TextBlock Text="Delete selected" VerticalAlignment="Center"/>
+                  </StackPanel>
+                </Button>
+                <Button x:Name="ScRevertButton" Style="{DynamicResource WsButton}" Margin="0,0,14,4"
+                        ToolTip="Undo whatever is staged on the selected rows">
+                  <StackPanel Orientation="Horizontal">
+                    <Path Style="{DynamicResource WsIcon}" Stroke="{DynamicResource MutedBrush}"
+                          Data="M 5,2 L 2,5 L 5,8 M 2,5 H 10 A 4,4 0 0 1 10,13 H 6"/>
+                    <TextBlock Text="Revert selected" VerticalAlignment="Center"/>
+                  </StackPanel>
+                </Button>
+                <TextBlock VerticalAlignment="Center" FontSize="11" Margin="0,0,0,4"
+                           Foreground="{DynamicResource MutedBrush}"
+                           Text="Hover over Used by for every view, level and grid using a scope box."/>
+              </WrapPanel>
+              <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">
+                <Button x:Name="ScClearFiltersButton" Style="{DynamicResource WsButton}" Margin="0,0,6,4"
+                        ToolTip="Clear every column filter">
+                  <StackPanel Orientation="Horizontal">
+                    <Path Style="{DynamicResource WsIcon}" Stroke="{DynamicResource OrangeBrush}"
+                          Data="M 1,2 H 13 L 8.5,7.5 V 13 L 5.5,11.5 V 7.5 Z M 11,10 L 15,14 M 15,10 L 11,14"/>
+                    <TextBlock Text="Clear filters" VerticalAlignment="Center"/>
+                  </StackPanel>
+                </Button>
+                <Button x:Name="ScRefreshButton" Style="{DynamicResource WsButton}" Margin="0,0,0,4"
+                        ToolTip="Read the scope boxes again - staged changes are kept (F5 re-sorts and re-filters)">
+                  <StackPanel Orientation="Horizontal">
+                    <Path Style="{DynamicResource WsIcon}" Stroke="{DynamicResource TextBrush}"
+                          Data="M 13.5,8 A 5.5,5.5 0 1 1 11.9,4.1 M 12,1 V 4.2 H 15.2"/>
+                    <TextBlock Text="Refresh" VerticalAlignment="Center"/>
+                  </StackPanel>
+                </Button>
+              </StackPanel>
+            </Grid>
+
+            <Grid Grid.Row="1">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2.7*" MinWidth="560"/>
+                <ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="1*" MinWidth="300"/>
+              </Grid.ColumnDefinitions>
+
+              <DataGrid x:Name="ScopeGrid" Grid.Column="0" Style="{DynamicResource WsGrid}"
+                        AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False"
+                        CanUserReorderColumns="False" CanUserSortColumns="False"
+                        CanUserResizeRows="False" SelectionMode="Extended" SelectionUnit="FullRow"
+                        EnableRowVirtualization="True" VirtualizingPanel.VirtualizationMode="Standard"
+                        ClipboardCopyMode="ExcludeHeader"/>
+
+              <!-- ======================== bulk rename, scope boxes -->
+              <Border Grid.Column="2" Style="{DynamicResource WsCard}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                  <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
+                      <Border Width="4" Height="15" CornerRadius="2" Margin="0,0,8,0"
+                              Background="{DynamicResource OrangeBrush}" VerticalAlignment="Center"/>
+                      <TextBlock Text="Rename scope boxes" FontSize="14" FontWeight="SemiBold"
+                                 Foreground="{DynamicResource OrangeBrush}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <TextBlock x:Name="ScRenameScopeText" TextWrapping="Wrap" FontSize="11"
+                               Foreground="{DynamicResource MutedBrush}" Margin="12,2,0,4"/>
+
+                    <TextBlock Text="Find and replace" Style="{DynamicResource WsLabel}"/>
+                    <Grid>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="6"/>
+                        <ColumnDefinition Width="*"/>
+                      </Grid.ColumnDefinitions>
+                      <TextBox x:Name="ScFindBox" Grid.Column="0" Style="{DynamicResource WsTextBox}" Tag="Find"/>
+                      <TextBox x:Name="ScReplaceBox" Grid.Column="2" Style="{DynamicResource WsTextBox}" Tag="Replace with"/>
+                    </Grid>
+                    <CheckBox x:Name="ScMatchCaseCheck" Style="{DynamicResource WsCheck}" Content="Match case"
+                              Margin="0,5,0,0"/>
+
+                    <TextBlock Text="Add" Style="{DynamicResource WsLabel}"/>
+                    <Grid>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="6"/>
+                        <ColumnDefinition Width="*"/>
+                      </Grid.ColumnDefinitions>
+                      <TextBox x:Name="ScPrefixBox" Grid.Column="0" Style="{DynamicResource WsTextBox}" Tag="Prefix"/>
+                      <TextBox x:Name="ScSuffixBox" Grid.Column="2" Style="{DynamicResource WsTextBox}" Tag="Suffix"/>
+                    </Grid>
+
+                    <TextBlock Text="Remove characters" Style="{DynamicResource WsLabel}"/>
+                    <Grid>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="6"/>
+                        <ColumnDefinition Width="*"/>
+                      </Grid.ColumnDefinitions>
+                      <TextBox x:Name="ScRemoveFirstBox" Grid.Column="0" Style="{DynamicResource WsTextBox}"
+                               Tag="From the start (count)"/>
+                      <TextBox x:Name="ScRemoveLastBox" Grid.Column="2" Style="{DynamicResource WsTextBox}"
+                               Tag="From the end (count)"/>
+                    </Grid>
+
+                    <TextBlock Text="Case" Style="{DynamicResource WsLabel}"/>
+                    <StackPanel Orientation="Horizontal">
+                      <Button x:Name="ScCaseKeep" Style="{DynamicResource WsSegmentOn}" Content="Keep" Margin="0,0,4,0"/>
+                      <Button x:Name="ScCaseUpper" Style="{DynamicResource WsSegment}" Content="UPPER" Margin="0,0,4,0"/>
+                      <Button x:Name="ScCaseLower" Style="{DynamicResource WsSegment}" Content="lower" Margin="0,0,4,0"/>
+                      <Button x:Name="ScCaseTitle" Style="{DynamicResource WsSegment}" Content="Title"/>
+                    </StackPanel>
+
+                    <CheckBox x:Name="ScTidyCheck" Style="{DynamicResource WsCheck}" Margin="0,10,0,0"
+                              Content="Tidy spaces (trim, single spaces)"/>
+
+                    <TextBlock Text="Preview" Style="{DynamicResource WsLabel}" Margin="0,12,0,3"/>
+                    <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource EdgeBrush}"
+                            BorderThickness="1" CornerRadius="3" Padding="8,6,8,6" MinHeight="60">
+                      <StackPanel x:Name="ScRenamePreviewHost"/>
+                    </Border>
+
+                    <Grid Margin="0,10,0,0">
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                      </Grid.ColumnDefinitions>
+                      <Button x:Name="ScRenameResetButton" Grid.Column="0" Style="{DynamicResource WsButton}"
+                              HorizontalAlignment="Left" Content="Reset"/>
+                      <Button x:Name="ScRenameStageButton" Grid.Column="1" Style="{DynamicResource WsGreenButton}"
+                              ToolTip="Stage these names - nothing is written until Apply">
+                        <StackPanel Orientation="Horizontal">
+                          <Path Style="{DynamicResource WsIcon}" Stroke="{DynamicResource OnAccentBrush}"
+                                Data="M 2,8.5 L 6,12.5 L 14,3.5"/>
+                          <TextBlock x:Name="ScRenameStageLabel" Text="Stage rename" VerticalAlignment="Center"/>
+                        </StackPanel>
+                      </Button>
+                    </Grid>
+                  </StackPanel>
+                </ScrollViewer>
+              </Border>
+            </Grid>
+          </Grid>
+
+          <!-- ======================== Workset Assigner -->
+          <Grid x:Name="AssignPanel" Visibility="Collapsed">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0" Margin="0,0,0,10">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+              </Grid.ColumnDefinitions>
+              <TextBox x:Name="AssignSearch" Grid.Column="0" Width="260" Height="28"
+                       Style="{DynamicResource WsTextBox}" Tag="Filter worksets" Margin="0,0,8,0"/>
+              <TextBlock x:Name="AssignHint" Grid.Column="1" VerticalAlignment="Center" FontSize="11"
+                         Foreground="{DynamicResource MutedBrush}" TextTrimming="CharacterEllipsis"
+                         Text="A category given to one workset is not offered to the others. Ticking Cable Tray ticks every Service Type under it."/>
+              <StackPanel Grid.Column="2" Orientation="Horizontal">
+                <Button x:Name="RefreshAssignButton" Style="{DynamicResource WsButton}" Margin="8,0,6,0"
+                        ToolTip="Read the model again - your ticks are kept">
+                  <StackPanel Orientation="Horizontal">
+                    <Path Style="{DynamicResource WsIcon}" Stroke="{DynamicResource TextBrush}"
+                          Data="M 13.5,8 A 5.5,5.5 0 1 1 11.9,4.1 M 12,1 V 4.2 H 15.2"/>
+                    <TextBlock Text="Refresh" VerticalAlignment="Center"/>
+                  </StackPanel>
+                </Button>
+                <Button x:Name="LoadRoutineButton" Style="{DynamicResource WsButton}" Margin="0,0,6,0"
+                        ToolTip="Put back a saved set of assignments for this project">
+                  <StackPanel Orientation="Horizontal">
+                    <Path Style="{DynamicResource WsIcon}" Stroke="{DynamicResource BlueBrush}"
+                          Data="M 1,4 H 6 L 7.5,5.5 H 15 V 14 H 1 Z"/>
+                    <TextBlock Text="Load routine" VerticalAlignment="Center"/>
+                  </StackPanel>
+                </Button>
+                <Button x:Name="SaveRoutineButton" Style="{DynamicResource WsOrangeButton}"
+                        ToolTip="Save these assignments against this project">
+                  <StackPanel Orientation="Horizontal">
+                    <Path Style="{DynamicResource WsIcon}" Stroke="{DynamicResource OnAccentBrush}"
+                          Data="M 2,2 H 12 L 14,4 V 14 H 2 Z M 5,2 V 6 H 11 V 2 M 5,14 V 9.5 H 11 V 14"/>
+                    <TextBlock Text="Save routine" VerticalAlignment="Center"/>
+                  </StackPanel>
+                </Button>
+              </StackPanel>
+            </Grid>
+
+            <Border Grid.Row="1" Background="{DynamicResource CardBrush}"
+                    BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="1,1,1,0"
+                    CornerRadius="3,3,0,0" Padding="12,6,12,6">
+              <Grid>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="2.2*"/>
+                  <ColumnDefinition Width="110"/>
+                  <ColumnDefinition Width="3*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="Workset" FontSize="11" FontWeight="SemiBold"
+                           Foreground="{DynamicResource MutedBrush}"/>
+                <TextBlock Grid.Column="1" Text="Elements" FontSize="11" FontWeight="SemiBold"
+                           Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Right"
+                           Margin="0,0,14,0"/>
+                <TextBlock Grid.Column="2" Text="Categories to put on this workset" FontSize="11"
+                           FontWeight="SemiBold" Foreground="{DynamicResource MutedBrush}"/>
+              </Grid>
+            </Border>
+
+            <Border Grid.Row="2" Background="{DynamicResource FieldBrush}"
+                    BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="1" CornerRadius="0,0,3,3">
+              <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <StackPanel x:Name="AssignHost" Margin="6,6,6,2"/>
+              </ScrollViewer>
+            </Border>
+          </Grid>
+        </Grid>
+
+        <!-- ============================================ footer -->
+        <Border Grid.Row="3" Background="{DynamicResource BarBrush}" CornerRadius="0,0,5,5"
+                Margin="0,12,0,0" Padding="16,0,14,0">
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock x:Name="StatusText" Grid.Column="0" FontSize="12" VerticalAlignment="Center"
+                       Foreground="{DynamicResource MutedBrush}" TextTrimming="CharacterEllipsis"/>
+            <CheckBox x:Name="AutoEditableCheck" Grid.Column="1" Style="{DynamicResource WsCheck}"
+                      VerticalAlignment="Center" Margin="12,0,16,0"
+                      Content="Make worksets editable automatically"
+                      ToolTip="Check worksets and elements out to you before anything is written"/>
+            <Grid Grid.Column="2" VerticalAlignment="Center">
+              <StackPanel x:Name="ManageFooter" Orientation="Horizontal">
+                <Button x:Name="RevertAllButton" Style="{DynamicResource WsButton}" Margin="0,0,8,0"
+                        Content="Revert all"/>
+                <Button x:Name="ApplyWorksetsButton" Style="{DynamicResource WsGreenButton}"
+                        Padding="16,6,16,6" FontWeight="SemiBold">
+                  <StackPanel Orientation="Horizontal">
+                    <Path Style="{DynamicResource WsIcon}" Stroke="{DynamicResource OnAccentBrush}"
+                          Data="M 2,8.5 L 6,12.5 L 14,3.5"/>
+                    <TextBlock x:Name="ApplyWorksetsLabel" Text="Apply workset changes"
+                               VerticalAlignment="Center"/>
+                  </StackPanel>
+                </Button>
+              </StackPanel>
+              <StackPanel x:Name="ScopeFooter" Orientation="Horizontal" Visibility="Collapsed">
+                <Button x:Name="ScRevertAllButton" Style="{DynamicResource WsButton}" Margin="0,0,8,0"
+                        Content="Revert all"/>
+                <Button x:Name="ScApplyButton" Style="{DynamicResource WsGreenButton}"
+                        Padding="16,6,16,6" FontWeight="SemiBold">
+                  <StackPanel Orientation="Horizontal">
+                    <Path Style="{DynamicResource WsIcon}" Stroke="{DynamicResource OnAccentBrush}"
+                          Data="M 2,8.5 L 6,12.5 L 14,3.5"/>
+                    <TextBlock x:Name="ScApplyLabel" Text="Apply scope box changes"
+                               VerticalAlignment="Center"/>
+                  </StackPanel>
+                </Button>
+              </StackPanel>
+              <StackPanel x:Name="AssignFooter" Orientation="Horizontal" Visibility="Collapsed">
+                <Button x:Name="ClearAssignButton" Style="{DynamicResource WsButton}" Margin="0,0,8,0"
+                        Content="Clear all"/>
+                <Button x:Name="ApplyAssignButton" Style="{DynamicResource WsGreenButton}"
+                        Padding="16,6,16,6" FontWeight="SemiBold">
+                  <StackPanel Orientation="Horizontal">
+                    <Path Style="{DynamicResource WsIcon}" Stroke="{DynamicResource OnAccentBrush}"
+                          Data="M 2,8.5 L 6,12.5 L 14,3.5"/>
+                    <TextBlock x:Name="ApplyAssignLabel" Text="Apply categories to worksets"
+                               VerticalAlignment="Center"/>
+                  </StackPanel>
+                </Button>
+              </StackPanel>
+            </Grid>
+          </Grid>
+        </Border>
+      </Grid>
+    </Border>
+
+    <!-- resize grips are added here in code; no Background, so the window
+         underneath stays clickable -->
+    <Grid x:Name="GripLayer"/>
+  </Grid>
+</Window>

@@ -1,0 +1,8 @@
+title: Workset Management
+tooltip: >-
+  Manage worksets in a sortable, filterable table - rename in bulk, delete
+  several at once moving their elements to one workset, create through Excel -
+  and assign whole categories (Cable Tray by Service Type) onto worksets.
+  Worksets are checked out automatically when a change needs it.
+author: RevoBIM PY
+highlight: updated

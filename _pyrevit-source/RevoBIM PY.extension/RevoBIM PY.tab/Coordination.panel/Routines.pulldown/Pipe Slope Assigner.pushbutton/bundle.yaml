@@ -1,0 +1,7 @@
+title: RevoBIM Pipe Slope Assigner
+tooltip: >-
+  Click a horizontal pipe, press this, pick 1:100 / 1:80 / 1:60 / 1:40.
+  Sets the run - or the run and the runs joined to it - to that fall.
+  Uprights stretch to follow, fittings turn to suit, parameter values are kept.
+  Optional two clicks set the direction of fall: fall FROM, then fall TO.
+author: RevoBIM

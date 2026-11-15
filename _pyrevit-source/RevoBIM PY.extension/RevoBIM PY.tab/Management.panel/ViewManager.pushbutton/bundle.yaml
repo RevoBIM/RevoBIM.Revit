@@ -1,0 +1,18 @@
+title: View Manager
+tooltip: >
+  View Manager  v1.11.0
+
+  Create Views - plan views from selected view templates x selected levels on
+  one scope box, named <Template abbr>_<Level abbr>, e.g. VENT_L01, with
+  room tags added if Add room tags is ticked.
+
+  Dependent Views - dependents on selected views from selected scope boxes,
+  named DEP_<Host View>_<Scope Box abbr>.
+
+  Settings has four tabs: level, template and scope box abbreviations, and
+  tag settings. The chip top right switches Auto / Dark / Light; Auto
+  follows Revit's canvas.
+
+  The arrow top right shrinks any window to a bar at the bottom of the
+  screen; the green arrow brings it back.
+author: RevoBIM PY

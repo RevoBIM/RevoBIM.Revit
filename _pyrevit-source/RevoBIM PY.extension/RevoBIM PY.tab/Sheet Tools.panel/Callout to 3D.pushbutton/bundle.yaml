@@ -1,0 +1,6 @@
+title: Callout to 3D
+tooltip: >
+  Every callout in the project in one table. Pick the callouts, set how many
+  sections to cut across each one, and the tool creates a 3D cropped to the
+  callout, the section array, and a new sheet with all of it laid out.
+author: RevoBIM PY

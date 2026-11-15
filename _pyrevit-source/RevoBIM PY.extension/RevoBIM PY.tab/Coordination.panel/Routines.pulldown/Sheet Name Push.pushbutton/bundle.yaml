@@ -1,0 +1,19 @@
+title: Sheet Name Push
+tooltip: >
+  Browse, edit and stamp sheets in one window.
+
+  Tick sheets, click a row to highlight, Ctrl+click to add to the
+  selection, Shift+click for a range - then tick one of them to tick the
+  whole selection. Double-click a sheet number or name to edit it; edits
+  stage in orange and are only written when Apply Edits is pressed. Sheet
+  numbers already in use are flagged red, with a filter to isolate them.
+
+  Find & Replace and Prefix / Suffix stage changes the same way, on the
+  ticked sheets (or everything shown if none are ticked).
+
+  Push splits each Sheet Name on "_" and writes the three segments to the
+  target parameters set behind the gear icon - BGL_Sheet Title 1 / 2 / 3
+  by default. The chosen text format is remembered between runs.
+
+  Revit 2021 - 2027.
+author: RevoBIM PY

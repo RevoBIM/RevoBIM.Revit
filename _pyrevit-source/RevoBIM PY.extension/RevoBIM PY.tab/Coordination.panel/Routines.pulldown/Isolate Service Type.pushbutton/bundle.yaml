@@ -1,0 +1,10 @@
+title: RevoBIM Isolate Service Type
+tooltip: >
+  Isolate Service Type - isolates every tray, duct, pipe or conduit in the
+  active view that shares the selected element's service type, along with its
+  fittings, accessories, terminals and equipment. Opens no window. Bind a key
+  to it under View > User Interface > Keyboard Shortcuts, searching
+  "RevoBIM Isolate Service Type". With nothing selected it lets you
+  pick several services, then Finish on the Options Bar; Finish with nothing
+  picked resets the view.
+author: RevoBIM PY

@@ -1,0 +1,5 @@
+title: RevoBIM System Offset Settings
+tooltip: >-
+  Bend angle, which way the offset goes and how far, rounding, what gets
+  reported and the dark or light theme. Saved to
+  %APPDATA%\RevoBIM\system_offset.txt and used by every later run.

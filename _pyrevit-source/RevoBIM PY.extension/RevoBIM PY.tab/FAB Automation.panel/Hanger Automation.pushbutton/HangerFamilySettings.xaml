@@ -1,0 +1,149 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RevoBIM - Hanger family settings"
+        Width="520" SizeToContent="Height"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ResizeMode="NoResize" WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False" FontFamily="Segoe UI" FontSize="12">
+  <Grid Margin="6">
+    <Border Background="{DynamicResource WinBgBrush}" BorderBrush="{DynamicResource EdgeStrongBrush}" BorderThickness="1" CornerRadius="6">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- ================ header ================ -->
+        <Border x:Name="DlgHeader" Grid.Row="0" Background="{DynamicResource BarBrush}" CornerRadius="6,6,0,0" Padding="12,8">
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel>
+              <TextBlock Text="RevoBIM" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource BlueBrush}"/>
+              <TextBlock x:Name="DlgTitleTxt" Text="Hanger family settings" FontSize="13" Foreground="{DynamicResource OrangeBrush}" Margin="0,-2,0,0"/>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+              <TextBlock x:Name="DlgVerTxt" Text="v1.1.0" FontSize="11" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+              <Button x:Name="DlgShrinkBtn" Style="{DynamicResource WinBtn}" ToolTip="Shrink to the taskbar - see Revit (Ctrl+Shift+H)">
+                <Grid Width="12" Height="12">
+                  <Path x:Name="DlgShrinkIcon" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.6" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Data="M2,3 L6,7 L10,3 M1,11 L11,11"/>
+                  <Path x:Name="DlgExpandIcon" Visibility="Collapsed" Stroke="{DynamicResource GreenBrush}" StrokeThickness="2.2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Data="M1,1.5 L11,1.5 M6,11 L6,4.5 M2.5,8 L6,4.5 L9.5,8"/>
+                </Grid>
+              </Button>
+              <Button x:Name="DlgCloseBtn" Style="{DynamicResource CloseBtn}" Content="&#x2715;" ToolTip="Close without saving"/>
+            </StackPanel>
+          </Grid>
+        </Border>
+
+        <!-- ================ body ================ -->
+        <StackPanel Grid.Row="1" Margin="14,12,14,8">
+          <TextBlock x:Name="DlgFamilyTxt" Text="Family" FontSize="14" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+          <TextBlock x:Name="DlgSourceTxt" Text="" Foreground="{DynamicResource MutedBrush}" FontSize="11" Margin="0,2,0,10" TextWrapping="Wrap"/>
+          <!-- ================ style tabs: Rectangular (Floor Based / Hanger System) and Circular System Based ================ -->
+          <Border x:Name="DlgStyleTabs" Visibility="Collapsed" BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="0,0,0,1" Margin="0,0,0,10">
+            <StackPanel Orientation="Horizontal">
+              <Button x:Name="DlgTabRect" Style="{DynamicResource TabActive}" ToolTip="A frame round the service: two posts, a bottom bar at the invert and a top bar over it">
+                <StackPanel Orientation="Horizontal">
+                  <Viewbox Width="16" Height="16" Margin="0,0,6,0">
+                    <Canvas Width="24" Height="24">
+                      <Path Stroke="{DynamicResource OrangeBrush}" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Data="M5,2 L5,22 M19,2 L19,22 M5,8 L19,8 M5,16 L19,16 M2,22 L8,22 M16,22 L22,22"/>
+                    </Canvas>
+                  </Viewbox>
+                  <TextBlock x:Name="DlgTabRectTxt" Text="Rectangular Floor Based" VerticalAlignment="Center"/>
+                </StackPanel>
+              </Button>
+              <Button x:Name="DlgTabCirc" Style="{DynamicResource Tab}" ToolTip="A ring round a pipe or round duct, on a post standing on the floor">
+                <StackPanel Orientation="Horizontal">
+                  <Viewbox Width="16" Height="16" Margin="0,0,6,0">
+                    <Canvas Width="24" Height="24">
+                      <Ellipse Canvas.Left="6" Canvas.Top="1" Width="12" Height="12" Stroke="{DynamicResource BlueBrush}" StrokeThickness="2"/>
+                      <Path Stroke="{DynamicResource OrangeBrush}" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Data="M12,13 L12,22 M7,22 L17,22"/>
+                    </Canvas>
+                  </Viewbox>
+                  <TextBlock x:Name="DlgTabCircTxt" Text="Circular System Based" VerticalAlignment="Center"/>
+                </StackPanel>
+              </Button>
+            </StackPanel>
+          </Border>
+          <StackPanel x:Name="DlgRectPanel">
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="190"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Row="0" Text="Width - one side of centre" VerticalAlignment="Center" Margin="0,3"/>
+            <ComboBox x:Name="DlgLeft" Grid.Row="0" Grid.Column="1" Margin="0,3"/>
+            <TextBlock Grid.Row="1" Text="Width - other side of centre" VerticalAlignment="Center" Margin="0,3"/>
+            <ComboBox x:Name="DlgRight" Grid.Row="1" Grid.Column="1" Margin="0,3"/>
+            <TextBlock x:Name="DlgRodLbl" Grid.Row="2" Text="Drop rod length" VerticalAlignment="Center" Margin="0,3"/>
+            <ComboBox x:Name="DlgRod" Grid.Row="2" Grid.Column="1" Margin="0,3"/>
+            <TextBlock Grid.Row="3" Text="Width runs along the family's" VerticalAlignment="Center" Margin="0,3"/>
+            <ComboBox x:Name="DlgAxis" Grid.Row="3" Grid.Column="1" Margin="0,3"/>
+            <TextBlock Grid.Row="4" Text="Clearance each side (mm)" VerticalAlignment="Center" Margin="0,3"/>
+            <TextBox x:Name="DlgClear" Grid.Row="4" Grid.Column="1" Width="90" HorizontalAlignment="Left" Tag="0" Margin="0,3"/>
+            <TextBlock x:Name="DlgSoffitLbl" Grid.Row="5" Text="Drop rod goes up to" VerticalAlignment="Center" Margin="0,3"/>
+            <ComboBox x:Name="DlgSoffit" Grid.Row="5" Grid.Column="1" Margin="0,3"/>
+            <TextBlock x:Name="DlgFirstBarLbl" Grid.Row="6" Text="First bar offset (to the invert)" VerticalAlignment="Center" Margin="0,3" ToolTip="Length from the level to the top of the bottom bar - set to the service invert"/>
+            <ComboBox x:Name="DlgFirstBar" Grid.Row="6" Grid.Column="1" Margin="0,3"/>
+            <TextBlock x:Name="DlgHeightLbl" Grid.Row="7" Text="Support height (service depth)" VerticalAlignment="Center" Margin="0,3" ToolTip="Length from the top of the bottom bar to the underside of the top bar - set to the service depth"/>
+            <ComboBox x:Name="DlgHeight" Grid.Row="7" Grid.Column="1" Margin="0,3"/>
+            <TextBlock x:Name="DlgHeightClearLbl" Grid.Row="8" Text="Clearance above the service (mm)" VerticalAlignment="Center" Margin="0,3"/>
+            <TextBox x:Name="DlgHeightClear" Grid.Row="8" Grid.Column="1" Width="90" HorizontalAlignment="Left" Tag="0" Margin="0,3"/>
+          </Grid>
+          <CheckBox x:Name="DlgSwap" Content="Swap the two width parameters" Margin="0,8,0,0" ToolTip="Shared hangers are measured after placing and swapped automatically if they come out mirrored. This only sets the first guess."/>
+          <TextBlock x:Name="DlgNoteTxt" Text="Each width parameter is set to half the service width plus the clearance, so the hanger reaches both sides. A shared hanger reaches each outer edge from the mean centre of its services." Foreground="{DynamicResource MutedBrush}" FontSize="11" TextWrapping="Wrap" Margin="0,8,0,0"/>
+          </StackPanel>
+          <!-- ================ Circular System Based ================ -->
+          <StackPanel x:Name="DlgCircPanel" Visibility="Collapsed">
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="190"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+              </Grid.RowDefinitions>
+              <TextBlock Grid.Row="0" Text="Hanger diameter" VerticalAlignment="Center" Margin="0,3" ToolTip="Set to the pipe or round duct's diameter (with its insulation when the support goes round it)"/>
+              <ComboBox x:Name="DlgDia" Grid.Row="0" Grid.Column="1" Margin="0,3"/>
+              <TextBlock x:Name="DlgCircHeightLbl" Grid.Row="1" Text="Support height" VerticalAlignment="Center" Margin="0,3" ToolTip="Set to the height from what the support stands on (level, or the floor / roof / equipment picked) up to the service"/>
+              <ComboBox x:Name="DlgCircHeight" Grid.Row="1" Grid.Column="1" Margin="0,3"/>
+              <TextBlock Grid.Row="2" Text="The service runs along the family's" VerticalAlignment="Center" Margin="0,3"/>
+              <ComboBox x:Name="DlgCircAxis" Grid.Row="2" Grid.Column="1" Margin="0,3"/>
+              <TextBlock x:Name="DlgCircRodLbl" Grid.Row="3" Text="Drop rod length" VerticalAlignment="Center" Margin="0,3"/>
+              <ComboBox x:Name="DlgCircRod" Grid.Row="3" Grid.Column="1" Margin="0,3"/>
+              <TextBlock x:Name="DlgCircSoffitLbl" Grid.Row="4" Text="Drop rod goes up to" VerticalAlignment="Center" Margin="0,3"/>
+              <ComboBox x:Name="DlgCircSoffit" Grid.Row="4" Grid.Column="1" Margin="0,3"/>
+            </Grid>
+            <TextBlock x:Name="DlgCircNoteTxt" Text="The support is placed at the centre of the pipe or round duct you pick, turned so the service runs along the axis chosen. The diameter parameter takes the service's diameter. The support is placed at its reference level (or on the floor, roof or equipment picked under Supports stand on) and the support height runs from there up to the service centre at the support, so the ring sits on the service&apos;s centreline - and follows a sloping pipe. Rectangular services are skipped, and each support goes round one service." Foreground="{DynamicResource MutedBrush}" FontSize="11" TextWrapping="Wrap" Margin="0,8,0,0"/>
+          </StackPanel>
+        </StackPanel>
+
+        <!-- ================ footer ================ -->
+        <Border Grid.Row="2" Background="{DynamicResource BarBrush}" CornerRadius="0,0,6,6" Padding="12,8">
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button x:Name="DlgCancel" Content="Cancel" Margin="0,0,8,0"/>
+            <Button x:Name="DlgSave" Style="{DynamicResource Primary}" Content="Save"/>
+          </StackPanel>
+        </Border>
+      </Grid>
+    </Border>
+  </Grid>
+</Window>

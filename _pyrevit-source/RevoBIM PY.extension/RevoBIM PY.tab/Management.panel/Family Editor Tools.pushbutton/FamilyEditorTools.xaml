@@ -1,0 +1,1153 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RevoBIM Family Editor Tools"
+        Width="1240" Height="770" MinWidth="980" MinHeight="620"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ResizeMode="NoResize" ShowInTaskbar="True"
+        WindowStartupLocation="CenterScreen">
+
+    <Border Background="{DynamicResource WindowBg}"
+            BorderBrush="#4A4A50" BorderThickness="1" CornerRadius="6">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="52"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="34"/>
+            </Grid.RowDefinitions>
+
+            <!-- ==========================================================
+                 Header
+                 ========================================================== -->
+            <Border x:Name="HeaderBar" Grid.Row="0"
+                    Background="{DynamicResource BarBg}"
+                    CornerRadius="5,5,0,0">
+                <Grid Margin="12,0,8,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border x:Name="LogoHost" Grid.Column="0"
+                            Width="30" Height="30" Margin="0,0,10,0"
+                            Background="Transparent" Cursor="Hand"
+                            ToolTip="RevoBIM PY">
+                        <Image x:Name="LogoImage" Width="26" Height="26"/>
+                    </Border>
+
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="RevoBIM"
+                                   Foreground="{DynamicResource BlueBrush}"
+                                   FontSize="20" FontWeight="Bold"/>
+                        <TextBlock Text="Family Editor Tools"
+                                   Foreground="{DynamicResource OrangeBrush}"
+                                   FontSize="13" Margin="1,-3,0,0"/>
+                    </StackPanel>
+
+                    <TextBlock x:Name="ContextText" Grid.Column="2"
+                               Style="{DynamicResource MutedText}"
+                               VerticalAlignment="Center"
+                               Margin="18,0,10,0"
+                               TextTrimming="CharacterEllipsis"/>
+
+                    <Button x:Name="ThemeChip" Grid.Column="3"
+                            Style="{DynamicResource ChipButton}"
+                            Content="Dark" Margin="0,0,6,0"
+                            VerticalAlignment="Center"
+                            ToolTip="Dark or light. Follows Revit's own theme by default."/>
+
+                    <Button x:Name="SettingsChip" Grid.Column="4"
+                            Style="{DynamicResource ChipButton}"
+                            Content="Settings" Margin="0,0,12,0"
+                            VerticalAlignment="Center"/>
+
+                    <TextBlock x:Name="VersionText" Grid.Column="5"
+                               Style="{DynamicResource MutedText}"
+                               VerticalAlignment="Center" Margin="0,0,10,0"/>
+
+                    <Button x:Name="FullButton" Grid.Column="6"
+                            Style="{DynamicResource IconButton}"
+                            ToolTip="Full screen (F11)">
+                        <Border Width="11" Height="11" BorderThickness="1.4"
+                                BorderBrush="{DynamicResource MutedBrush}"/>
+                    </Button>
+
+                    <Button x:Name="CloseButton" Grid.Column="7"
+                            Style="{DynamicResource CloseButton}"
+                            ToolTip="Close">
+                        <Path Data="M 0,0 L 10,10 M 10,0 L 0,10"
+                              Stroke="{DynamicResource MutedBrush}"
+                              StrokeThickness="1.4"/>
+                    </Button>
+                </Grid>
+            </Border>
+
+            <!-- ==========================================================
+                 Body
+                 ========================================================== -->
+            <Grid Grid.Row="1" Margin="10,10,10,6">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- ===== the side rail ===== -->
+                <Border Grid.Column="0" Width="172"
+                        Background="{DynamicResource BarBg}"
+                        BorderBrush="{DynamicResource EdgeBrush}"
+                        BorderThickness="1" CornerRadius="4" Padding="5">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0">
+
+                            <RadioButton x:Name="BuilderTab" GroupName="Section"
+                                         Style="{DynamicResource SideTab}"
+                                         ToolTip="Parameters, materials, line styles and annotation styles">
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Width="15" Height="15" Stretch="Uniform"
+                                          Data="M 0,0 H 15 V 3 H 0 Z M 0,6 H 15 V 9 H 0 Z M 0,12 H 10 V 15 H 0 Z"
+                                          Fill="{DynamicResource BlueBrush}"
+                                          VerticalAlignment="Center"/>
+                                    <TextBlock Text="Builder" Margin="9,0,0,0"
+                                               VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </RadioButton>
+
+                            <RadioButton x:Name="PlanesTab" GroupName="Section"
+                                         Style="{DynamicResource SideTab}"
+                                         ToolTip="Set the family out on standard reference planes">
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Width="15" Height="15" Stretch="Uniform"
+                                          Data="M 3,0 V 15 M 11,0 V 15 M 0,4 H 15 M 0,12 H 15"
+                                          Stroke="{DynamicResource BlueBrush}"
+                                          StrokeThickness="1.4"
+                                          VerticalAlignment="Center"/>
+                                    <TextBlock Text="Standard planes"
+                                               Margin="9,0,0,0"
+                                               VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </RadioButton>
+
+                            <RadioButton x:Name="FlexTab" GroupName="Section"
+                                         Style="{DynamicResource SideTab}"
+                                         ToolTip="Flex the family through its parameters and catch what breaks">
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Width="15" Height="15" Stretch="Uniform"
+                                          Data="M 0,12 L 4,4 L 8,10 L 15,1"
+                                          Stroke="{DynamicResource BlueBrush}"
+                                          StrokeThickness="1.6"
+                                          VerticalAlignment="Center"/>
+                                    <TextBlock Text="Flex test" Margin="9,0,0,0"
+                                               VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </RadioButton>
+
+                            <RadioButton x:Name="IconTab" GroupName="Section"
+                                         Style="{DynamicResource SideTab}"
+                                         ToolTip="Set the family's preview image">
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Width="15" Height="15" Stretch="Uniform"
+                                          Data="M 0,1 H 15 V 14 H 0 Z M 2,11 L 6,6 L 9,10 L 11,8 L 13,11 Z"
+                                          Stroke="{DynamicResource BlueBrush}"
+                                          StrokeThickness="1.3"
+                                          VerticalAlignment="Center"/>
+                                    <TextBlock Text="Family Icon and Name" Margin="9,0,0,0"
+                                               VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </RadioButton>
+                        </StackPanel>
+
+                        <TextBlock x:Name="RailNoteText" Grid.Row="2"
+                                   Style="{DynamicResource MutedText}"
+                                   TextWrapping="Wrap"
+                                   Margin="11,0,8,6"/>
+                    </Grid>
+                </Border>
+
+                <!-- ===== the sections ===== -->
+                <Grid Grid.Column="1" Margin="10,0,0,0">
+
+                <!-- ===== Builder ===== -->
+                <Grid x:Name="BuilderPanel">
+                <Border Background="{DynamicResource CardBg}"
+                        BorderBrush="{DynamicResource EdgeBrush}"
+                        BorderThickness="1" CornerRadius="4" Padding="10">
+                    <TabControl x:Name="MainTabs" Background="Transparent">
+
+                        <!-- ===== Parameters ===== -->
+                        <TabItem>
+                            <TabItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Width="14" Height="14" Stretch="Uniform"
+                                          Data="M 0,3 H 14 M 0,11 H 14 M 4,0 V 6 M 10,8 V 14"
+                                          Stroke="{DynamicResource BlueBrush}"
+                                          StrokeThickness="1.5"
+                                          VerticalAlignment="Center"/>
+                                    <TextBlock Text="Parameters" Margin="7,0,0,0"/>
+                                </StackPanel>
+                            </TabItem.Header>
+                            <Grid Margin="0,10,0,0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Row="0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1.05*" MinWidth="330"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="1.35*" MinWidth="420"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Grid Grid.Column="0">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal"
+                                                    Margin="0,0,0,8">
+                                            <Border Width="4" Height="15"
+                                                    Background="{DynamicResource BlueBrush}"
+                                                    Margin="0,0,7,0"/>
+                                            <TextBlock Text="New parameters"
+                                                       Style="{DynamicResource SectionHeading}"
+                                                       Margin="0"/>
+                                        </StackPanel>
+
+                                        <Button x:Name="LoadSpfButton" Grid.Row="1"
+                                                Style="{DynamicResource GreenButton}"
+                                                Content="Load a shared parameter file"
+                                                HorizontalAlignment="Stretch"
+                                                Margin="0,0,0,6"/>
+
+                                        <TextBlock x:Name="SpfPathText" Grid.Row="2"
+                                                   Style="{DynamicResource MutedText}"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   Margin="1,0,0,9"
+                                                   Text="No file chosen yet"/>
+
+                                        <Grid Grid.Row="3" Margin="0,0,0,8">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <ComboBox x:Name="TemplateCombo" Grid.Column="0"
+                                                      Margin="0,0,6,0"
+                                                      ToolTip="A saved selection of shared parameters"/>
+                                            <Button x:Name="TemplateLoadButton" Grid.Column="1"
+                                                    Content="Load" Margin="0,0,6,0"/>
+                                            <Button x:Name="TemplateSaveButton" Grid.Column="2"
+                                                    Content="Save"/>
+                                        </Grid>
+
+                                        <Border Grid.Row="4"
+                                                Background="{DynamicResource FieldBg}"
+                                                BorderBrush="{DynamicResource EdgeBrush}"
+                                                BorderThickness="1" CornerRadius="3">
+                                            <Grid>
+                                                <ListBox x:Name="StagedList"
+                                                         Background="Transparent"
+                                                         BorderThickness="0"
+                                                         SelectionMode="Extended"
+                                                         Margin="2"/>
+                                                <TextBlock x:Name="StagedEmptyText"
+                                                           Style="{DynamicResource MutedText}"
+                                                           Text="Nothing staged. Load a file and tick the parameters you want."
+                                                           TextWrapping="Wrap"
+                                                           Margin="14"
+                                                           VerticalAlignment="Top"
+                                                           IsHitTestVisible="False"/>
+                                            </Grid>
+                                        </Border>
+
+                                        <Grid Grid.Row="5" Margin="0,8,0,0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Button x:Name="StagedRemoveButton" Grid.Column="0"
+                                                    Style="{DynamicResource OrangeButton}"
+                                                    Content="Remove selected"
+                                                    Margin="0,0,6,0"
+                                                    IsEnabled="False"/>
+                                            <Button x:Name="StagedClearButton" Grid.Column="1"
+                                                    Content="Clear"/>
+                                            <TextBlock x:Name="StagedCountText" Grid.Column="2"
+                                                       Style="{DynamicResource MutedText}"
+                                                       VerticalAlignment="Center"
+                                                       TextAlignment="Right"/>
+                                        </Grid>
+
+                                        <Grid Grid.Row="6" Margin="0,6,0,0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Button x:Name="SwapButton" Grid.Column="0"
+                                                    Style="{DynamicResource GreenButton}"
+                                                    Content="Swap parameters"
+                                                    HorizontalAlignment="Stretch"
+                                                    Margin="0,0,6,0"
+                                                    Visibility="Collapsed"/>
+                                            <Button x:Name="AddParamsButton" Grid.Column="1"
+                                                    Style="{DynamicResource GreenButton}"
+                                                    Content="Add to family"/>
+                                        </Grid>
+                                    </Grid>
+
+                                    <GridSplitter Grid.Column="1" Margin="6,0,6,0"/>
+
+                                    <Grid Grid.Column="2">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal"
+                                                    Margin="0,0,0,8">
+                                            <Border Width="4" Height="15"
+                                                    Background="{DynamicResource OrangeBrush}"
+                                                    Margin="0,0,7,0"/>
+                                            <TextBlock Text="Parameters in this family"
+                                                       Style="{DynamicResource SectionHeading}"
+                                                       Margin="0"/>
+                                        </StackPanel>
+
+                                        <Grid Grid.Row="1" Margin="0,0,0,8">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBox x:Name="FamilySearchBox" Grid.Column="0"
+                                                     Margin="0,0,6,0"
+                                                     Tag="Search the family's parameters"/>
+                                            <ComboBox x:Name="FamilyKindCombo" Grid.Column="1"
+                                                      Width="185" Margin="0,0,6,0"
+                                                      ToolTip="Show only one data type"/>
+                                            <Button x:Name="FamilyRefreshButton" Grid.Column="2"
+                                                    Content="Re-read"
+                                                    ToolTip="Read the family's parameters again (F5)"/>
+                                        </Grid>
+
+                                        <Border Grid.Row="2"
+                                                Background="{DynamicResource FieldBg}"
+                                                BorderBrush="{DynamicResource EdgeBrush}"
+                                                BorderThickness="1" CornerRadius="3">
+                                            <Grid>
+                                                <ListBox x:Name="FamilyParamList"
+                                                         Background="Transparent"
+                                                         BorderThickness="0" Margin="2"/>
+                                                <TextBlock x:Name="FamilyEmptyText"
+                                                           Style="{DynamicResource MutedText}"
+                                                           TextWrapping="Wrap" Margin="14"
+                                                           VerticalAlignment="Top"
+                                                           IsHitTestVisible="False"/>
+                                            </Grid>
+                                        </Border>
+
+                                        <Grid Grid.Row="3" Margin="0,8,0,0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Button x:Name="FamilyRevertButton" Grid.Column="0"
+                                                    Style="{DynamicResource OrangeButton}"
+                                                    Content="Drop the pending changes"
+                                                    IsEnabled="False"/>
+                                            <TextBlock x:Name="FamilyCountText" Grid.Column="1"
+                                                       Style="{DynamicResource MutedText}"
+                                                       VerticalAlignment="Center"
+                                                       TextAlignment="Center"/>
+                                            <Button x:Name="FamilyApplyButton" Grid.Column="2"
+                                                    Style="{DynamicResource GreenButton}"
+                                                    Content="Apply changes"
+                                                    IsEnabled="False"/>
+                                        </Grid>
+                                    </Grid>
+                                </Grid>
+
+                                <StackPanel x:Name="LegendPanel" Grid.Row="1"
+                                            Orientation="Horizontal"
+                                            Margin="1,10,0,0"/>
+                            </Grid>
+                        </TabItem>
+
+                        <!-- ===== Materials ===== -->
+                        <TabItem>
+                            <TabItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Width="14" Height="14" Stretch="Uniform"
+                                          Data="M 0,0 H 9 V 9 H 0 Z M 9.5,9.5 A 4.5,4.5 0 1 1 9.4,9.5 Z"
+                                          Fill="{DynamicResource BlueBrush}"
+                                          VerticalAlignment="Center"/>
+                                    <TextBlock Text="Materials" Margin="7,0,0,0"/>
+                                </StackPanel>
+                            </TabItem.Header>
+                            <Grid Margin="0,10,0,0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Row="0" Margin="0,0,0,6">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Harvest from"
+                                               Style="{DynamicResource MutedText}"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,8,0"/>
+                                    <ComboBox x:Name="MaterialSourceCombo" Grid.Column="1"
+                                              Margin="0,0,6,0"/>
+                                    <Button x:Name="MaterialScanButton" Grid.Column="2"
+                                            Content="Scan" Margin="0,0,6,0"/>
+                                    <Button x:Name="MaterialDiagnoseButton" Grid.Column="3"
+                                            Style="{DynamicResource OrangeButton}"
+                                            Content="Diagnose"
+                                            ToolTip="Load the ticked materials and write a full report of what Revit did with their appearance assets"/>
+                                </Grid>
+                                <Grid Grid.Row="1" Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox x:Name="MaterialSearch" Grid.Column="0"
+                                             Tag="Search the materials" Margin="0,0,6,0"/>
+                                    <Button x:Name="MaterialAllButton" Grid.Column="1"
+                                            Content="All" Margin="0,0,6,0"/>
+                                    <Button x:Name="MaterialNoneButton" Grid.Column="2"
+                                            Content="None"/>
+                                </Grid>
+                                <Border Grid.Row="2" Background="{DynamicResource FieldBg}"
+                                        BorderBrush="{DynamicResource EdgeBrush}"
+                                        BorderThickness="1" CornerRadius="3">
+                                    <Grid>
+                                        <ListBox x:Name="MaterialList" Background="Transparent"
+                                                 BorderThickness="0" Margin="2"/>
+                                        <TextBlock x:Name="MaterialEmptyText"
+                                                   Style="{DynamicResource MutedText}"
+                                                   TextWrapping="Wrap" Margin="14"
+                                                   VerticalAlignment="Top"
+                                                   IsHitTestVisible="False"/>
+                                    </Grid>
+                                </Border>
+                                <Grid Grid.Row="3" Margin="0,8,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock x:Name="MaterialCountText" Grid.Column="0"
+                                               Style="{DynamicResource MutedText}"
+                                               VerticalAlignment="Center"/>
+                                    <Button x:Name="MaterialAddButton" Grid.Column="1"
+                                            Style="{DynamicResource GreenButton}"
+                                            Content="Load into the family"/>
+                                </Grid>
+                            </Grid>
+                        </TabItem>
+
+                        <!-- ===== Line styles ===== -->
+                        <TabItem>
+                            <TabItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Width="14" Height="14" Stretch="Uniform"
+                                          Data="M 0,2 H 14 M 0,7 H 4 M 6,7 H 10 M 12,7 H 14 M 0,12 H 2 M 5,12 H 7 M 10,12 H 12"
+                                          Stroke="{DynamicResource BlueBrush}"
+                                          StrokeThickness="1.5"
+                                          VerticalAlignment="Center"/>
+                                    <TextBlock Text="Line styles" Margin="7,0,0,0"/>
+                                </StackPanel>
+                            </TabItem.Header>
+                            <Grid Margin="0,10,0,0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Row="0" Margin="0,0,0,6">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Harvest from"
+                                               Style="{DynamicResource MutedText}"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,8,0"/>
+                                    <ComboBox x:Name="LineSourceCombo" Grid.Column="1"
+                                              Margin="0,0,6,0"/>
+                                    <Button x:Name="LineScanButton" Grid.Column="2"
+                                            Content="Scan"/>
+                                </Grid>
+                                <Grid Grid.Row="1" Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox x:Name="LineSearch" Grid.Column="0"
+                                             Tag="Search the line styles" Margin="0,0,6,0"/>
+                                    <Button x:Name="LineAllButton" Grid.Column="1"
+                                            Content="All" Margin="0,0,6,0"/>
+                                    <Button x:Name="LineNoneButton" Grid.Column="2"
+                                            Content="None"/>
+                                </Grid>
+                                <Border Grid.Row="2" Background="{DynamicResource FieldBg}"
+                                        BorderBrush="{DynamicResource EdgeBrush}"
+                                        BorderThickness="1" CornerRadius="3">
+                                    <Grid>
+                                        <ListBox x:Name="LineList" Background="Transparent"
+                                                 BorderThickness="0" Margin="2"/>
+                                        <TextBlock x:Name="LineEmptyText"
+                                                   Style="{DynamicResource MutedText}"
+                                                   TextWrapping="Wrap" Margin="14"
+                                                   VerticalAlignment="Top"
+                                                   IsHitTestVisible="False"/>
+                                    </Grid>
+                                </Border>
+                                <Grid Grid.Row="3" Margin="0,8,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock x:Name="LineCountText" Grid.Column="0"
+                                               Style="{DynamicResource MutedText}"
+                                               VerticalAlignment="Center"/>
+                                    <Button x:Name="LineAddButton" Grid.Column="1"
+                                            Style="{DynamicResource GreenButton}"
+                                            Content="Load into the family"/>
+                                </Grid>
+                            </Grid>
+                        </TabItem>
+
+                        <!-- ===== Annotation styles ===== -->
+                        <TabItem>
+                            <TabItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Width="14" Height="14" Stretch="Uniform"
+                                          Data="M 0,14 L 7,0 L 14,14 M 3,9 H 11"
+                                          Stroke="{DynamicResource BlueBrush}"
+                                          StrokeThickness="1.5"
+                                          VerticalAlignment="Center"/>
+                                    <TextBlock Text="Annotation styles" Margin="7,0,0,0"/>
+                                </StackPanel>
+                            </TabItem.Header>
+                            <Grid Margin="0,10,0,0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <Grid Grid.Row="0" Margin="0,0,0,6">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Harvest from"
+                                               Style="{DynamicResource MutedText}"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,8,0"/>
+                                    <ComboBox x:Name="AnnotationSourceCombo" Grid.Column="1"
+                                              Margin="0,0,6,0"/>
+                                    <Button x:Name="AnnotationScanButton" Grid.Column="2"
+                                            Content="Scan"/>
+                                </Grid>
+
+                                <Grid Grid.Row="1" Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox x:Name="AnnotationSearch" Grid.Column="0"
+                                             Tag="Search the text and dimension types"
+                                             Margin="0,0,6,0"/>
+                                    <Button x:Name="AnnotationAllButton" Grid.Column="1"
+                                            Content="All" Margin="0,0,6,0"/>
+                                    <Button x:Name="AnnotationNoneButton" Grid.Column="2"
+                                            Content="None"/>
+                                </Grid>
+
+                                <Grid Grid.Row="2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="10"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid Grid.Column="0">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*"/>
+                                        </Grid.RowDefinitions>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal"
+                                                    Margin="0,0,0,6">
+                                            <Border Width="4" Height="14"
+                                                    Background="{DynamicResource BlueBrush}"
+                                                    Margin="0,0,7,0"/>
+                                            <TextBlock Text="Text types"
+                                                       Style="{DynamicResource SectionHeading}"
+                                                       Margin="0"/>
+                                        </StackPanel>
+                                        <Border Grid.Row="1"
+                                                Background="{DynamicResource FieldBg}"
+                                                BorderBrush="{DynamicResource EdgeBrush}"
+                                                BorderThickness="1" CornerRadius="3">
+                                            <ListBox x:Name="TextTypeList"
+                                                     Background="Transparent"
+                                                     BorderThickness="0" Margin="2"/>
+                                        </Border>
+                                    </Grid>
+                                    <Grid Grid.Column="2">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*"/>
+                                        </Grid.RowDefinitions>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal"
+                                                    Margin="0,0,0,6">
+                                            <Border Width="4" Height="14"
+                                                    Background="{DynamicResource OrangeBrush}"
+                                                    Margin="0,0,7,0"/>
+                                            <TextBlock Text="Dimension types"
+                                                       Style="{DynamicResource SectionHeading}"
+                                                       Margin="0"/>
+                                        </StackPanel>
+                                        <Border Grid.Row="1"
+                                                Background="{DynamicResource FieldBg}"
+                                                BorderBrush="{DynamicResource EdgeBrush}"
+                                                BorderThickness="1" CornerRadius="3">
+                                            <ListBox x:Name="DimTypeList"
+                                                     Background="Transparent"
+                                                     BorderThickness="0" Margin="2"/>
+                                        </Border>
+                                    </Grid>
+                                </Grid>
+
+                                <Grid Grid.Row="3" Margin="0,8,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock x:Name="AnnotationCountText" Grid.Column="0"
+                                               Style="{DynamicResource MutedText}"
+                                               VerticalAlignment="Center"/>
+                                    <Button x:Name="AnnotationAddButton" Grid.Column="1"
+                                            Style="{DynamicResource GreenButton}"
+                                            Content="Load into the family"/>
+                                </Grid>
+                            </Grid>
+                        </TabItem>
+                    </TabControl>
+                </Border>
+                </Grid>
+
+                <!-- ===== Standard planes ===== -->
+                <Border x:Name="PlanesPanel" Visibility="Collapsed"
+                        Background="{DynamicResource CardBg}"
+                        BorderBrush="{DynamicResource EdgeBrush}"
+                        BorderThickness="1" CornerRadius="4" Padding="14">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1.1*" MinWidth="300"/>
+                            <ColumnDefinition Width="14"/>
+                            <ColumnDefinition Width="1.4*" MinWidth="300"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Grid Grid.Column="0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <StackPanel Grid.Row="0">
+                                <TextBlock x:Name="LayoutNameText"
+                                           Style="{DynamicResource SectionHeading}"
+                                           TextWrapping="Wrap"/>
+                                <TextBlock x:Name="LayoutNoteText"
+                                           Style="{DynamicResource MutedText}"
+                                           TextWrapping="Wrap"
+                                           Margin="0,0,0,10"/>
+                            </StackPanel>
+
+                            <ScrollViewer Grid.Row="1"
+                                          VerticalScrollBarVisibility="Auto">
+                                <StackPanel>
+                                    <Grid Margin="0,0,0,6">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="6"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="6"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="Width mm"
+                                                       Style="{DynamicResource MutedText}"/>
+                                            <TextBox x:Name="WidthBox" Tag="600"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2">
+                                            <TextBlock Text="Depth mm"
+                                                       Style="{DynamicResource MutedText}"/>
+                                            <TextBox x:Name="DepthBox" Tag="400"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="4">
+                                            <TextBlock Text="Height mm"
+                                                       Style="{DynamicResource MutedText}"/>
+                                            <TextBox x:Name="HeightBox" Tag="900"/>
+                                        </StackPanel>
+                                    </Grid>
+                                    <Grid Margin="0,0,0,10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="6"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="6"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="Clearance mm"
+                                                       Style="{DynamicResource MutedText}"/>
+                                            <TextBox x:Name="ClearanceBox" Tag="800"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2">
+                                            <TextBlock Text="Radius mm"
+                                                       Style="{DynamicResource MutedText}"/>
+                                            <TextBox x:Name="RadiusBox" Tag="300"/>
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <StackPanel Orientation="Horizontal"
+                                                Margin="0,0,0,6">
+                                        <Border Width="4" Height="14"
+                                                Background="{DynamicResource OrangeBrush}"
+                                                Margin="0,0,7,0"/>
+                                        <TextBlock Text="This page drives"
+                                                   Style="{DynamicResource SectionHeading}"
+                                                   Margin="0"/>
+                                    </StackPanel>
+                                    <StackPanel x:Name="PlaneParamHost"
+                                                Margin="0,0,0,8"/>
+
+                                    <CheckBox x:Name="LabelDimsCheck"
+                                              Content="Label the dimensions with parameters"
+                                              Margin="0,4,0,6"/>
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                        <RadioButton x:Name="PlaneTypeRadio"
+                                                     GroupName="PlaneBinding"
+                                                     Content="Type" Margin="0,0,14,0"/>
+                                        <RadioButton x:Name="PlaneInstanceRadio"
+                                                     GroupName="PlaneBinding"
+                                                     Content="Instance"/>
+                                    </StackPanel>
+                                    <TextBlock x:Name="LayoutViewText"
+                                               Style="{DynamicResource MutedText}"
+                                               TextWrapping="Wrap"
+                                               Margin="0,10,0,0"/>
+                                </StackPanel>
+                            </ScrollViewer>
+
+                            <Button x:Name="PlanesApplyButton" Grid.Row="2"
+                                    Style="{DynamicResource GreenButton}"
+                                    Content="Set out this family"
+                                    HorizontalAlignment="Stretch"
+                                    Margin="0,10,0,0"/>
+                        </Grid>
+
+                        <Grid Grid.Column="2">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Border Grid.Row="0"
+                                    Background="{DynamicResource PreviewBg}"
+                                    BorderBrush="{DynamicResource EdgeBrush}"
+                                    BorderThickness="1" CornerRadius="3">
+                                <Canvas x:Name="PreviewCanvas"
+                                        ClipToBounds="True"
+                                        Background="Transparent"/>
+                            </Border>
+                            <Grid Grid.Row="1" Margin="0,8,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Button x:Name="PrevLayoutButton" Grid.Column="0"
+                                        Style="{DynamicResource IconButton}"
+                                        ToolTip="The layout before this one">
+                                    <Path Data="M 8,0 L 0,6 L 8,12 Z"
+                                          Fill="{DynamicResource BlueBrush}"/>
+                                </Button>
+                                <TextBlock x:Name="LayoutCountText" Grid.Column="1"
+                                           Style="{DynamicResource MutedText}"
+                                           TextAlignment="Center"
+                                           VerticalAlignment="Center"/>
+                                <Button x:Name="NextLayoutButton" Grid.Column="2"
+                                        Style="{DynamicResource IconButton}"
+                                        ToolTip="The next layout">
+                                    <Path Data="M 0,0 L 8,6 L 0,12 Z"
+                                          Fill="{DynamicResource BlueBrush}"/>
+                                </Button>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <!-- ===== Flex test ===== -->
+                <Border x:Name="FlexPanel" Visibility="Collapsed"
+                        Background="{DynamicResource CardBg}"
+                        BorderBrush="{DynamicResource EdgeBrush}"
+                        BorderThickness="1" CornerRadius="4" Padding="14">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1.1*" MinWidth="330"/>
+                            <ColumnDefinition Width="14"/>
+                            <ColumnDefinition Width="1.3*" MinWidth="340"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- what to flex -->
+                        <Grid Grid.Column="0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <StackPanel Grid.Row="0" Orientation="Horizontal"
+                                        Margin="0,0,0,8">
+                                <Border Width="4" Height="15"
+                                        Background="{DynamicResource BlueBrush}"
+                                        Margin="0,0,7,0"/>
+                                <TextBlock Text="What to flex"
+                                           Style="{DynamicResource SectionHeading}"
+                                           Margin="0"/>
+                            </StackPanel>
+
+                            <Grid Grid.Row="1" Margin="0,0,0,8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBox x:Name="FlexSearch" Grid.Column="0"
+                                         Tag="Search the parameters"
+                                         Margin="0,0,6,0"/>
+                                <Button x:Name="FlexAllButton" Grid.Column="1"
+                                        Content="All" Margin="0,0,6,0"/>
+                                <Button x:Name="FlexNoneButton" Grid.Column="2"
+                                        Content="None" Margin="0,0,6,0"/>
+                                <Button x:Name="FlexRefreshButton"
+                                        Grid.Column="3" Content="Re-read"/>
+                            </Grid>
+
+                            <Border Grid.Row="2"
+                                    Background="{DynamicResource FieldBg}"
+                                    BorderBrush="{DynamicResource EdgeBrush}"
+                                    BorderThickness="1" CornerRadius="3">
+                                <Grid>
+                                    <ListBox x:Name="FlexList"
+                                             Background="Transparent"
+                                             BorderThickness="0" Margin="2"/>
+                                    <TextBlock x:Name="FlexEmptyText"
+                                               Style="{DynamicResource MutedText}"
+                                               TextWrapping="Wrap" Margin="14"
+                                               VerticalAlignment="Top"
+                                               IsHitTestVisible="False"/>
+                                </Grid>
+                            </Border>
+
+                            <Grid Grid.Row="3" Margin="0,8,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Steps between"
+                                           Style="{DynamicResource MutedText}"
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,6,0"/>
+                                <TextBox x:Name="FlexStepsBox" Grid.Column="1"
+                                         Width="54" Tag="3" Margin="0,0,14,0"/>
+                                <RadioButton x:Name="FlexAllTypesRadio"
+                                             Grid.Column="2"
+                                             GroupName="FlexTypes"
+                                             Content="Every type"
+                                             VerticalAlignment="Center"
+                                             Margin="0,0,12,0"/>
+                                <RadioButton x:Name="FlexCurrentTypeRadio"
+                                             Grid.Column="3"
+                                             GroupName="FlexTypes"
+                                             Content="This type only"
+                                             VerticalAlignment="Center"/>
+                            </Grid>
+
+                            <Grid Grid.Row="4" Margin="0,10,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock x:Name="FlexCountText"
+                                           Grid.Column="0"
+                                           Style="{DynamicResource MutedText}"
+                                           TextWrapping="Wrap"
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,10,0"/>
+                                <Button x:Name="FlexRunButton" Grid.Column="1"
+                                        Style="{DynamicResource GreenButton}"
+                                        Content="Flex this family"/>
+                            </Grid>
+                        </Grid>
+
+                        <!-- what happened -->
+                        <Grid Grid.Column="2">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <StackPanel Grid.Row="0" Orientation="Horizontal"
+                                        Margin="0,0,0,8">
+                                <Border Width="4" Height="15"
+                                        Background="{DynamicResource OrangeBrush}"
+                                        Margin="0,0,7,0"/>
+                                <TextBlock Text="What happened"
+                                           Style="{DynamicResource SectionHeading}"
+                                           Margin="0"/>
+                            </StackPanel>
+
+                            <CheckBox x:Name="FlexFaultsOnlyCheck" Grid.Row="1"
+                                      Content="Only show what went wrong"
+                                      Margin="0,0,0,8"/>
+
+                            <Border Grid.Row="2"
+                                    Background="{DynamicResource FieldBg}"
+                                    BorderBrush="{DynamicResource EdgeBrush}"
+                                    BorderThickness="1" CornerRadius="3">
+                                <Grid>
+                                    <ListBox x:Name="FlexResultList"
+                                             Background="Transparent"
+                                             BorderThickness="0" Margin="2"/>
+                                    <TextBlock x:Name="FlexResultEmptyText"
+                                               Style="{DynamicResource MutedText}"
+                                               TextWrapping="Wrap" Margin="14"
+                                               VerticalAlignment="Top"
+                                               IsHitTestVisible="False"
+                                               Text="Nothing run yet. Tick the parameters to drive, set the ends, and press Flex this family."/>
+                                </Grid>
+                            </Border>
+
+                            <Grid Grid.Row="3" Margin="0,8,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock x:Name="FlexSummaryText"
+                                           Grid.Column="0"
+                                           Style="{DynamicResource MutedText}"
+                                           TextWrapping="Wrap"
+                                           VerticalAlignment="Center"/>
+                                <Button x:Name="FlexCopyButton" Grid.Column="1"
+                                        Style="{DynamicResource OrangeButton}"
+                                        Content="Copy the report"
+                                        IsEnabled="False"/>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <!-- ===== Family icon and name ===== -->
+                <Border x:Name="IconPanel" Visibility="Collapsed"
+                        Background="{DynamicResource CardBg}"
+                        BorderBrush="{DynamicResource EdgeBrush}"
+                        BorderThickness="1" CornerRadius="4" Padding="14">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" MinWidth="300"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*" MinWidth="320"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- the icon -->
+                        <Grid Grid.Column="0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <StackPanel Grid.Row="0" Orientation="Horizontal"
+                                        Margin="0,0,0,8">
+                                <Border Width="4" Height="15"
+                                        Background="{DynamicResource BlueBrush}"
+                                        Margin="0,0,7,0"/>
+                                <TextBlock Text="Family icon"
+                                           Style="{DynamicResource SectionHeading}"
+                                           Margin="0"/>
+                            </StackPanel>
+
+                            <Grid Grid.Row="1" Margin="0,0,0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock x:Name="IconViewNameText" Grid.Column="0"
+                                           Style="{DynamicResource MutedText}"
+                                           TextWrapping="Wrap"
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,8,0"/>
+                                <Button x:Name="IconSettingsButton" Grid.Column="1"
+                                        Content="Family icon settings"/>
+                            </Grid>
+
+                            <Border Grid.Row="2"
+                                    Background="{DynamicResource FieldBg}"
+                                    BorderBrush="{DynamicResource EdgeBrush}"
+                                    BorderThickness="1" CornerRadius="3"
+                                    Padding="10">
+                                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                    <TextBlock x:Name="IconSummaryText"
+                                               Style="{DynamicResource MutedText}"
+                                               TextWrapping="Wrap"/>
+                                </ScrollViewer>
+                            </Border>
+
+                            <Button x:Name="IconApplyButton" Grid.Row="3"
+                                    Style="{DynamicResource GreenButton}"
+                                    Content="Apply image"
+                                    HorizontalAlignment="Stretch"
+                                    Margin="0,10,0,0"/>
+                        </Grid>
+
+                        <!-- the name -->
+                        <Grid Grid.Column="2">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <StackPanel Grid.Row="0" Orientation="Horizontal"
+                                        Margin="0,0,0,8">
+                                <Border Width="4" Height="15"
+                                        Background="{DynamicResource OrangeBrush}"
+                                        Margin="0,0,7,0"/>
+                                <TextBlock Text="Family name"
+                                           Style="{DynamicResource SectionHeading}"
+                                           Margin="0"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="1">
+                                <TextBlock Text="Company abbreviation"
+                                           Style="{DynamicResource MutedText}"/>
+                                <ComboBox x:Name="CompanyCombo" IsEditable="True"
+                                          Margin="0,2,0,8"/>
+                                <TextBlock Text="Family type abbreviation"
+                                           Style="{DynamicResource MutedText}"/>
+                                <ComboBox x:Name="TypeCombo" IsEditable="True"
+                                          Margin="0,2,0,8"/>
+                                <TextBlock Text="Discipline abbreviation"
+                                           Style="{DynamicResource MutedText}"/>
+                                <ComboBox x:Name="DisciplineCombo" IsEditable="True"
+                                          Margin="0,2,0,8"/>
+                                <TextBlock Text="Family name"
+                                           Style="{DynamicResource MutedText}"/>
+                                <TextBox x:Name="FamilyNameBox"
+                                         Tag="Waste Connection" Margin="0,2,0,10"/>
+                            </StackPanel>
+
+                            <Border Grid.Row="2" VerticalAlignment="Top"
+                                    Background="{DynamicResource FieldBg}"
+                                    BorderBrush="{DynamicResource EdgeBrush}"
+                                    BorderThickness="1" CornerRadius="3"
+                                    Padding="10">
+                                <StackPanel>
+                                    <TextBlock Text="It will be saved as"
+                                               Style="{DynamicResource MutedText}"/>
+                                    <TextBlock x:Name="FamilyNamePreview"
+                                               FontSize="15" FontWeight="Bold"
+                                               TextWrapping="Wrap"
+                                               Margin="0,4,0,0"/>
+                                    <TextBlock x:Name="FamilyNameNote"
+                                               Style="{DynamicResource MutedText}"
+                                               TextWrapping="Wrap"
+                                               Margin="0,6,0,0"/>
+                                </StackPanel>
+                            </Border>
+
+                            <Button x:Name="SaveFamilyButton" Grid.Row="3"
+                                    Style="{DynamicResource GreenButton}"
+                                    Content="Save family"
+                                    HorizontalAlignment="Stretch"
+                                    Margin="0,10,0,0"
+                                    Visibility="Collapsed"/>
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                </Grid>
+            </Grid>
+
+            <!-- ==========================================================
+                 Footer
+                 ========================================================== -->
+            <Border Grid.Row="2" Background="{DynamicResource BarBg}"
+                    CornerRadius="0,0,5,5">
+                <Grid Margin="12,0,12,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock x:Name="StatusText" Grid.Column="0"
+                               Style="{DynamicResource MutedText}"
+                               VerticalAlignment="Center"
+                               TextTrimming="CharacterEllipsis"/>
+                    <TextBlock x:Name="ResultsText" Grid.Column="1"
+                               Style="{DynamicResource MutedText}"
+                               VerticalAlignment="Center"/>
+                </Grid>
+            </Border>
+
+            <!-- Resize grips: no Background on the host, so everything
+                 underneath stays clickable. -->
+            <Grid x:Name="GripHost" Grid.RowSpan="3"/>
+        </Grid>
+    </Border>
+</Window>

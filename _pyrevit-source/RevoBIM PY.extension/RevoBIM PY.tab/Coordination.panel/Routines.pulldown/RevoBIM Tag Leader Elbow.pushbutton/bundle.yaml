@@ -1,0 +1,11 @@
+title: RevoBIM Tag Leader Elbow
+tooltip: >-
+  Select one or more tags and run this to put a leader elbow on each of them,
+  one leg length horizontally from the tag head, on the side the leader already
+  runs.  150mm at 1:50 by default, scaled to the view.  A tag with no leader is
+  skipped.  The tag itself is never moved, only the leader.
+
+  The name is deliberately unique so Revit's own Keyboard Shortcuts dialog can
+  find it: View > User Interface > Keyboard Shortcuts, search
+  "RevoBIM Tag Leader Elbow".
+author: RevoBIM PY

@@ -1,0 +1,10 @@
+title: |-
+  Containment
+  System Creator
+tooltip: >-
+  Create a complete containment service type - cable tray or conduit - by
+  duplicating an existing "with fittings" type together with every fitting
+  type it references, renaming them to the new service and stamping
+  BGL_Function and Type Mark on all of them.
+author: RevoBIM
+highlight: new

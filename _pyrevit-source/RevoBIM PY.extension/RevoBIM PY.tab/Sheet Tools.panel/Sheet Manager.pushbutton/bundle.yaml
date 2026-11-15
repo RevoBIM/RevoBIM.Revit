@@ -1,0 +1,10 @@
+title: Sheet Manager
+tooltip: >
+  RevoBIM Sheet Manager. Every sheet in the project in one table with the
+  parameter columns you choose, Excel style column search and tick filters,
+  and up to three levels of grouping you can cascade open and shut.
+  Select any number of sheets and duplicate them together with the views on
+  them - dependent views keep their parent and the rest of the family, new
+  sheet numbers, names and view names come from find and replace rules with a
+  live preview, and the project browser grouping is set as they are made.
+author: RevoBIM

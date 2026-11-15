@@ -1,0 +1,517 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RevoBIM Panel Template Mngr"
+        Width="1440" Height="880" MinWidth="900" MinHeight="560"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ResizeMode="CanResize" ShowInTaskbar="True">
+
+    <Border x:Name="RootBorder" CornerRadius="6" BorderThickness="1"
+            Background="{DynamicResource WindowBg}"
+            BorderBrush="{DynamicResource WindowEdge}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- ============================ header ======================= -->
+            <Border x:Name="HeaderBar" Grid.Row="0" CornerRadius="5,5,0,0"
+                    Padding="12,9" Background="{DynamicResource BarBg}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Image x:Name="ToolIcon" Grid.Column="0" Width="30" Height="30"
+                           Margin="0,0,10,0" VerticalAlignment="Center"
+                           SnapsToDevicePixels="True"/>
+
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="RevoBIM" FontSize="20" FontWeight="Bold"
+                                   Foreground="{DynamicResource BlueBrush}"/>
+                        <TextBlock Text="Panel Template Mngr" FontSize="15"
+                                   Margin="1,-3,0,0"
+                                   Foreground="{DynamicResource OrangeBrush}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="3" Orientation="Horizontal"
+                                VerticalAlignment="Center">
+                        <Button x:Name="SettingsButton" Style="{DynamicResource ChipButton}"
+                                Margin="0,0,6,0"
+                                ToolTip="Choose the ways and phases parameters, the name rule and the theme">
+                            <StackPanel Orientation="Horizontal">
+                                <!-- drawn, not set in a symbol font -->
+                                <Path Width="15" Height="15" Stretch="Uniform"
+                                      VerticalAlignment="Center" Margin="0,0,6,0"
+                                      Fill="{DynamicResource BlueBrush}"
+                                      Data="F0 M13.19,6.91 L15.34,7.06 L15.34,8.94 L13.19,9.09 L13.15,9.27 L12.08,11.38 L13.31,13.15 L11.84,14.33 L10.38,12.73 L10.21,12.82 L7.90,13.30 L7.29,15.37 L5.45,14.95 L5.79,12.82 L5.62,12.73 L3.80,11.23 L1.80,12.04 L0.98,10.33 L2.85,9.27 L2.81,9.09 L2.85,6.73 L0.98,5.67 L1.80,3.96 L3.80,4.77 L3.92,4.62 L5.79,3.18 L5.45,1.05 L7.29,0.63 L7.90,2.70 L8.10,2.70 L10.38,3.27 L11.84,1.67 L13.31,2.85 L12.08,4.62 L12.20,4.77 Z M5.40,8.00 A2.60,2.60 0 1 0 10.60,8.00 A2.60,2.60 0 1 0 5.40,8.00 Z"/>
+                                <TextBlock Text="Settings" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        <Button x:Name="ThemeChip" Style="{DynamicResource ChipButton}"
+                                Content="Light" Margin="0,0,12,0"
+                                ToolTip="Switch between the dark and light palette"/>
+                        <TextBlock x:Name="VersionText" Text="v1.0.0" FontSize="11"
+                                   VerticalAlignment="Center" Margin="0,0,12,0"
+                                   Foreground="{DynamicResource MutedBrush}"/>
+
+                        <!-- The glyphs are drawn from Borders rather than set in a
+                             symbol font, so they cannot come out as empty boxes on
+                             a machine without it. -->
+                        <Button x:Name="ShrinkButton" Style="{DynamicResource ShrinkButton}"/>
+                        <Button x:Name="FullScreenButton" Style="{DynamicResource WindowButton}"
+                                ToolTip="Full screen - F11, or double click the header">
+                            <Grid Width="13" Height="13">
+                                <Border x:Name="MaxGlyph" Width="12" Height="10"
+                                        BorderThickness="1.3" CornerRadius="1"
+                                        HorizontalAlignment="Center" VerticalAlignment="Center"
+                                        BorderBrush="{DynamicResource MutedBrush}"/>
+                                <Grid x:Name="RestoreGlyph" Visibility="Collapsed">
+                                    <Border Width="9" Height="7" BorderThickness="1.3"
+                                            CornerRadius="1"
+                                            HorizontalAlignment="Right" VerticalAlignment="Top"
+                                            BorderBrush="{DynamicResource MutedBrush}"/>
+                                    <Border Width="9" Height="7" BorderThickness="1.3"
+                                            CornerRadius="1"
+                                            HorizontalAlignment="Left" VerticalAlignment="Bottom"
+                                            Background="{DynamicResource BarBg}"
+                                            BorderBrush="{DynamicResource MutedBrush}"/>
+                                </Grid>
+                            </Grid>
+                        </Button>
+                        <Button x:Name="CloseButton" Style="{DynamicResource CloseButton}"
+                                Content="&#x2715;"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- ============================= tabs ======================== -->
+            <Grid Grid.Row="1" Margin="0,4,0,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Border x:Name="ProgressBand" Grid.Row="0" Visibility="Collapsed"
+                        Padding="12,6,12,7" Background="{DynamicResource CardBg}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock x:Name="ProgressText" Margin="0,0,0,4"
+                                       TextTrimming="CharacterEllipsis"
+                                       Style="{DynamicResource MutedLabel}"/>
+                            <ProgressBar x:Name="ProgressBarMain" Minimum="0" Maximum="100"/>
+                        </StackPanel>
+                        <TextBlock x:Name="ProgressPercent" Grid.Column="1"
+                                   Margin="12,0,0,0" VerticalAlignment="Center"
+                                   FontSize="15" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource BlueBrush}"/>
+                    </Grid>
+                </Border>
+
+                <TabControl x:Name="MainTabs" Grid.Row="1">
+
+                <!-- ======================= panel assignment ================ -->
+                <TabItem x:Name="TabPanels" Header="Panel Assignment">
+                    <Grid Margin="12,10,12,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition x:Name="TemplatePanelColumn"
+                                              Width="0.18*" MinWidth="190"/>
+                            <ColumnDefinition Width="9"/>
+                            <ColumnDefinition Width="0.82*" MinWidth="440"/>
+                        </Grid.ColumnDefinitions>
+
+                        <GridSplitter Grid.Column="1" Width="9"
+                                      HorizontalAlignment="Stretch"
+                                      VerticalAlignment="Stretch"
+                                      ResizeBehavior="PreviousAndNext"
+                                      ToolTip="Drag to widen the template list"/>
+
+                        <!-- template list -->
+                        <Border Grid.Column="0" CornerRadius="4" BorderThickness="1"
+                                Padding="9" Background="{DynamicResource CardBg}"
+                                BorderBrush="{DynamicResource EdgeBrush}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <StackPanel Grid.Row="0" Orientation="Horizontal"
+                                            Margin="0,0,0,8">
+                                    <Border Style="{DynamicResource SectionTickBlue}"/>
+                                    <TextBlock Text="Panel schedule templates"
+                                               Style="{DynamicResource SectionLabel}"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="1" Margin="0,0,0,6">
+                                    <TextBlock Text="Template type"
+                                               Style="{DynamicResource MutedLabel}"
+                                               Margin="0,0,0,3"/>
+                                    <ComboBox x:Name="TemplateTypeCombo" Margin="0,0,0,7"
+                                              ToolTip="Branch Panel, Switchboard or Data Panel"/>
+                                    <TextBlock Text="Configuration"
+                                               Style="{DynamicResource MutedLabel}"
+                                               Margin="0,0,0,3"/>
+                                    <ComboBox x:Name="TemplateFilterCombo"
+                                              ToolTip="Which panel configuration the template list is showing"/>
+                                </StackPanel>
+
+                                <TextBox x:Name="TemplateSearchBox" Grid.Row="2" Height="32"
+                                         Margin="0,0,0,6" Tag="Search templates"/>
+
+                                <ListBox x:Name="TemplateListBox" Grid.Row="3"
+                                         Margin="0,0,0,6">
+                                    <ListBox.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem x:Name="EditTemplateItem"
+                                                      Header="Edit template in Revit"/>
+                                            <MenuItem x:Name="CopyTemplateNameItem"
+                                                      Header="Copy template name"/>
+                                        </ContextMenu>
+                                    </ListBox.ContextMenu>
+                                </ListBox>
+
+                                <TextBlock x:Name="TemplateCountText" Grid.Row="4"
+                                           Style="{DynamicResource MutedLabel}"
+                                           Text="0 templates"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- the table -->
+                        <Grid Grid.Column="2">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <StackPanel Grid.Row="0" Orientation="Horizontal"
+                                        Margin="0,0,0,8">
+                                <Border Style="{DynamicResource SectionTickOrange}"/>
+                                <TextBlock Text="Panels in this project"
+                                           Style="{DynamicResource SectionLabel}"/>
+                                <TextBlock x:Name="PanelCountText" Margin="10,0,0,0"
+                                           Style="{DynamicResource MutedLabel}"/>
+                            </StackPanel>
+
+                            <Grid Grid.Row="1" Margin="0,0,0,7">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                    <TextBox x:Name="PanelSearchBox" Width="250" Height="32"
+                                             Tag="Search every column"/>
+                                    <Button x:Name="ClearFiltersButton"
+                                            Style="{DynamicResource GhostButton}"
+                                            Content="Clear filters" Margin="6,0,0,0"/>
+                                    <TextBlock x:Name="FilterSummaryText" Margin="10,0,0,0"
+                                               Style="{DynamicResource MutedLabel}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                    <Button x:Name="ResetChangesButton"
+                                            Style="{DynamicResource GhostButton}"
+                                            Content="Reset changes" Margin="0,0,6,0"/>
+                                    <Button x:Name="AutoAssignSelectedButton"
+                                            Style="{DynamicResource AccentButton}"
+                                            Content="Auto Assign Selected" Margin="0,0,6,0"
+                                            IsEnabled="False"
+                                            ToolTip="Only the rows picked in the table"/>
+                                    <Button x:Name="AutoAssignAllButton"
+                                            Style="{DynamicResource AccentButton}"
+                                            Content="Auto Assign All"
+                                            ToolTip="Ways x phases, then marry that number to a template name"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <DataGrid x:Name="PanelGrid" Grid.Row="2" IsReadOnly="True"
+                                      SelectionMode="Extended"
+                                      CanUserSortColumns="True"
+                                      ColumnHeaderHeight="86"
+                                      HorizontalScrollBarVisibility="Auto"
+                                      VerticalScrollBarVisibility="Auto"/>
+
+                            <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,7,0,0">
+                                <Border Width="11" Height="11" CornerRadius="2" Margin="0,0,5,0"
+                                        VerticalAlignment="Center" BorderThickness="1"
+                                        Background="{DynamicResource ChangedBg}"
+                                        BorderBrush="{DynamicResource ChangedEdge}"/>
+                                <TextBlock Text="changed, waiting for Apply"
+                                           Style="{DynamicResource MutedLabel}" Margin="0,0,14,0"/>
+                                <Border Width="11" Height="11" CornerRadius="2" Margin="0,0,5,0"
+                                        VerticalAlignment="Center" BorderThickness="1"
+                                        Background="{DynamicResource ReviewBg}"
+                                        BorderBrush="{DynamicResource ReviewEdge}"/>
+                                <TextBlock Text="no template of that size - review by hand"
+                                           Style="{DynamicResource MutedLabel}" Margin="0,0,14,0"/>
+                                <Border Width="11" Height="11" CornerRadius="2" Margin="0,0,5,0"
+                                        VerticalAlignment="Center" BorderThickness="1"
+                                        Background="{DynamicResource MatchedBg}"
+                                        BorderBrush="{DynamicResource MatchedEdge}"/>
+                                <TextBlock Text="already the right template"
+                                           Style="{DynamicResource MutedLabel}"/>
+                            </StackPanel>
+                        </Grid>
+                    </Grid>
+                </TabItem>
+
+                <!-- ======================= template duplicator ============= -->
+                <TabItem x:Name="TabDuplicator" Header="Template Duplicator">
+                    <Grid Margin="12,10,12,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="0.73*" MinWidth="400"/>
+                            <ColumnDefinition Width="9"/>
+                            <ColumnDefinition x:Name="DupPanelColumn"
+                                              Width="0.27*" MinWidth="296"/>
+                        </Grid.ColumnDefinitions>
+
+                        <GridSplitter Grid.Column="1" Width="9"
+                                      HorizontalAlignment="Stretch"
+                                      VerticalAlignment="Stretch"
+                                      ResizeBehavior="PreviousAndNext"/>
+
+                        <Grid Grid.Column="0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
+                                <Border Style="{DynamicResource SectionTickBlue}"/>
+                                <TextBlock Text="Templates in this project"
+                                           Style="{DynamicResource SectionLabel}"/>
+                                <TextBlock x:Name="DupCountText" Margin="10,0,0,0"
+                                           Style="{DynamicResource MutedLabel}"/>
+                            </StackPanel>
+
+                            <Grid Grid.Row="1" Margin="0,0,0,7">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                    <TextBox x:Name="DupSearchBox" Width="240" Height="32"
+                                             Tag="Search template names"/>
+                                    <CheckBox x:Name="UnusedOnlyCheck" Margin="12,0,0,0"
+                                              VerticalAlignment="Center"
+                                              Content="Isolate templates not used"/>
+                                    <CheckBox x:Name="DupUseFiltersCheck" Margin="12,0,0,0"
+                                              VerticalAlignment="Center" IsChecked="True"
+                                              Content="Use the type and configuration filters"
+                                              ToolTip="The same schedule type and panel configuration the Panel Assignment tab is showing"/>
+                                    <TextBlock x:Name="DupFilterText" Margin="8,0,0,0"
+                                               VerticalAlignment="Center"
+                                               Style="{DynamicResource MutedLabel}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                    <Button x:Name="DeleteTemplatesButton"
+                                            Style="{DynamicResource DangerButton}"
+                                            Content="Delete" Margin="0,0,10,0"/>
+                                    <Button x:Name="MergeTemplatesButton"
+                                            Style="{DynamicResource AccentButton}"
+                                            Content="Merge" Margin="0,0,10,0"
+                                            ToolTip="Pick two or more, then choose which one they all move onto"/>
+                                    <Button x:Name="RenameTemplatesButton"
+                                            Content="Rename" Margin="0,0,10,0"
+                                            ToolTip="Find and replace, or put a prefix or suffix on every selected name"/>
+                                    <Button x:Name="DuplicateButton"
+                                            Content="Duplicate Selected"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <DataGrid x:Name="TemplateGrid" Grid.Row="2" IsReadOnly="True"
+                                      SelectionMode="Extended"
+                                      CanUserSortColumns="True"
+                                      ColumnHeaderHeight="44"
+                                      HorizontalScrollBarVisibility="Auto"
+                                      VerticalScrollBarVisibility="Auto"/>
+
+                            <TextBlock x:Name="DupHintText" Grid.Row="3" Margin="0,7,0,0"
+                                       Style="{DynamicResource MutedLabel}"
+                                       Text="Pick a template and press Duplicate Selected to build it in other slot counts. Merge moves every panel off the templates you picked onto one you choose, then removes the empties."/>
+                        </Grid>
+
+                        <!-- duplicate settings -->
+                        <Border Grid.Column="2" CornerRadius="4" BorderThickness="1"
+                                Padding="11" Background="{DynamicResource CardBg}"
+                                BorderBrush="{DynamicResource EdgeBrush}">
+                            <Grid>
+                                <TextBlock x:Name="DupPlaceholder"
+                                           TextWrapping="Wrap" VerticalAlignment="Center"
+                                           HorizontalAlignment="Center" TextAlignment="Center"
+                                           Style="{DynamicResource MutedLabel}"
+                                           Text="Select one template on the left, then press Duplicate."/>
+
+                                <Grid x:Name="DupPanel" Visibility="Collapsed">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <StackPanel Grid.Row="0" Orientation="Horizontal"
+                                                Margin="0,0,0,8">
+                                        <Border Style="{DynamicResource SectionTickOrange}"/>
+                                        <TextBlock Text="Duplicate template"
+                                                   Style="{DynamicResource SectionLabel}"/>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Row="1" Margin="0,0,0,8">
+                                        <TextBlock x:Name="DupSourceText" TextWrapping="Wrap"
+                                                   Style="{DynamicResource MutedLabel}"
+                                                   Margin="0,0,0,6"/>
+                                        <TextBlock Text="Name" Style="{DynamicResource MutedLabel}"
+                                                   Margin="0,0,0,3"/>
+                                        <TextBox x:Name="DupBaseName" Height="32"/>
+                                        <TextBlock Text="Each copy gets its number of ways on the end, e.g. &quot;3 Ways&quot;."
+                                                   TextWrapping="Wrap" Margin="0,4,0,0"
+                                                   Style="{DynamicResource MutedLabel}"/>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Row="2" Margin="0,0,0,8">
+                                        <TextBlock Text="Panel configuration"
+                                                   Style="{DynamicResource MutedLabel}"
+                                                   Margin="0,0,0,3"/>
+                                        <ComboBox x:Name="DupConfigCombo"/>
+                                        <CheckBox x:Name="DupSinglePhaseCheck" Margin="0,7,0,0"
+                                                  Content="Single phase panel"/>
+                                        <CheckBox x:Name="DupCopyLayoutCheck" Margin="0,7,0,0"
+                                                  IsChecked="True"
+                                                  Content="Copy the layout from the source"
+                                                  ToolTip="Untick only if Revit refuses to copy the layout and you would rather have correctly sized blank templates"/>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Row="3" Margin="0,0,0,5">
+                                        <TextBlock Text="Number of slots - fixed to constant value"
+                                                   Style="{DynamicResource SectionLabel}"
+                                                   Margin="0,0,0,2"/>
+                                        <TextBlock Text="Click to pick, shift click for a run, ctrl click to add or remove."
+                                                   TextWrapping="Wrap" Margin="0,0,0,2"
+                                                   Style="{DynamicResource MutedLabel}"/>
+                                        <TextBlock x:Name="SlotRuleText" TextWrapping="Wrap"
+                                                   Margin="0,0,0,5"
+                                                   Style="{DynamicResource MutedLabel}"/>
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                            <Button x:Name="SlotAllButton"
+                                                    Style="{DynamicResource GhostButton}"
+                                                    Content="All" Margin="0,0,4,0"/>
+                                            <Button x:Name="SlotNoneButton"
+                                                    Style="{DynamicResource GhostButton}"
+                                                    Content="None" Margin="0,0,4,0"/>
+                                            <Button x:Name="SlotCommonButton"
+                                                    Style="{DynamicResource GhostButton}"
+                                                    Content="Common (4-16 ways)"/>
+                                        </StackPanel>
+                                    </StackPanel>
+
+                                    <ListBox x:Name="SlotList" Grid.Row="4" Margin="0,0,0,8"
+                                             MinHeight="130"
+                                             SelectionMode="Extended"
+                                             ToolTip="Each row is a slot count and the number of ways it works out as"/>
+
+                                    <StackPanel Grid.Row="5" Margin="0,0,0,8">
+                                        <TextBlock x:Name="DupPreviewText" TextWrapping="Wrap"
+                                                   Style="{DynamicResource MutedLabel}"/>
+                                    </StackPanel>
+
+                                    <Button x:Name="CreateButton" Grid.Row="6"
+                                            Style="{DynamicResource PrimaryButton}"
+                                            Content="Create" Height="32" IsEnabled="False"/>
+                                </Grid>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </TabItem>
+                </TabControl>
+            </Grid>
+
+            <!-- ============================ footer ======================= -->
+            <Border Grid.Row="2" CornerRadius="0,0,5,5" Padding="12,9"
+                    Background="{DynamicResource BarBg}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Orientation="Horizontal"
+                                VerticalAlignment="Center">
+                        <Button x:Name="RegenerateButton"
+                                Style="{DynamicResource OrangeButton}"
+                                Content="Regenerate Templates" Height="30"
+                                MinWidth="170" Margin="0,0,12,0"
+                                ToolTip="Re-pour every panel schedule from the template it is on, so the ones placed on sheets show current information"/>
+                        <TextBlock x:Name="StatusText" Style="{DynamicResource MutedLabel}"
+                                   VerticalAlignment="Center"
+                                   TextTrimming="CharacterEllipsis"
+                                   Text="Ready."/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <TextBlock x:Name="PendingText" VerticalAlignment="Center"
+                                   Margin="0,0,12,0" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource OrangeBrush}"/>
+                        <Button x:Name="RefreshButton" Style="{DynamicResource GhostButton}"
+                                Content="Refresh" Margin="0,0,6,0"/>
+                        <Button x:Name="ApplyButton" Style="{DynamicResource PrimaryButton}"
+                                Content="Apply" MinWidth="120" Height="30" IsEnabled="False"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- A borderless AllowsTransparency window gets no hit testing on its
+                 transparent frame, so WPF's own resize border never fires and the
+                 window cannot be stretched.  These eight strips carry it instead.
+                 The grid has no Background, so only the strips are hit testable
+                 and everything underneath stays clickable. -->
+            <Grid x:Name="ResizeGrips" Grid.Row="0" Grid.RowSpan="3">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="5"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="5"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="5"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="5"/>
+                </Grid.ColumnDefinitions>
+
+                <Thumb x:Name="GripNW" Grid.Row="0" Grid.Column="0" Cursor="SizeNWSE"
+                       Style="{DynamicResource GripThumb}"/>
+                <Thumb x:Name="GripN"  Grid.Row="0" Grid.Column="1" Cursor="SizeNS"
+                       Style="{DynamicResource GripThumb}"/>
+                <Thumb x:Name="GripNE" Grid.Row="0" Grid.Column="2" Cursor="SizeNESW"
+                       Style="{DynamicResource GripThumb}"/>
+                <Thumb x:Name="GripW"  Grid.Row="1" Grid.Column="0" Cursor="SizeWE"
+                       Style="{DynamicResource GripThumb}"/>
+                <Thumb x:Name="GripE"  Grid.Row="1" Grid.Column="2" Cursor="SizeWE"
+                       Style="{DynamicResource GripThumb}"/>
+                <Thumb x:Name="GripSW" Grid.Row="2" Grid.Column="0" Cursor="SizeNESW"
+                       Style="{DynamicResource GripThumb}"/>
+                <Thumb x:Name="GripS"  Grid.Row="2" Grid.Column="1" Cursor="SizeNS"
+                       Style="{DynamicResource GripThumb}"/>
+                <Thumb x:Name="GripSE" Grid.Row="2" Grid.Column="2" Cursor="SizeNWSE"
+                       Style="{DynamicResource GripThumb}"/>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>
