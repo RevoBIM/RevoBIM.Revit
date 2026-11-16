@@ -221,14 +221,15 @@ namespace RevoBIM.Tools.HangerAutomation
         public const int SettingsVersion = 3;
 
         // ------------------------------------------------------------------ settings
-        public static readonly Dictionary<string, string> Defaults = BuildDefaults();
-
-        /// <summary>Family Floor Support tab keys that have no flr_ copy.</summary>
+        /// <summary>Family Floor Support tab keys that have no flr_ copy. (Declared before Defaults: static field
+        /// initialisers run in textual order and BuildDefaults reads it.)</summary>
         public static readonly string[] FloorSkip =
         {
             "fam_rod_place", "fam_rod_realign", "fam_rod_auto", "fam_rod_linked",
             "fam_group_z", "fam_group_gap", "fam_group_angle", "fam_group_centre",
         };
+
+        public static readonly Dictionary<string, string> Defaults = BuildDefaults();
 
         public static readonly List<KeyValuePair<string, string>> Bases = new List<KeyValuePair<string, string>>
         {
@@ -475,7 +476,8 @@ namespace RevoBIM.Tools.HangerAutomation
         /// <summary>Python's "{0:g}" for a float typed back into a box: 2000.0 -> "2000".</summary>
         public static string NumText(double v)
         {
-            return v.ToString("0.####################", CultureInfo.InvariantCulture);
+            // 'g' keeps 6 significant digits (12.3456789 -> 12.3457), drops trailing zeros, e+06 style exponent
+            return v.ToString("G6", CultureInfo.InvariantCulture).Replace("E", "e");
         }
 
         // ------------------------------------------------------------------ theme
@@ -762,7 +764,7 @@ namespace RevoBIM.Tools.HangerAutomation
                     bestHost = h; bestD = d; bestT = t;
                     continue;
                 }
-                double r1 = Math.Round(d, 6, MidpointRounding.ToEven), r0 = Math.Round(bestD, 6, MidpointRounding.ToEven);
+                double r1 = Math.Round(d, 6, MidpointRounding.AwayFromZero), r0 = Math.Round(bestD, 6, MidpointRounding.AwayFromZero);
                 if (r1 < r0 || (r1 == r0 && h.Id < bestHost.Id)) { bestHost = h; bestD = d; bestT = t; }
             }
             if (bestHost == null) return null;
@@ -959,7 +961,7 @@ namespace RevoBIM.Tools.HangerAutomation
                     if (stationFt < lo) { d = lo - stationFt; s = lo; }
                     else if (stationFt > hi) { d = stationFt - hi; s = hi; }
                     else { d = 0.0; s = stationFt; }
-                    double rd = Math.Round(d, 9, MidpointRounding.ToEven);
+                    double rd = Math.Round(d, 9, MidpointRounding.AwayFromZero);
                     if (best == null || rd < bestD || (rd == bestD && pos < bestStart))
                     {
                         best = new Located { Id = it.Id, Entry = it.Entry, Dist = s - pos, Station = s };
@@ -1215,7 +1217,7 @@ namespace RevoBIM.Tools.HangerAutomation
         // ------------------------------------------------------------------ misc
         public static string Plural(int n, string one, string many = null)
         {
-            return n.ToString(CultureInfo.InvariantCulture) + " " + (n == 1 ? one : (many ?? one + "s"));
+            return n.ToString(CultureInfo.InvariantCulture) + " " + (n == 1 ? one : (string.IsNullOrEmpty(many) ? one + "s" : many));
         }
     }
 }

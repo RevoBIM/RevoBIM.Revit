@@ -328,7 +328,7 @@ namespace RevoBIM.Tools.HangerAutomation
                         }
                         refs = FhaCore.CollapseRefs(refs, 0.01);
                         log.Add("run along (" + Fm(d.X, 3) + ", " + Fm(d.Y, 3) + "): hangers " + ReprIds(insts.Select(h => Eid(h.Id)))
-                                + " | references " + ReprList(kinds));
+                                + " | references " + "[" + string.Join(", ", kinds.Select(w => w == null ? "None" : (w == "face" ? ReprStr(w) : "'" + w + "'"))) + "]");   // the centre names are byte str in the Python (no u prefix), 'face' is unicode
                         if (refs.Count < 2)
                         {
                             log.Add("   skipped - fewer than two usable references");
