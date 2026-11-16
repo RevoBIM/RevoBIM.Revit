@@ -7,3 +7,5 @@ obj/
 dist/
 installer/assets/*.bmp
 installer/assets/*.ico
+installer/assets/*.inc
+installer/assets/*.rtf

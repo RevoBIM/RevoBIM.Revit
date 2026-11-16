@@ -158,22 +158,64 @@ New-Small 110 (Join-Path $assets 'wizard-small-200.bmp')
 # The wizard can only load BMP, so the ribbon PNGs are flattened onto the dark page colour.
 $pageBg = C '#2B2B2B'
 $resDir = Join-Path (Split-Path -Parent $PSScriptRoot) 'RevoBIM.Revit\Resources'
-$toolIcons = [ordered]@{
-    'icon_legend'    = 'LegendCreator'
-    'icon_prosheets' = 'ProSheetsExporter'
-    'icon_revision'  = 'RevisionManager'
-    'icon_excel'     = 'ExcelForRevit'
-}
-foreach ($name in $toolIcons.Keys) {
-    $src = Join-Path $resDir "$($toolIcons[$name])\icon.png"
-    if (-not (Test-Path $src)) { Write-Warning "Missing tool icon: $src"; continue }
-    $img = [System.Drawing.Image]::FromFile($src)
-    $c = New-Canvas 96 96
-    $c.G.Clear($pageBg)
-    $c.G.DrawImage($img, 0, 0, 96, 96)
-    $c.Bmp.Save((Join-Path $assets "$name.bmp"), [System.Drawing.Imaging.ImageFormat]::Bmp)
-    $c.G.Dispose(); $c.Bmp.Dispose(); $img.Dispose()
+
+# The list comes from installer\tools.txt (Group|Icon|Name|Description, in display order).
+# Written out for RevoBIM.iss: assets\tools.rtf (the list the wizard page shows) and
+# assets\tools_files.inc (its [Files] line).
+$manifest = Join-Path $PSScriptRoot 'tools.txt'
+$tools = @()
+foreach ($line in [System.IO.File]::ReadAllLines($manifest, [System.Text.Encoding]::UTF8)) {
+    $t = $line.Trim()
+    if ($t -eq '' -or $t.StartsWith('#')) { continue }
+    $p = $t.Split('|')
+    if ($p.Count -lt 4) { throw "tools.txt: expected Group|Icon|Name|Description, got: $t" }
+    $tools += [pscustomobject]@{ Group = $p[0].Trim(); Icon = $p[1].Trim(); Name = $p[2].Trim(); Desc = ($p[3..($p.Count - 1)] -join '|').Trim() }
 }
 
+# The list is one RTF document shown in a scrolling rich-edit control on the wizard page:
+# a heading per group, then a borderless table row per tool (icon left, name and description
+# right). Icons are embedded as 48px bitmaps flattened onto the page colour.
+function Rtf-Escape([string]$s) { $s.Replace('\', '\\').Replace('{', '\{').Replace('}', '\}') }
+function Rtf-Colour([string]$hex) { $c = C $hex; "\red$($c.R)\green$($c.G)\blue$($c.B);" }
+function Png-Hex([string]$iconDir) {
+    $src = Join-Path $resDir "$iconDir\icon.png"
+    if (-not (Test-Path $src)) { throw "Missing tool icon: $src" }
+    $img = [System.Drawing.Image]::FromFile($src)
+    $c = New-Canvas 48 48
+    $c.G.InterpolationMode = [System.Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
+    $c.G.Clear($pageBg)
+    $c.G.DrawImage($img, 0, 0, 48, 48)
+    # a DIB (a BMP without its 14 byte file header): RichEdit shows \dibitmap, not \pngblip
+    $ms = New-Object System.IO.MemoryStream
+    $c.Bmp.Save($ms, [System.Drawing.Imaging.ImageFormat]::Bmp)
+    $bytes = $ms.ToArray()
+    $c.G.Dispose(); $c.Bmp.Dispose(); $img.Dispose(); $ms.Dispose()
+    $sb = New-Object System.Text.StringBuilder
+    for ($i = 14; $i -lt $bytes.Length; $i++) { [void]$sb.Append($bytes[$i].ToString('x2')) }
+    $sb.ToString()
+}
+
+# colour table: 1 text, 2 muted, 3-5 group accents (blue, orange, green)
+$rtf = New-Object System.Text.StringBuilder
+[void]$rtf.Append('{\rtf1\ansi\deff0{\fonttbl{\f0\fnil\fcharset0 Segoe UI;}}')
+[void]$rtf.Append('{\colortbl;' + (Rtf-Colour '#F2F2F2') + (Rtf-Colour '#A3A39A') + (Rtf-Colour '#4FA3E3') + (Rtf-Colour '#E8912D') + (Rtf-Colour '#3FA75A') + '}')
+[void]$rtf.Append('\viewkind4\uc1\f0\fs18\cf1' + "`r`n")
+$hex = @{}
+$group = $null; $gi = 2
+foreach ($t in $tools) {
+    if (-not $hex.ContainsKey($t.Icon)) { $hex[$t.Icon] = Png-Hex $t.Icon }
+    if ($t.Group -ne $group) {
+        $group = $t.Group; $gi++
+        $accent = 3 + (($gi - 3) % 3)
+        [void]$rtf.Append('\pard\sb280\sa100\li60\cf' + $accent + '\b\fs18 ' + (Rtf-Escape $t.Group.ToUpper()) + '\b0\cf1\par' + "`r`n")
+    }
+    # One paragraph per tool with a hanging indent: the icon sits in the margin, then a tab to the
+    # text; the description wraps onto a second line under the name. (A table would be neater, but
+    # RichEdit draws gridlines on it that cannot be switched off.)
+    [void]$rtf.Append('\pard\li660\fi-600\tx660\sb30\sa30 {\pict\dibitmap0\picw1270\pich1270\picwgoal360\pichgoal360 ' + $hex[$t.Icon] + '}\tab\b\fs19\cf1\up6 ' + (Rtf-Escape $t.Name) + '\b0\up0\line\fs16\cf2 ' + (Rtf-Escape $t.Desc) + '\cf1\fs18\par' + "`r`n")
+}[void]$rtf.Append('}')
+$enc = New-Object System.Text.UTF8Encoding($false)
+[System.IO.File]::WriteAllText((Join-Path $assets 'tools.rtf'), $rtf.ToString(), $enc)
+[System.IO.File]::WriteAllText((Join-Path $assets 'tools_files.inc'), "Source: `"assets\tools.rtf`"; Flags: dontcopy`r`n", $enc)
 if ($custom) { $custom.Dispose() }
 Write-Host "Installer artwork written to $assets"

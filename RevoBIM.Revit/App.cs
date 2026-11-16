@@ -91,6 +91,17 @@ namespace RevoBIM
             };
             management.AddItem(excelForRevit);
 
+            var modelCleanup = new PushButtonData(
+                "RevoBIM_ModelCleanup", "Model\nCleanup", dll, typeof(Commands.ModelCleanupCommand).FullName)
+            {
+                ToolTip = "Model Cleanup. Sync the model, save a detached copy, then remove links, unplaced views " +
+                          "and purge the copy ready to send. The live model is never cleaned.",
+                AvailabilityClassName = typeof(Commands.ProjectDocumentAvailability).FullName,
+                LargeImage = Icon("ModelCleanup", 32),
+                Image = Icon("ModelCleanup", 16),
+            };
+            management.AddItem(modelCleanup);
+
             // --- Project (pyRevit: Project.panel)
             RibbonPanel project = app.CreateRibbonPanel(TabName, "Project");
             var legendCreator = new PushButtonData(

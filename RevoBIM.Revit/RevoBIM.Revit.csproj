@@ -35,7 +35,7 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <EnableDefaultCompileItems>true</EnableDefaultCompileItems>
-    <Version>0.2.1</Version>
+    <Version>0.3.0</Version>
     <!-- REVIT2024, REVIT2025 ... for the few places the API differs between versions -->
     <DefineConstants>$(DefineConstants);REVIT$(RevitVersion)</DefineConstants>
     <!-- bin\<Configuration>\<framework>\ per version, so the builds never overwrite each other -->
@@ -86,6 +86,14 @@
     <Page Remove="UI\ProSheets\Layouts\**" />
     <None Remove="UI\ProSheets\Layouts\**" />
     <EmbeddedResource Include="UI\ProSheets\Layouts\*.xaml" LogicalName="RevoBIM.UI.ProSheets.Layouts.%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <!-- Model Cleanup layouts: the pyRevit XAML verbatim, loaded at runtime.
+       Embedded as RevoBIM.UI.ModelCleanup.Layouts.<file>. -->
+  <ItemGroup>
+    <Page Remove="UI\ModelCleanup\Layouts\**" />
+    <None Remove="UI\ModelCleanup\Layouts\**" />
+    <EmbeddedResource Include="UI\ModelCleanup\Layouts\*.xaml" LogicalName="RevoBIM.UI.ModelCleanup.Layouts.%(Filename)%(Extension)" />
   </ItemGroup>
 
   <!-- Excel for Revit layout: the pyRevit XAML verbatim, loaded at runtime.

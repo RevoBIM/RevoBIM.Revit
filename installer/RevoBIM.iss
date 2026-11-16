@@ -81,11 +81,9 @@ Source: "{#Build2027}\RevoBIM.Revit.pdb"; DestDir: "{app}\2027"; Flags: ignoreve
 ; dropdown, or three slow clicks on a tool's logo). Its scores and settings live in
 ; %AppData%\RevoBIM\arcade\ and are never touched by an install or uninstall.
 Source: "{#ArcadeExe}"; DestDir: "{app}\ArcadeApp"; Flags: ignoreversion
-; Tool icons for the "What's included" page (used by the wizard only, not installed)
-Source: "assets\icon_legend.bmp";    Flags: dontcopy
-Source: "assets\icon_prosheets.bmp"; Flags: dontcopy
-Source: "assets\icon_revision.bmp";  Flags: dontcopy
-Source: "assets\icon_excel.bmp";     Flags: dontcopy
+; Tool icons for the "What is included" page (wizard only, not installed). The list is generated from
+; installer\tools.txt by make-assets.ps1.
+#include "assets\tools_files.inc"
 
 [InstallDelete]
 ; Remove the previous version's files before copying the new ones,
@@ -159,46 +157,6 @@ begin
   if Color <> -1 then Result.Font.Color := Color;
 end;
 
-// One "what's included" card: coloured edge, tool icon, name, panel, description.
-procedure AddCard(Page: TWizardPage; Y: Integer; const IconFile, Title, PanelName, Desc: String;
-  Accent: Integer);
-var
-  Edge: TBitmapImage;
-  Img: TBitmapImage;
-  W, TextLeft: Integer;
-begin
-  W := Page.SurfaceWidth;
-
-  // Coloured edge: a tiny bitmap filled with the accent colour, stretched to size
-  // (the themed dark panel control ignores its Color property).
-  Edge := TBitmapImage.Create(WizardForm);
-  Edge.Parent := Page.Surface;
-  Edge.Stretch := True;
-  Edge.Bitmap.Width := 4;
-  Edge.Bitmap.Height := 4;
-  Edge.Bitmap.Canvas.Brush.Color := Accent;
-  Edge.Bitmap.Canvas.Pen.Color := Accent;
-  Edge.Bitmap.Canvas.Rectangle(0, 0, 4, 4);
-  Edge.SetBounds(0, Y, ScaleX(4), ScaleY(70));
-
-  TextLeft := ScaleX(78);
-  Img := TBitmapImage.Create(WizardForm);
-  Img.Parent := Page.Surface;
-  Img.Stretch := True;
-  Img.SetBounds(ScaleX(16), Y + ScaleY(11), ScaleX(48), ScaleY(48));
-  try
-    ExtractTemporaryFile(IconFile);
-    Img.Bitmap.LoadFromFile(ExpandConstant('{tmp}\') + IconFile);
-  except
-    // No icon is fine; the card still reads correctly without it.
-    TextLeft := ScaleX(18);
-  end;
-
-  AddText(Page.Surface, Title, TextLeft, Y + ScaleY(4), ScaleX(250), ScaleY(20), 10, True, -1);
-  AddText(Page.Surface, PanelName, W - ScaleX(150), Y + ScaleY(6), ScaleX(150), ScaleY(18), 8, False, Accent);
-  AddText(Page.Surface, Desc, TextLeft, Y + ScaleY(26), W - TextLeft, ScaleY(42), 9, False, ColMuted);
-end;
-
 procedure RefreshRevitStatus();
 begin
   if RevitRunning() then
@@ -252,31 +210,33 @@ end;
 procedure CreateIncludedPage();
 var
   Page: TWizardPage;
+  Rich: TRichEditViewer;
+  Rtf: AnsiString;
   W: Integer;
 begin
   Page := CreateCustomPage(RevitPage.ID, 'What is included',
-    'The tools you get on the RevoBIM ribbon tab.');
+    'Every tool on the RevoBIM ribbon tab, by ribbon panel.');
   W := Page.SurfaceWidth;
 
-  // Keep this list in step with the buttons in App.cs as tools are added.
-  AddCard(Page, 0, 'icon_legend.bmp', 'Legend Creator', 'Project panel',
-    'Builds family legends and system colour legends (containment, ductwork, pipework) straight from the model.',
-    ColBlue);
-  AddCard(Page, ScaleY(76), 'icon_prosheets.bmp', 'Pro Sheets Exporter', 'Sheet Tools panel',
-    'Batch export sheets and views to PDF and DWG with custom file naming, project-driven output folders and saved templates.',
-    ColOrange);
-  AddCard(Page, ScaleY(152), 'icon_revision.bmp', 'Revision Manager', 'Sheet Tools panel',
-    'Add, edit, reorder, merge and delete project revisions, with sheet counts, search and custom columns.',
-    ColGreen);
-  AddCard(Page, ScaleY(228), 'icon_excel.bmp', 'Excel for Revit', 'Management panel',
-    'Edit a schedule in a spreadsheet grid, then apply every change in one transaction. Export to Excel and import it back.',
-    ColBlue);
+  // The list scrolls, so it can grow as tools are added. It is one RTF document built from
+  // installer\tools.txt by make-assets.ps1 (a heading per ribbon panel, then icon + name +
+  // description per tool); nothing to edit here for a new tool.
+  Rich := TRichEditViewer.Create(WizardForm);
+  Rich.Parent := Page.Surface;
+  Rich.SetBounds(0, 0, W, Page.SurfaceHeight - ScaleY(36));
+  Rich.BorderStyle := bsNone;
+  Rich.ScrollBars := ssVertical;
+  Rich.ReadOnly := True;
+  Rich.UseRichEdit := True;
+  Rich.Color := $2B2B2B;
+  ExtractTemporaryFile('tools.rtf');
+  if LoadStringFromFile(ExpandConstant('{tmp}\tools.rtf'), Rtf) then
+    Rich.RTFText := Rtf;
 
   AddText(Page.Surface,
     'Works with Revit 2024, 2025, 2026 and 2027. More tools arrive as they are converted.',
-    0, ScaleY(306), W, ScaleY(32), 9, False, ColMuted);
+    0, Page.SurfaceHeight - ScaleY(32), W, ScaleY(32), 9, False, ColMuted);
 end;
-
 procedure InitializeWizard();
 var
   PrevVersion: String;

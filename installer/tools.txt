@@ -1,0 +1,18 @@
+# The tools shown on the installer's "What is included" page, in the order shown.
+# One line per tool:  Group | Icon | Name | Description
+#   Group        the ribbon panel the tool sits on (a heading is drawn each time it changes)
+#   Icon         the folder under RevoBIM.Revit\Resources whose icon.png is used
+#   Name         tool name
+#   Description  one short line
+# make-assets.ps1 turns this into the icons and the list code that RevoBIM.iss includes, so
+# adding a tool is one line here (plus its button in App.cs). Lines starting with # are ignored.
+
+Coordination|NudgeUp|Nudge Up|Raise selected elements by the Nudge increment (default 50mm).
+Coordination|NudgeDown|Nudge Down|Lower selected elements by the Nudge increment (default 50mm).
+Coordination|NudgeSettings|Nudge Settings|Set the Nudge increment and how the buttons behave.
+Coordination|Arcade|RevoBIM Arcade|Pacman, Tetris and Snake, in its own window.
+Management|ExcelForRevit|Excel for Revit|Edit a schedule in a spreadsheet grid, then apply it in one transaction.
+Management|ModelCleanup|Model Cleanup|Save a detached copy and strip it ready to send.
+Project|LegendCreator|Legend Creator|Family legends and system colour legends from the model.
+Sheet Tools|ProSheetsExporter|Pro Sheets Exporter|Batch export sheets and views to PDF, DWG, NWC and IFC.
+Sheet Tools|RevisionManager|Revision Manager|Add, edit, reorder and merge the project's revisions.

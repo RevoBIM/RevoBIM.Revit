@@ -46,7 +46,7 @@ Status values: Not started, Converted (built, not yet tried in Revit), Tested (w
 | Pipe Slope Assigner | Coordination | Not started | In Routines pulldown. |
 | QFR Remover | Coordination | Not started | In Routines pulldown. |
 | Reset Hide | Coordination | Not started | In Routines pulldown. |
-| RevoBIM Arcade | Coordination | Converted | In Routines pulldown (the C# Routines dropdown holds only this so far). Not a port of the Python code: Revit launches the standalone `RevoBIM.Arcade.exe` (own solution, `RevoBIM.Arcade\`). Shift-click diagnostic report not ported. |
+| RevoBIM Arcade | Coordination | Tested | In Routines pulldown (the C# Routines dropdown holds only this so far). Not a port of the Python code: Revit launches the standalone `RevoBIM.Arcade.exe` (own solution, `RevoBIM.Arcade\`). Shift-click diagnostic report not ported. |
 | RevoBIM Tag Elbow Settings | Coordination | Not started | In Routines pulldown. |
 | RevoBIM Tag Leader Elbow | Coordination | Not started | In Routines pulldown. |
 | Selected in View | Coordination | Not started | In Routines pulldown. |
@@ -56,9 +56,9 @@ Status values: Not started, Converted (built, not yet tried in Revit), Tested (w
 | VlookUp | Coordination | Not started | In Routines pulldown. |
 | Service Spacing | Coordination | Not started | In Service Spacing pulldown. |
 | Settings | Coordination | Not started | In Service Spacing pulldown. |
-| Nudge Down | Coordination | Converted | Small button in the Coordination panel (stack3 stack) and a large button in an always-visible "Nudge" panel on the Modify tab (`UI\Ribbon\ModifyTabPanel.cs`). Code in `Tools\Nudge\NudgeEngine.cs`; both not yet tried in Revit. |
-| Nudge Settings | Coordination | Converted | Window in `UI\Nudge\`, pyRevit XAML kept. Settings now in `%APPDATA%\RevoBIM\nudge_settings.json` (same keys; the pyRevit file in `%APPDATA%\RevoBIM PY\` is read once if the new one does not exist). Shortcuts are written to KeyboardShortcuts.xml as before, matched by button id. Logo easter egg armed. Not yet tried in Revit. No installer card yet (the What is included page has no room for a fourth). |
-| Nudge Up | Coordination | Converted | See Nudge Down. |
+| Nudge Down | Coordination | Tested | Small button in the Coordination panel (stack3 stack) and a large button in an always-visible "Nudge" panel on the Modify tab (`UI\Ribbon\ModifyTabPanel.cs`). Code in `Tools\Nudge\NudgeEngine.cs`; both not yet tried in Revit. |
+| Nudge Settings | Coordination | Tested | Window in `UI\Nudge\`, pyRevit XAML kept. Settings now in `%APPDATA%\RevoBIM\nudge_settings.json` (same keys; the pyRevit file in `%APPDATA%\RevoBIM PY\` is read once if the new one does not exist). Shortcuts are written to KeyboardShortcuts.xml as before, matched by button id. Logo easter egg armed. Not yet tried in Revit. No installer card yet (the What is included page has no room for a fourth). |
+| Nudge Up | Coordination | Tested | See Nudge Down. |
 | RevoBIM Clash Offset | Coordination | Not started | In System Offset Tools pulldown. |
 | RevoBIM Click System | Coordination | Not started | In System Offset Tools pulldown. |
 | RevoBIM Offset Break | Coordination | Not started | In System Offset Tools pulldown. |
@@ -74,7 +74,7 @@ Status values: Not started, Converted (built, not yet tried in Revit), Tested (w
 | Re-Route Wires | Electrical | Not started | In Wires pulldown. |
 | Settings | Electrical | Not started | In Wires pulldown. |
 | Hanger Automation | FAB Automation | Not started |  |
-| Excel for Revit | Management | Converted | v1.20.0 port, builds on R24/R25/R26/R27, never run in Revit. Logic in `Tools\ExcelForRevit\` (`Efr*.cs`: core/palette, params, `ScheduleModel`, levels, `WorkHandler`, fill and formula engine, own xlsx writer/reader and Excel round trip), WPF in `UI\ExcelForRevit\` (`ExcelForRevitWindow*.cs` partial class, `EfrDialogs*.cs`, `EfrUi.cs` toolkit, `EfrMain.cs` entry), pyRevit XAML embedded verbatim in `UI\ExcelForRevit\Layouts\`. Shares `%APPDATA%\RevoBIM PY\excel_for_revit_settings.json` with the pyRevit version; failure log at `%APPDATA%\RevoBIM\logs\excel_for_revit_last_error.txt`. Not ported: the IronPython-engine liveness machinery (modeless proof, `check_modeless_health`, `migrate_window_settings`); the modeless/modal toggle stays. Logo easter egg armed on the logo and wordmark. Python benches (`import_check.py`, `bench_logic.py`, `xlsx_check.py`) not ported. |
+| Excel for Revit | Management | Tested | v1.20.0 port, builds on R24/R25/R26/R27. Logic in `Tools\ExcelForRevit\` (`Efr*.cs`: core/palette, params, `ScheduleModel`, levels, `WorkHandler`, fill and formula engine, own xlsx writer/reader and Excel round trip), WPF in `UI\ExcelForRevit\` (`ExcelForRevitWindow*.cs` partial class, `EfrDialogs*.cs`, `EfrUi.cs` toolkit, `EfrMain.cs` entry), pyRevit XAML embedded verbatim in `UI\ExcelForRevit\Layouts\`. Shares `%APPDATA%\RevoBIM PY\excel_for_revit_settings.json` with the pyRevit version; failure log at `%APPDATA%\RevoBIM\logs\excel_for_revit_last_error.txt`. Not ported: the IronPython-engine liveness machinery (modeless proof, `check_modeless_health`, `migrate_window_settings`); the modeless/modal toggle stays. Logo easter egg armed on the logo and wordmark. Python benches (`import_check.py`, `bench_logic.py`, `xlsx_check.py`) not ported. |
 | Family Editor Tools | Management | Not started |  |
 | Family Find Replace | Management | Not started |  |
 | Family Management Placer | Management | Not started |  |
@@ -82,7 +82,7 @@ Status values: Not started, Converted (built, not yet tried in Revit), Tested (w
 | Filter Manager | Management | Not started |  |
 | Level Manager | Management | Not started |  |
 | MEP System Manager | Management | Not started |  |
-| Model Cleanup | Management | Not started |  |
+| Model Cleanup | Management | Tested | v2.0.0 port, builds on R24/R25/R26/R27. Rules in `Tools\ModelCleanup\` (`McuCore.cs` = mcu_core.py, `McuModel`, `McuOps`, `McuNwc`, `McuAps`/`McuWeb` = ACC publish, `McuRunner` = the ExternalEvent queue), windows in `UI\ModelCleanup\` (pyRevit XAML verbatim in `Layouts\`, loaded at runtime). Modeless window; a second ribbon press brings it back. Shares `%APPDATA%\RevoBIM\model_cleanup*.txt` and the templates folder with the pyRevit version. ACC refresh token is DPAPI-encrypted when the runtime has it (net48 yes; on .NET 8+ it is looked up by reflection and, if missing, the sign-in lasts for the session only). Logo easter egg armed on the main window and Export Settings. Not ported: bench_logic.py / import_check.py (pyRevit test scripts). |
 | ParaManager | Management | Not started |  |
 | Project Browser Pro | Management | Not started |  |
 | RevoBIM Addin Manager | Management | Not started |  |
@@ -93,7 +93,7 @@ Status values: Not started, Converted (built, not yet tried in Revit), Tested (w
 | ViewManager | Management | Not started |  |
 | Workset Management | Management | Not started |  |
 | ClickToRVT | Point Cloud | Not started |  |
-| Legend Creator | Project | Converted | Logo easter egg armed (icon and RevoBIM word). v3.0.0 port. Code in `Tools\LegendCreator\`, windows in `UI\LegendCreator\`. Shares `%APPDATA%\RevoBIM\legend_creator.txt` with the pyRevit version. pyRevit progress bar replaced by a themed progress window. Debug report drops the pyRevit/IronPython lines and API-by-name probes. |
+| Legend Creator | Project | Tested | Logo easter egg armed (icon and RevoBIM word). v3.0.0 port. Code in `Tools\LegendCreator\`, windows in `UI\LegendCreator\`. Shares `%APPDATA%\RevoBIM\legend_creator.txt` with the pyRevit version. pyRevit progress bar replaced by a themed progress window. Debug report drops the pyRevit/IronPython lines and API-by-name probes. |
 | DWG Block Replace | Schematic | Not started |  |
 | Schematic Builder | Schematic | Not started |  |
 | Schematic Marriage | Schematic | Not started |  |
