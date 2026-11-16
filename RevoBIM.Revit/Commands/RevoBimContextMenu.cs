@@ -13,8 +13,8 @@ namespace RevoBIM.Commands
 {
     /// <summary>
     /// RevoBIM's entries at the bottom of Revit's right-click menu, in the Project Browser and the canvas:
-    /// "Open in ProSheets" and "Express Export" always, and "Run Bulk Rename" when two or more items that
-    /// can be renamed (views, sheets, schedules, families, types) are selected. One creator builds all
+    /// "Open in ProSheets" always (on views it opens the Views list filtered to them), "Express Export" when sheets are selected, and "Run Bulk Rename" when any item that
+    /// can be renamed (views, sheets, schedules, families, types) is selected. One creator builds all
     /// of them, so the tools show once, together. Revit 2025+ only: the context menu API
     /// (IContextMenuCreator) arrived in 2025, so this file is not compiled for Revit 2024.
     ///
@@ -51,9 +51,15 @@ namespace RevoBIM.Commands
             try
             {
                 string assembly = Assembly.GetExecutingAssembly().Location;
-                menu.AddItem(new CommandMenuItem(OpenText, typeof(ProSheetsExporterCommand).FullName, assembly));
-                menu.AddItem(new CommandMenuItem(ExpressText, typeof(ExpressExportCommand).FullName, assembly));
-                if (OfferBulkRename())
+                Scan scan = ScanSelection();
+                // Right-clicking views opens Pro Sheets on the Views list, filtered to them.
+                string open = scan.Views > 0 && scan.Sheets == 0
+                    ? typeof(ProSheetsViewsCommand).FullName
+                    : typeof(ProSheetsExporterCommand).FullName;
+                menu.AddItem(new CommandMenuItem(OpenText, open, assembly));
+                if (scan.Sheets > 0)
+                    menu.AddItem(new CommandMenuItem(ExpressText, typeof(ExpressExportCommand).FullName, assembly));
+                if (scan.Renamable > 0)
                 {
                     var rename = new CommandMenuItem(BulkRenameText, typeof(BulkRenameCommand).FullName, assembly);
                     rename.SetToolTip("Rename the selected Project Browser items: find and replace, add a prefix " +
@@ -67,36 +73,51 @@ namespace RevoBIM.Commands
             }
         }
 
-        /// <summary>
-        /// True when two or more of the selected elements are things Bulk Rename can rename. When the
-        /// selection cannot be read the entry is offered anyway: the command says what it found when it runs.
-        /// </summary>
-        private static bool OfferBulkRename()
+        /// <summary>What the current selection holds, for choosing which entries to show.</summary>
+        private struct Scan
         {
+            public int Sheets;
+            public int Views;
+            public int Renamable;
+        }
+
+        /// <summary>
+        /// Counts the selected sheets, the selected views (not sheets or templates) and the items Bulk Rename
+        /// can rename. When the selection cannot be read, every entry is offered: the command says what it
+        /// found when it runs.
+        /// </summary>
+        private static Scan ScanSelection()
+        {
+            var scan = new Scan();
             try
             {
                 UIApplication app = uiapp;
-                if (app == null) return true;
+                if (app == null) return Everything();
                 UIDocument uidoc = app.ActiveUIDocument;
-                if (uidoc == null) return false;
-                ICollection<ElementId> ids = uidoc.Selection.GetElementIds();
-                if (ids.Count < 2) return false;
+                if (uidoc == null) return scan;
                 Document doc = uidoc.Document;
-                int renamable = 0, looked = 0;
-                foreach (ElementId id in ids)
+                int looked = 0;
+                foreach (ElementId id in uidoc.Selection.GetElementIds())
                 {
                     if (++looked > SelectionLook) break;
-                    if (BrnRevit.MakeRow(doc.GetElement(id)) != null && ++renamable >= 2) return true;
+                    Element element = doc.GetElement(id);
+                    if (element is ViewSheet) scan.Sheets++;
+                    else if (element is View view && !view.IsTemplate) scan.Views++;
+                    if (BrnRevit.MakeRow(element) != null) scan.Renamable++;
                 }
-                return false;
+                return scan;
             }
             catch (Exception err)
             {
-                Log("could not read the selection, offering Run Bulk Rename anyway: " + err.Message);
-                return true;
+                Log("could not read the selection, offering every entry: " + err.Message);
+                return Everything();
             }
         }
 
+        private static Scan Everything()
+        {
+            return new Scan { Sheets = 1, Views = 0, Renamable = 1 };
+        }
         /// <summary>Called from App.OnStartup. Never throws.</summary>
         public static void Register(UIControlledApplication app)
         {

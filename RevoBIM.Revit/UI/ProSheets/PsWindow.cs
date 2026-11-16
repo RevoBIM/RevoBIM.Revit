@@ -284,6 +284,11 @@ namespace RevoBIM.UI.ProSheets
                 try
                 {
                     Window.Window.Activate();
+                    if (ProSheetsWindow.OpenInViewsRequest)
+                    {
+                        ProSheetsWindow.OpenInViewsRequest = false;
+                        Window.ShowViewsSelection();
+                    }
                     return Window;
                 }
                 catch (Exception)
@@ -374,6 +379,10 @@ namespace RevoBIM.UI.ProSheets
             internal Action<PsExport.Report> ReportHook;
             // Set while PsExpress builds a hidden window: no first-run setup on screen.
             internal static bool SkipFirstRunSetup;
+            // "Open in ProSheets" from the right-click menu on views: the window opens on the
+            // Views list, filtered to the views selected in the Project Browser. Read by
+            // ApplyProfile and ApplyPreselection while the window is built, then cleared.
+            internal static bool OpenInViewsRequest;
             public bool StopWanted;
             public PsExport.Report LastReport;
             internal string HuntedFolder = "";
@@ -480,6 +489,7 @@ namespace RevoBIM.UI.ProSheets
                 Wire();
                 LoadLastProfile();
                 ApplyPreselection();
+                OpenInViewsRequest = false;
                 RefreshAll();
                 RestoreWindow();
                 // A borderless, transparent window lays out once before its saved

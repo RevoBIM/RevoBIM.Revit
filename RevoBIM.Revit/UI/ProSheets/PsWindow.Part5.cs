@@ -240,8 +240,45 @@ namespace RevoBIM.UI.ProSheets
                 PreselectedKeys = new HashSet<long>(picked.Select(row => row.Key));
                 IsolatedKeys = null;
                 PsUi.SetVisible(C("ShowAllCheck"), true);
-                SetChecked(C("ShowAllCheck"), true);
+                // Opened on views from the right-click menu: only the selected views show.
+                bool isolate = OpenInViewsRequest && IsViewsMode();
+                SetChecked(C("ShowAllCheck"), !isolate);
+                if (isolate)
+                    IsolatedKeys = new HashSet<long>(PreselectedKeys);
                 SayIsolation();
+            }
+
+            /// <summary>
+            /// The window is already open and "Open in ProSheets" was used on views: go to the Selection
+            /// tab's Views list, tick the selected views and show only those.
+            /// </summary>
+            internal void ShowViewsSelection()
+            {
+                SetTab(TabSelection);
+                if (!IsViewsMode())
+                {
+                    try
+                    {
+                        C<ToggleButton>("SheetsRadio").IsChecked = false;
+                        C<ToggleButton>("ViewsRadio").IsChecked = true;
+                    }
+                    catch (Exception)
+                    {
+                    }
+                }
+                List<PsModel.Row> picked = PsModel.PreselectedRows(Uidoc, Rows);
+                if (picked == null || picked.Count == 0)
+                    return;
+                PreselectedKeys = new HashSet<long>(picked.Select(row => row.Key));
+                FirstFill = true;
+                FillTable();
+                PsUi.SetVisible(C("ShowAllCheck"), true);
+                SetChecked(C("ShowAllCheck"), false);
+                IsolatedKeys = new HashSet<long>(PreselectedKeys);
+                ApplyFilters();
+                RefreshCounts();
+                SayIsolation();
+                ScrollToPreselection();
             }
 
             /// <summary>
@@ -302,14 +339,15 @@ namespace RevoBIM.UI.ProSheets
                     PsUi.SetVisible(note, false);
                     return;
                 }
+                string noun = IsViewsMode() ? "view" : "sheet";
                 if (IsolatedKeys == null)
                 {
-                    PsUi.SetText(note, string.Format(Inv, "{0} sheet{1} came from your Revit selection and stay ticked",
-                                                     count, Plural(count)));
+                    PsUi.SetText(note, string.Format(Inv, "{0} {2}{1} came from your Revit selection and stay ticked",
+                                                     count, Plural(count), noun));
                 }
                 else
                 {
-                    PsUi.SetText(note, string.Format(Inv, "Showing your {0} selected sheet{1}", count, Plural(count)));
+                    PsUi.SetText(note, string.Format(Inv, "Showing your {0} selected {2}{1}", count, Plural(count), noun));
                 }
                 PsUi.SetVisible(note, true);
             }
@@ -409,6 +447,8 @@ namespace RevoBIM.UI.ProSheets
                 string wantedMode = PsConfig.GetText(profile, "mode", "sheets");
                 if (wantedMode != "sheets" && wantedMode != "views")
                     wantedMode = "sheets";
+                if (OpenInViewsRequest)
+                    wantedMode = "views";
                 if (wantedMode != ModeName())
                 {
                     try
