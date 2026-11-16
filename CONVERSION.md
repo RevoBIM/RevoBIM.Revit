@@ -50,7 +50,7 @@ Status values: Not started, Converted (built, not yet tried in Revit), Tested (w
 | RevoBIM Tag Elbow Settings | Coordination | Not started | In Routines pulldown. |
 | RevoBIM Tag Leader Elbow | Coordination | Not started | In Routines pulldown. |
 | Selected in View | Coordination | Not started | In Routines pulldown. |
-| Sheet Name Push | Coordination | Not started | In Routines pulldown. |
+| Sheet Name Push | Coordination | Converted | Folded into Bulk Rename as its third tab, "Parameter Push" (shown when sheets are selected): three target parameters, the split character and the text format (UPPERCASE / Camel Case / none) set on the tab, a live preview per sheet, and a results window after the push. Uses Bulk Rename's settings (`sheet_param_1..3`, `sheet_delimiter`, `sheet_format` in `bulk_rename.txt`), not `sheet_management.txt`. A name with fewer parts than parameters blanks the rest (as Bulk Rename's Write Sheet names did), and parts past the third stay in the third. Not ported: the standalone sheet browser, in-grid editing, duplicate-number filter and its own Find/Replace and Prefix/Suffix windows (Bulk Rename's Sheet Name and Sheet Number tabs cover renaming). No separate ribbon button. Not yet tried in Revit. |
 | Space Data Push | Coordination | Not started | In Routines pulldown. |
 | Space Name To Element | Coordination | Not started | In Routines pulldown. |
 | VlookUp | Coordination | Not started | In Routines pulldown. |
