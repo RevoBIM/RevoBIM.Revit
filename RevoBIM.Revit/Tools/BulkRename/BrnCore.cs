@@ -150,6 +150,7 @@ namespace RevoBIM.Tools.BulkRename
             { "sheet_param_2", "BGL_Sheet Title 2" },
             { "sheet_param_3", "BGL_Sheet Title 3" },
             { "sheet_delimiter", "_" },
+            { "sheet_format", "none" },
         };
 
         // ==================== rules ====================
@@ -401,6 +402,8 @@ namespace RevoBIM.Tools.BulkRename
             }
             string theme = output["theme"];
             if (theme != "auto" && theme != "dark" && theme != "light") output["theme"] = Defaults["theme"];
+            string format = output["sheet_format"];
+            if (format != "upper" && format != "title" && format != "none") output["sheet_format"] = Defaults["sheet_format"];
             return output;
         }
 
@@ -538,12 +541,28 @@ namespace RevoBIM.Tools.BulkRename
             return parts.ToArray();
         }
 
+        /// <summary>The text format chosen for the push: upper, title (each word capitalised) or none.</summary>
+        public static string FormatText(string value, string mode)
+        {
+            value = (value ?? "").Trim();
+            if (mode == "upper") return value.ToUpperInvariant();
+            if (mode == "title")
+                return string.Join(" ", value.Split(' ').Select(w => w.Length == 0 ? w : w.Substring(0, 1).ToUpperInvariant() + w.Substring(1).ToLowerInvariant()));
+            return value;
+        }
+
+        public static string FormatLabel(string mode)
+        {
+            return mode == "upper" ? "UPPERCASE" : mode == "title" ? "Camel Case" : "Not formatted";
+        }
         /// <summary>(parameter, value) for the slots that have a parameter set.</summary>
         public static List<KeyValuePair<string, string>> SheetWrites(string name, IDictionary<string, string> settings)
         {
             string delimiter;
             if (!settings.TryGetValue("sheet_delimiter", out delimiter)) delimiter = "";
-            string[] values = SplitSheetName(name, delimiter);
+            string format;
+            if (!settings.TryGetValue("sheet_format", out format)) format = "none";
+            string[] values = SplitSheetName(name, delimiter).Select(v => FormatText(v, format)).ToArray();
             var output = new List<KeyValuePair<string, string>>();
             for (int i = 0; i < ParamKeys.Length; i++)
             {

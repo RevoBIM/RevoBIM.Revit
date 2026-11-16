@@ -83,6 +83,31 @@
         </Setter>
     </Style>
 
+    <Style TargetType="RadioButton">
+        <Setter Property="Foreground" Value="{DynamicResource Text}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <StackPanel Orientation="Horizontal" Background="Transparent">
+                        <Grid Width="15" Height="15">
+                            <Ellipse x:Name="Ring" Fill="{DynamicResource Field}" Stroke="{DynamicResource Edge}" StrokeThickness="1"/>
+                            <Ellipse x:Name="Dot" Width="7" Height="7" Fill="{DynamicResource OnAccent}" Visibility="Collapsed"/>
+                        </Grid>
+                        <ContentPresenter Margin="6,0,0,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Dot" Property="Visibility" Value="Visible"/>
+                            <Setter TargetName="Ring" Property="Fill" Value="{DynamicResource Blue}"/>
+                            <Setter TargetName="Ring" Property="Stroke" Value="{DynamicResource Blue}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <Style x:Key="BaseButton" TargetType="Button">
         <Setter Property="Foreground" Value="{DynamicResource Text}"/>
         <Setter Property="Background" Value="{DynamicResource Card}"/>

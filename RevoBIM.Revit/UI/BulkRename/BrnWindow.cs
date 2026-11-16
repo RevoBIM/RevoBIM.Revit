@@ -8,6 +8,7 @@ using System.Windows.Threading;
 using Autodesk.Revit.UI;
 using RevoBIM.Helpers;
 using RevoBIM.Tools.BulkRename;
+using ComboBox = System.Windows.Controls.ComboBox;
 using Document = Autodesk.Revit.DB.Document;
 using Panel = System.Windows.Controls.Panel;
 using TextBox = System.Windows.Controls.TextBox;
@@ -81,15 +82,79 @@ namespace RevoBIM.UI.BulkRename
         }
     }
 
+    /// <summary>One sheet on the Parameter Push tab: its number, its name, and what each part would be written as.</summary>
+    internal sealed class BrnPushRowView
+    {
+        private const double RowHeight = 26.0;
+        private string signature;
+        private readonly TextBlock number = new TextBlock();
+        private readonly TextBlock name = new TextBlock();
+        private readonly TextBlock result = new TextBlock();
+        public readonly Border Border = new Border();
+
+        public BrnPushRowView()
+        {
+            Border.Height = RowHeight;
+            Border.Padding = new Thickness(8, 0, 8, 0);
+            var grid = new Grid();
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Auto), MinWidth = 64 });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Auto) });
+            number.VerticalAlignment = VerticalAlignment.Center;
+            number.FontSize = 11;
+            number.Margin = new Thickness(0, 0, 12, 0);
+            number.SetResourceReference(TextBlock.ForegroundProperty, "Muted");
+            name.VerticalAlignment = VerticalAlignment.Center;
+            name.TextTrimming = TextTrimming.CharacterEllipsis;
+            name.TextWrapping = TextWrapping.NoWrap;
+            name.SetResourceReference(TextBlock.ForegroundProperty, "Text");
+            result.VerticalAlignment = VerticalAlignment.Center;
+            result.Margin = new Thickness(14, 0, 0, 0);
+            result.FontWeight = FontWeights.SemiBold;
+            Grid.SetColumn(name, 1);
+            Grid.SetColumn(result, 2);
+            grid.Children.Add(number);
+            grid.Children.Add(name);
+            grid.Children.Add(result);
+            Border.Child = grid;
+        }
+
+        public static string ResultText(IList<KeyValuePair<string, string>> writes)
+        {
+            return string.Join("  |  ", writes.Select(w => w.Value.Length > 0 ? w.Value : "(blank)"));
+        }
+
+        public void Show(string sheetNumber, string sheetName, IList<KeyValuePair<string, string>> writes)
+        {
+            string text = ResultText(writes);
+            string next = sheetNumber + "\u0001" + sheetName + "\u0001" + text;
+            if (next == signature) return;
+            signature = next;
+            number.Text = sheetNumber;
+            name.Text = sheetName;
+            result.Text = text;
+            if (writes.Count == 0) result.SetResourceReference(TextBlock.ForegroundProperty, "Muted");
+            else result.SetResourceReference(TextBlock.ForegroundProperty, "Orange");
+            Border.ToolTip = writes.Count == 0
+                ? "No target parameter is set"
+                : string.Join("\n", writes.Select(w => w.Key + " = " + (w.Value.Length > 0 ? w.Value : "(blank)")));
+        }
+    }
+
     /// <summary>
     /// The Bulk Rename window: tools on the left, the selected items on the right, a live preview, and
     /// nothing written until Apply. Modeless; the write runs in Revit's API context through an external event.
-    /// Port of brn_main.py.
+    /// With sheets selected a third tab, Parameter Push, splits each sheet's name into parts and writes them
+    /// to the parameters chosen there (the Sheet Name Push tool).
+    /// Port of brn_main.py, with Sheet Name Push folded in.
     /// </summary>
     internal sealed class BrnWindow : BrnThemedWindow
     {
         private const double ListMaxWidth = 640.0;
         private const int WatchdogSeconds = 20;
+        private const string None = "(none)";
+
+        private static readonly string[] DefaultParams = { "BGL_Sheet Title 1", "BGL_Sheet Title 2", "BGL_Sheet Title 3" };
 
         /// <summary>The window that is open, so a second run replaces it instead of stacking another.</summary>
         internal static BrnWindow Current;
@@ -102,6 +167,7 @@ namespace RevoBIM.UI.BulkRename
         private readonly bool hasSheets;
         private readonly bool mixed;
         private readonly Dictionary<long, BrnRowView> views = new Dictionary<long, BrnRowView>();
+        private readonly Dictionary<long, BrnPushRowView> pushViews = new Dictionary<long, BrnPushRowView>();
         private readonly Dictionary<Field, Rules> rules = new Dictionary<Field, Rules>
         {
             { Field.Name, new Rules() }, { Field.Number, new Rules() },
@@ -110,17 +176,20 @@ namespace RevoBIM.UI.BulkRename
         private Dictionary<string, HashSet<string>> taken;
         private List<Item> items = new List<Item>();
         private Field field = Field.Name;
+        private bool onPush;
         private bool busy;
         private bool loading;
         private DispatcherTimer watchdog;
 
-        private readonly TextBox findBox, replaceBox, prefixBox, suffixBox;
+        private readonly TextBox findBox, replaceBox, prefixBox, suffixBox, pushDelimiter;
         private readonly CheckBox caseBox, debugBox;
         private readonly Panel listHost;
         private readonly ScrollViewer listScroller;
-        private readonly TextBlock listHeading, status, applyText, tabNameText, tabNumberText;
-        private readonly Button applyBtn, clearBtn, writeBtn, settingsBtn;
-        private readonly RadioButton tabName, tabNumber;
+        private readonly TextBlock listHeading, status, applyText, tabNameText, tabNumberText, tabPushText;
+        private readonly Button applyBtn, clearBtn, pushDefaultsBtn;
+        private readonly RadioButton tabName, tabNumber, tabPush, fmtUpper, fmtTitle, fmtNone;
+        private readonly UIElement renameTools, pushTools;
+        private readonly List<ComboBox> pushCombos = new List<ComboBox>();
 
         public BrnWindow(UIApplication uiapp, Dictionary<string, string> settings, BrnLog log, Document doc,
                          List<Row> rows, Dictionary<string, HashSet<string>> taken, int leftOut, BrnRunner runner,
@@ -150,18 +219,30 @@ namespace RevoBIM.UI.BulkRename
             clearBtn = (Button)Win.FindName("ClearBtn");
             tabName = (RadioButton)Win.FindName("TabName");
             tabNumber = (RadioButton)Win.FindName("TabNumber");
+            tabPush = (RadioButton)Win.FindName("TabPush");
             tabNameText = (TextBlock)Win.FindName("TabNameText");
             tabNumberText = (TextBlock)Win.FindName("TabNumberText");
+            tabPushText = (TextBlock)Win.FindName("TabPushText");
             debugBox = (CheckBox)Win.FindName("DebugBox");
-            writeBtn = (Button)Win.FindName("WriteBtn");
-            settingsBtn = (Button)Win.FindName("SettingsBtn");
+            renameTools = (UIElement)Win.FindName("RenameTools");
+            pushTools = (UIElement)Win.FindName("PushTools");
+            pushDelimiter = (TextBox)Win.FindName("PushDelimiter");
+            pushDefaultsBtn = (Button)Win.FindName("PushDefaultsBtn");
+            fmtUpper = (RadioButton)Win.FindName("FmtUpper");
+            fmtTitle = (RadioButton)Win.FindName("FmtTitle");
+            fmtNone = (RadioButton)Win.FindName("FmtNone");
+            for (int i = 1; i <= 3; i++) pushCombos.Add((ComboBox)Win.FindName("PushParam" + i));
 
             string debug;
             debugBox.IsChecked = !settings.TryGetValue("debug", out debug) || debug == "1";
-            writeBtn.Visibility = hasSheets ? Visibility.Visible : Visibility.Collapsed;
             ((UIElement)Win.FindName("TabBar")).Visibility = hasSheets ? Visibility.Visible : Visibility.Collapsed;
 
-            foreach (Row row in rows) views[row.Key] = new BrnRowView();
+            foreach (Row row in rows)
+            {
+                views[row.Key] = new BrnRowView();
+                if (row.Has(Field.Number)) pushViews[row.Key] = new BrnPushRowView();
+            }
+            LoadPushSettings();
             Fit();
             WireTools();
             OwnToRevit();
@@ -190,6 +271,7 @@ namespace RevoBIM.UI.BulkRename
             Win.Height = height;
             listScroller.ClearValue(FrameworkElement.MaxHeightProperty);
             listScroller.ClearValue(FrameworkElement.MaxWidthProperty);
+            // The Parameter Push tools are taller than the rename ones: never start shorter than they need.
             Win.MinHeight = Math.Min(height, 300.0);
             findBox.Focus();
         }
@@ -199,10 +281,21 @@ namespace RevoBIM.UI.BulkRename
             listHost.Children.Clear();
             foreach (Row row in rows)
             {
-                if (row.Has(field)) listHost.Children.Add(views[row.Key].Border);
+                if (onPush)
+                {
+                    if (row.Has(Field.Number)) listHost.Children.Add(pushViews[row.Key].Border);
+                }
+                else if (row.Has(field))
+                {
+                    listHost.Children.Add(views[row.Key].Border);
+                }
             }
-            string text = BrnCore.Plural(listHost.Children.Count, "item") + " selected";
-            if (leftOut > 0) text += ", " + leftOut + " cannot be renamed here";
+            string text = BrnCore.Plural(listHost.Children.Count, onPush ? "sheet" : "item") + " selected";
+            if (leftOut > 0 || (onPush && rows.Count > listHost.Children.Count))
+            {
+                int other = leftOut + (onPush ? rows.Count - listHost.Children.Count : 0);
+                text += ", " + other + " cannot be " + (onPush ? "pushed" : "renamed") + " here";
+            }
             listHeading.Text = text;
         }
 
@@ -212,13 +305,18 @@ namespace RevoBIM.UI.BulkRename
             foreach (TextBox box in new[] { findBox, replaceBox, prefixBox, suffixBox })
                 box.TextChanged += (s, a) => Guard("rule", OnRuleChanged);
             caseBox.Click += (s, a) => Guard("rule", OnRuleChanged);
-            tabName.Checked += (s, a) => Guard("tab", () => SetField(Field.Name));
-            tabNumber.Checked += (s, a) => Guard("tab", () => SetField(Field.Number));
+            tabName.Checked += (s, a) => Guard("tab", () => Select(false, Field.Name));
+            tabNumber.Checked += (s, a) => Guard("tab", () => Select(false, Field.Number));
+            tabPush.Checked += (s, a) => Guard("tab", () => Select(true, field));
             applyBtn.Click += (s, a) => Guard("apply", OnApply);
             clearBtn.Click += (s, a) => Guard("clear", OnClear);
-            writeBtn.Click += (s, a) => Guard("write", OnWrite);
-            settingsBtn.Click += (s, a) => Guard("settings", OnSettings);
             debugBox.Click += (s, a) => Guard("debug", OnDebug);
+            foreach (ComboBox combo in pushCombos)
+                combo.SelectionChanged += (s, a) => Guard("push", OnPushChanged);
+            pushDelimiter.TextChanged += (s, a) => Guard("push", OnPushChanged);
+            foreach (RadioButton radio in new[] { fmtUpper, fmtTitle, fmtNone })
+                radio.Click += (s, a) => Guard("push", OnPushChanged);
+            pushDefaultsBtn.Click += (s, a) => Guard("push", OnPushDefaults);
             ShowField();
         }
 
@@ -260,11 +358,16 @@ namespace RevoBIM.UI.BulkRename
             }
         }
 
-        private void SetField(Field next)
+        /// <summary>Switch tab. The Parameter Push tab keeps the field the rename tabs were last on.</summary>
+        private void Select(bool push, Field next)
         {
-            if (next == field) return;
-            field = next;
-            LoadTools();
+            if (push == onPush && (push || next == field)) return;
+            onPush = push;
+            if (!push) field = next;
+            renameTools.Visibility = push ? Visibility.Collapsed : Visibility.Visible;
+            pushTools.Visibility = push ? Visibility.Visible : Visibility.Collapsed;
+            clearBtn.Visibility = push ? Visibility.Collapsed : Visibility.Visible;
+            if (!push) LoadTools();
             ShowField();
             Refresh();
             WidenToFit();
@@ -286,11 +389,23 @@ namespace RevoBIM.UI.BulkRename
         private void WidenToFit()
         {
             var pairs = new List<Tuple<double, double>>();
-            foreach (Item item in items)
+            if (onPush)
             {
-                if (item.Field != field) continue;
-                pairs.Add(Tuple.Create(TextWidth(item.Final, Win.FontSize, FontWeights.SemiBold),
-                                       TextWidth(ContextFor(item), 11)));
+                foreach (Row row in rows.Where(r => r.Has(Field.Number)))
+                {
+                    var writes = PushWrites(row);
+                    pairs.Add(Tuple.Create(TextWidth(row.Values[Field.Number], 11) + 76 + TextWidth(FinalName(row), Win.FontSize),
+                                           TextWidth(BrnPushRowView.ResultText(writes), Win.FontSize, FontWeights.SemiBold)));
+                }
+            }
+            else
+            {
+                foreach (Item item in items)
+                {
+                    if (item.Field != field) continue;
+                    pairs.Add(Tuple.Create(TextWidth(item.Final, Win.FontSize, FontWeights.SemiBold),
+                                           TextWidth(ContextFor(item), 11)));
+                }
             }
             double extra = BrnCore.ListWidth(pairs) - listScroller.ActualWidth;
             Rect4 area = WorkArea();
@@ -308,8 +423,87 @@ namespace RevoBIM.UI.BulkRename
         {
             rules[Field.Name] = new Rules();
             rules[Field.Number] = new Rules();
-            LoadTools();
+            if (!onPush) LoadTools();
             Refresh();
+        }
+
+        // ---------- parameter push settings ----------
+        private string SettingOf(string key)
+        {
+            string value;
+            return Settings.TryGetValue(key, out value) ? value ?? "" : "";
+        }
+
+        private void LoadPushSettings()
+        {
+            loading = true;
+            try
+            {
+                for (int i = 0; i < pushCombos.Count; i++)
+                {
+                    ComboBox combo = pushCombos[i];
+                    string current = SettingOf(BrnCore.ParamKeys[i]);
+                    combo.Items.Clear();
+                    combo.Items.Add(None);
+                    var names = new List<string>(parameters);
+                    foreach (string wanted in DefaultParams.Concat(new[] { current }))
+                    {
+                        if (wanted.Length > 0 && !names.Contains(wanted)) names.Insert(0, wanted);
+                    }
+                    foreach (string name in names) combo.Items.Add(name);
+                    combo.SelectedItem = current.Length > 0 ? current : None;
+                }
+                pushDelimiter.Text = SettingOf("sheet_delimiter");
+                string format = SettingOf("sheet_format");
+                fmtUpper.IsChecked = format == "upper";
+                fmtTitle.IsChecked = format == "title";
+                fmtNone.IsChecked = format != "upper" && format != "title";
+            }
+            finally
+            {
+                loading = false;
+            }
+        }
+
+        /// <summary>Remembered at once, for the next run.</summary>
+        private void OnPushChanged()
+        {
+            if (loading) return;
+            for (int i = 0; i < pushCombos.Count; i++)
+            {
+                string value = pushCombos[i].SelectedItem as string ?? "";
+                Settings[BrnCore.ParamKeys[i]] = value == None ? "" : value;
+            }
+            Settings["sheet_delimiter"] = pushDelimiter.Text ?? "";
+            Settings["sheet_format"] = fmtUpper.IsChecked == true ? "upper" : fmtTitle.IsChecked == true ? "title" : "none";
+            BrnCore.SaveSettings(Settings);
+            Refresh();
+        }
+
+        private void OnPushDefaults()
+        {
+            for (int i = 0; i < DefaultParams.Length; i++) Settings[BrnCore.ParamKeys[i]] = DefaultParams[i];
+            Settings["sheet_delimiter"] = BrnCore.Defaults["sheet_delimiter"];
+            BrnCore.SaveSettings(Settings);
+            LoadPushSettings();
+            Refresh();
+        }
+
+        /// <summary>The sheet's name as it will be once any staged rename is applied.</summary>
+        private string FinalName(Row row)
+        {
+            Item item = items.FirstOrDefault(i => ReferenceEquals(i.Row, row) && i.Field == Field.Name);
+            return item != null ? item.Final : row.Values[Field.Name];
+        }
+
+        private List<KeyValuePair<string, string>> PushWrites(Row row)
+        {
+            return BrnCore.SheetWrites(FinalName(row), Settings);
+        }
+
+        private int PushSheetCount()
+        {
+            return rows.Count(r => r.Has(Field.Number));
         }
 
         // ---------- preview ----------
@@ -318,17 +512,35 @@ namespace RevoBIM.UI.BulkRename
             items = BrnCore.Evaluate(rows, rules, taken);
             foreach (Item item in items)
             {
-                if (item.Field == field) views[item.Row.Key].Show(item, ContextFor(item));
+                if (!onPush && item.Field == field) views[item.Row.Key].Show(item, ContextFor(item));
             }
-            status.Text = BrnCore.StatusLine(items);
             int count = BrnCore.Changes(items).Count;
-            applyText.Text = count > 0 ? "Apply (" + count + ")" : "Apply";
-            applyBtn.IsEnabled = count > 0 && !busy;
+            if (onPush)
+            {
+                foreach (Row row in rows.Where(r => r.Has(Field.Number)))
+                    pushViews[row.Key].Show(row.Values[Field.Number], FinalName(row), PushWrites(row));
+                int sheets = PushSheetCount();
+                int targets = BrnCore.SheetWrites("x", Settings).Count;
+                status.Text = targets == 0
+                    ? "Choose at least one parameter to push to."
+                    : BrnCore.Plural(sheets, "sheet") + " will be written to " + BrnCore.Plural(targets, "parameter") +
+                      " (" + BrnCore.FormatLabel(SettingOf("sheet_format")) + ")" +
+                      (count > 0 ? ", after " + BrnCore.Plural(count, "rename") : "");
+                applyText.Text = "Push (" + sheets + ")";
+                applyBtn.IsEnabled = targets > 0 && sheets > 0 && !busy;
+            }
+            else
+            {
+                status.Text = BrnCore.StatusLine(items);
+                applyText.Text = count > 0 ? "Apply (" + count + ")" : "Apply";
+                applyBtn.IsEnabled = count > 0 && !busy;
+            }
             clearBtn.IsEnabled = !rules.Values.All(r => r.IsEmpty);
             if (hasSheets)
             {
                 tabNameText.Text = TabLabel("Sheet Name", Field.Name);
                 tabNumberText.Text = TabLabel("Sheet Number", Field.Number);
+                tabPushText.Text = "Parameter Push";
             }
         }
 
@@ -349,9 +561,14 @@ namespace RevoBIM.UI.BulkRename
             return mixed ? row.Kind : "";
         }
 
-        // ---------- apply ----------
+        // ---------- apply and push ----------
         private void OnApply()
         {
+            if (onPush)
+            {
+                OnPush();
+                return;
+            }
             if (busy || BrnCore.Changes(items).Count == 0) return;
             SetBusy(true);
             status.Text = "Renaming...";
@@ -361,8 +578,7 @@ namespace RevoBIM.UI.BulkRename
         private void SetBusy(bool value)
         {
             busy = value;
-            applyBtn.IsEnabled = !value && BrnCore.Changes(items).Count > 0;
-            writeBtn.IsEnabled = !value;
+            Refresh();
         }
 
         /// <summary>Runs inside Revit's API context.</summary>
@@ -410,39 +626,30 @@ namespace RevoBIM.UI.BulkRename
             });
         }
 
-        // ---------- write sheet names ----------
-        private void OnSettings()
-        {
-            if (busy) return;
-            Row sheet = rows.FirstOrDefault(r => r.Has(Field.Number));
-            string sample = sheet != null ? sheet.Values[Field.Name] : "NAME_ONE_TWO";
-            new BrnSettingsWindow(Uiapp, Settings, Log, this, parameters, sample).Run();
-        }
-
-        private void OnWrite()
+        private void OnPush()
         {
             if (busy) return;
             if (BrnCore.SheetWrites("x", Settings).Count == 0)
             {
-                OnSettings();
+                status.Text = "Choose at least one parameter to push to.";
                 return;
             }
             int waiting = BrnCore.Changes(items).Count;
             if (waiting > 0)
             {
                 bool go = BrnDialogs.Ask(Uiapp, Settings, Log,
-                    "Apply the " + BrnCore.Plural(waiting, "change") + " first, then write the sheet names?",
-                    "Apply and write", "Cancel", this);
+                    "Apply the " + BrnCore.Plural(waiting, "rename") + " first, then push the sheet names?",
+                    "Apply and push", "Cancel", this);
                 if (!go) return;
             }
             SetBusy(true);
-            status.Text = "Writing sheet names...";
+            status.Text = "Pushing sheet names...";
             bool rename = waiting > 0;
-            if (runner.Submit(() => WriteJob(rename), OnRefused)) StartWatchdog();
+            if (runner.Submit(() => PushJob(rename), OnRefused)) StartWatchdog();
         }
 
         /// <summary>Runs inside Revit's API context.</summary>
-        private void WriteJob(bool rename)
+        private void PushJob(bool rename)
         {
             BrnReport report;
             try
@@ -459,26 +666,50 @@ namespace RevoBIM.UI.BulkRename
             }
             catch (Exception err)
             {
-                Log.Write("write: " + err);
+                Log.Write("push: " + err);
                 report = new BrnReport();
-                report.Failed.Add(new Failure(null, "Revit stopped the write: " + err.Message));
+                report.Failed.Add(new Failure(null, "Revit stopped the push: " + err.Message));
             }
-            Win.Dispatcher.BeginInvoke(new Action(() => AfterWrite(report, rename)));
+            Win.Dispatcher.BeginInvoke(new Action(() => AfterPush(report, rename)));
         }
 
-        private void AfterWrite(BrnReport report, bool rename)
+        private void AfterPush(BrnReport report, bool rename)
         {
-            Guard("after_write", () =>
+            Guard("after_push", () =>
             {
                 StopWatchdog();
                 SetBusy(false);
-                Log.Write("wrote " + report.Written + ", failed " + report.Failed.Count);
+                Log.Write("pushed " + report.Written + ", failed " + report.Failed.Count);
                 if (report.Taken != null) taken = report.Taken;
                 if (rename) OnClear();
-                status.Text = "Sheet names written on " + BrnCore.Plural(report.Written, "sheet");
-                if (report.Failed.Count > 0)
-                    ShowFailed(report, report.Written + " written, " + report.Failed.Count + " not.");
+                int ok = report.Lines.Count(l => l.Status == "OK");
+                int problems = report.Lines.Count - ok + report.Failed.Count(f => f.Row == null || !f.Push);
+                status.Text = "Pushed " + BrnCore.Plural(report.Written, "sheet") + (problems > 0 ? ", " + problems + " to look at" : "");
+                ShowPushResults(report, rename, ok, problems);
             });
+        }
+
+        /// <summary>The results of a push: what each parameter was set to, and anything that was not.</summary>
+        private void ShowPushResults(BrnReport report, bool rename, int ok, int problems)
+        {
+            var lines = new List<string>();
+            foreach (PushLine line in report.Lines)
+            {
+                string mark = line.Status == "OK" ? "  " : "! ";
+                lines.Add(mark + line.Number + "  " + line.Name + "  |  " + line.Param + " = " +
+                          (line.Value != null && line.Value.Length > 0 ? line.Value : "(blank)") + "  -  " + line.Status);
+            }
+            foreach (Failure failure in report.Failed.Where(f => f.Row == null || !f.Push))
+            {
+                string who = failure.Row != null ? failure.Row.Values[Field.Name] : "Whole job";
+                lines.Add("! " + who + ": " + failure.Reason);
+            }
+            int sheets = report.Lines.Select(l => l.Number).Distinct().Count();
+            string message = BrnCore.Plural(sheets, "sheet") + " - " + BrnCore.Plural(ok, "parameter") + " written - text format: " +
+                             BrnCore.FormatLabel(SettingOf("sheet_format")) +
+                             (rename ? " - " + report.Done + " renamed first" : "") + "\n" +
+                             (problems > 0 ? BrnCore.Plural(problems, "item") + " need a look (marked !)." : "Everything written cleanly.");
+            BrnDialogs.Tell(Uiapp, Settings, Log, message, "Parameter Push", string.Join("\n", lines), this, true);
         }
 
         private void ShowFailed(BrnReport report, string message)
@@ -495,7 +726,7 @@ namespace RevoBIM.UI.BulkRename
         private void OnRefused(string answer)
         {
             SetBusy(false);
-            status.Text = "Revit would not take the rename (" + answer + "). Try again.";
+            status.Text = "Revit would not take the request (" + answer + "). Try again.";
         }
 
         private void StartWatchdog()
@@ -517,7 +748,7 @@ namespace RevoBIM.UI.BulkRename
             StopWatchdog();
             Log.Write("watchdog: Revit has not picked up the job");
             SetBusy(false);
-            status.Text = "Revit is busy. The rename runs when it is free.";
+            status.Text = "Revit is busy. The job runs when it is free.";
         }
 
         // ---------- lifetime ----------

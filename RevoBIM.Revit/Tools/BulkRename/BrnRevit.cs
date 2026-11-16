@@ -11,19 +11,32 @@ namespace RevoBIM.Tools.BulkRename
     {
         public readonly Row Row;
         public readonly string Reason;
+        /// <summary>True when it came from the Parameter Push rather than a rename.</summary>
+        public readonly bool Push;
 
-        public Failure(Row row, string reason)
+        public Failure(Row row, string reason, bool push = false)
         {
             Row = row;
             Reason = reason;
+            Push = push;
         }
     }
 
+    /// <summary>One parameter of one sheet in the Parameter Push results.</summary>
+    public sealed class PushLine
+    {
+        public string Number;
+        public string Name;
+        public string Param;
+        public string Value;
+        public string Status;
+    }
     /// <summary>What a rename or a sheet-name write did.</summary>
     public sealed class BrnReport
     {
         public int Done;
         public int Written;
+        public readonly List<PushLine> Lines = new List<PushLine>();
         public readonly List<Failure> Failed = new List<Failure>();
         public Dictionary<string, HashSet<string>> Taken;
     }
@@ -443,29 +456,65 @@ namespace RevoBIM.Tools.BulkRename
             problem = null;
             if (param == null)
             {
-                problem = "No parameter " + paramName + " on this sheet";
+                problem = "missing parameter";
                 return null;
             }
-            if (param.IsReadOnly || param.StorageType != StorageType.String)
+            if (param.IsReadOnly)
             {
-                problem = paramName + " is not an editable text parameter";
+                problem = "read-only";
+                return null;
+            }
+            if (param.StorageType != StorageType.String)
+            {
+                problem = "not a text parameter";
                 return null;
             }
             return param;
         }
 
-        private static void WriteSheetRow(Document doc, Row row, IEnumerable<KeyValuePair<string, string>> pairs)
+        private static PushLine MakeLine(Element sheet, string param, string value, string status)
+        {
+            var viewSheet = sheet as ViewSheet;
+            return new PushLine
+            {
+                Number = viewSheet != null ? viewSheet.SheetNumber ?? "" : "",
+                Name = ReadName(sheet),
+                Param = param,
+                Value = value,
+                Status = status,
+            };
+        }
+
+        /// <summary>
+        /// Writes each part to its parameter. A parameter that is missing or read-only is reported on its
+        /// own line and the others are still written.
+        /// </summary>
+        private static List<PushLine> WriteSheetRow(Document doc, Row row, IEnumerable<KeyValuePair<string, string>> pairs)
         {
             Element sheet = doc.GetElement(row.Id);
+            var lines = new List<PushLine>();
             foreach (KeyValuePair<string, string> pair in pairs)
             {
                 string problem;
                 Parameter param = ParamFor(sheet, pair.Key, out problem);
-                if (problem != null) throw new InvalidOperationException(problem);
-                param.Set(pair.Value);
-                if ((param.AsString() ?? "") != pair.Value)
-                    throw new InvalidOperationException(pair.Key + " did not take the value");
+                if (problem != null)
+                {
+                    lines.Add(MakeLine(sheet, pair.Key, pair.Value, problem));
+                    continue;
+                }
+                string status;
+                try
+                {
+                    param.Set(pair.Value);
+                    status = (param.AsString() ?? "") == pair.Value ? "OK" : "did not take the value";
+                }
+                catch (Exception err)
+                {
+                    status = "error: " + err.Message;
+                }
+                lines.Add(MakeLine(sheet, pair.Key, pair.Value, status));
             }
+            return lines;
         }
 
         private static bool NeedsWrite(Element sheet, IEnumerable<KeyValuePair<string, string>> pairs)
@@ -478,50 +527,71 @@ namespace RevoBIM.Tools.BulkRename
             return false;
         }
 
+        private sealed class PushWork
+        {
+            public Row Row;
+            public List<KeyValuePair<string, string>> Pairs;
+            public List<PushLine> Lines;
+        }
+
         /// <summary>
-        /// The sheet's name as it stands in the model goes into the parameters. Sheets already right are
-        /// not borrowed or touched.
+        /// The Parameter Push: each sheet's name, as it stands in the model, is split and written to the
+        /// target parameters. Sheets already right are not borrowed or touched. report.Lines gets one line
+        /// per parameter, for the results window.
         /// </summary>
         public static void WriteSheetNames(Document doc, IEnumerable<Row> rows, IDictionary<string, string> settings,
                                            BrnReport report, BrnLog log)
         {
-            var work = new List<KeyValuePair<Row, List<KeyValuePair<string, string>>>>();
+            var work = new List<PushWork>();
             foreach (Row row in rows)
             {
                 if (!row.Has(Field.Number)) continue;
                 Element sheet = doc.GetElement(row.Id);
                 if (sheet == null)
                 {
-                    report.Failed.Add(new Failure(row, "No longer in the model"));
+                    report.Failed.Add(new Failure(row, "No longer in the model", true));
                     continue;
                 }
                 List<KeyValuePair<string, string>> pairs = BrnCore.SheetWrites(ReadName(sheet), settings);
-                if (NeedsWrite(sheet, pairs)) work.Add(new KeyValuePair<Row, List<KeyValuePair<string, string>>>(row, pairs));
-                else report.Written++;
+                if (NeedsWrite(sheet, pairs))
+                {
+                    work.Add(new PushWork { Row = row, Pairs = pairs });
+                }
+                else
+                {
+                    foreach (KeyValuePair<string, string> pair in pairs)
+                        report.Lines.Add(MakeLine(sheet, pair.Key, pair.Value, "OK"));
+                    report.Written++;
+                }
             }
             if (work.Count == 0) return;
-            Dictionary<long, string> owners = Borrow(doc, work.Select(w => w.Key));
-            var done = new List<KeyValuePair<Row, List<KeyValuePair<string, string>>>>();
+            Dictionary<long, string> owners = Borrow(doc, work.Select(w => w.Row));
+            var done = new List<PushWork>();
             using (var tx = new Transaction(doc, "Write Sheet names"))
             {
                 QuietFailures(tx);
                 tx.Start();
                 try
                 {
-                    foreach (var entry in work)
+                    foreach (PushWork entry in work)
                     {
-                        Row row = entry.Key;
-                        if (owners.ContainsKey(row.Key))
+                        Element sheet = doc.GetElement(entry.Row.Id);
+                        if (owners.ContainsKey(entry.Row.Key))
                         {
-                            report.Failed.Add(new Failure(row, "Owned by " + owners[row.Key]));
+                            string held = "Owned by " + owners[entry.Row.Key];
+                            foreach (KeyValuePair<string, string> pair in entry.Pairs)
+                                report.Lines.Add(MakeLine(sheet, pair.Key, pair.Value, held));
+                            report.Failed.Add(new Failure(entry.Row, held, true));
                             continue;
                         }
-                        var pairs = entry.Value;
-                        string error = InSub(doc, () => WriteSheetRow(doc, row, pairs));
+                        PushWork current = entry;
+                        string error = InSub(doc, () => current.Lines = WriteSheetRow(doc, current.Row, current.Pairs));
                         if (error != null)
                         {
-                            log.Write("sheet " + row.Key + ": " + error);
-                            report.Failed.Add(new Failure(row, error));
+                            log.Write("sheet " + entry.Row.Key + ": " + error);
+                            foreach (KeyValuePair<string, string> pair in entry.Pairs)
+                                report.Lines.Add(MakeLine(sheet, pair.Key, pair.Value, "error: " + error));
+                            report.Failed.Add(new Failure(entry.Row, error, true));
                         }
                         else
                         {
@@ -537,19 +607,25 @@ namespace RevoBIM.Tools.BulkRename
                 TransactionStatus status = tx.Commit();
                 if (status != TransactionStatus.Committed)
                 {
-                    report.Failed.Add(new Failure(null, "Revit rolled the write back (" + status + ")"));
+                    report.Failed.Add(new Failure(null, "Revit rolled the write back (" + status + ")", true));
                     return;
                 }
             }
-            foreach (var entry in done)
+            foreach (PushWork entry in done)
             {
-                if (NeedsWrite(doc.GetElement(entry.Key.Id), entry.Value))
-                    report.Failed.Add(new Failure(entry.Key, "Values did not stay"));
-                else
-                    report.Written++;
+                Element sheet = doc.GetElement(entry.Row.Id);
+                bool stayed = !NeedsWrite(sheet, entry.Pairs.Where(p => entry.Lines.Any(l => l.Param == p.Key && l.Status == "OK")));
+                var problems = new List<string>();
+                foreach (PushLine line in entry.Lines)
+                {
+                    if (line.Status == "OK" && !stayed) line.Status = "did not stay";
+                    report.Lines.Add(line);
+                    if (line.Status != "OK") problems.Add(line.Param + ": " + line.Status);
+                }
+                if (problems.Count == 0) report.Written++;
+                else report.Failed.Add(new Failure(entry.Row, string.Join("; ", problems), true));
             }
         }
-
         /// <summary>The rename (when one is waiting) and the sheet-name write, as one undo step.</summary>
         public static BrnReport RenameAndWrite(Document doc, IList<Row> rows, IDictionary<Field, Rules> rules,
                                                IDictionary<string, string> settings, bool rename, BrnLog log)
