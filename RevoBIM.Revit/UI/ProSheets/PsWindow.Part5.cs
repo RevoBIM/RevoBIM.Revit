@@ -228,9 +228,9 @@ namespace RevoBIM.UI.ProSheets
 
             /// <summary>
             /// Whatever was selected in Revit before the tool opened arrives ticked, and
-            /// the list scrolls to it once the window is on screen (ScrollToPreselection).
-            /// Changed from the pyRevit original at the user's request: every other
-            /// sheet stays showing. Untick "Show all" to isolate the selection as before.
+            /// the list is filtered to it: only the selected sheets (or views) show. Tick
+            /// "Show all" to bring every other row back. Sheets were briefly left showing
+            /// and scrolled to; the user asked for the filter again, as in the original.
             /// </summary>
             internal void ApplyPreselection()
             {
@@ -238,14 +238,67 @@ namespace RevoBIM.UI.ProSheets
                 if (picked == null || picked.Count == 0)
                     return;
                 PreselectedKeys = new HashSet<long>(picked.Select(row => row.Key));
-                IsolatedKeys = null;
+                IsolatedKeys = new HashSet<long>(PreselectedKeys);
                 PsUi.SetVisible(C("ShowAllCheck"), true);
-                // Opened on views from the right-click menu: only the selected views show.
-                bool isolate = OpenInViewsRequest && IsViewsMode();
-                SetChecked(C("ShowAllCheck"), !isolate);
-                if (isolate)
-                    IsolatedKeys = new HashSet<long>(PreselectedKeys);
+                SetChecked(C("ShowAllCheck"), false);
                 SayIsolation();
+            }
+
+            /// <summary>
+            /// The window is already open and the tool was started again with sheets selected
+            /// in Revit (the ribbon button, the Modify tab or right-click "Open in ProSheets"):
+            /// go to the Selection tab's Sheets list, tick the selected sheets and show only
+            /// those. With no sheet selected this does nothing, so a click that only means
+            /// "bring the window forward" leaves the list as it was.
+            /// </summary>
+            internal void ShowSheetsSelection()
+            {
+                bool wasViews = IsViewsMode();
+                // In the Views list, only a sheet picked directly is worth leaving it for.
+                if (wasViews && !SelectionHoldsSheet())
+                    return;
+                if (wasViews)
+                {
+                    try
+                    {
+                        C<ToggleButton>("ViewsRadio").IsChecked = false;
+                        C<ToggleButton>("SheetsRadio").IsChecked = true;
+                    }
+                    catch (Exception)
+                    {
+                    }
+                }
+                List<PsModel.Row> picked = PsModel.PreselectedRows(Uidoc, Rows);
+                if (picked == null || picked.Count == 0)
+                    return;
+                SetTab(TabSelection);
+                PreselectedKeys = new HashSet<long>(picked.Select(row => row.Key));
+                FirstFill = true;
+                FillTable();
+                PsUi.SetVisible(C("ShowAllCheck"), true);
+                SetChecked(C("ShowAllCheck"), false);
+                IsolatedKeys = new HashSet<long>(PreselectedKeys);
+                ApplyFilters();
+                RefreshCounts();
+                SayIsolation();
+                ScrollToPreselection();
+            }
+
+            /// <summary>True when a sheet itself is part of Revit's current selection.</summary>
+            internal bool SelectionHoldsSheet()
+            {
+                try
+                {
+                    foreach (Autodesk.Revit.DB.ElementId id in Uidoc.Selection.GetElementIds())
+                    {
+                        if (Doc.GetElement(id) is Autodesk.Revit.DB.ViewSheet)
+                            return true;
+                    }
+                }
+                catch (Exception)
+                {
+                }
+                return false;
             }
 
             /// <summary>

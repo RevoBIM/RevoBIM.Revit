@@ -289,6 +289,18 @@ namespace RevoBIM.UI.ProSheets
                         ProSheetsWindow.OpenInViewsRequest = false;
                         Window.ShowViewsSelection();
                     }
+                    else
+                    {
+                        // Sheets selected in Revit: filter the open list to them. Kept apart
+                        // from the try's fallback, which would build a second window.
+                        try
+                        {
+                            Window.ShowSheetsSelection();
+                        }
+                        catch (Exception)
+                        {
+                        }
+                    }
                     return Window;
                 }
                 catch (Exception)
