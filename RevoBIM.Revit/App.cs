@@ -85,6 +85,19 @@ namespace RevoBIM
             };
             coordination.AddStackedItems(nudgeUp, nudgeDown, nudgeSettings);
 
+            // --- FAB Automation (pyRevit: FAB Automation.panel)
+            RibbonPanel fabAutomation = app.CreateRibbonPanel(TabName, "FAB Automation");
+            var hangerAutomation = new PushButtonData(
+                "RevoBIM_HangerAutomation", "Hanger\nAutomation", dll, typeof(Commands.HangerAutomationCommand).FullName)
+            {
+                ToolTip = "Fabrication and family hangers - place, size, re-align and extend hangers on duct runs, " +
+                          "with DW/144 spacing and chained dimensions.",
+                AvailabilityClassName = typeof(Commands.ProjectDocumentAvailability).FullName,
+                LargeImage = Icon("HangerAutomation", 32),
+                Image = Icon("HangerAutomation", 16),
+            };
+            fabAutomation.AddItem(hangerAutomation);
+
             // --- Management (pyRevit: Management.panel)
             RibbonPanel management = app.CreateRibbonPanel(TabName, "Management");
             var excelForRevit = new PushButtonData(

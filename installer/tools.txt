@@ -12,6 +12,7 @@ Coordination|NudgeDown|Nudge Down|Lower selected elements by the Nudge increment
 Coordination|NudgeSettings|Nudge Settings|Set the Nudge increment and how the buttons behave.
 Coordination|BulkRename|Bulk Rename|Find and replace, prefix or suffix across the views, sheets and families selected in the Project Browser.
 Coordination|Arcade|RevoBIM Arcade|Pacman, Tetris and Snake, in its own window.
+FAB Automation|HangerAutomation|Hanger Automation|Fabrication and family hangers: place, size, re-align and extend hangers on duct runs.
 Management|ExcelForRevit|Excel for Revit|Edit a schedule in a spreadsheet grid, then apply it in one transaction.
 Management|FilterManager|Filter Manager|Edit every view filter, see them all in a table, and push them between view templates.
 Management|ModelCleanup|Model Cleanup|Save a detached copy and strip it ready to send.
