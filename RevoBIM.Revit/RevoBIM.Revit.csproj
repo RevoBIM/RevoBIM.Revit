@@ -120,6 +120,14 @@
     <EmbeddedResource Include="UI\BulkRename\Layouts\*.xaml" LogicalName="RevoBIM.UI.BulkRename.Layouts.%(Filename)%(Extension)" />
   </ItemGroup>
 
+  <!-- Hanger Automation layouts: the pyRevit XAML verbatim, loaded at runtime by UI\HangerAutomation\FhaUi.cs.
+       Embedded as RevoBIM.UI.HangerAutomation.Layouts.<file>. -->
+  <ItemGroup>
+    <Page Remove="UI\HangerAutomation\Layouts\**" />
+    <None Remove="UI\HangerAutomation\Layouts\**" />
+    <EmbeddedResource Include="UI\HangerAutomation\Layouts\*.xaml" LogicalName="RevoBIM.UI.HangerAutomation.Layouts.%(Filename)%(Extension)" />
+  </ItemGroup>
+
   <!-- Per-user deploy for the version being built: no admin rights needed. Copies the DLL and writes the .addin manifest. -->
   <Target Name="DeployAddin" AfterTargets="Build">
     <MakeDir Directories="$(DeployDir);$(AddinDir)" />
