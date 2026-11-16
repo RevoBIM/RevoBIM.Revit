@@ -59,12 +59,21 @@ namespace RevoBIM.Tools.HangerAutomation
         /// <summary>NOT_ROUND.format(name, noun).</summary>
         private static string NotRoundText(string name, string noun)
         {
-            return NotRound.Replace("{0}", name).Replace("{1}", noun);
+            // {1} first: the noun never holds a placeholder, an element name might ("{1}" in a name must stay as typed)
+            return NotRound.Replace("{1}", noun).Replace("{0}", name);
         }
 
         /// <summary>Python "{0:.Nf}" for log lines.</summary>
         private static string Fm(double v, int decimals)
         {
+            if (decimals == 0)
+            {
+                // Python's '{0:.0f}' rounds an exact .5 to even ("-0" for a small negative); .NET "F0" rounds it away from zero
+                string s0 = Math.Round(v, MidpointRounding.ToEven).ToString("0", CultureInfo.InvariantCulture);
+                if ((s0 == "0" || s0 == "-0") && (v < 0 || (v == 0 && 1.0 / v < 0))) s0 = "-0";
+                else if (s0 == "-0") s0 = "0";
+                return s0;
+            }
             return v.ToString("F" + decimals.ToString(CultureInfo.InvariantCulture), CultureInfo.InvariantCulture);
         }
 
