@@ -104,6 +104,13 @@
     <EmbeddedResource Include="UI\ExcelForRevit\Layouts\*.xaml" LogicalName="RevoBIM.UI.ExcelForRevit.Layouts.%(Filename)%(Extension)" />
   </ItemGroup>
 
+  <!-- Bulk Rename layouts: the pyRevit XAML verbatim, loaded at runtime by UI\BulkRename\BrnChrome.cs.
+       Embedded as RevoBIM.UI.BulkRename.Layouts.<file>. -->
+  <ItemGroup>
+    <Page Remove="UI\BulkRename\Layouts\**" />
+    <None Remove="UI\BulkRename\Layouts\**" />
+    <EmbeddedResource Include="UI\BulkRename\Layouts\*.xaml" LogicalName="RevoBIM.UI.BulkRename.Layouts.%(Filename)%(Extension)" />
+  </ItemGroup>
   <!-- Per-user deploy for the version being built: no admin rights needed. Copies the DLL and writes the .addin manifest. -->
   <Target Name="DeployAddin" AfterTargets="Build">
     <MakeDir Directories="$(DeployDir);$(AddinDir)" />

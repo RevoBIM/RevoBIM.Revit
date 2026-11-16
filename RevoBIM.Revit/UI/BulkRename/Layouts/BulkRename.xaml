@@ -1,0 +1,171 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Bulk Rename" WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ResizeMode="NoResize" ShowInTaskbar="False" FontFamily="Segoe UI" FontSize="12.5"
+        SizeToContent="WidthAndHeight" MinWidth="620" WindowStartupLocation="CenterOwner">
+    <Border x:Name="Root" Background="{DynamicResource Window}" BorderBrush="{DynamicResource Edge}"
+            BorderThickness="1" CornerRadius="6">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <!-- ======== header ======== -->
+            <Border x:Name="Header" Grid.Row="0" Background="{DynamicResource Title}"
+                    CornerRadius="5,5,0,0" Padding="10,6,6,6">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Image x:Name="Logo" Grid.Column="0" Width="24" Height="24" Margin="0,0,8,0"/>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="RevoBIM" FontSize="20" FontWeight="Bold"
+                                   Foreground="{DynamicResource Blue}" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="PromptTitle" Text="Bulk Rename" FontSize="15" Margin="8,2,16,0"
+                                   Foreground="{DynamicResource Orange}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <Button x:Name="SettingsBtn" Grid.Column="2" HorizontalAlignment="Right" Margin="0,0,6,0"
+                            Style="{DynamicResource WinButton}" ToolTip="Settings">
+                        <Path Data="M7,1 L7,3 M7,11 L7,13 M1,7 L3,7 M11,7 L13,7 M2.8,2.8 L4.2,4.2 M9.8,9.8 L11.2,11.2 M2.8,11.2 L4.2,9.8 M9.8,4.2 L11.2,2.8 M10,7 A3,3 0 1 1 4,7 A3,3 0 1 1 10,7"
+                              StrokeThickness="1.5" Stroke="{DynamicResource Text}"/>
+                    </Button>
+                    <Button x:Name="ThemeChip" Grid.Column="3" Style="{DynamicResource ChipButton}"
+                            ToolTip="Theme: Auto follows the Revit canvas" Margin="0,0,8,0">
+                        <TextBlock x:Name="ThemeLabel" Text="Auto" Foreground="{DynamicResource Text}"/>
+                    </Button>
+                    <TextBlock x:Name="VersionText" Grid.Column="4" Text="v" FontSize="11" Margin="0,0,8,0"
+                               Foreground="{DynamicResource Muted}" VerticalAlignment="Center"/>
+                    <Button x:Name="ShrinkBtn" Grid.Column="5" Style="{DynamicResource WinButton}"
+                            ToolTip="Shrink to taskbar (Ctrl+Shift+H)">
+                        <Grid Width="14" Height="14">
+                            <Path x:Name="ShrinkGlyph" Data="M7,1 L7,9 M3,6 L7,10 L11,6 M2,13 L12,13"
+                                  StrokeThickness="1.5" Stroke="{DynamicResource Text}"/>
+                            <Path x:Name="ExpandGlyph" Data="M7,13 L7,3 M2.5,7.5 L7,2 L11.5,7.5"
+                                  StrokeThickness="2.2" Stroke="{DynamicResource Green}" Visibility="Collapsed"/>
+                        </Grid>
+                    </Button>
+                    <Button x:Name="FullBtn" Grid.Column="6" Style="{DynamicResource WinButton}"
+                            ToolTip="Full screen (F11)">
+                        <Border Width="11" Height="11" BorderThickness="1.4" BorderBrush="{DynamicResource Text}"/>
+                    </Button>
+                    <Button x:Name="CloseBtn" Grid.Column="7" Style="{DynamicResource CloseButton}" ToolTip="Close (Esc)">
+                        <Path Data="M0,0 L10,10 M10,0 L0,10" StrokeThickness="1.6" Stroke="{DynamicResource Text}"/>
+                    </Button>
+                </Grid>
+            </Border>
+            <!-- ======== sheet tabs, only when sheets are selected ======== -->
+            <Border x:Name="TabBar" Grid.Row="1" Background="{DynamicResource Title}" Visibility="Collapsed">
+                <StackPanel Orientation="Horizontal" Margin="10,0,0,0">
+                    <RadioButton x:Name="TabName" Style="{DynamicResource TabButton}" GroupName="Field" IsChecked="True">
+                        <TextBlock x:Name="TabNameText" Text="Sheet Name"/>
+                    </RadioButton>
+                    <RadioButton x:Name="TabNumber" Style="{DynamicResource TabButton}" GroupName="Field">
+                        <TextBlock x:Name="TabNumberText" Text="Sheet Number"/>
+                    </RadioButton>
+                </StackPanel>
+            </Border>
+            <!-- ======== tools left, items right ======== -->
+            <Grid Grid.Row="2" Margin="12,12,12,4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="260"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                    <Border Background="{DynamicResource Card}" BorderBrush="{DynamicResource Edge}" BorderThickness="1"
+                            CornerRadius="4" Padding="10,8" Margin="0,0,0,8">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                <Border Width="4" Height="14" CornerRadius="1" Margin="0,0,6,0" Background="{DynamicResource Blue}"/>
+                                <TextBlock Text="Find and Replace" FontWeight="SemiBold"/>
+                            </StackPanel>
+                            <TextBox x:Name="FindBox" Tag="Find" Margin="0,0,0,6"/>
+                            <TextBox x:Name="ReplaceBox" Tag="Replace with" Margin="0,0,0,6"/>
+                            <CheckBox x:Name="CaseBox" Content="Match case"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Background="{DynamicResource Card}" BorderBrush="{DynamicResource Edge}" BorderThickness="1"
+                            CornerRadius="4" Padding="10,8" Margin="0,0,0,8">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                <Border Width="4" Height="14" CornerRadius="1" Margin="0,0,6,0" Background="{DynamicResource Orange}"/>
+                                <TextBlock Text="Add Prefix" FontWeight="SemiBold"/>
+                            </StackPanel>
+                            <TextBox x:Name="PrefixBox" Tag="Text before the name"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Background="{DynamicResource Card}" BorderBrush="{DynamicResource Edge}" BorderThickness="1"
+                            CornerRadius="4" Padding="10,8" Margin="0,0,0,8">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                <Border Width="4" Height="14" CornerRadius="1" Margin="0,0,6,0" Background="{DynamicResource Green}"/>
+                                <TextBlock Text="Add Suffix" FontWeight="SemiBold"/>
+                            </StackPanel>
+                            <TextBox x:Name="SuffixBox" Tag="Text after the name"/>
+                        </StackPanel>
+                    </Border>
+                    <Button x:Name="WriteBtn" Style="{DynamicResource BaseButton}" Visibility="Collapsed"
+                            BorderBrush="{DynamicResource Orange}"
+                            ToolTip="Copy each sheet's name into the three parameters set in Settings">
+                        <TextBlock Text="Write Sheet names" FontWeight="SemiBold" Foreground="{DynamicResource Orange}"/>
+                    </Button>
+                </StackPanel>
+                <Grid Grid.Column="1" MinWidth="330">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock x:Name="ListHeading" Text="Selected items" Foreground="{DynamicResource Muted}" Margin="2,0,0,6"/>
+                    <Border Grid.Row="1" Background="{DynamicResource Field}" BorderBrush="{DynamicResource Edge}"
+                            BorderThickness="1" CornerRadius="4" Margin="0,0,0,8" Padding="0,4">
+                        <ScrollViewer x:Name="ListScroller" VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled">
+                            <StackPanel x:Name="ListHost"/>
+                        </ScrollViewer>
+                    </Border>
+                </Grid>
+            </Grid>
+            <!-- ======== footer ======== -->
+            <Border Grid.Row="3" Background="{DynamicResource Title}" CornerRadius="0,0,5,5" Padding="12,8">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <CheckBox x:Name="DebugBox" Grid.Column="0" Content="Debug" VerticalAlignment="Center"
+                              ToolTip="Writes bulk_rename_debug.txt in AppData\RevoBIM"/>
+                    <TextBlock x:Name="StatusText" Grid.Column="1" Margin="14,0" VerticalAlignment="Center"
+                               TextTrimming="CharacterEllipsis" Foreground="{DynamicResource Muted}"/>
+                    <Button x:Name="ClearBtn" Grid.Column="2" Style="{DynamicResource BaseButton}" Margin="0,0,8,0"
+                            IsEnabled="False" ToolTip="Empty all the tools">
+                        <TextBlock Text="Clear"/>
+                    </Button>
+                    <Button x:Name="ApplyBtn" Grid.Column="3" Style="{DynamicResource GreenButton}" IsEnabled="False">
+                        <TextBlock x:Name="ApplyText" Text="Apply" FontWeight="SemiBold" Foreground="{DynamicResource OnAccent}"/>
+                    </Button>
+                </Grid>
+            </Border>
+            <!-- ======== resize grips ======== -->
+            <Grid x:Name="Grips" Grid.RowSpan="4">
+                <Thumb x:Name="GripL" Style="{DynamicResource Grip}" Width="5" HorizontalAlignment="Left" Cursor="SizeWE"/>
+                <Thumb x:Name="GripR" Style="{DynamicResource Grip}" Width="5" HorizontalAlignment="Right" Cursor="SizeWE"/>
+                <Thumb x:Name="GripT" Style="{DynamicResource Grip}" Height="4" VerticalAlignment="Top" Cursor="SizeNS"/>
+                <Thumb x:Name="GripB" Style="{DynamicResource Grip}" Height="5" VerticalAlignment="Bottom" Cursor="SizeNS"/>
+                <Thumb x:Name="GripTL" Style="{DynamicResource Grip}" Width="8" Height="8" HorizontalAlignment="Left" VerticalAlignment="Top" Cursor="SizeNWSE"/>
+                <Thumb x:Name="GripTR" Style="{DynamicResource Grip}" Width="8" Height="4" HorizontalAlignment="Right" VerticalAlignment="Top" Cursor="SizeNESW"/>
+                <Thumb x:Name="GripBL" Style="{DynamicResource Grip}" Width="8" Height="8" HorizontalAlignment="Left" VerticalAlignment="Bottom" Cursor="SizeNESW"/>
+                <Thumb x:Name="GripBR" Style="{DynamicResource Grip}" Width="10" Height="10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Cursor="SizeNWSE"/>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>

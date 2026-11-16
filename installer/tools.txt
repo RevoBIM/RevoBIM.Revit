@@ -10,6 +10,7 @@
 Coordination|NudgeUp|Nudge Up|Raise selected elements by the Nudge increment (default 50mm).
 Coordination|NudgeDown|Nudge Down|Lower selected elements by the Nudge increment (default 50mm).
 Coordination|NudgeSettings|Nudge Settings|Set the Nudge increment and how the buttons behave.
+Coordination|BulkRename|Bulk Rename|Find and replace, prefix or suffix across the views, sheets and families selected in the Project Browser.
 Coordination|Arcade|RevoBIM Arcade|Pacman, Tetris and Snake, in its own window.
 Management|ExcelForRevit|Excel for Revit|Edit a schedule in a spreadsheet grid, then apply it in one transaction.
 Management|ModelCleanup|Model Cleanup|Save a detached copy and strip it ready to send.

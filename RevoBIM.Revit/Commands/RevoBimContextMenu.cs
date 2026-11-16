@@ -1,0 +1,178 @@
+#if !REVIT2024
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
+using System.Text;
+using Autodesk.Revit.ApplicationServices;
+using Autodesk.Revit.DB;
+using Autodesk.Revit.UI;
+using RevoBIM.Tools.BulkRename;
+
+namespace RevoBIM.Commands
+{
+    /// <summary>
+    /// RevoBIM's entries at the bottom of Revit's right-click menu, in the Project Browser and the canvas:
+    /// "Open in ProSheets" and "Express Export" always, and "Run Bulk Rename" when two or more items that
+    /// can be renamed (views, sheets, schedules, families, types) are selected. One creator builds all
+    /// of them, so the tools show once, together. Revit 2025+ only: the context menu API
+    /// (IContextMenuCreator) arrived in 2025, so this file is not compiled for Revit 2024.
+    ///
+    /// Port of ps_context.py, grown into one menu for every tool. What carries over:
+    /// - RegisterContextMenu is on UIApplication from 2025 but only on
+    ///   UIControlledApplication from 2026, so on 2025 registration waits for
+    ///   ApplicationInitialized, the first moment a UIApplication exists.
+    /// - Revit calls BuildContextMenu on every right-click, so the Bulk Rename entry can follow the
+    ///   selection. "Open in ProSheets" is always added, never conditionally: Autodesk bug
+    ///   REVIT-251042 leaves an empty flyout in the Project Browser when a creator adds nothing.
+    /// - Nothing here may throw into Revit; problems go to a log line in
+    ///   %APPDATA%\RevoBIM\logs\revobim_context_menu.txt.
+    ///
+    /// The pyRevit RevoBIM PY extension registers its own "Print in ProSheets" through startup.py. While
+    /// that extension is loaded beside this add-in Revit shows both, as two groups with a line between.
+    /// That second group is not built here.
+    /// </summary>
+    public sealed class RevoBimContextMenu : IContextMenuCreator
+    {
+        public const string OpenText = "Open in ProSheets";
+        public const string ExpressText = "Express Export";
+        public const string BulkRenameText = "Run Bulk Rename";
+        /// <summary>Passed to RegisterContextMenu as the add-in id. Stable and namespaced.</summary>
+        public const string AddinId = "RevoBIM.ContextMenu";
+
+        /// <summary>The most items looked at when deciding whether to offer Bulk Rename.</summary>
+        private const int SelectionLook = 500;
+
+        private static bool registered;
+        private static UIApplication uiapp;
+
+        public void BuildContextMenu(ContextMenu menu)
+        {
+            try
+            {
+                string assembly = Assembly.GetExecutingAssembly().Location;
+                menu.AddItem(new CommandMenuItem(OpenText, typeof(ProSheetsExporterCommand).FullName, assembly));
+                menu.AddItem(new CommandMenuItem(ExpressText, typeof(ExpressExportCommand).FullName, assembly));
+                if (OfferBulkRename())
+                {
+                    var rename = new CommandMenuItem(BulkRenameText, typeof(BulkRenameCommand).FullName, assembly);
+                    rename.SetToolTip("Rename the selected Project Browser items: find and replace, add a prefix " +
+                                      "or a suffix, with a live preview. Nothing is written until Apply.");
+                    menu.AddItem(rename);
+                }
+            }
+            catch (Exception err)
+            {
+                Log("could not add the entries: " + err.Message);
+            }
+        }
+
+        /// <summary>
+        /// True when two or more of the selected elements are things Bulk Rename can rename. When the
+        /// selection cannot be read the entry is offered anyway: the command says what it found when it runs.
+        /// </summary>
+        private static bool OfferBulkRename()
+        {
+            try
+            {
+                UIApplication app = uiapp;
+                if (app == null) return true;
+                UIDocument uidoc = app.ActiveUIDocument;
+                if (uidoc == null) return false;
+                ICollection<ElementId> ids = uidoc.Selection.GetElementIds();
+                if (ids.Count < 2) return false;
+                Document doc = uidoc.Document;
+                int renamable = 0, looked = 0;
+                foreach (ElementId id in ids)
+                {
+                    if (++looked > SelectionLook) break;
+                    if (BrnRevit.MakeRow(doc.GetElement(id)) != null && ++renamable >= 2) return true;
+                }
+                return false;
+            }
+            catch (Exception err)
+            {
+                Log("could not read the selection, offering Run Bulk Rename anyway: " + err.Message);
+                return true;
+            }
+        }
+
+        /// <summary>Called from App.OnStartup. Never throws.</summary>
+        public static void Register(UIControlledApplication app)
+        {
+            try
+            {
+                LogReset("RevoBIM context menu");
+                // A UIApplication is needed to read the selection when the menu opens, and none exists
+                // until Revit has finished starting.
+                app.ControlledApplication.ApplicationInitialized += (sender, args) =>
+                {
+                    try
+                    {
+                        uiapp = new UIApplication(sender as Application);
+#if REVIT2025
+                        // 2025: only UIApplication has RegisterContextMenu.
+                        if (!registered)
+                        {
+                            uiapp.RegisterContextMenu(AddinId, new RevoBimContextMenu());
+                            registered = true;
+                            Log("registered at ApplicationInitialized (Revit 2025)");
+                        }
+#endif
+                    }
+                    catch (Exception err)
+                    {
+                        Log("the late set-up failed: " + err);
+                    }
+                };
+#if REVIT2025
+                Log("registration deferred to ApplicationInitialized, where a UIApplication can be built");
+#else
+                if (registered)
+                    return;
+                app.RegisterContextMenu(AddinId, new RevoBimContextMenu());
+                registered = true;
+                Log("\"" + OpenText + "\", \"" + ExpressText + "\" and, with two or more items selected, \"" +
+                    BulkRenameText + "\" will appear at the bottom of the right click menu in the Project " +
+                    "Browser and the canvas.");
+#endif
+            }
+            catch (Exception err)
+            {
+                Log("registration failed: " + err);
+            }
+        }
+
+        private static string LogPath()
+        {
+            return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                                "RevoBIM", "logs", "revobim_context_menu.txt");
+        }
+
+        private static void LogReset(string text)
+        {
+            try
+            {
+                if (File.Exists(LogPath()))
+                    File.Delete(LogPath());
+            }
+            catch (Exception)
+            {
+            }
+            Log(text);
+        }
+
+        private static void Log(string text)
+        {
+            try
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(LogPath()));
+                File.AppendAllText(LogPath(), text + "\n", new UTF8Encoding(false));
+            }
+            catch (Exception)
+            {
+            }
+        }
+    }
+}
+#endif

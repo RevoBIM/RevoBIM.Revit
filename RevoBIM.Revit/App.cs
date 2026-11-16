@@ -30,6 +30,17 @@ namespace RevoBIM
             if (routinesButton != null)
             {
                 routinesButton.AddPushButton(new PushButtonData(
+                    "RevoBIM_BulkRename", "Bulk\nRename", dll, typeof(Commands.BulkRenameCommand).FullName)
+                {
+                    ToolTip = "Select views, sheets, schedules or families in the Project Browser, then run this to " +
+                              "find and replace, add a prefix or add a suffix, with a live preview. Nothing is " +
+                              "written until Apply.\n\nAlso on the right-click menu when several Project Browser " +
+                              "items are selected.",
+                    AvailabilityClassName = typeof(Commands.AlwaysAvailable).FullName,
+                    LargeImage = Icon("BulkRename", 32),
+                    Image = Icon("BulkRename", 16),
+                });
+                routinesButton.AddPushButton(new PushButtonData(
                     "RevoBIM_Arcade", "RevoBIM\nArcade", dll, typeof(Commands.ArcadeCommand).FullName)
                 {
                     ToolTip = "Opens the RevoBIM Arcade: Pacman, Tetris and more.\n\n" +
@@ -195,8 +206,9 @@ namespace RevoBIM
             });
 
 #if !REVIT2024
-            // Right-click menu (Revit 2025+): "Print in ProSheets" and "Express Export".
-            Commands.ProSheetsContextMenu.Register(app);
+            // Right-click menu (Revit 2025+): one creator for every RevoBIM entry, so each shows once:
+            // "Open in ProSheets", "Express Export" and, with several items selected, "Run Bulk Rename".
+            Commands.RevoBimContextMenu.Register(app);
 #endif
 
             return Result.Succeeded;
