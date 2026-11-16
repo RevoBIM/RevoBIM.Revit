@@ -102,6 +102,20 @@ namespace RevoBIM
             };
             management.AddItem(excelForRevit);
 
+            var filterManager = new PushButtonData(
+                "RevoBIM_FilterManager", "Filter\nManager", dll, typeof(Commands.FilterManagerCommand).FullName)
+            {
+                ToolTip = "RevoBIM Filter Manager. Tab 1 lists every view filter in the project and exposes its categories " +
+                          "and rules for editing, with Create, Duplicate and Delete. Tab 2 is a table of every filter at once " +
+                          "with Excel export and import. Tab 3 is the Filter Pusher: push filters and their graphic override " +
+                          "settings from one host view template, or from the project's filter table, into any number of " +
+                          "target view templates and views. Every change is logged.",
+                AvailabilityClassName = typeof(Commands.ProjectDocumentAvailability).FullName,
+                LargeImage = Icon("FilterManager", 32),
+                Image = Icon("FilterManager", 16),
+            };
+            management.AddItem(filterManager);
+
             var modelCleanup = new PushButtonData(
                 "RevoBIM_ModelCleanup", "Model\nCleanup", dll, typeof(Commands.ModelCleanupCommand).FullName)
             {

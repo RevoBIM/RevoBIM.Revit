@@ -1,0 +1,1712 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        Title="RevoBIM Filter Manager"
+        Width="1620" Height="900"
+        MinWidth="1280" MinHeight="700"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None"
+        ResizeMode="CanResize"
+        ShowInTaskbar="True"
+        Background="{DynamicResource WindowBg}"
+        BorderBrush="{DynamicResource EdgeWindow}"
+        BorderThickness="1"
+        SnapsToDevicePixels="True"
+        UseLayoutRounding="True">
+
+    <shell:WindowChrome.WindowChrome>
+        <shell:WindowChrome CaptionHeight="0" GlassFrameThickness="0" CornerRadius="0"
+                            ResizeBorderThickness="6" UseAeroCaptionButtons="False"/>
+    </shell:WindowChrome.WindowChrome>
+
+    <Window.Resources>
+        <!-- RevoBIM theme -->
+        <!-- palette: swapped at run time, so DynamicResource only -->
+        <SolidColorBrush x:Key="ChangedBg" Color="#FF4A3A20"/>
+        <SolidColorBrush x:Key="ChangedEdge" Color="#FFE8862D"/>
+        <SolidColorBrush x:Key="ArrowBg" Color="#FF1B1F24"/>
+        <SolidColorBrush x:Key="ArrowHover" Color="#FF12151A"/>
+        <SolidColorBrush x:Key="ArrowPress" Color="#FF2D3441"/>
+        <SolidColorBrush x:Key="Blue" Color="#FF3D9BE9"/>
+        <SolidColorBrush x:Key="BoxEdge" Color="#FF6A7384"/>
+        <SolidColorBrush x:Key="Btn" Color="#FF2D3441"/>
+        <SolidColorBrush x:Key="BtnHover" Color="#FF39424F"/>
+        <SolidColorBrush x:Key="BtnPress" Color="#FF222931"/>
+        <SolidColorBrush x:Key="CloseHover" Color="#FFC0392B"/>
+        <SolidColorBrush x:Key="Dim" Color="#FFACB4C2"/>
+        <SolidColorBrush x:Key="Disabled" Color="#FF6E7584"/>
+        <SolidColorBrush x:Key="Edge" Color="#FF4A5364"/>
+        <SolidColorBrush x:Key="EdgeFaint" Color="#FF3A4352"/>
+        <SolidColorBrush x:Key="EdgeHover" Color="#FF7B8290"/>
+        <SolidColorBrush x:Key="EdgeSoft" Color="#FF434C5B"/>
+        <SolidColorBrush x:Key="EdgeStrong" Color="#FF5A6372"/>
+        <SolidColorBrush x:Key="EdgeWindow" Color="#FF1B1F24"/>
+        <SolidColorBrush x:Key="Field" Color="#FF2D3441"/>
+        <SolidColorBrush x:Key="FieldDeep" Color="#FF262C37"/>
+        <SolidColorBrush x:Key="Glyph" Color="#FFACB2B9"/>
+        <SolidColorBrush x:Key="GlyphHover" Color="#FF2D3441"/>
+        <SolidColorBrush x:Key="Green" Color="#FF3FA75A"/>
+        <SolidColorBrush x:Key="GreenEdge" Color="#FF2E8546"/>
+        <SolidColorBrush x:Key="GreenHover" Color="#FF4EC06D"/>
+        <SolidColorBrush x:Key="Head" Color="#FF222931"/>
+        <SolidColorBrush x:Key="HeaderRow" Color="#FF323C48"/>
+        <SolidColorBrush x:Key="Hover" Color="#FF39414F"/>
+        <SolidColorBrush x:Key="Label" Color="#FFBAC0C8"/>
+        <SolidColorBrush x:Key="OnAccent" Color="#FFF2F2F2"/>
+        <SolidColorBrush x:Key="OnOrange" Color="#FF1B1F24"/>
+        <SolidColorBrush x:Key="Orange" Color="#FFE8862D"/>
+        <SolidColorBrush x:Key="OrangeEdge" Color="#FFC96F1E"/>
+        <SolidColorBrush x:Key="OrangeHover" Color="#FFF39A45"/>
+        <SolidColorBrush x:Key="Panel" Color="#FF3C4454"/>
+        <SolidColorBrush x:Key="PanelAlt" Color="#FF363E4C"/>
+        <SolidColorBrush x:Key="Red" Color="#FFF07A75"/>
+        <SolidColorBrush x:Key="RedDeep" Color="#FFB03A36"/>
+        <SolidColorBrush x:Key="RedEdge" Color="#FF8E2C29"/>
+        <SolidColorBrush x:Key="Sel" Color="#FF4B5669"/>
+        <SolidColorBrush x:Key="TabActiveTxt" Color="#FFFFFFFF"/>
+        <SolidColorBrush x:Key="TabIdle" Color="#FFACB2B9"/>
+        <SolidColorBrush x:Key="Thumb" Color="#FF5A6372"/>
+        <SolidColorBrush x:Key="ThumbHover" Color="#FF7B8290"/>
+        <SolidColorBrush x:Key="Txt" Color="#FFE6EEF7"/>
+        <SolidColorBrush x:Key="WindowBg" Color="#FF323A47"/>
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource Txt}"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+
+        <!-- scroll bars -->
+        <Style x:Key="ScrollThumb" TargetType="Thumb">
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="IsTabStop" Value="False"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Thumb">
+                        <Border x:Name="tb" Background="{DynamicResource Thumb}" CornerRadius="4" Margin="2"/>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="tb" Property="Background" Value="{DynamicResource ThumbHover}"/>
+                            </Trigger>
+                            <Trigger Property="IsDragging" Value="True">
+                                <Setter TargetName="tb" Property="Background" Value="{DynamicResource Orange}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ScrollPage" TargetType="RepeatButton">
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="IsTabStop" Value="False"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RepeatButton">
+                        <Border Background="Transparent"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="ScrollBar">
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="Background" Value="{DynamicResource Field}"/>
+            <Setter Property="Width" Value="13"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ScrollBar">
+                        <Border Background="{DynamicResource Field}" BorderBrush="{DynamicResource EdgeFaint}" BorderThickness="1,0,0,0">
+                            <Track x:Name="PART_Track" IsDirectionReversed="True">
+                                <Track.DecreaseRepeatButton>
+                                    <RepeatButton Command="ScrollBar.PageUpCommand" Style="{StaticResource ScrollPage}"/>
+                                </Track.DecreaseRepeatButton>
+                                <Track.Thumb>
+                                    <Thumb Style="{StaticResource ScrollThumb}"/>
+                                </Track.Thumb>
+                                <Track.IncreaseRepeatButton>
+                                    <RepeatButton Command="ScrollBar.PageDownCommand" Style="{StaticResource ScrollPage}"/>
+                                </Track.IncreaseRepeatButton>
+                            </Track>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="Orientation" Value="Horizontal">
+                    <Setter Property="Width" Value="Auto"/>
+                    <Setter Property="Height" Value="13"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="ScrollBar">
+                                <Border Background="{DynamicResource Field}" BorderBrush="{DynamicResource EdgeFaint}" BorderThickness="0,1,0,0">
+                                    <Track x:Name="PART_Track" IsDirectionReversed="False">
+                                        <Track.DecreaseRepeatButton>
+                                            <RepeatButton Command="ScrollBar.PageLeftCommand" Style="{StaticResource ScrollPage}"/>
+                                        </Track.DecreaseRepeatButton>
+                                        <Track.Thumb>
+                                            <Thumb Style="{StaticResource ScrollThumb}"/>
+                                        </Track.Thumb>
+                                        <Track.IncreaseRepeatButton>
+                                            <RepeatButton Command="ScrollBar.PageRightCommand" Style="{StaticResource ScrollPage}"/>
+                                        </Track.IncreaseRepeatButton>
+                                    </Track>
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="DarkScroll" TargetType="ScrollViewer">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ScrollViewer">
+                        <Grid Background="{TemplateBinding Background}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <ScrollContentPresenter Grid.Row="0" Grid.Column="0"
+                                                    Margin="{TemplateBinding Padding}"
+                                                    CanContentScroll="{TemplateBinding CanContentScroll}"/>
+                            <ScrollBar x:Name="PART_VerticalScrollBar" Grid.Row="0" Grid.Column="1"
+                                       Orientation="Vertical"
+                                       Value="{TemplateBinding VerticalOffset}"
+                                       Maximum="{TemplateBinding ScrollableHeight}"
+                                       ViewportSize="{TemplateBinding ViewportHeight}"
+                                       Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}"/>
+                            <ScrollBar x:Name="PART_HorizontalScrollBar" Grid.Row="1" Grid.Column="0"
+                                       Orientation="Horizontal"
+                                       Value="{TemplateBinding HorizontalOffset}"
+                                       Maximum="{TemplateBinding ScrollableWidth}"
+                                       ViewportSize="{TemplateBinding ViewportWidth}"
+                                       Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}"/>
+                            <Border Grid.Row="1" Grid.Column="1" Background="{DynamicResource Field}"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- text box -->
+        <Style TargetType="TextBox">
+            <Setter Property="Foreground" Value="{DynamicResource Txt}"/>
+            <Setter Property="Background" Value="{DynamicResource Field}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Edge}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CaretBrush" Value="{DynamicResource Txt}"/>
+            <Setter Property="SelectionBrush" Value="{DynamicResource Blue}"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Padding" Value="7,0"/>
+            <Setter Property="MinHeight" Value="32"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <!-- the padding belongs on the border, the way WPF's
+                             own template does it. Putting it on the content
+                             host as a margin takes the space twice and the
+                             text loses its top and bottom. -->
+                        <Border x:Name="bd" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="{TemplateBinding Padding}">
+                            <Grid>
+                                <TextBlock x:Name="hint"
+                                           Text="{TemplateBinding Tag}"
+                                           FontSize="{TemplateBinding FontSize}"
+                                           FontStyle="Italic"
+                                           Foreground="{DynamicResource Dim}"
+                                           VerticalAlignment="Center"
+                                           IsHitTestVisible="False"
+                                           Visibility="Collapsed"/>
+                                <ScrollViewer x:Name="PART_ContentHost"
+                                              Background="Transparent"
+                                              VerticalAlignment="Center"
+                                              VerticalScrollBarVisibility="Hidden"
+                                              HorizontalScrollBarVisibility="Hidden"
+                                              Focusable="False"/>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                                <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource Blue}"/>
+                            </Trigger>
+                            <DataTrigger Binding="{Binding Text, RelativeSource={RelativeSource Self}}"
+                                         Value="">
+                                <Setter TargetName="hint" Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- lists -->
+        <Style TargetType="ListBox">
+            <Setter Property="Background" Value="{DynamicResource Field}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Txt}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Edge}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBox">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                SnapsToDevicePixels="True">
+                            <ScrollViewer Style="{StaticResource DarkScroll}" Focusable="False" Padding="0">
+                                <ItemsPresenter SnapsToDevicePixels="True"/>
+                            </ScrollViewer>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="ListBoxItem">
+            <Setter Property="Foreground" Value="{DynamicResource Txt}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Padding" Value="6,3"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}"
+                                Padding="{TemplateBinding Padding}" BorderThickness="0">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource Hover}"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource Sel}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource Orange}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- check box -->
+        <Style TargetType="CheckBox">
+            <Setter Property="Foreground" Value="{DynamicResource Txt}"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Margin" Value="6,3,6,3"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <StackPanel Orientation="Horizontal" Background="Transparent">
+                            <Border x:Name="box" Width="14" Height="14" Margin="0,0,7,0"
+                                    VerticalAlignment="Center" CornerRadius="2"
+                                    Background="{DynamicResource FieldDeep}" BorderBrush="{DynamicResource BoxEdge}" BorderThickness="1">
+                                <Path x:Name="tick" Margin="1" Stretch="Uniform"
+                                      Stroke="{DynamicResource Orange}" StrokeThickness="2"
+                                      StrokeEndLineCap="Round" StrokeStartLineCap="Round"
+                                      Data="M 0,5 L 4,9 L 11,1" Visibility="Collapsed"/>
+                            </Border>
+                            <ContentPresenter VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="tick" Property="Visibility" Value="Visible"/>
+                                <Setter TargetName="box" Property="BorderBrush" Value="{DynamicResource Orange}"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="box" Property="BorderBrush" Value="{DynamicResource Blue}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- a tick on its own in a narrow table cell: no margin, no gap for a
+             label, so a 30px column shows the whole box -->
+        <Style x:Key="CellCheck" TargetType="CheckBox">
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <Border Background="Transparent" Padding="3">
+                            <Border x:Name="box" Width="16" Height="16"
+                                    CornerRadius="2" SnapsToDevicePixels="True"
+                                    Background="{DynamicResource FieldDeep}"
+                                    BorderBrush="{DynamicResource BoxEdge}" BorderThickness="1">
+                                <Path x:Name="tick" Margin="2" Stretch="Uniform"
+                                      Stroke="{DynamicResource Orange}" StrokeThickness="2"
+                                      StrokeEndLineCap="Round" StrokeStartLineCap="Round"
+                                      Data="M 0,5 L 4,9 L 11,1" Visibility="Collapsed"/>
+                            </Border>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="tick" Property="Visibility" Value="Visible"/>
+                                <Setter TargetName="box" Property="BorderBrush" Value="{DynamicResource Orange}"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="box" Property="BorderBrush" Value="{DynamicResource Blue}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- combo box -->
+        <Style x:Key="ComboToggle" TargetType="ToggleButton">
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="IsTabStop" Value="False"/>
+            <Setter Property="ClickMode" Value="Press"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}"
+                                BorderBrush="{DynamicResource Edge}"
+                                BorderThickness="1" SnapsToDevicePixels="True">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="20"/>
+                                </Grid.ColumnDefinitions>
+                                <Path Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                      Data="M 0,0 L 9,0 L 4.5,5.5 Z" Fill="{DynamicResource Label}"/>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource Blue}"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource Orange}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="ComboBoxItem">
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="Foreground" Value="{DynamicResource Txt}"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Padding" Value="7,4"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBoxItem">
+                        <Border x:Name="bd" Background="Transparent" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter TextElement.Foreground="{DynamicResource Txt}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource Hover}"/>
+                            </Trigger>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource Sel}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="ComboBox">
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="Foreground" Value="{DynamicResource Txt}"/>
+            <Setter Property="Background" Value="{DynamicResource Field}"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="MinHeight" Value="28"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <ToggleButton x:Name="ToggleButton" Style="{StaticResource ComboToggle}"
+                                          Background="{TemplateBinding Background}"
+                                          IsChecked="{Binding IsDropDownOpen, Mode=TwoWay,
+                                                      RelativeSource={RelativeSource TemplatedParent}}"/>
+                            <ContentPresenter x:Name="ContentSite" IsHitTestVisible="False"
+                                              Content="{TemplateBinding SelectionBoxItem}"
+                                              ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                              TextElement.Foreground="{DynamicResource Txt}"
+                                              Margin="8,0,24,0" VerticalAlignment="Center"
+                                              HorizontalAlignment="Left"/>
+                            <Popup x:Name="PART_Popup" Placement="Bottom" Focusable="False"
+                                   AllowsTransparency="True"
+                                   IsOpen="{TemplateBinding IsDropDownOpen}">
+                                <Border Background="{DynamicResource Field}" BorderBrush="{DynamicResource EdgeStrong}" BorderThickness="1"
+                                        MinWidth="{TemplateBinding ActualWidth}" MaxHeight="320">
+                                    <ScrollViewer Style="{StaticResource DarkScroll}">
+                                        <StackPanel IsItemsHost="True"/>
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="ContentSite" Property="TextElement.Foreground"
+                                        Value="{DynamicResource Disabled}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- buttons -->
+        <Style x:Key="Ghost" TargetType="Button">
+            <Setter Property="Background" Value="{DynamicResource Btn}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Orange}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Edge}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Padding" Value="10,4"/>
+            <Setter Property="Margin" Value="0,0,6,0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource BtnHover}"/>
+                                <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource Orange}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource BtnPress}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Foreground" Value="{DynamicResource Disabled}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="CloseBtn" TargetType="Button" BasedOn="{StaticResource Ghost}">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{DynamicResource Dim}"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}" BorderThickness="0">
+                            <TextBlock Text="X" FontSize="12" FontWeight="Bold"
+                                       Foreground="{TemplateBinding Foreground}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource CloseHover}"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="Primary" TargetType="Button" BasedOn="{StaticResource Ghost}">
+            <Setter Property="Background" Value="{DynamicResource Orange}"/>
+            <Setter Property="Foreground" Value="{DynamicResource OnOrange}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource OrangeEdge}"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Padding" Value="22,7"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource OrangeHover}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource OrangeEdge}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource EdgeFaint}"/>
+                                <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource Edge}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource Disabled}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- tab strip buttons -->
+        <Style x:Key="TabBtn" TargetType="Button">
+            <Setter Property="Background" Value="{DynamicResource WindowBg}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TabIdle}"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Padding" Value="18,7"/>
+            <Setter Property="Margin" Value="0,0,3,0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}"
+                                BorderBrush="{DynamicResource Edge}" BorderThickness="1,1,1,0"
+                                Padding="{TemplateBinding Padding}"
+                                SnapsToDevicePixels="True">
+                            <Grid>
+                                <Border x:Name="tick" Height="3" VerticalAlignment="Top"
+                                        Background="Transparent"
+                                        Margin="-18,-7,-18,0"/>
+                                <ContentPresenter x:Name="cp"
+                                                  TextElement.Foreground="{TemplateBinding Foreground}"
+                                                  VerticalAlignment="Center"
+                                                  HorizontalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource Panel}"/>
+                                <Setter TargetName="cp" Property="TextElement.Foreground"
+                                        Value="{DynamicResource Txt}"/>
+                            </Trigger>
+                            <Trigger Property="Tag" Value="on">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource Panel}"/>
+                                <Setter TargetName="tick" Property="Background" Value="{DynamicResource Orange}"/>
+                                <Setter TargetName="cp" Property="TextElement.Foreground"
+                                        Value="{DynamicResource TabActiveTxt}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="SubTabBtn" TargetType="Button" BasedOn="{StaticResource TabBtn}">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Padding" Value="14,5"/>
+            <Setter Property="Background" Value="{DynamicResource PanelAlt}"/>
+        </Style>
+
+        <Style x:Key="Create" TargetType="Button" BasedOn="{StaticResource Primary}">
+            <Setter Property="Background" Value="{DynamicResource Green}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource GreenEdge}"/>
+            <Setter Property="Foreground" Value="{DynamicResource OnAccent}"/>
+            <Setter Property="Padding" Value="16,7"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource GreenHover}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource EdgeFaint}"/>
+                                <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource Edge}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource Disabled}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="Danger" TargetType="Button" BasedOn="{StaticResource Create}">
+            <Setter Property="Background" Value="{DynamicResource RedDeep}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource RedEdge}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource Red}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource EdgeFaint}"/>
+                                <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource Edge}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource Disabled}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="RowKill" TargetType="Button" BasedOn="{StaticResource Ghost}">
+            <Setter Property="Foreground" Value="{DynamicResource Red}"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Margin" Value="0"/>
+        </Style>
+
+        <Style x:Key="ArrowBtn" TargetType="Button">
+            <Setter Property="Background" Value="{DynamicResource ArrowBg}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource EdgeSoft}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="3" SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource ArrowHover}"/>
+                                <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource EdgeHover}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource ArrowPress}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="GlyphBtn" TargetType="Button" BasedOn="{StaticResource Ghost}">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}"
+                                BorderThickness="0">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource GlyphHover}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- context menu -->
+        <Style TargetType="ContextMenu">
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ContextMenu">
+                        <Border Background="{DynamicResource Field}"
+                                BorderBrush="{DynamicResource EdgeStrong}"
+                                BorderThickness="1" Padding="2">
+                            <StackPanel IsItemsHost="True"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="MenuItem">
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="MenuItem">
+                        <Border x:Name="bd" Background="Transparent" Padding="14,6">
+                            <ContentPresenter ContentSource="Header"
+                                              TextElement.Foreground="{DynamicResource Txt}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter TargetName="bd" Property="Background"
+                                        Value="{DynamicResource Sel}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="bd" Property="Opacity" Value="0.45"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="Separator">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Separator">
+                        <Border Height="1" Margin="6,3"
+                                Background="{DynamicResource EdgeFaint}"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+
+
+
+
+
+
+        <Style x:Key="VThumb" TargetType="Thumb">
+            <Setter Property="Cursor" Value="SizeWE"/>
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="IsTabStop" Value="False"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Thumb">
+                        <Border x:Name="bd" Background="Transparent">
+                            <Border Width="2" Background="{DynamicResource EdgeSoft}"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Stretch" Margin="0,4"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background"
+                                        Value="{DynamicResource Blue}"/>
+                            </Trigger>
+                            <Trigger Property="IsDragging" Value="True">
+                                <Setter TargetName="bd" Property="Background"
+                                        Value="{DynamicResource Orange}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="VSplit" TargetType="GridSplitter">
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="VerticalAlignment" Value="Stretch"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Cursor" Value="SizeWE"/>
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="GridSplitter">
+                        <Border x:Name="bd" Background="Transparent">
+                            <Border Width="2" Background="{DynamicResource EdgeSoft}"
+                                    HorizontalAlignment="Center" VerticalAlignment="Stretch"
+                                    Margin="0,4"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource Blue}"/>
+                            </Trigger>
+                            <Trigger Property="IsDragging" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource Orange}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- end theme -->
+
+    </Window.Resources>
+
+    <Grid Background="{DynamicResource WindowBg}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- top edge strip: double click expands the window up and down -->
+        <Border Grid.Row="0" x:Name="topEdge" Height="5" Background="#01000000"
+                shell:WindowChrome.IsHitTestVisibleInChrome="True"
+                Cursor="SizeNS" MouseLeftButtonDown="on_top_edge"/>
+
+        <!-- HEADER -->
+        <Border x:Name="pnlHeader" Grid.Row="1" Background="{DynamicResource Head}"
+                BorderBrush="{DynamicResource Edge}" BorderThickness="0,0,0,1"
+                MouseLeftButtonDown="on_drag">
+            <Grid Margin="12,8,8,8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" Grid.ColumnSpan="2" x:Name="pnlLogo"
+                        Background="Transparent" Cursor="Hand"
+                        MouseLeftButtonDown="on_logo">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Image x:Name="imgIcon" Width="30" Height="30"
+                               Margin="0,0,10,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="RevoBIM" FontSize="21" FontWeight="Bold"
+                                   Foreground="{DynamicResource Blue}"
+                                   VerticalAlignment="Center"/>
+                        <TextBlock Text="  Filter Manager" FontSize="16"
+                                   FontWeight="SemiBold"
+                                   Foreground="{DynamicResource Orange}"
+                                   VerticalAlignment="Center" Margin="0,3,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <Button Grid.Column="2" x:Name="btnTheme" Style="{StaticResource Ghost}"
+                        Height="24" Padding="10,2" Margin="0,0,12,0"
+                        HorizontalAlignment="Right" VerticalAlignment="Center"
+                        ToolTip="Switch between the dark and light palette"
+                        Click="on_theme">
+                    <StackPanel Orientation="Horizontal">
+                        <Border x:Name="pnlThemeChip" Width="11" Height="11"
+                                CornerRadius="6" Margin="0,0,7,0"
+                                VerticalAlignment="Center"
+                                Background="{DynamicResource Orange}"/>
+                        <TextBlock x:Name="txtTheme" Text="Auto" FontSize="11"
+                                   VerticalAlignment="Center"
+                                   Foreground="{DynamicResource Txt}"/>
+                    </StackPanel>
+                </Button>
+
+                <TextBlock x:Name="txtVersion" Grid.Column="3" Text="v3.31.0"
+                           Foreground="{DynamicResource Dim}" FontSize="11"
+                           VerticalAlignment="Center" Margin="0,0,10,0"/>
+
+                <StackPanel Grid.Column="4" Orientation="Horizontal">
+                <Button x:Name="btnShrink" Style="{StaticResource GlyphBtn}"
+                        Width="28" Height="24" Margin="0,0,2,0" Click="on_shrink"
+                        ToolTip="Shrink to the taskbar - slide the window down to its title bar so the model can be seen">
+                    <Grid Width="12" Height="13">
+                        <Path x:Name="pthShrink" Stretch="Uniform" Fill="{DynamicResource Glyph}"
+                              Data="M 3,0 L 9,0 L 9,5 L 12,5 L 6,10 L 0,5 L 3,5 Z M 0,12 L 12,12 L 12,14 L 0,14 Z"/>
+                        <Path x:Name="pthExpand" Stretch="Uniform" Fill="{DynamicResource Green}"
+                              Visibility="Collapsed"
+                              Data="M 6,0 L 13,7 L 9,7 L 9,14 L 3,14 L 3,7 L -1,7 Z"/>
+                    </Grid>
+                </Button>
+                <Button x:Name="btnFull" Style="{StaticResource GlyphBtn}"
+                        Width="28" Height="24" Margin="0,0,2,0"
+                        ToolTip="Full screen  (F11, or double click this bar)"
+                        Click="on_fullscreen">
+                    <Grid Width="12" Height="11">
+                        <Border BorderBrush="{DynamicResource Glyph}" BorderThickness="1.4"/>
+                        <Border BorderBrush="{DynamicResource Glyph}" BorderThickness="0,1.4,0,0"
+                                VerticalAlignment="Top" Margin="0,2,0,0"/>
+                    </Grid>
+                </Button>
+                </StackPanel>
+
+                <Button Grid.Column="5" Style="{StaticResource CloseBtn}"
+                        Width="28" Height="24" Click="on_cancel"/>
+            </Grid>
+        </Border>
+
+        <!-- TABS -->
+        <Grid Grid.Row="2" Margin="12,10,12,4">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <StackPanel Grid.Row="0" Orientation="Horizontal">
+                <Button x:Name="btnTabManager" Style="{StaticResource TabBtn}"
+                        Tag="on" Click="on_tab_manager">
+                    <StackPanel Orientation="Horizontal">
+                        <Path Width="15" Height="15" Stretch="Uniform"
+                              Fill="{DynamicResource Blue}" VerticalAlignment="Center"
+                              Data="M 2,2 L 22,2 L 14,12 L 14,22 L 10,19 L 10,12 Z"/>
+                        <TextBlock Text="Filter Manager" Margin="8,0,0,0"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button x:Name="btnTabTable" Style="{StaticResource TabBtn}"
+                        Tag="off" Click="on_tab_table">
+                    <StackPanel Orientation="Horizontal">
+                        <Path Width="15" Height="15" Stretch="Uniform"
+                              Fill="{DynamicResource Green}" VerticalAlignment="Center"
+                              Data="M 2,3 L 22,3 L 22,21 L 2,21 Z M 2,9 L 22,9 M 2,15 L 22,15 M 9,3 L 9,21"/>
+                        <TextBlock Text="Filter Manager Table" Margin="8,0,0,0"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button x:Name="btnTabPusher" Style="{StaticResource TabBtn}"
+                        Tag="off" Click="on_tab_pusher">
+                    <StackPanel Orientation="Horizontal">
+                        <Path Width="15" Height="15" Stretch="Uniform"
+                              Fill="{DynamicResource Orange}" VerticalAlignment="Center"
+                              Data="M 2,9 L 13,9 L 13,3 L 22,12 L 13,21 L 13,15 L 2,15 Z"/>
+                        <TextBlock Text="Filter Pusher" Margin="8,0,0,0"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+
+            <Border Grid.Row="1" Background="{DynamicResource Panel}" BorderBrush="{DynamicResource Edge}"
+                    BorderThickness="1">
+                <Grid>
+
+                <Grid x:Name="pnlManagerTab" Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1.1*" MinWidth="200"/>
+                        <ColumnDefinition Width="6"/>
+                        <ColumnDefinition Width="1.1*" MinWidth="200"/>
+                        <ColumnDefinition Width="6"/>
+                        <ColumnDefinition Width="2.6*" MinWidth="380"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Background="{DynamicResource Panel}"
+                            BorderBrush="{DynamicResource Edge}" BorderThickness="1" Padding="8">
+                        <DockPanel>
+                            <TextBlock DockPanel.Dock="Top" Text="FILTERS IN THIS PROJECT"
+                                       Foreground="{DynamicResource Blue}" FontWeight="Bold"
+                                       FontSize="12" Margin="0,0,0,6"/>
+                            <DockPanel DockPanel.Dock="Top" Margin="0,0,0,6">
+                                <TextBlock Text="Search" VerticalAlignment="Center"
+                                           Margin="0,0,6,0" Foreground="{DynamicResource Label}"/>
+                                <TextBox x:Name="txtFmSearch" TextChanged="on_fm_search"/>
+                            </DockPanel>
+                            <CheckBox DockPanel.Dock="Top" x:Name="chkUnusedOnly"
+                                      Content="Only filters no view uses"
+                                      Margin="0,0,0,6" Click="on_unused_only"/>
+                            <TextBlock DockPanel.Dock="Bottom" x:Name="txtFmCount" Text=""
+                                       Foreground="{DynamicResource Dim}" FontSize="11"
+                                       Margin="0,6,0,0"/>
+                            <ListBox x:Name="lstFilters" SelectionMode="Extended"
+                                     SelectionChanged="on_filter_changed"
+                                     MouseDoubleClick="on_filter_dblclick">
+                                <ListBox.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="Duplicate filter"
+                                                  Click="on_ctx_duplicate"/>
+                                        <MenuItem Header="Rename filter"
+                                                  Click="on_ctx_rename"/>
+                                        <MenuItem Header="Find and replace across the selected..."
+                                                  Click="on_ctx_batch"/>
+                                        <Separator/>
+                                        <MenuItem Header="Delete"
+                                                  Click="on_ctx_delete"/>
+                                    </ContextMenu>
+                                </ListBox.ContextMenu>
+                            </ListBox>
+                        </DockPanel>
+                    </Border>
+
+                    <GridSplitter Grid.Column="1" Style="{StaticResource VSplit}"/>
+
+                    <Border Grid.Column="2" Background="{DynamicResource Panel}"
+                            BorderBrush="{DynamicResource Edge}" BorderThickness="1" Padding="8">
+                        <DockPanel>
+                            <TextBlock DockPanel.Dock="Top" Text="CATEGORIES"
+                                       Foreground="{DynamicResource Blue}" FontWeight="Bold"
+                                       FontSize="12" Margin="0,0,0,6"/>
+                            <DockPanel DockPanel.Dock="Top" Margin="0,0,0,6">
+                                <TextBlock Text="Search" VerticalAlignment="Center"
+                                           Margin="0,0,6,0" Foreground="{DynamicResource Label}"/>
+                                <TextBox x:Name="txtCatSearch" TextChanged="on_cat_search"/>
+                            </DockPanel>
+                            <CheckBox DockPanel.Dock="Top" x:Name="chkCatUsedOnly"
+                                      Content="Only categories in use by this filter"
+                                      Margin="0,0,0,6" Click="on_cat_scope"/>
+                            <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal"
+                                        Margin="0,6,0,0">
+                                <Button Content="All" Style="{StaticResource Ghost}"
+                                        Click="on_cats_all"/>
+                                <Button Content="None" Style="{StaticResource Ghost}"
+                                        Click="on_cats_none"/>
+                            </StackPanel>
+                            <ListBox x:Name="lstCategories"/>
+                        </DockPanel>
+                    </Border>
+
+                    <GridSplitter Grid.Column="3" Style="{StaticResource VSplit}"/>
+
+                    <Border Grid.Column="4" Background="{DynamicResource Panel}"
+                            BorderBrush="{DynamicResource Edge}" BorderThickness="1" Padding="8">
+                        <DockPanel>
+                            <TextBlock DockPanel.Dock="Top" Text="FILTER RULES"
+                                       Foreground="{DynamicResource Blue}" FontWeight="Bold"
+                                       FontSize="12" Margin="0,0,0,6"/>
+
+                            <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="Filter name"
+                                           VerticalAlignment="Center" Margin="0,0,8,0"
+                                           Foreground="{DynamicResource Label}"/>
+                                <TextBox Grid.Column="1" x:Name="txtFilterName" Height="34"
+                                         TextChanged="on_name_typed"/>
+                            </Grid>
+
+                            <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="230"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="Elements must match"
+                                           VerticalAlignment="Center" Margin="0,0,8,0"
+                                           Foreground="{DynamicResource Label}"/>
+                                <ComboBox Grid.Column="1" x:Name="cboMatch"
+                                          SelectionChanged="on_match_changed"/>
+                                <Button Grid.Column="3" Content="+  Add rule"
+                                        Style="{StaticResource Ghost}" Height="28"
+                                        Click="on_add_rule"/>
+                            </Grid>
+
+                            <Border DockPanel.Dock="Top" Background="{DynamicResource Field}"
+                                    BorderBrush="{DynamicResource Edge}" BorderThickness="1"
+                                    Padding="6,4" Margin="0,0,0,4">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="2.2*"/>
+                                        <ColumnDefinition Width="1.8*"/>
+                                        <ColumnDefinition Width="2*"/>
+                                        <ColumnDefinition Width="34"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="PARAMETER"
+                                               Foreground="{DynamicResource Dim}" FontSize="10"/>
+                                    <TextBlock Grid.Column="1" Text="OPERATOR"
+                                               Foreground="{DynamicResource Dim}" FontSize="10"/>
+                                    <TextBlock Grid.Column="2" Text="VALUE"
+                                               Foreground="{DynamicResource Dim}" FontSize="10"/>
+                                </Grid>
+                            </Border>
+
+                            <TextBlock DockPanel.Dock="Bottom" x:Name="txtRuleNote" Text=""
+                                       Foreground="{DynamicResource Dim}" FontSize="11"
+                                       TextWrapping="Wrap" Margin="0,6,0,0"/>
+
+                            <Border Background="{DynamicResource Field}" BorderBrush="{DynamicResource Edge}"
+                                    BorderThickness="1">
+                                <ScrollViewer Style="{StaticResource DarkScroll}"
+                                              VerticalScrollBarVisibility="Auto">
+                                    <StackPanel x:Name="pnlRules" Margin="6"/>
+                                </ScrollViewer>
+                            </Border>
+                        </DockPanel>
+                    </Border>
+                </Grid>
+
+                <Grid x:Name="pnlTableTab" Margin="10" Visibility="Collapsed">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0" Margin="0,0,0,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="240"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Search all" VerticalAlignment="Center"
+                                   Margin="0,0,6,0" Foreground="{DynamicResource Label}"/>
+                        <TextBox Grid.Column="1" x:Name="txtTblSearch" Height="34"
+                                 Tag="name, category, parameter, value"
+                                 TextChanged="on_tbl_search"/>
+                        <StackPanel Grid.Column="4" Orientation="Horizontal"
+                                    VerticalAlignment="Center" Margin="14,0,0,0">
+                            <CheckBox x:Name="chkTblUnused"
+                                      Content="Only filters no view uses"
+                                      VerticalAlignment="Center"
+                                      Click="on_tbl_unused"/>
+                            <CheckBox x:Name="chkTblChanged"
+                                      Content="Only edited filters"
+                                      IsEnabled="False" Margin="14,0,0,0"
+                                      VerticalAlignment="Center"
+                                      Click="on_tbl_changed_only"/>
+                        </StackPanel>
+                        <TextBlock Grid.Column="6" x:Name="txtTblCount" Text=""
+                                   VerticalAlignment="Center"
+                                   Foreground="{DynamicResource Dim}" FontSize="11"
+                                   Margin="0,0,12,0"/>
+
+                        <Button Grid.Column="7" x:Name="btnExcel"
+                                Style="{StaticResource Ghost}" Height="30"
+                                Padding="10,3" VerticalAlignment="Center"
+                                ToolTip="Export this table to Excel, or read an edited sheet back"
+                                Click="on_excel_menu">
+                            <Button.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Export to Excel..."
+                                              Click="on_export_excel"/>
+                                    <MenuItem Header="Import from Excel..."
+                                              Click="on_import_excel"/>
+                                </ContextMenu>
+                            </Button.ContextMenu>
+                            <StackPanel Orientation="Horizontal">
+                                <Grid Width="15" Height="15" Margin="0,0,7,0"
+                                      VerticalAlignment="Center">
+                                    <Border Background="{DynamicResource Green}"
+                                            CornerRadius="2"/>
+                                    <Path Stretch="Uniform" Margin="3"
+                                          Fill="{DynamicResource OnAccent}"
+                                          Data="M 0,0 L 3,0 L 5,3 L 7,0 L 10,0 L 6.5,5 L 10,10 L 7,10 L 5,7 L 3,10 L 0,10 L 3.5,5 Z"/>
+                                </Grid>
+                                <TextBlock Text="Excel" VerticalAlignment="Center"
+                                           FontSize="12"
+                                           Foreground="{DynamicResource Txt}"/>
+                                <Path Width="9" Height="6" Stretch="Uniform"
+                                      Margin="8,2,0,0" VerticalAlignment="Center"
+                                      Fill="{DynamicResource Dim}"
+                                      Data="M 0,0 L 9,0 L 4.5,5.5 Z"/>
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+
+                    <Border Grid.Row="1" Background="{DynamicResource HeaderRow}"
+                            BorderBrush="{DynamicResource Edge}" BorderThickness="1,1,1,0">
+                        <StackPanel x:Name="pnlTableHead" HorizontalAlignment="Left"/>
+                    </Border>
+
+                    <Border Grid.Row="2" Background="{DynamicResource Field}"
+                            BorderBrush="{DynamicResource Edge}" BorderThickness="1">
+                        <ScrollViewer x:Name="pnlTableScroll"
+                                      Style="{StaticResource DarkScroll}"
+                                      VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Auto"
+                                      ScrollChanged="on_table_scrolled"
+                                      SizeChanged="on_table_resized">
+                            <StackPanel x:Name="pnlTableRows" HorizontalAlignment="Left"/>
+                        </ScrollViewer>
+                    </Border>
+
+                    <StackPanel Grid.Row="3" Margin="0,8,0,0">
+                        <Button x:Name="btnDebugToggle" Style="{StaticResource Ghost}"
+                                Height="26" Padding="10,3" FontSize="11"
+                                HorizontalAlignment="Left"
+                                ToolTip="What the tool knows about itself - open this when something is not working"
+                                Click="on_toggle_debug">
+                            <StackPanel Orientation="Horizontal">
+                                <Path x:Name="pnlDebugCaret" Width="9" Height="7"
+                                      Stretch="Uniform" VerticalAlignment="Center"
+                                      Margin="0,0,7,0"
+                                      Fill="{DynamicResource Dim}"
+                                      Data="M 0,0 L 7,4.5 L 0,9 Z"/>
+                                <TextBlock Text="Debug" VerticalAlignment="Center"
+                                           Foreground="{DynamicResource Txt}"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Border x:Name="pnlDebug" Visibility="Collapsed"
+                                Margin="0,6,0,0" Padding="10"
+                                Background="{DynamicResource FieldDeep}"
+                                BorderBrush="{DynamicResource Edge}"
+                                BorderThickness="1">
+                            <DockPanel>
+                                <StackPanel DockPanel.Dock="Bottom"
+                                            Orientation="Horizontal" Margin="0,8,0,0">
+                                    <Button Content="Refresh" Style="{StaticResource Ghost}"
+                                            Click="on_debug_refresh"/>
+                                    <Button Content="Copy" Style="{StaticResource Ghost}"
+                                            Click="on_debug_copy"/>
+                                    <Button Content="Open the log folder"
+                                            Style="{StaticResource Ghost}"
+                                            Click="on_debug_open"/>
+                                </StackPanel>
+                                <ScrollViewer Style="{StaticResource DarkScroll}"
+                                              MaxHeight="190"
+                                              VerticalScrollBarVisibility="Auto">
+                                    <TextBlock x:Name="txtDebug" Text=""
+                                               FontFamily="Consolas" FontSize="11"
+                                               TextWrapping="NoWrap"
+                                               Foreground="{DynamicResource Txt}"/>
+                                </ScrollViewer>
+                            </DockPanel>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+
+                <Grid x:Name="pnlPusherTab" Margin="10" Visibility="Collapsed">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition x:Name="colPusherA" Width="1*" MinWidth="190"/>
+                        <ColumnDefinition Width="7"/>
+                        <ColumnDefinition x:Name="colPusherB" Width="2.6*" MinWidth="230"/>
+                        <ColumnDefinition Width="7"/>
+                        <ColumnDefinition x:Name="colPusherC" Width="1*" MinWidth="220"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3"
+                                Orientation="Horizontal" Margin="0,0,0,8">
+                        <Button x:Name="btnSrcTemplates" Style="{StaticResource SubTabBtn}"
+                                Tag="on" Click="on_src_templates">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Width="13" Height="13" Stretch="Uniform"
+                                      Fill="{DynamicResource Blue}" VerticalAlignment="Center"
+                                      Data="M 2,3 L 22,3 L 22,8 L 2,8 Z M 2,10 L 22,10 L 22,21 L 2,21 Z"/>
+                                <TextBlock Text="Templates" Margin="7,0,0,0"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        <Button x:Name="btnSrcFilters" Style="{StaticResource SubTabBtn}"
+                                Tag="off" Click="on_src_filters">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Width="13" Height="13" Stretch="Uniform"
+                                      Fill="{DynamicResource Orange}" VerticalAlignment="Center"
+                                      Data="M 2,2 L 22,2 L 14,12 L 14,22 L 10,19 L 10,12 Z"/>
+                                <TextBlock Text="Filters" Margin="7,0,0,0"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+
+                    <!-- COLUMN A -->
+                    <Grid Grid.Row="1" Grid.Column="0">
+                        <Border x:Name="pnlColHosts" Background="{DynamicResource Panel}"
+                                BorderBrush="{DynamicResource Edge}" BorderThickness="1"
+                                Padding="8">
+                            <DockPanel>
+                                <TextBlock DockPanel.Dock="Top" Text="1.  HOST VIEW TEMPLATE"
+                                           Foreground="{DynamicResource Blue}" FontWeight="Bold"
+                                           FontSize="12" Margin="0,0,0,6"/>
+                                <TextBlock DockPanel.Dock="Top"
+                                           Text="Filters and their settings are copied FROM this template"
+                                           Foreground="{DynamicResource Dim}" FontSize="11"
+                                           TextWrapping="Wrap" Margin="0,0,0,6"/>
+                                <DockPanel DockPanel.Dock="Top" Margin="0,0,0,6">
+                                    <TextBlock Text="Search" VerticalAlignment="Center"
+                                               Margin="0,0,6,0" Foreground="{DynamicResource Label}"/>
+                                    <TextBox x:Name="txtHostSearch" TextChanged="on_host_search"/>
+                                </DockPanel>
+                                <ListBox x:Name="lstHosts" SelectionChanged="on_host_changed"/>
+                            </DockPanel>
+                        </Border>
+
+                        <Border x:Name="pnlColFilterList" Visibility="Collapsed"
+                                Background="{DynamicResource Panel}"
+                                BorderBrush="{DynamicResource Edge}" BorderThickness="1"
+                                Padding="8">
+                            <DockPanel>
+                                <TextBlock DockPanel.Dock="Top" Text="1.  FILTERS IN THIS PROJECT"
+                                           Foreground="{DynamicResource Orange}" FontWeight="Bold"
+                                           FontSize="12" Margin="0,0,0,6"/>
+                                <TextBlock DockPanel.Dock="Top"
+                                           Text="Tick the ones you want, then press the arrow."
+                                           Foreground="{DynamicResource Dim}" FontSize="11"
+                                           TextWrapping="Wrap" Margin="0,0,0,6"/>
+                                <DockPanel DockPanel.Dock="Top" Margin="0,0,0,6">
+                                    <TextBlock Text="Search" VerticalAlignment="Center"
+                                               Margin="0,0,6,0" Foreground="{DynamicResource Label}"/>
+                                    <TextBox x:Name="txtAllFilterSearch"
+                                             TextChanged="on_allfilter_search"/>
+                                </DockPanel>
+                                <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal"
+                                            Margin="0,6,0,0">
+                                    <Button Content="All" Style="{StaticResource Ghost}"
+                                            Click="on_allfilters_all"/>
+                                    <Button Content="None" Style="{StaticResource Ghost}"
+                                            Click="on_allfilters_none"/>
+                                    <Button Content="Fit" Style="{StaticResource Ghost}"
+                                            ToolTip="Crop this column to the longest filter name"
+                                            Click="on_fit_list"/>
+                                </StackPanel>
+                                <ListBox x:Name="lstAllFilters"/>
+                            </DockPanel>
+                        </Border>
+                    </Grid>
+
+                    <Thumb Grid.Row="1" Grid.Column="1" x:Name="pnlSplitA"
+                           Style="{StaticResource VThumb}"/>
+
+                    <!-- COLUMN B -->
+                    <Grid Grid.Row="1" Grid.Column="2">
+                        <Border x:Name="pnlColHostFilters" Background="{DynamicResource Panel}"
+                                BorderBrush="{DynamicResource Edge}" BorderThickness="1"
+                                Padding="8">
+                            <DockPanel>
+                                <DockPanel DockPanel.Dock="Top" Margin="0,0,0,6">
+                                    <Button x:Name="btnOverwriteA" DockPanel.Dock="Right" Style="{StaticResource Ghost}"
+                                            Margin="6,0,0,0" Padding="8,3" Click="on_overwrite_menu"
+                                            ToolTip="What happens to a filter the target already has">
+                                        <Button.ContextMenu>
+                                            <ContextMenu>
+                                                <MenuItem Header="Overwrite Target New Only" Tag="new"
+                                                          Click="on_overwrite_pick"/>
+                                                <MenuItem Header="Overwrite Target All" Tag="all"
+                                                          Click="on_overwrite_pick"/>
+                                            </ContextMenu>
+                                        </Button.ContextMenu>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock x:Name="txtOverwriteA" Text="Overwrite Target All" VerticalAlignment="Center"/>
+                                            <Path Width="8" Height="5" Stretch="Fill" Margin="7,1,0,0"
+                                                  Fill="{DynamicResource Orange}" VerticalAlignment="Center"
+                                                  Data="M 0,0 L 10,0 L 5,6 Z"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <TextBlock Text="2.  FILTERS TO PUSH" VerticalAlignment="Center"
+                                               Foreground="{DynamicResource Blue}" FontWeight="Bold"
+                                               FontSize="12"/>
+                                </DockPanel>
+                                <TextBlock DockPanel.Dock="Top" x:Name="txtHostName"
+                                           Text="- no host template selected -"
+                                           Foreground="{DynamicResource Dim}" FontSize="11"
+                                           Margin="0,0,0,6" TextTrimming="CharacterEllipsis"/>
+                                <DockPanel DockPanel.Dock="Top" Margin="0,0,0,6">
+                                    <TextBlock Text="Search" VerticalAlignment="Center"
+                                               Margin="0,0,6,0" Foreground="{DynamicResource Label}"/>
+                                    <TextBox x:Name="txtFilterSearch"
+                                             TextChanged="on_pfilter_search"/>
+                                </DockPanel>
+                                <DockPanel DockPanel.Dock="Bottom" Margin="0,6,0,0">
+                                    <Button Content="All" Style="{StaticResource Ghost}"
+                                            Click="on_pfilters_all"/>
+                                    <Button Content="None" Style="{StaticResource Ghost}"
+                                            Click="on_pfilters_none"/>
+                                    <TextBlock VerticalAlignment="Center" FontSize="11"
+                                               TextWrapping="Wrap" Margin="6,0,0,0"
+                                               Foreground="{DynamicResource Dim}"
+                                               Text="Ctrl/Shift-click rows, then tick a setting to set it on every selected row. Unticked settings are not pushed."/>
+                                </DockPanel>
+                                <Border DockPanel.Dock="Top" x:Name="pnlPushHeader"
+                                        Background="{DynamicResource HeaderRow}"
+                                        BorderBrush="{DynamicResource Edge}"
+                                        BorderThickness="1,1,1,0"/>
+                                <ListBox x:Name="lstPushFilters" SelectionMode="Extended"
+                                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"/>
+                            </DockPanel>
+                        </Border>
+
+                        <Grid x:Name="pnlColTable" Visibility="Collapsed">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0" VerticalAlignment="Center"
+                                        Margin="0,0,8,0">
+                                <Button x:Name="btnStageAdd" Style="{StaticResource ArrowBtn}"
+                                        Width="44" Height="36" Margin="0,0,0,8"
+                                        ToolTip="Add the ticked filters to the table"
+                                        Click="on_stage_add">
+                                    <Path Width="19" Height="16" Stretch="Uniform"
+                                          Fill="{DynamicResource Green}"
+                                          Data="M 2,9 L 14,9 L 14,3 L 23,12 L 14,21 L 14,15 L 2,15 Z"/>
+                                </Button>
+                                <Button x:Name="btnStageRemove" Style="{StaticResource ArrowBtn}"
+                                        Width="44" Height="36"
+                                        ToolTip="Take the ticked rows back out of the table"
+                                        Click="on_stage_remove">
+                                    <Path Width="19" Height="16" Stretch="Uniform"
+                                          Fill="{DynamicResource Red}"
+                                          Data="M 23,9 L 11,9 L 11,3 L 2,12 L 11,21 L 11,15 L 23,15 Z"/>
+                                </Button>
+                            </StackPanel>
+
+                            <Border Grid.Column="1" Background="{DynamicResource Panel}"
+                                    BorderBrush="{DynamicResource Edge}" BorderThickness="1"
+                                    Padding="8">
+                                <DockPanel>
+                                    <DockPanel DockPanel.Dock="Top" Margin="0,0,0,6">
+                                    <Button x:Name="btnOverwriteB" DockPanel.Dock="Right" Style="{StaticResource Ghost}"
+                                            Margin="6,0,0,0" Padding="8,3" Click="on_overwrite_menu"
+                                            ToolTip="What happens to a filter the target already has">
+                                        <Button.ContextMenu>
+                                            <ContextMenu>
+                                                <MenuItem Header="Overwrite Target New Only" Tag="new"
+                                                          Click="on_overwrite_pick"/>
+                                                <MenuItem Header="Overwrite Target All" Tag="all"
+                                                          Click="on_overwrite_pick"/>
+                                            </ContextMenu>
+                                        </Button.ContextMenu>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock x:Name="txtOverwriteB" Text="Overwrite Target All" VerticalAlignment="Center"/>
+                                            <Path Width="8" Height="5" Stretch="Fill" Margin="7,1,0,0"
+                                                  Fill="{DynamicResource Orange}" VerticalAlignment="Center"
+                                                  Data="M 0,0 L 10,0 L 5,6 Z"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <TextBlock Text="2.  FILTERS AND THE GRAPHICS THEY WILL BE GIVEN"
+                                               Foreground="{DynamicResource Orange}" VerticalAlignment="Center"
+                                               FontWeight="Bold" FontSize="12"
+                                               TextTrimming="CharacterEllipsis"/>
+                                    </DockPanel>
+                                    <TextBlock DockPanel.Dock="Top" x:Name="txtPropTarget"
+                                               Text="Nothing staged yet."
+                                               Foreground="{DynamicResource Dim}" FontSize="11"
+                                               Margin="0,0,0,6" TextTrimming="CharacterEllipsis"/>
+                                    <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal"
+                                                Margin="0,6,0,0">
+                                        <Button Content="Copy first ticked row to the rest"
+                                                Style="{StaticResource Ghost}"
+                                                Click="on_copy_props"/>
+                                        <Button Content="Read from host template"
+                                                Style="{StaticResource Ghost}"
+                                                Click="on_read_props"/>
+                                        <Button Content="Reset ticked"
+                                                Style="{StaticResource Ghost}"
+                                                Click="on_reset_props"/>
+                                    </StackPanel>
+                                    <Border Background="{DynamicResource Field}"
+                                            BorderBrush="{DynamicResource Edge}"
+                                            BorderThickness="1">
+                                        <ScrollViewer Style="{StaticResource DarkScroll}"
+                                                      VerticalScrollBarVisibility="Auto"
+                                                      HorizontalScrollBarVisibility="Auto">
+                                            <StackPanel x:Name="pnlProps" Margin="0"
+                                                        HorizontalAlignment="Left"/>
+                                        </ScrollViewer>
+                                    </Border>
+                                </DockPanel>
+                            </Border>
+                        </Grid>
+                    </Grid>
+
+                    <Thumb Grid.Row="1" Grid.Column="3" x:Name="pnlSplitB"
+                           Style="{StaticResource VThumb}"/>
+
+                    <!-- COLUMN C -->
+                    <Border Grid.Row="1" Grid.Column="4" Background="{DynamicResource Panel}"
+                            BorderBrush="{DynamicResource Edge}" BorderThickness="1" Padding="8">
+                        <DockPanel>
+                            <WrapPanel DockPanel.Dock="Top" Margin="0,0,0,8">
+                                <Button x:Name="btnTgtTemplates" Style="{StaticResource SubTabBtn}"
+                                        Tag="on" Click="on_tgt_templates" Margin="0,0,4,4">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Path Width="13" Height="13" Stretch="Uniform"
+                                              Fill="{DynamicResource Blue}" VerticalAlignment="Center"
+                                              Data="M 2,3 L 22,3 L 22,8 L 2,8 Z M 2,10 L 22,10 L 22,21 L 2,21 Z"/>
+                                        <TextBlock Text="Target View Templates" Margin="7,0,0,0"
+                                                   VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
+                                <Button x:Name="btnTgtViews" Style="{StaticResource SubTabBtn}"
+                                        Tag="off" Click="on_tgt_views" Margin="0,0,4,4">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Path Width="13" Height="13" Stretch="Uniform"
+                                              Fill="{DynamicResource Green}" VerticalAlignment="Center"
+                                              Data="M 2,2 L 22,2 L 22,22 L 2,22 Z M 5,5 L 5,19 L 19,19 L 19,5 Z M 7,7 L 17,7 L 17,10 L 7,10 Z M 7,12 L 12,12 L 12,17 L 7,17 Z"/>
+                                        <TextBlock Text="Target Views" Margin="7,0,0,0"
+                                                   VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
+                            </WrapPanel>
+
+                            <Grid>
+                                <!-- target view templates -->
+                                <DockPanel x:Name="pnlTgtTemplates">
+                                    <TextBlock DockPanel.Dock="Top" Text="3.  TARGET VIEW TEMPLATES"
+                                               Foreground="{DynamicResource Blue}" FontWeight="Bold"
+                                               FontSize="12" Margin="0,0,0,6"/>
+                                    <TextBlock DockPanel.Dock="Top"
+                                               Text="Existing matching filters are overwritten"
+                                               Foreground="{DynamicResource Dim}" FontSize="11"
+                                               Margin="0,0,0,6"/>
+                                    <DockPanel DockPanel.Dock="Top" Margin="0,0,0,6">
+                                        <TextBlock Text="Search" VerticalAlignment="Center"
+                                                   Margin="0,0,6,0" Foreground="{DynamicResource Label}"/>
+                                        <TextBox x:Name="txtTargetSearch" TextChanged="on_target_search"/>
+                                    </DockPanel>
+                                    <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal"
+                                                Margin="0,6,0,0">
+                                        <Button Content="All" Style="{StaticResource Ghost}"
+                                                Click="on_targets_all"/>
+                                        <Button Content="None" Style="{StaticResource Ghost}"
+                                                Click="on_targets_none"/>
+                                    </StackPanel>
+                                    <ListBox x:Name="lstTargets"/>
+                                </DockPanel>
+
+                                <!-- target views -->
+                                <DockPanel x:Name="pnlTgtViews" Visibility="Collapsed">
+                                    <TextBlock DockPanel.Dock="Top" Text="3.  TARGET VIEWS"
+                                               Foreground="{DynamicResource Blue}" FontWeight="Bold"
+                                               FontSize="12" Margin="0,0,0,6"/>
+                                    <TextBlock DockPanel.Dock="Top" TextWrapping="Wrap"
+                                               Text="Greyed views take their filters from a view template - push to the template instead"
+                                               Foreground="{DynamicResource Dim}" FontSize="11"
+                                               Margin="0,0,0,6"/>
+                                    <WrapPanel DockPanel.Dock="Top" Margin="0,0,0,6">
+                                        <Button x:Name="btnCurrentView" Style="{StaticResource Ghost}"
+                                                Margin="0,0,6,4" Click="on_current_view"
+                                                ToolTip="Tick the view open in Revit now, and bring it into the list">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Path Width="13" Height="11" Stretch="Uniform"
+                                                      Fill="{DynamicResource Blue}" VerticalAlignment="Center"
+                                                      Data="M 0,6 C 3,1 9,0 12,0 C 15,0 21,1 24,6 C 21,11 15,12 12,12 C 9,12 3,11 0,6 Z M 12,2.5 A 3.5,3.5 0 1 0 12.01,2.5 Z"/>
+                                                <TextBlock Text="Current view" Margin="6,0,0,0"
+                                                           VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Button>
+                                        <Button x:Name="btnOnlySelected" Style="{StaticResource Ghost}"
+                                                Margin="0,0,6,4" Click="on_only_selected"
+                                                ToolTip="Show only the views that are ticked">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Path Width="11" Height="11" Stretch="Uniform"
+                                                      Fill="{DynamicResource Orange}" VerticalAlignment="Center"
+                                                      Data="M 2,2 L 22,2 L 14,12 L 14,22 L 10,19 L 10,12 Z"/>
+                                                <TextBlock x:Name="txtOnlySelected" Text="Show only selected"
+                                                           Margin="6,0,0,0" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Button>
+                                    </WrapPanel>
+                                    <DockPanel DockPanel.Dock="Top" Margin="0,0,0,6">
+                                        <TextBlock Text="View type" VerticalAlignment="Center"
+                                                   Margin="0,0,6,0" Foreground="{DynamicResource Label}"/>
+                                        <Button x:Name="btnViewTypes" Style="{StaticResource Ghost}"
+                                                Margin="0" Padding="8,4" Click="on_view_types_open"
+                                                HorizontalContentAlignment="Stretch">
+                                            <DockPanel>
+                                                <Path DockPanel.Dock="Right" Width="8" Height="5"
+                                                      Stretch="Fill" Margin="8,1,0,0"
+                                                      Fill="{DynamicResource Orange}"
+                                                      VerticalAlignment="Center"
+                                                      Data="M 0,0 L 10,0 L 5,6 Z"/>
+                                                <TextBlock x:Name="txtViewTypes" Text="All view types"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           VerticalAlignment="Center"/>
+                                            </DockPanel>
+                                        </Button>
+                                    </DockPanel>
+                                    <Popup x:Name="popViewTypes" DockPanel.Dock="Top" StaysOpen="False"
+                                           Placement="Bottom" AllowsTransparency="True">
+                                        <Border Background="{DynamicResource Field}"
+                                                BorderBrush="{DynamicResource EdgeStrong}"
+                                                BorderThickness="1" Padding="8" MinWidth="260">
+                                            <DockPanel>
+                                                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal"
+                                                            Margin="0,0,0,8">
+                                                    <Button Content="All" Style="{StaticResource Ghost}"
+                                                            Click="on_view_types_all"/>
+                                                    <Button Content="None" Style="{StaticResource Ghost}"
+                                                            Click="on_view_types_none"/>
+                                                </StackPanel>
+                                                <ScrollViewer Style="{StaticResource DarkScroll}"
+                                                              MaxHeight="360"
+                                                              VerticalScrollBarVisibility="Auto"
+                                                              HorizontalScrollBarVisibility="Disabled">
+                                                    <StackPanel x:Name="stkViewTypes"/>
+                                                </ScrollViewer>
+                                            </DockPanel>
+                                        </Border>
+                                    </Popup>
+                                    <DockPanel DockPanel.Dock="Top" Margin="0,0,0,6">
+                                        <TextBlock Text="Search" VerticalAlignment="Center"
+                                                   Margin="0,0,6,0" Foreground="{DynamicResource Label}"/>
+                                        <TextBox x:Name="txtViewSearch" TextChanged="on_view_search"/>
+                                    </DockPanel>
+                                    <DockPanel DockPanel.Dock="Bottom" Margin="0,6,0,0">
+                                        <Button Content="All" Style="{StaticResource Ghost}"
+                                                Click="on_views_all"/>
+                                        <Button Content="None" Style="{StaticResource Ghost}"
+                                                Click="on_views_none"/>
+                                        <CheckBox x:Name="chkHideLocked" Content="Hide greyed"
+                                                  VerticalAlignment="Center" Margin="8,0,0,0"
+                                                  Checked="on_hide_locked" Unchecked="on_hide_locked"/>
+                                        <TextBlock x:Name="txtViewCount" HorizontalAlignment="Right"
+                                                   VerticalAlignment="Center" FontSize="11"
+                                                   Foreground="{DynamicResource Dim}"/>
+                                    </DockPanel>
+                                    <ListBox x:Name="lstTargetViews"/>
+                                </DockPanel>
+                            </Grid>
+                        </DockPanel>
+                    </Border>
+                </Grid>
+
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- FOOTER -->
+        <Border Grid.Row="3" Background="{DynamicResource Head}"
+                BorderBrush="{DynamicResource Edge}" BorderThickness="0,1,0,0" Padding="12,9">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Button Grid.Column="0" x:Name="btnRefresh" Content="Refresh"
+                        Style="{StaticResource Ghost}" Height="34" FontSize="12"
+                        Padding="14,4" VerticalAlignment="Center"
+                        ToolTip="Re-read the model  (F5)" Click="on_refresh"/>
+
+                <Button Grid.Column="1" x:Name="btnCreate" Content="+  CREATE FILTER"
+                        Style="{StaticResource Create}" Height="34" Margin="8,0,0,0"
+                        VerticalAlignment="Center" Click="on_create_filter"/>
+
+                <Button Grid.Column="2" x:Name="btnDuplicate" Content="DUPLICATE"
+                        Style="{StaticResource Ghost}" Height="34" FontSize="12"
+                        Padding="14,4" Margin="8,0,0,0" VerticalAlignment="Center"
+                        IsEnabled="False" ToolTip="Copy the selected filter (Ctrl+D)"
+                        Click="on_duplicate_filter"/>
+
+                <Button Grid.Column="3" x:Name="btnDelete" Content="DELETE FILTER"
+                        Style="{StaticResource Danger}" Height="34" Margin="8,0,0,0"
+                        VerticalAlignment="Center" IsEnabled="False" Click="on_delete_filter"/>
+
+                <StackPanel Grid.Column="4" VerticalAlignment="Center" Margin="16,0,16,0">
+                    <TextBlock x:Name="txtStatus" Text=""
+                               Foreground="{DynamicResource Orange}" FontSize="12"
+                               TextTrimming="CharacterEllipsis"/>
+                    <CheckBox x:Name="chkControl" IsChecked="True" Margin="0,5,0,0"
+                              Content="Pusher: make sure target templates control V/G Filters"/>
+                </StackPanel>
+
+                <Button Grid.Column="5" Content="Close" Style="{StaticResource Ghost}"
+                        Height="34" Width="86" FontSize="12"
+                        VerticalAlignment="Center" Click="on_cancel"/>
+
+                <Button Grid.Column="6" x:Name="btnPrimary" Content="APPLY CHANGES"
+                        Style="{StaticResource Primary}" Height="34"
+                        VerticalAlignment="Center" Click="on_primary"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>
