@@ -30,7 +30,7 @@ namespace RevoBIM.UI.HangerAutomation
         };
 
         private const int WatchdogSeconds = 20;
-        private static readonly string[] JobButtons = { "BtnRehost", "BtnExtend", "BtnPlace", "BtnRodCatsFab" };
+        private static readonly string[] JobButtons = { "BtnRehost", "BtnExtend", "BtnPlace", "BtnRodCatsFab", "BtnInspectLock" };
         private static readonly string[][] Checks =
         {
             new[] { "ChkReplace", "rehost_replace" }, new[] { "ChkExtendAfter", "extend_after" },
@@ -333,6 +333,7 @@ namespace RevoBIM.UI.HangerAutomation
             ((ButtonBase)C("CloseBtn")).Click += CloseClick;
             ((ButtonBase)C("BtnClose")).Click += CloseClick;
             ((ButtonBase)C("BtnCopyDebug")).Click += CopyDebug;
+            ((ButtonBase)C("BtnInspectLock")).Click += InspectLockClick;
             ((ButtonBase)C("BtnRehost")).Click += RehostClick;
             ((ButtonBase)C("BtnExtend")).Click += ExtendClick;
             ((ButtonBase)C("BtnPlace")).Click += PlaceClick;
@@ -641,6 +642,18 @@ namespace RevoBIM.UI.HangerAutomation
         private void CloseClick(object sender, RoutedEventArgs e)
         {
             Close();
+        }
+
+        /// <summary>Inspect lock (diagnostic): always runs with the debug file on, so Copy debug holds everything.</summary>
+        private void InspectLockClick(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                StartJob((u, s, l) => HfamRevit.JobInspectLock(u, s, l), s => { s.Prompts = DimUi; s["debug"] = "1"; });
+            }
+            catch (Exception)
+            {
+            }
         }
 
         private void RehostClick(object sender, RoutedEventArgs e)

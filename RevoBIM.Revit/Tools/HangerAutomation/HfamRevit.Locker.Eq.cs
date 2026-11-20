@@ -427,6 +427,9 @@ namespace RevoBIM.Tools.HangerAutomation
                     CL("EQ lock: " + why);
                     return false;
                 }
+                // centre-plane candidates first (by name too: weak / strong references called "Center ..." / "...Front/Back"); the sort is stable
+                cands = cands.OrderBy(c => CentrePrio(c)).ToList();
+                CL("centre-plane candidates in probe order: " + string.Join(" | ", cands.Select(c => c.Label + " [" + c.Type + "] prio " + Inv(CentrePrio(c)))));
                 EqSpec spec;
                 _eqWorked.TryGetValue(ek, out spec);
                 if (spec != null) cands = PreferEq(cands, spec);
@@ -468,6 +471,12 @@ namespace RevoBIM.Tools.HangerAutomation
                             CL("sides [" + vk.Key + " / " + src + "]: " + Inv(all.Count) + " vertical face(s) along the run, low " + Inv(all.Count(f => f.Sign < 0))
                                + " / high " + Inv(all.Count(f => f.Sign > 0)) + " - no pair of side faces" + (sec.Round ? " (round " + what + ": no flat sides)" : ""));
                             why = "no side faces with references on the " + what + (sec.Round ? " (round)" : "");
+                            // why none: what the geometry walk saw of the service (counts by type per nesting level), once per source
+                            if (_eqDumped.Add("geo|" + Inv(Eid(host.Id)) + "|" + src + "|" + (src == "view" ? Inv(Eid(vk.Value.Id)) : "")))
+                            {
+                                foreach (Element ow in SideOwners(host, sec))
+                                    CL("geometry seen [" + vk.Key + " / " + src + "] of " + InsEl(ow) + ": " + InsGeoSummary(Doc, ow, src == "view" ? vk.Value : null));
+                            }
                             continue;
                         }
                         double mid = (lo.S + hi.S) / 2.0, width = hi.S - lo.S;
@@ -480,6 +489,8 @@ namespace RevoBIM.Tools.HangerAutomation
                             why = "no reference plane of the hanger is parallel to the " + what + "'s sides and at (or a centre plane near) its middle";
                             continue;
                         }
+                        CL("CHOSEN centre reference: name \"" + pick.Item.Name + "\", type " + pick.Item.Type + " (" + pick.Item.Label + "), priority " + Inv(pick.Prio)
+                           + ", stable=" + (StableKey(Doc, pick.Item.Ref) ?? "?"));
                         // ---- move the hanger so the plane lies exactly mid-way
                         double delta = mid - pick.X;
                         if (Math.Abs(delta) > 1e-5)

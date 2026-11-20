@@ -823,6 +823,10 @@ namespace RevoBIM.Tools.HangerAutomation
             {
                 if (it.Type == "CenterLeftRight" || it.Type == "CenterFrontBack") return 0;
                 string n = (it.Name ?? "").ToLowerInvariant();
+                // a plane NAMED like a centre plane counts whatever its FamilyInstanceReferenceType (families often leave the centre
+                // plane as a weak / strong reference: "Center (Front/Back)" in the family editor)
+                if ((n.Contains("front/back") || n.Contains("front / back")) && (n.Contains("center") || n.Contains("centre"))) return 0;
+                if (n.Contains("front/back") || n.Contains("front / back")) return 1;
                 if (n.Contains("center") || n.Contains("centre") || n == "cl" || n == "c/l" || n.StartsWith("cl ", StringComparison.Ordinal)) return 1;
                 return 2;
             }
@@ -1446,6 +1450,22 @@ namespace RevoBIM.Tools.HangerAutomation
                     Log.Add("   round " + what + ": centre lock only (no flat bottom face)");
                     return notes;
                 }
+                // only Ducts and Cable Trays have a physical bottom face to lock to (fabrication parts and the rest: skipped, no attempt, no note)
+                if (!unit)
+                {
+                    long cid = 0;
+                    string cname = "(no category)";
+                    try
+                    {
+                        if (host.Category != null) { cid = Eid(host.Category.Id); cname = host.Category.Name; }
+                    }
+                    catch (Exception) { }
+                    if (cid != (long)BuiltInCategory.OST_DuctCurves && cid != (long)BuiltInCategory.OST_CableTray)
+                    {
+                        Log.Add("   lock: bottom lock skipped: " + cname + " has no usable bottom face (only Ducts and Cable Trays are locked at the bottom)");
+                        return notes;
+                    }
+                }
                 using (HaTiming.Time("lock.bottom"))
                     LockBottom(inst, host, sec, q, unit, what, notes);
                 return notes;
@@ -1474,7 +1494,11 @@ namespace RevoBIM.Tools.HangerAutomation
                     foreach (Element el in owners)
                         downs.AddRange(ElementFaces(el).Where(fz => fz.Nz < -0.99));
                     if (downs.Count == 0)
+                    {
                         bi.None = true;
+                        foreach (Element ow in owners)
+                            Log.Add("   bottom lock: no flat bottom face - geometry seen (Fine, as the lock reads it) of " + InsEl(ow) + ": " + InsGeoSummary(Doc, ow, null));
+                    }
                     else
                     {
                         bi.ZLow = downs.Min(fz => fz.Z);

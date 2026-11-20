@@ -1018,6 +1018,7 @@
             <TextBlock x:Name="StatusTxt" Grid.Column="0" Text="Ready" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
             <StackPanel Grid.Column="1" Orientation="Horizontal">
               <CheckBox x:Name="ChkDebug" Content="Debug" VerticalAlignment="Center" Margin="0,0,12,0" ToolTip="Log every step; Copy debug puts it on the clipboard to send over"/>
+              <Button x:Name="BtnInspectLock" Content="Inspect lock" Margin="0,0,8,0" ToolTip="Align a hanger to a service by hand with Revit's Align tool first, then select that hanger (or the service) in Revit and press this: it writes how Revit built the alignment to the results box and the debug file, so Copy debug can send it."/>
               <Button x:Name="BtnCopyDebug" Content="Copy debug" Margin="0,0,8,0"/>
               <Button x:Name="BtnClose" Content="Close"/>
             </StackPanel>
