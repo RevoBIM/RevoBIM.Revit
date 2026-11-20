@@ -251,7 +251,7 @@ namespace RevoBIM.Tools.HangerAutomation
                     {
                         PlaceOutcome po = PlaceOne(doc, symbol, duct, sec, q, cfg, rod, finder, log, ws, baseEl);
                         List<string> problems = po.Problems;
-                        LockIf(locker, po.Inst, duct, sec, q, problems, log);
+                        LockIf(locker, po.Inst, duct, sec, q, problems, log, cfg);
                         bool committed;
                         using (HaTiming.Time("commit"))
                             committed = po.Inst != null && FhaRevit.Committed(t);
@@ -429,7 +429,7 @@ namespace RevoBIM.Tools.HangerAutomation
                     {
                         List<string> problems = RealignOne(doc, h, segEl, sec, cfg, rod, finder, log, ws, baseEl);
                         if (p != null)
-                            LockIf(locker, h, segEl, sec, HfamCore.OnLine(sec.A, sec.B, p.Value), problems, log);
+                            LockIf(locker, h, segEl, sec, HfamCore.OnLine(sec.A, sec.B, p.Value), problems, log, cfg);
                         bool committed;
                         using (HaTiming.Time("commit"))
                             committed = FhaRevit.Committed(t);
@@ -715,7 +715,7 @@ namespace RevoBIM.Tools.HangerAutomation
                         try
                         {
                             PlaceOutcome po = PlaceOne(doc, symbol, host, sec, q, cfg, rod, finder, log, ws, baseEl);
-                            LockIf(locker, po.Inst, host, sec, q, po.Problems, log);
+                            LockIf(locker, po.Inst, host, sec, q, po.Problems, log, cfg);
                             issues.AddRange(po.Problems);
                             bool committed;
                             using (HaTiming.Time("commit"))

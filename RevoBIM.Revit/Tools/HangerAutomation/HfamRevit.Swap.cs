@@ -319,7 +319,7 @@ namespace RevoBIM.Tools.HangerAutomation
                             ? HcircRevit.PlaceCirc(doc, symbol, lead, sec, q, cfg, log, ws, null, rod, finder)
                             : PlaceOne(doc, symbol, lead, sec, q, cfg, rod, finder, log, ws, null);
                         List<string> problems = po.Problems;
-                        LockIf(locker, po.Inst, lead, sec, q, problems, log);
+                        LockIf(locker, po.Inst, lead, sec, q, problems, log, cfg);
                         if (po.Inst != null)
                         {
                             using (HaTiming.Time("delete"))
