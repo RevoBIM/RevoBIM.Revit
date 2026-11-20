@@ -148,6 +148,18 @@ namespace RevoBIM.Tools.HangerAutomation
             /// <summary>A view made on an earlier run (exact name, else its first '(n)' copy).</summary>
             public View Find(string name)
             {
+                // a view made in a placement Revit later undid (a rolled-back transaction) is gone: forget it, never hand it out
+                List<string> dead = null;
+                foreach (KeyValuePair<string, View> kv in Named)
+                {
+                    if (!Alive(kv.Value))
+                    {
+                        if (dead == null) dead = new List<string>();
+                        dead.Add(kv.Key);
+                    }
+                }
+                if (dead != null)
+                    foreach (string d in dead) Named.Remove(d);
                 View best = null;
                 foreach (KeyValuePair<string, View> kv in Named)
                 {
@@ -796,6 +808,8 @@ namespace RevoBIM.Tools.HangerAutomation
                     {
                         V3 t = HfamCore.OnLine(sec.A, sec.B, pn.Value);
                         ElementTransformUtils.MoveElement(Doc, inst.Id, new XYZ(t.X - pn.Value.X, t.Y - pn.Value.Y, 0.0));
+                        try { Doc.Regenerate(); }   // the alignment below reads the moved hanger's planes
+                        catch (Exception) { }
                         Log.Add("   centre lock: hanger was " + Fm(off * MM, 2) + " mm off the centreline in plan - moved onto it");
                     }
                     else if (off >= 0.01)

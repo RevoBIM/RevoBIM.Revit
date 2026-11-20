@@ -200,6 +200,7 @@ namespace RevoBIM.Tools.HangerAutomation
         public static object ScanJob(UIDocument uidoc, FhaSettings settings, FhaDebugLog log)
         {
             Document doc = uidoc.Document;
+            HaCache.Reset();   // does not go through HfamRevit.LogContext: levels may have changed since the last job
             return HangerElements(doc).Select(e => RecordOf(doc, e)).ToList();
         }
 

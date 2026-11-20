@@ -86,7 +86,7 @@ namespace RevoBIM.Tools.HangerAutomation
                 // round: the outside diameter (the size a hanger wraps), else the trade size
                 Curve c = ((LocationCurve)el.Location).Curve;
                 V3 a = Pt(c.GetEndPoint(0)), b = Pt(c.GetEndPoint(1));
-                double d = Truthy(ParamDouble(el, "RBS_CONDUIT_OUTER_DIAMETER_PARAM")) ?? Truthy(ParamDouble(el, "RBS_CONDUIT_DIAMETER_PARAM")) ?? 0.0;
+                double d = Truthy(ParamDouble(el, "RBS_CONDUIT_OUTER_DIAM_PARAM")) ?? Truthy(ParamDouble(el, "RBS_CONDUIT_DIAMETER_PARAM")) ?? 0.0;
                 return new Section { A = a, B = b, Width = d, Depth = d, Round = true };
             }
             if (el is CableTray)

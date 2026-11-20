@@ -244,13 +244,21 @@ namespace RevoBIM.Tools.HangerAutomation
             int swapped = 0, rehosted = 0;
             TransactionGroup tg = new TransactionGroup(doc, "Hanger Automation - swap fab hangers for family hangers");
             tg.Start();
-            SoffitFinder finder = new SoffitFinder(doc, settings, log, rod && cfg.Get("soffit", "") == "structure");
+            SoffitFinder finder = null;
             try
             {
+                // inside the try: the transaction group is already open and must always be closed
+                finder = new SoffitFinder(doc, settings, log, rod && cfg.Get("soffit", "") == "structure");
                 foreach (FabricationPart fab in fabs)
                 {
+                    try
+                    {
+                        if (!fab.IsValidObject) continue;   // gone with an earlier swap (a hanger in a group, say)
+                    }
+                    catch (Exception) { continue; }
                     long fid = Eid(fab.Id);
                     Transaction t = null;
+                    int rehostMark = rehostLines.Count;
                     try
                     {
                         SwapPick pick;
@@ -340,6 +348,7 @@ namespace RevoBIM.Tools.HangerAutomation
                     {
                         log.Add("swap " + Inv(fid) + ": " + ex.Message);
                         if (t != null) FhaRevit.Rollback(t);
+                        while (rehostLines.Count > rehostMark) rehostLines.RemoveAt(rehostLines.Count - 1);   // it was not re-hosted after all
                         res.Failed++;
                         skipLines.Add("Fab hanger " + Inv(fid) + " stays in the model: " + ex.Message + ".");
                     }
@@ -351,7 +360,7 @@ namespace RevoBIM.Tools.HangerAutomation
             }
             finally
             {
-                finder.Close();
+                if (finder != null) finder.Close();
                 tg.Assimilate();
                 HaTiming.EndJob(log, "Fab Hanger to Family Swap");
             }
