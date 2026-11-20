@@ -303,6 +303,23 @@ namespace RevoBIM.Tools.HangerAutomation
         /// a hanger carries into its Comments ('2xCable Tray : Ladder (LV), Pipe Types
         /// : Copper (SVP)'). Caller holds the transaction. Returns the text written,
         /// or null.</summary>
+        /// <summary>The instance parameter the service type is written to (the Service Type Assigner's "Write to" list); empty = Comments. Set per job.</summary>
+        public static string ServiceParamName = "";
+
+        /// <summary>The service-type parameter of a hanger: the chosen one by name (text instance parameter), else Comments.</summary>
+        public static Parameter ServiceParam(Element hanger)
+        {
+            string name = ServiceParamName ?? "";
+            Parameter p = null;
+            if (name.Length > 0 && name != "Comments")
+            {
+                try { p = hanger.LookupParameter(name); }
+                catch (Exception) { p = null; }
+                if (p != null && p.StorageType == StorageType.String) return p;
+            }
+            return hanger.get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS);
+        }
+
         public static string WriteServiceComment(Element hanger, IEnumerable<Element> services, FhaDebugLog log)
         {
             if (hanger == null) return null;
@@ -310,10 +327,10 @@ namespace RevoBIM.Tools.HangerAutomation
             if (string.IsNullOrEmpty(text)) return null;
             try
             {
-                Parameter p = hanger.get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS);
+                Parameter p = ServiceParam(hanger);
                 if (p == null || p.IsReadOnly)
                 {
-                    log.Add("   comments: no writable Comments parameter");
+                    log.Add("   service type: no writable parameter \"" + (string.IsNullOrEmpty(ServiceParamName) ? "Comments" : ServiceParamName) + "\"");
                     return null;
                 }
                 p.Set(text);

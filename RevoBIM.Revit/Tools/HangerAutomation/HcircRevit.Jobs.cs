@@ -50,6 +50,7 @@ namespace RevoBIM.Tools.HangerAutomation
                     if (sec == null)
                     {
                         issues.Add(NotRoundText(Describe(svc), Noun(cfg)));
+                        PromptNotRound(new[] { Describe(svc) }, Noun(cfg));
                         res.Skipped++;
                         continue;
                     }
@@ -499,6 +500,8 @@ namespace RevoBIM.Tools.HangerAutomation
             }
             foreach (string name in SortedDistinct(notRound))
                 issues.Add(NotRoundText(name, Noun(cfg)));
+            if (notRound.Count > 0 && res.Done == 0)
+                PromptNotRound(SortedDistinct(notRound), Noun(cfg));
             if (res.Skipped != 0)
                 res.Lines.Add(Inv(res.Skipped) + " skipped where a " + Noun(cfg) + " already was (untick \"Skip existing " + Noun(cfg) + "s\" to place anyway).");
             if (wantDims)

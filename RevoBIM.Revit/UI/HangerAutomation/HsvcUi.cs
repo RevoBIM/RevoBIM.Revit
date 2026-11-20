@@ -161,6 +161,8 @@ namespace RevoBIM.UI.HangerAutomation
                 Stack = ParseSort(Sget(s, "svc_sort", ""));
                 if (Stack.Count == 0) Stack = HsvcCore.DefaultStack(By());
                 Lst().Height = ListHeight(FhaCore.ParseMm(Sget(s, "svc_list_h", "300"), 300.0));
+                paramWanted = Sget(s, "svc_param", "Comments");
+                FillParams(new List<string> { "Comments" });
             }
             finally
             {
@@ -177,6 +179,39 @@ namespace RevoBIM.UI.HangerAutomation
             s["svc_by"] = string.Join(",", By());
             s["svc_sort"] = SortText(Stack);
             s["svc_list_h"] = G(ListHeight(Lst().Height));
+            s["svc_param"] = ParamChoice();
+        }
+
+        private string paramWanted = "Comments";
+
+        /// <summary>The parameter chosen in "Write to parameter" (Comments when none).</summary>
+        public string ParamChoice()
+        {
+            string v = Cmb("CmbSvcParam").SelectedItem as string;
+            return string.IsNullOrEmpty(v) ? paramWanted : v;
+        }
+
+        /// <summary>Fill the list with the project's text instance parameters, keeping the chosen one even if it is not (yet) among them.</summary>
+        private void FillParams(List<string> names)
+        {
+            var cb = Cmb("CmbSvcParam");
+            string want = cb.Items.Count > 0 && cb.SelectedItem is string ? (string)cb.SelectedItem : paramWanted;
+            var list = new List<string>(names ?? new List<string>());
+            if (!list.Contains("Comments")) list.Insert(0, "Comments");
+            if (!string.IsNullOrEmpty(want) && !list.Contains(want)) list.Add(want);
+            bool was = loading;
+            loading = true;
+            try
+            {
+                cb.Items.Clear();
+                foreach (string n in list) cb.Items.Add(n);
+                int i = list.IndexOf(want);
+                cb.SelectedIndex = i >= 0 ? i : 0;
+            }
+            finally
+            {
+                loading = was;
+            }
         }
 
         public string Category()
@@ -203,6 +238,7 @@ namespace RevoBIM.UI.HangerAutomation
             Btn("BtnSvcShow3D").Click += ShowClick;
             Btn("BtnSvcReset3D").Click += ResetClick;
             Btn("BtnSvcApply").Click += ApplyClick;
+            Cmb("CmbSvcParam").SelectionChanged += ParamChanged;
             Cmb("CmbSvcCategory").SelectionChanged += FilterSelectionChanged;
             Txt("TxtSvcSearch").TextChanged += FilterTextChanged;
             foreach (KeyValuePair<string, string> fc in ByChecks)
@@ -215,6 +251,21 @@ namespace RevoBIM.UI.HangerAutomation
             Lst().SelectionChanged += SelectionChangedHandler;
             ((Thumb)C("ThmSvcListSize")).DragDelta += ListDrag;
             ((Thumb)C("ThmSvcListSize")).DragCompleted += ListDropped;
+        }
+
+        /// <summary>A different "Write to parameter": save it, then read the hangers again so the list shows that parameter's values.</summary>
+        private void ParamChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (loading) return;
+            try
+            {
+                paramWanted = ParamChoice();
+                o.Save();
+                if (Loaded) Scan();
+            }
+            catch (Exception)
+            {
+            }
         }
 
         private RoutedEventHandler HeadHandler(string field)
@@ -268,6 +319,8 @@ namespace RevoBIM.UI.HangerAutomation
             IEnumerable<HangerRecord> recs = res as IEnumerable<HangerRecord>;
             Records = recs != null ? recs.ToList() : new List<HangerRecord>();
             Loaded = true;
+            try { FillParams(HsvcRevit.ParamNames); }
+            catch (Exception) { }
             Refill();
         }
 

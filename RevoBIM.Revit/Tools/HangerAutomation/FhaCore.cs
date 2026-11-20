@@ -216,7 +216,7 @@ namespace RevoBIM.Tools.HangerAutomation
     public static class FhaCore
     {
         // Bump this on every change to the tool (the owner's rule): it shows top right of the window and in the debug file.
-        public const string Version = "1.17.3";
+        public const string Version = "1.18.0";
 
         /// <summary>Which build is running: the add-in version, build date, target framework and the DLL's own path and
         /// write time - the first thing to read in a pasted debug file.</summary>

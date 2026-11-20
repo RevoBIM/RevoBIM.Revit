@@ -82,6 +82,10 @@ namespace RevoBIM.UI.HangerAutomation
                 else
                 {
                     if (!quiet) FhaRevit.CurrentLog = log;
+                    string sp;
+                    Settings.TryGetValue("svc_param", out sp);
+                    FhaRevit.ServiceParamName = sp ?? "";   // where the service type text goes (Service Type Assigner)
+                    if (!string.IsNullOrEmpty(sp) && sp != "Comments") log.Add("service type parameter: " + sp);
                     HaCache.Reset();            // per-job caches (levels, sections): never carried over from an earlier job, whichever job this is
                     HaTiming.BeginJob(null);    // timing off and cleared; the jobs that time themselves switch it on
                     res = job(uiapp.ActiveUIDocument, Settings, log);

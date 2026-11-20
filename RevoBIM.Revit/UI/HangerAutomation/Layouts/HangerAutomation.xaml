@@ -969,6 +969,7 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
               </Grid.RowDefinitions>
               <TextBlock Grid.Row="0" Text="Services resting within (mm)" VerticalAlignment="Center" Margin="0,3,10,3"/>
               <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Margin="0,3">
@@ -977,7 +978,9 @@
               </StackPanel>
               <TextBlock Grid.Row="1" Text="Apply to" VerticalAlignment="Center" Margin="0,3,10,3"/>
               <ComboBox x:Name="CmbSvcScope" Grid.Row="1" Grid.Column="1" Width="220" HorizontalAlignment="Left" Margin="0,3"/>
-              <WrapPanel Grid.Row="2" Grid.ColumnSpan="2" HorizontalAlignment="Right" Margin="0,8,0,0">
+              <TextBlock Grid.Row="2" Text="Write to parameter" VerticalAlignment="Center" Margin="0,3,10,3"/>
+              <ComboBox x:Name="CmbSvcParam" Grid.Row="2" Grid.Column="1" Width="220" HorizontalAlignment="Left" Margin="0,3" ToolTip="The instance parameter the service type text is written to (text instance parameters the hangers in the project carry). Comments by default."/>
+              <WrapPanel Grid.Row="3" Grid.ColumnSpan="2" HorizontalAlignment="Right" Margin="0,8,0,0">
                 <Button x:Name="BtnSvcReset3D" Content="Reset 3D" Margin="0,0,8,0" ToolTip="Put the 3D view back: colours, section box and isolate"/>
                 <Button x:Name="BtnSvcShow3D" Style="{DynamicResource Accent}" Content="Show in default 3D" Margin="0,0,8,0" IsEnabled="False" ToolTip="Select rows first: the default 3D view, cropped to those hangers, with the services they carry see-through and each category in its own colour (temporary)"/>
                 <Button x:Name="BtnSvcApply" Style="{DynamicResource Primary}" Content="Apply associated service type to hanger" ToolTip="Write into each hanger's Comments the family, type and service type abbreviation of the services it carries"/>

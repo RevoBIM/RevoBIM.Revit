@@ -393,6 +393,80 @@ namespace RevoBIM.Tools.HangerAutomation
                            .ThenBy(z => z.i).Select(z => z.l).ToList();
             }
 
+            /// <summary>Round services on a level run: the hanger family's Center (Elevation) plane aligned to the service's SYMBOL-level
+            /// centreline line, in the lock section (where the horizontal plane and the line both show edge-on), as the centre lock does
+            /// for the vertical plane. Each pair is made in a sub-transaction and kept only if the hanger does not move in plan, turn, or
+            /// shift the service. False when nothing was locked (the caller then tries the older route).</summary>
+            private bool LockElevationSym(FamilyInstance inst, Element host, Section sec, V3 along, string what)
+            {
+                try
+                {
+                    V3 across = new V3(-along.Y, along.X, 0.0);
+                    ViewSection view = SectionFor(host, sec);
+                    if (view == null)
+                    {
+                        Log.Add("   centre elevation lock: no section view - the symbol route is skipped");
+                        return false;
+                    }
+                    int raw;
+                    List<SymLine> lines = SymLinesFor(host, view, "view", sec, along, what, null, out raw);
+                    if (lines.Count == 0)
+                    {
+                        Log.Add("   centre elevation lock: no symbol centreline of the " + what + " in the lock section (" + Inv(raw) + " line(s) read)");
+                        return false;
+                    }
+                    var cands = new List<RefItem>();
+                    foreach (RefItem it in SymCands(inst))
+                    {
+                        string n = (it.Name ?? "").ToLowerInvariant();
+                        if (it.Type == "CenterElevation" || n.Contains("elev")) cands.Add(it);
+                    }
+                    if (cands.Count == 0)
+                    {
+                        Log.Add("   centre elevation lock: the family offers no Center (Elevation) reference - skipped");
+                        return false;
+                    }
+                    Func<Meas, string> check = m =>
+                    {
+                        if (!m.PosKnown) return "the hanger position could not be read";
+                        if (Math.Abs(m.DAlong) > 1.0 / MM || Math.Abs(m.DAcross) > 1.0 / MM) return "it would move the hanger in plan";
+                        if (m.Rot > 1e-4) return "it would rotate the hanger";
+                        if (m.HostKnown && m.Host > 0.5 / MM) return "it would move the service";
+                        if (Math.Abs(m.Dz) > 100.0 / MM) return "it would move the hanger " + Fm(m.Dz * MM, 1) + " mm vertically";
+                        return null;
+                    };
+                    int tries = 0;
+                    string last = "";
+                    foreach (SymLine ln in lines.Take(3))
+                    {
+                        foreach (RefItem cand in cands.Take(4))
+                        {
+                            for (int o = 0; o < 2; o++)
+                            {
+                                if (++tries > 16) break;
+                                string text, err;
+                                int s = AlignOnce(view, o == 0 ? ln.Ref : cand.Ref, o == 0 ? cand.Ref : ln.Ref, inst, host, along, across, true, check, out text, out err);
+                                last = text;
+                                Log.Add("   centre elevation lock [section " + ElName(view) + ", line " + (ln.Stable ?? "?") + " <-> hanger \"" + cand.Name + "\" ["
+                                        + cand.Type + "], " + (o == 0 ? "centreline first" : "hanger plane first") + "]: " + text);
+                                if (s == 2)
+                                {
+                                    Log.Add("   locked the centre elevation: hanger \"" + cand.Name + "\" <-> " + what + " symbol centreline");
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                    Log.Add("   centre elevation lock: symbol route not locked after " + Inv(tries) + " attempt(s); last: " + last);
+                    return false;
+                }
+                catch (Exception ex)
+                {
+                    Log.Add("   centre elevation lock (symbol route): " + ExText(ex));
+                    return false;
+                }
+            }
+
             private int SymTry(View view, string vlabel, string src, SymLine ln, RefItem cand, FamilyInstance inst, Element host, V3 along, V3 across,
                                bool keep, int order, SymState st, ref int budget, out int usedOrder)
             {

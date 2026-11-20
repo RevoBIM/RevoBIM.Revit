@@ -63,6 +63,24 @@ namespace RevoBIM.Tools.HangerAutomation
             return NotRound.Replace("{1}", noun).Replace("{0}", name);
         }
 
+        /// <summary>A prompt: a circular hanger cannot go on a rectangular service. Shown on Revit's thread, once per call.</summary>
+        public static void PromptNotRound(IEnumerable<string> names, string noun)
+        {
+            try
+            {
+                var list = names.Where(n => !string.IsNullOrEmpty(n)).Distinct().Take(6).ToList();
+                var td = new TaskDialog("Hanger Automation");
+                td.MainInstruction = "A circular " + noun + " can't be used on a rectangular service";
+                td.MainContent = "Circular " + noun + "s fit round pipes, conduits and round ducts only. Choose a rectangular " + noun
+                                 + " family for this service.\n\nSkipped: " + string.Join("; ", list);
+                td.CommonButtons = TaskDialogCommonButtons.Ok;
+                td.Show();
+            }
+            catch (Exception)
+            {
+            }
+        }
+
         /// <summary>Python "{0:.Nf}" for log lines.</summary>
         private static string Fm(double v, int decimals)
         {

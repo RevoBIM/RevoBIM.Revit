@@ -74,6 +74,7 @@ namespace RevoBIM.UI.HangerAutomation
     {
         public readonly TextBlock Tb;
         public readonly bool SetUp;
+        public UIElement Root;   // what goes in the list (the symbol column and the text)
 
         public FamRow(TextBlock tb, bool setUp)
         {
@@ -183,7 +184,6 @@ namespace RevoBIM.UI.HangerAutomation
         public Autodesk.Revit.DB.Document OpenDoc;
         private bool mirroring;
         private double listGrow;
-        private List<FamRow> rows = new List<FamRow>();   // one for each family listed
 
         public FamTab(IFamOwner owner, Autodesk.Revit.DB.Document doc, string mode = "hang", IEnumerable<FamTypeItem> items = null)
         {
@@ -521,32 +521,72 @@ namespace RevoBIM.UI.HangerAutomation
             return i >= 0 && i < HfamCore.Categories.Count ? HfamCore.Categories[i].Key : "all";
         }
 
-        public void Refill(string keepKey = null)
+        /// <summary>One line of the grouped list: a family header (Item null) or one of its types.</summary>
+        private sealed class Ent
         {
-            if (keepKey == null)
-            {
-                FamTypeItem cur = Current();
-                keepKey = cur != null ? cur.Key : "";
-            }
+            public FamTypeItem Item;
+            public string Family;
+            public FamRow Row;
+        }
+
+        private List<Ent> ents = new List<Ent>();
+        private readonly HashSet<string> expanded = new HashSet<string>(StringComparer.Ordinal);
+        private string chosenKey = "";
+
+        /// <summary>
+        /// The list is grouped by family: a header per family (click it to open or close its types), the types
+        /// below, each line led by a symbol for the family's hanger style (rectangle or circle, from Family settings).
+        /// reveal opens the chosen type's family; a header click passes false so it can close again.
+        /// </summary>
+        public void Refill(string keepKey = null, bool reveal = true)
+        {
+            if (keepKey == null) keepKey = chosenKey;
             loading = true;
             try
             {
                 shown = HfamCore.FilterTypes(Items, CategoryKey(), C<TextBox>("TxtFamSearch").Text ?? "");
                 if (C<ToggleButton>("ChkFamSetOnly").IsChecked == true)
                     shown = shown.Where(it => HfamCore.Configured(Fams, it.Family)).ToList();
+                FamTypeItem keep = shown.FirstOrDefault(x => x.Key == keepKey);
+                if (keep == null && shown.Count == 1) keep = shown[0];
+                chosenKey = keep != null ? keep.Key : "";
+                bool searching = !string.IsNullOrWhiteSpace(C<TextBox>("TxtFamSearch").Text);
+                if (reveal && keep != null) expanded.Add(keep.Family);
+                var order = new List<string>();
+                var groups = new Dictionary<string, List<FamTypeItem>>(StringComparer.Ordinal);
+                foreach (FamTypeItem it in shown)
+                {
+                    List<FamTypeItem> g;
+                    if (!groups.TryGetValue(it.Family, out g))
+                    {
+                        g = new List<FamTypeItem>();
+                        groups[it.Family] = g;
+                        order.Add(it.Family);
+                    }
+                    g.Add(it);
+                }
                 var lst = C<ListBox>("LstFamilies");
                 lst.Items.Clear();
-                rows = new List<FamRow>();
+                ents = new List<Ent>();
                 int pick = -1;
-                for (int i = 0; i < shown.Count; i++)
+                foreach (string fam in order)
                 {
-                    FamTypeItem it = shown[i];
-                    FamRow row = FamilyRow(it.Family + "  :  " + it.Type, HfamCore.Configured(Fams, it.Family));
-                    rows.Add(row);
-                    lst.Items.Add(row.Tb);
-                    if (it.Key == keepKey) pick = i;
+                    List<FamTypeItem> g = groups[fam];
+                    bool open = searching || expanded.Contains(fam);
+                    bool setUp = HfamCore.Configured(Fams, fam);
+                    string style = CfgFor(g[0]).Style;
+                    FamRow head = BuildRow(fam + "  (" + g.Count + ")", setUp, style, open ? "▾" : "▸", false);
+                    ents.Add(new Ent { Family = fam, Row = head });
+                    lst.Items.Add(head.Root);
+                    if (!open) continue;
+                    foreach (FamTypeItem it in g)
+                    {
+                        FamRow row = BuildRow(it.Type, setUp, style, "", true);
+                        ents.Add(new Ent { Family = fam, Item = it, Row = row });
+                        lst.Items.Add(row.Root);
+                        if (it.Key == chosenKey) pick = ents.Count - 1;
+                    }
                 }
-                if (pick < 0 && shown.Count == 1) pick = 0;
                 lst.SelectedIndex = pick;
                 if (pick >= 0) lst.ScrollIntoView(lst.Items[pick]);
             }
@@ -559,6 +599,35 @@ namespace RevoBIM.UI.HangerAutomation
             }
             PaintRows();
             ChosenChanged();
+        }
+
+        /// <summary>A list line: arrow column, style symbol column, then the text.</summary>
+        private static FamRow BuildRow(string text, bool setUp, string style, string arrow, bool indent)
+        {
+            var g = new Grid();
+            g.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(14) });
+            g.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(22) });
+            g.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            if (indent) g.Margin = new Thickness(14, 0, 0, 0);
+            var a = new TextBlock { Text = arrow, FontSize = 10, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
+            a.SetResourceReference(TextBlock.ForegroundProperty, "MutedBrush");
+            Grid.SetColumn(a, 0);
+            g.Children.Add(a);
+            bool circ = style == "circ";
+            var sym = new TextBlock
+            {
+                Text = circ ? "◯" : "▭", FontFamily = new System.Windows.Media.FontFamily("Segoe UI Symbol"), FontSize = 13,
+                HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center,
+                ToolTip = circ ? "Circular hanger" : "Rectangular hanger",
+            };
+            Grid.SetColumn(sym, 1);
+            g.Children.Add(sym);
+            FamRow r = FamilyRow(text, setUp);
+            r.Tb.TextTrimming = TextTrimming.CharacterEllipsis;
+            Grid.SetColumn(r.Tb, 2);
+            g.Children.Add(r.Tb);
+            r.Root = g;
+            return r;
         }
 
         /// <summary>
@@ -576,13 +645,14 @@ namespace RevoBIM.UI.HangerAutomation
             {
                 sel = -1;
             }
-            for (int i = 0; i < rows.Count; i++)
+            for (int i = 0; i < ents.Count; i++)
             {
-                if (rows[i].SetUp)
+                FamRow row = ents[i].Row;
+                if (row.SetUp)
                 {
                     try
                     {
-                        rows[i].Tb.SetResourceReference(TextBlock.ForegroundProperty, i == sel ? "TextBrush" : "SetTextBrush");
+                        row.Tb.SetResourceReference(TextBlock.ForegroundProperty, i == sel ? "TextBrush" : "SetTextBrush");
                     }
                     catch (Exception)
                     {
@@ -593,16 +663,7 @@ namespace RevoBIM.UI.HangerAutomation
 
         public FamTypeItem Current()
         {
-            int i;
-            try
-            {
-                i = C<ListBox>("LstFamilies").SelectedIndex;
-            }
-            catch (Exception)
-            {
-                return null;
-            }
-            return i >= 0 && i < shown.Count ? shown[i] : null;
+            return string.IsNullOrEmpty(chosenKey) ? null : shown.FirstOrDefault(x => x.Key == chosenKey);
         }
 
         private void FilterChanged(object sender, RoutedEventArgs e)
@@ -612,11 +673,19 @@ namespace RevoBIM.UI.HangerAutomation
 
         private void Picked(object sender, SelectionChangedEventArgs e)
         {
-            if (!loading)
+            if (loading) return;
+            int i = C<ListBox>("LstFamilies").SelectedIndex;
+            if (i < 0 || i >= ents.Count) return;
+            Ent en = ents[i];
+            if (en.Item == null)   // a family header: open or close its types, whole line clickable
             {
-                PaintRows();
-                ChosenChanged();
+                if (!expanded.Remove(en.Family)) expanded.Add(en.Family);
+                C<ListBox>("LstFamilies").Dispatcher.BeginInvoke(new Action(() => Refill(chosenKey, false)));
+                return;
             }
+            chosenKey = en.Item.Key;
+            PaintRows();
+            ChosenChanged();
         }
 
         public FamConfig CfgFor(FamTypeItem it)

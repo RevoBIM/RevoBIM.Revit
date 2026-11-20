@@ -156,9 +156,7 @@ namespace RevoBIM.Tools.HangerAutomation
         {
             try
             {
-                BuiltInParameter? b = FhaRevit.Bip("ALL_MODEL_INSTANCE_COMMENTS");
-                if (b == null) return "";
-                Parameter p = el.get_Parameter(b.Value);
+                Parameter p = FhaRevit.ServiceParam(el);
                 return p != null ? (p.AsString() ?? "") : "";
             }
             catch (Exception)
@@ -201,7 +199,42 @@ namespace RevoBIM.Tools.HangerAutomation
         {
             Document doc = uidoc.Document;
             HaCache.Reset();   // does not go through HfamRevit.LogContext: levels may have changed since the last job
-            return HangerElements(doc).Select(e => RecordOf(doc, e)).ToList();
+            List<Element> all = HangerElements(doc);
+            ParamNames = TextInstanceParams(all);
+            return all.Select(e => RecordOf(doc, e)).ToList();
+        }
+
+        /// <summary>The writable text instance parameters the project's hangers carry, for the "Write to" list (read after the scan).</summary>
+        public static List<string> ParamNames = new List<string>();
+
+        public static List<string> TextInstanceParams(IEnumerable<Element> hangers)
+        {
+            var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var seenTypes = new HashSet<string>();
+            foreach (Element e in hangers)
+            {
+                try
+                {
+                    // the parameters are the same for every instance of a type: read one of each
+                    string key = (e is FabricationPart ? "fab" : "fam") + "|" + FhaRevit.EidValue(e.GetTypeId()).ToString(CultureInfo.InvariantCulture);
+                    if (!seenTypes.Add(key)) continue;
+                    foreach (Parameter p in e.Parameters)
+                    {
+                        try
+                        {
+                            if (p.IsReadOnly || p.StorageType != StorageType.String || p.Definition == null) continue;
+                            string n = p.Definition.Name;
+                            if (!string.IsNullOrEmpty(n)) names.Add(n);
+                        }
+                        catch (Exception) { }
+                    }
+                }
+                catch (Exception) { }
+            }
+            names.Add("Comments");
+            var list = names.Where(n => n != "Comments").OrderBy(n => n, StringComparer.OrdinalIgnoreCase).ToList();
+            list.Insert(0, "Comments");
+            return list;
         }
 
         public static List<Element> ElementsOf(Document doc, IEnumerable<long> ids)

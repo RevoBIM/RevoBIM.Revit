@@ -1342,6 +1342,7 @@ namespace RevoBIM.Tools.HangerAutomation
                         Log.Add("   centre elevation lock: the " + what + " slopes - skipped");
                         return;
                     }
+                    if (LockElevationSym(inst, host, sec, along, what)) return;
                     List<RefItem> cands = InstanceRefs(inst, new[] { "CenterElevation" });
                     if (cands.Count == 0)
                     {
