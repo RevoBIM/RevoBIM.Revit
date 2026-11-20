@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -337,6 +337,7 @@ namespace RevoBIM.Tools.HangerAutomation
         {
             public PlanarFace Face;
             public double Z, Nz;
+            public string Level = "";
         }
 
         /// <summary>Planar faces with references and edge points of a geometry tree, in
@@ -482,17 +483,9 @@ namespace RevoBIM.Tools.HangerAutomation
 
             private readonly LockViews _views = new LockViews();
             private readonly Dictionary<string, List<RefItem>> _targets = new Dictionary<string, List<RefItem>>(StringComparer.Ordinal);
-            private readonly Dictionary<string, BottomInfo> _bottoms = new Dictionary<string, BottomInfo>(StringComparer.Ordinal);
             private readonly Dictionary<string, string> _worked = new Dictionary<string, string>(StringComparer.Ordinal);
             private readonly Dictionary<string, int> _fails = new Dictionary<string, int>(StringComparer.Ordinal);
             private string _lastSource;
-
-            private class BottomInfo
-            {
-                public List<RefItem> Items;
-                public double ZLow;
-                public bool None;
-            }
 
             private class TargetSource
             {
@@ -1385,10 +1378,32 @@ namespace RevoBIM.Tools.HangerAutomation
             }
 
             // ------------------------------------------------------------ the lock
-            /// <summary>Lock one hanger to its service (or unit); returns the notes for whatever could not be locked.</summary>
+            /// <summary>Lock one hanger to its service (or unit); returns the notes for whatever could not be locked.
+            /// Services, centre: (a) the hanger's centre plane aligned to the SYMBOL-level centreline line of the service (what Revit's own
+            /// Align uses); (b) the face-based EQ lock, only when the service has side faces; (c) the old instance-level centreline
+            /// attempt, only when nothing else worked and it was never refused for this category. Units: the unit's centre planes.</summary>
             public List<string> Lock(FamilyInstance inst, Element host, Section sec, V3 q, string axis = null)
             {
                 var notes = new List<string>();
+                string cenWhy = null;
+                bool cenOk = false;
+                string botSummary = "skipped (not reached)";
+                try
+                {
+                    LockInner(inst, host, sec, q, axis, notes, out cenOk, out cenWhy, out botSummary);
+                }
+                finally
+                {
+                    Log.Add("   lock summary: centre " + (cenOk ? "yes" + (cenWhy != null ? " (" + cenWhy + ")" : "") : "no (" + (cenWhy ?? "not made") + ")")
+                            + ", bottom " + botSummary);
+                }
+                return notes;
+            }
+
+            private void LockInner(FamilyInstance inst, Element host, Section sec, V3 q, string axis, List<string> notes,
+                                   out bool cenOk, out string cenWhy, out string botSummary)
+            {
+                cenOk = false; cenWhy = null; botSummary = "skipped (not reached)";
                 TellFamily(inst);
                 V3 along, across;
                 HfamCore.PlanDirs(sec.A, sec.B, out along, out across);
@@ -1415,40 +1430,107 @@ namespace RevoBIM.Tools.HangerAutomation
                         + " (orientation alone would say " + byOrient + ")");
                 using (HaTiming.Time("lock.centre"))
                 {
-                    // primary: face-based EQ lock (service side face - hanger centre plane - side face); services only.
-                    // fallback: the old centreline alignment, which Revit refuses for a line-to-plane pair in plan views.
-                    string eqWhy = null;
-                    bool eq = false;
-                    if (!unit)
+                    if (unit)
                     {
-                        using (HaTiming.Time("lock.centre.eq"))
-                        {
-                            try { eq = LockEq(inst, host, sec, q, along, across, alongType, square, what, out eqWhy); }
-                            catch (Exception ex)
-                            {
-                                eqWhy = ExText(ex);
-                                Log.Add("   centre lock: EQ lock failed unexpectedly - " + eqWhy);
-                            }
-                        }
-                    }
-                    if (eq)
-                    {
-                        if (sec.Round && ElevationCentre) LockElevationCentre(inst, host, sec, along, what);
+                        int before = notes.Count;
+                        LockCentre(inst, host, sec, q, along, alongType, square, unit, what, notes);
+                        cenOk = notes.Count == before;
+                        cenWhy = cenOk ? "unit centre planes" : notes[before];
                     }
                     else
                     {
-                        if (!unit) Log.Add("   centre lock: falling back to the centreline alignment (" + eqWhy + ")");
-                        int before = notes.Count;
-                        LockCentre(inst, host, sec, q, along, alongType, square, unit, what, notes);
-                        if (!unit && eqWhy != null && notes.Count > before)
-                            notes[before] = "face-based EQ lock: " + eqWhy + "; centreline alignment: " + notes[before];
+                        string cat = CatKey(host);
+                        string shape = cat + (sec.Round ? "|round" : "|rect");
+                        string symWhy = null, eqWhy = null;
+                        bool done = false;
+                        // (a) the symbol-level centreline line <-> the hanger's centre plane (the pair Revit's own Align uses)
+                        using (HaTiming.Time("lock.centre.sym"))
+                        {
+                            try { done = LockSym(inst, host, sec, q, along, across, what, out symWhy); }
+                            catch (Exception ex)
+                            {
+                                symWhy = ExText(ex);
+                                Log.Add("   centre lock: symbol-centreline lock failed unexpectedly - " + symWhy);
+                            }
+                        }
+                        if (done)
+                        {
+                            cenOk = true;
+                            cenWhy = "symbol centreline alignment";
+                            if (sec.Round && ElevationCentre) LockElevationCentre(inst, host, sec, along, what);
+                        }
+                        else
+                        {
+                            // (b) the face-based EQ lock, only when the service has side faces
+                            string eqSkip = null;
+                            if (host is FabricationPart) eqSkip = "a fabrication part has no side faces with references";
+                            else if (_noFaces.Contains(shape)) eqSkip = "an earlier " + cat + (sec.Round ? " (round)" : "") + " had no side faces";
+                            bool eq = false;
+                            if (eqSkip != null)
+                            {
+                                Log.Add("   centre lock: face-based EQ lock skipped - " + eqSkip);
+                                eqWhy = eqSkip;
+                            }
+                            else
+                            {
+                                _eqSawSides = false;
+                                using (HaTiming.Time("lock.centre.eq"))
+                                {
+                                    try { eq = LockEq(inst, host, sec, q, along, across, alongType, square, what, out eqWhy); }
+                                    catch (Exception ex)
+                                    {
+                                        eqWhy = ExText(ex);
+                                        Log.Add("   centre lock: EQ lock failed unexpectedly - " + eqWhy);
+                                    }
+                                }
+                                if (!eq && !_eqSawSides)
+                                {
+                                    _noFaces.Add(shape);
+                                    Log.Add("   centre lock: no side faces for " + shape + " - the face-based EQ lock will not be tried again for it");
+                                }
+                            }
+                            if (eq)
+                            {
+                                cenOk = true;
+                                cenWhy = "face-based EQ lock";
+                                if (sec.Round && ElevationCentre) LockElevationCentre(inst, host, sec, along, what);
+                            }
+                            else
+                            {
+                                // (c) the old instance-level centreline attempt, never repeated for a category it was refused for
+                                if (_oldRefused.Contains(cat))
+                                {
+                                    Log.Add("   centre lock: old instance-level centreline attempt skipped - refused for every earlier " + cat);
+                                    cenWhy = "symbol centreline: " + symWhy + "; EQ: " + eqWhy;
+                                    notes.Add("centre not locked - " + symWhy);
+                                }
+                                else
+                                {
+                                    Log.Add("   centre lock: falling back to the old instance-level centreline attempt (" + symWhy + "; EQ: " + eqWhy + ")");
+                                    int before = notes.Count;
+                                    LockCentre(inst, host, sec, q, along, alongType, square, unit, what, notes);
+                                    if (notes.Count > before)
+                                    {
+                                        _oldRefused.Add(cat);
+                                        notes[before] = "symbol centreline alignment: " + symWhy + "; " + notes[before];
+                                        cenWhy = "symbol centreline: " + symWhy + "; EQ: " + eqWhy + "; old attempt refused";
+                                    }
+                                    else
+                                    {
+                                        cenOk = true;
+                                        cenWhy = "old instance-level centreline";
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
                 // ---- bottom: hanger at the invert <-> service / insulation / unit bottom face
                 if (sec.Round)
                 {
                     Log.Add("   round " + what + ": centre lock only (no flat bottom face)");
-                    return notes;
+                    botSummary = "skipped (round " + what + ")";
+                    return;
                 }
                 // only Ducts and Cable Trays have a physical bottom face to lock to (fabrication parts and the rest: skipped, no attempt, no note)
                 if (!unit)
@@ -1463,94 +1545,21 @@ namespace RevoBIM.Tools.HangerAutomation
                     if (cid != (long)BuiltInCategory.OST_DuctCurves && cid != (long)BuiltInCategory.OST_CableTray)
                     {
                         Log.Add("   lock: bottom lock skipped: " + cname + " has no usable bottom face (only Ducts and Cable Trays are locked at the bottom)");
-                        return notes;
+                        botSummary = "skipped (" + cname + ")";
+                        return;
+                    }
+                    if (host is FabricationPart)
+                    {
+                        Log.Add("   lock: bottom lock skipped: a fabrication part has no usable bottom face");
+                        botSummary = "skipped (fabrication part)";
+                        return;
                     }
                 }
                 using (HaTiming.Time("lock.bottom"))
-                    LockBottom(inst, host, sec, q, unit, what, notes);
-                return notes;
+                    botSummary = LockBottom(inst, host, sec, q, along, across, unit, what, notes);
             }
 
-            private void LockBottom(FamilyInstance inst, Element host, Section sec, V3 q, bool unit, string what, List<string> notes)
-            {
-                double zInv = q.Z - sec.Depth / 2.0;
-                string bk = Inv(Eid(host.Id)) + (sec.InsUsed ? "|ins" : "|bare") + (unit ? "|unit" : "");
-                BottomInfo bi;
-                if (!_bottoms.TryGetValue(bk, out bi))
-                {
-                    // the service's own bottom faces: read once per service (every hanger on it shares them)
-                    bi = new BottomInfo();
-                    var owners = new List<Element> { host };
-                    if (sec.InsUsed)
-                    {
-                        try
-                        {
-                            var ins = InsulationLiningBase.GetInsulationIds(Doc, host.Id).Select(i => Doc.GetElement(i)).ToList();
-                            if (ins.Count > 0) owners = ins;
-                        }
-                        catch (Exception) { }
-                    }
-                    var downs = new List<FaceZ>();
-                    foreach (Element el in owners)
-                        downs.AddRange(ElementFaces(el).Where(fz => fz.Nz < -0.99));
-                    if (downs.Count == 0)
-                    {
-                        bi.None = true;
-                        foreach (Element ow in owners)
-                            Log.Add("   bottom lock: no flat bottom face - geometry seen (Fine, as the lock reads it) of " + InsEl(ow) + ": " + InsGeoSummary(Doc, ow, null));
-                    }
-                    else
-                    {
-                        bi.ZLow = downs.Min(fz => fz.Z);
-                        bi.Items = downs.Where(fz => Math.Abs(fz.Z - bi.ZLow) < 2.0 / MM)
-                                        .Select(fz => new RefItem(fz.Face.Reference, "bottom face at " + Fmm(fz.Z))).ToList();
-                        if (unit)
-                            bi.Items.AddRange(InstanceRefs(host, new[] { "Bottom" }));
-                    }
-                    _bottoms[bk] = bi;
-                }
-                if (bi.None)
-                {
-                    notes.Add("no flat bottom face found on the " + what);
-                    return;
-                }
-                List<RefItem> bottoms = bi.Items;
-                ViewSection view = SectionFor(host, sec);
-                if (view == null)
-                {
-                    notes.Add("no section view type for the bottom lock");
-                    return;
-                }
-                List<FaceZ> hfaces = ElementFaces(inst, view);
-                if (hfaces.Count == 0) hfaces = ElementFaces(inst);
-                var flats = hfaces.Where(fz => Math.Abs(fz.Nz) > 0.99 && Math.Abs(fz.Z - zInv) < 2.0 / MM)
-                                  .Select((fz, i) => new { fz, i }).OrderBy(z => -z.fz.Nz).ThenBy(z => z.i).Select(z => z.fz).ToList();   // the upward face (bearer top) first
-                var cands2 = flats.Select(fz => new RefItem(fz.Face.Reference, "face at " + Fmm(fz.Z))).ToList();
-                cands2.AddRange(InstanceRefs(inst, new[] { "Bottom", "Top", "CenterElevation", "StrongReference", "WeakReference" }));
-                if (cands2.Count == 0)
-                {
-                    string heights = FlatHeights(hfaces);
-                    notes.Add("no face or reference plane of the hanger at the invert " + Fmm(zInv) + " (its flat faces are at "
-                              + (heights.Length > 0 ? heights : "-") + ")");
-                    return;
-                }
-                string bkey = FamKey(inst) + "|bottom";
-                cands2 = Prefer(cands2, bkey);
-                string err2; int attempts;
-                AlignHit hit2 = Attempt(view, bottoms, cands2, MaxTries(bkey), out err2, out attempts);
-                Outcome(bkey, hit2 != null);
-                if (hit2 != null)
-                {
-                    _worked[bkey] = NormLabel(hit2.CandidateLabel);
-                    Log.Add("   locked to the bottom: hanger " + hit2.CandidateLabel + " <-> " + what + " " + hit2.TargetLabel);
-                }
-                else
-                {
-                    string heights = FlatHeights(hfaces);
-                    notes.Add("bottom lock refused - the hanger has nothing exactly at the invert " + Fmm(zInv) + " (its flat faces are at "
-                              + (heights.Length > 0 ? heights : "-") + ")" + (!string.IsNullOrEmpty(err2) ? "; Revit: " + err2 : ""));
-                }
-            }
+            // LockBottom: see HfamRevit.Locker.Sym.cs
 
             /// <summary>', '.join(sorted(set(fmm(z) ...))) of the flat faces - sorted as text, as the Python did.</summary>
             private static string FlatHeights(List<FaceZ> hfaces)

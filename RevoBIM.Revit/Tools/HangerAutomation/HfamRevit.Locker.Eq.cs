@@ -479,6 +479,7 @@ namespace RevoBIM.Tools.HangerAutomation
                             }
                             continue;
                         }
+                        _eqSawSides = true;
                         double mid = (lo.S + hi.S) / 2.0, width = hi.S - lo.S;
                         CL("sides [" + vk.Key + " / " + src + "]: " + Inv(all.Count) + " vertical face(s) along the run; low at " + Fm(lo.S * MM, 3) + " mm (element " + Inv(lo.Owner)
                            + ", area " + Fm(lo.Area * MM * MM, 0) + " mm2), high at " + Fm(hi.S * MM, 3) + " mm (element " + Inv(hi.Owner) + ", area " + Fm(hi.Area * MM * MM, 0)
