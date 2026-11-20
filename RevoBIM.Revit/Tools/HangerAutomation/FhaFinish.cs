@@ -61,7 +61,7 @@ namespace RevoBIM.Tools.HangerAutomation
         /// </summary>
         public static Action<FinishRequest> Listener;
 
-        private static FinishRequest current;
+        private static volatile FinishRequest current;
         private static bool pressed;
         private static IntPtr lastMain = IntPtr.Zero;
         private static FhaDebugLog armedLog;
@@ -226,9 +226,13 @@ namespace RevoBIM.Tools.HangerAutomation
         {
             try
             {
-                if (FinishByButton(hwnd)) return;
-                if (FinishByAutomation(hwnd)) return;
+                FinishRequest req = current;
+                // each way is tried in turn and checked: if Revit is still waiting on the pick afterwards, the next way runs
+                if (FinishByButton(hwnd) && Landed(req, "Win32 button")) return;
+                if (FinishByAutomation(hwnd) && Landed(req, "UI Automation")) return;
+                if (FinishByMouse(hwnd) && Landed(req, "mouse click")) return;
                 FinishByReturn(hwnd);
+                Landed(req, "Return");
             }
             catch (Exception ex)
             {
@@ -240,6 +244,25 @@ namespace RevoBIM.Tools.HangerAutomation
                 {
                 }
             }
+        }
+
+        /// <summary>
+        /// Wait (up to ~1.5 s) for the pick to end after a press. The pick ending disarms the card, so a request that is
+        /// still current afterwards means Revit did not take the press.
+        /// </summary>
+        private static bool Landed(FinishRequest req, string how)
+        {
+            for (int i = 0; i < 15; i++)
+            {
+                Thread.Sleep(100);
+                if (!ReferenceEquals(current, req))
+                {
+                    Log("Finish Selection: " + how + " finished the pick");
+                    return true;
+                }
+            }
+            Log("Finish Selection: " + how + " had no effect, Revit is still waiting - trying the next way");
+            return false;
         }
 
         // ---- 1. the button as a Windows window
@@ -308,29 +331,82 @@ namespace RevoBIM.Tools.HangerAutomation
         // ---- 2. UI Automation
         private static bool FinishByAutomation(IntPtr hwnd)
         {
-            AutomationElement root = AutomationElement.FromHandle(hwnd);
-            AutomationElementCollection buttons = root.FindAll(TreeScope.Descendants,
-                new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Button));
-            int count = 0;
-            for (int index = 0; index < buttons.Count; index++)
+            List<AutomationElement> found = FindFinishElements(hwnd);
+            foreach (AutomationElement element in found)
             {
                 try
                 {
-                    AutomationElement element = buttons[index];
                     string name = element.Current.Name;
-                    count++;
-                    if (!IsFinishLabel(name) || !element.Current.IsEnabled || element.Current.IsOffscreen) continue;
-                    var pattern = (InvokePattern)element.GetCurrentPattern(InvokePattern.Pattern);
-                    Log("Finish Selection: invoking \"" + name + "\" through UI Automation");
-                    pattern.Invoke();
-                    return true;
+                    if (!element.Current.IsEnabled || element.Current.IsOffscreen) continue;
+                    object pat;
+                    if (element.TryGetCurrentPattern(InvokePattern.Pattern, out pat))
+                    {
+                        Log("Finish Selection: invoking \"" + name + "\" through UI Automation");
+                        ((InvokePattern)pat).Invoke();
+                        return true;
+                    }
+                    Log("Finish Selection: \"" + name + "\" has no Invoke pattern");
+                }
+                catch (Exception ex)
+                {
+                    Log("Finish Selection: UI Automation press failed: " + ex.Message);
+                }
+            }
+            return false;
+        }
+
+        /// <summary>Every UI Automation element named Finish (any control type), logged with type, class and state.</summary>
+        private static List<AutomationElement> FindFinishElements(IntPtr hwnd)
+        {
+            var list = new List<AutomationElement>();
+            AutomationElement root = AutomationElement.FromHandle(hwnd);
+            AutomationElementCollection all = root.FindAll(TreeScope.Descendants,
+                new PropertyCondition(AutomationElement.NameProperty, "Finish", PropertyConditionFlags.IgnoreCase));
+            for (int index = 0; index < all.Count; index++)
+            {
+                try
+                {
+                    AutomationElement e = all[index];
+                    list.Add(e);
+                    Log("Finish Selection: UIA candidate " + (index + 1) + "/" + all.Count + ": type " + e.Current.ControlType.ProgrammaticName +
+                        ", class \"" + e.Current.ClassName + "\", id \"" + e.Current.AutomationId + "\", enabled " + e.Current.IsEnabled +
+                        ", offscreen " + e.Current.IsOffscreen + ", rect " + e.Current.BoundingRectangle);
                 }
                 catch (Exception)
                 {
-                    continue;
                 }
             }
-            Log("Finish Selection: UI Automation found no Finish button among " + count + " buttons");
+            if (all.Count == 0) Log("Finish Selection: UI Automation found no element named Finish");
+            return list;
+        }
+
+        // ---- 3. a real mouse click on the button, as the user would
+        private static bool FinishByMouse(IntPtr hwnd)
+        {
+            foreach (AutomationElement e in FindFinishElements(hwnd))
+            {
+                try
+                {
+                    if (!e.Current.IsEnabled || e.Current.IsOffscreen) continue;
+                    var r = e.Current.BoundingRectangle;
+                    if (r.IsEmpty || r.Width < 2 || r.Height < 2) continue;
+                    int x = (int)(r.Left + r.Width / 2), y = (int)(r.Top + r.Height / 2);
+                    FocusRevit(hwnd);
+                    Native.POINT old;
+                    Native.GetCursorPos(out old);
+                    Log("Finish Selection: clicking at " + x + "," + y);
+                    Native.SetCursorPos(x, y);
+                    Native.mouse_event(0x0002, 0, 0, 0, IntPtr.Zero);   // left down
+                    Native.mouse_event(0x0004, 0, 0, 0, IntPtr.Zero);   // left up
+                    Thread.Sleep(50);
+                    Native.SetCursorPos(old.X, old.Y);
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    Log("Finish Selection: mouse click failed: " + ex.Message);
+                }
+            }
             return false;
         }
 
@@ -445,6 +521,22 @@ namespace RevoBIM.Tools.HangerAutomation
             public const int VK_RETURN = 0x0D;
 
             public delegate bool EnumProc(IntPtr hwnd, IntPtr lParam);
+
+            [StructLayout(LayoutKind.Sequential)]
+            public struct POINT
+            {
+                public int X;
+                public int Y;
+            }
+
+            [DllImport("user32.dll")]
+            public static extern bool GetCursorPos(out POINT p);
+
+            [DllImport("user32.dll")]
+            public static extern bool SetCursorPos(int x, int y);
+
+            [DllImport("user32.dll")]
+            public static extern void mouse_event(uint flags, uint dx, uint dy, uint data, IntPtr extra);
 
             [DllImport("user32.dll")]
             public static extern bool EnumChildWindows(IntPtr parent, EnumProc proc, IntPtr lParam);
