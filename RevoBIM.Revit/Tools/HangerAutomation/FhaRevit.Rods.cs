@@ -17,6 +17,49 @@ namespace RevoBIM.Tools.HangerAutomation
             new[] { "ext_roofs", "OST_Roofs" },
         };
 
+        /// <summary>A model category offered in the "Rod target categories" window: its name and BuiltInCategory name.</summary>
+        public class CategoryChoice
+        {
+            public string Name;
+            public string Bic;
+        }
+
+        /// <summary>The extra categories a rod can run up to: the BuiltInCategory names in the ext_extra setting
+        /// (comma-separated); a name this Revit version does not know is skipped.</summary>
+        public static List<BuiltInCategory> ExtraCategories(IDictionary<string, string> settings)
+        {
+            var o = new List<BuiltInCategory>();
+            foreach (string raw in FhaCore.Get(settings, "ext_extra", "").Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                BuiltInCategory c;
+                if (Enum.TryParse(raw.Trim(), out c) && Enum.IsDefined(typeof(BuiltInCategory), c) && !o.Contains(c)) o.Add(c);
+            }
+            return o;
+        }
+
+        /// <summary>Every model category the project has (by name), for the "Rod target categories" window. Run it as a quiet job.</summary>
+        public static List<CategoryChoice> ModelCategories(Document doc)
+        {
+            var o = new List<CategoryChoice>();
+            try
+            {
+                foreach (Category c in doc.Settings.Categories)
+                {
+                    try
+                    {
+                        if (c.CategoryType != CategoryType.Model || c.Parent != null) continue;
+                        BuiltInCategory b = (BuiltInCategory)EidValue(c.Id);
+                        if (!Enum.IsDefined(typeof(BuiltInCategory), b)) continue;
+                        o.Add(new CategoryChoice { Name = c.Name, Bic = b.ToString() });
+                    }
+                    catch (Exception) { }
+                }
+            }
+            catch (Exception) { }
+            o.Sort((a, b) => string.Compare(a.Name, b.Name, StringComparison.OrdinalIgnoreCase));
+            return o;
+        }
+
         /// <summary>Ray casts up to structure through a temporary, clean 3D view.
         ///
         /// A view the user owns may hide floors or have a section box, and a
@@ -43,6 +86,10 @@ namespace RevoBIM.Tools.HangerAutomation
                 foreach (string[] kn in StructureKeys)
                 {
                     if (FhaCore.AsBool(settings, kn[0])) cats.Add(Bic(kn[1]));
+                }
+                foreach (BuiltInCategory extra in ExtraCategories(settings))
+                {
+                    if (!cats.Contains(extra)) cats.Add(extra);
                 }
                 if (cats.Count == 0)
                 {

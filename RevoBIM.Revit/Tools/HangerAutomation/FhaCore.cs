@@ -245,6 +245,9 @@ namespace RevoBIM.Tools.HangerAutomation
                 {"spacing", "2000"}, {"start_off", "300"}, {"end_off", "300"}, {"takeoff_max", "600"},
                 {"takeoff_clear", "400"}, {"min_gap", "500"}, {"edge", "100"}, {"skip_existing", "1"},
                 {"existing_clear", "300"}, {"ext_floors", "1"}, {"ext_framing", "1"}, {"ext_roofs", "0"},
+                // More categories a drop rod can run up to (comma-separated BuiltInCategory names), set in the
+                // "Rod target categories" window. Casework and MEP Ancillary Framing to begin with.
+                {"ext_extra", "OST_Casework,OST_MEPAncillaryFraming"},
                 {"extend_after", "1"}, {"extend_place", "1"}, {"match_size", "1"}, {"rehost_replace", "1"},
                 {"replace_free", "0"}, {"search_radius", "1500"}, {"dims", "1"}, {"dim_type", ""},
                 {"dim_offset", "800"}, {"scope", "run"}, {"active_tab", "fab"}, {"workset", ""},
