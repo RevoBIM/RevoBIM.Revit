@@ -469,7 +469,7 @@ namespace RevoBIM.Tools.HangerAutomation
         /// it shows the service) and in a plan of the tool's own with a view range that shows everything on the level - the
         /// centre plane of the hanger family is aligned to the service's CENTRELINE reference. Every step is logged. Each
         /// attempt group runs in a sub-transaction that is rolled back unless an alignment was made.</summary>
-        public class Locker
+        public partial class Locker
         {
             public Document Doc;
             public FhaDebugLog Log;
@@ -1410,7 +1410,36 @@ namespace RevoBIM.Tools.HangerAutomation
                         + "), run (" + Fm(along.X, 5) + ", " + Fm(along.Y, 5) + ") -> plane along the run: " + RefLabels[alongType]
                         + " (orientation alone would say " + byOrient + ")");
                 using (HaTiming.Time("lock.centre"))
-                    LockCentre(inst, host, sec, q, along, alongType, square, unit, what, notes);
+                {
+                    // primary: face-based EQ lock (service side face - hanger centre plane - side face); services only.
+                    // fallback: the old centreline alignment, which Revit refuses for a line-to-plane pair in plan views.
+                    string eqWhy = null;
+                    bool eq = false;
+                    if (!unit)
+                    {
+                        using (HaTiming.Time("lock.centre.eq"))
+                        {
+                            try { eq = LockEq(inst, host, sec, q, along, across, alongType, square, what, out eqWhy); }
+                            catch (Exception ex)
+                            {
+                                eqWhy = ExText(ex);
+                                Log.Add("   centre lock: EQ lock failed unexpectedly - " + eqWhy);
+                            }
+                        }
+                    }
+                    if (eq)
+                    {
+                        if (sec.Round && ElevationCentre) LockElevationCentre(inst, host, sec, along, what);
+                    }
+                    else
+                    {
+                        if (!unit) Log.Add("   centre lock: falling back to the centreline alignment (" + eqWhy + ")");
+                        int before = notes.Count;
+                        LockCentre(inst, host, sec, q, along, alongType, square, unit, what, notes);
+                        if (!unit && eqWhy != null && notes.Count > before)
+                            notes[before] = "face-based EQ lock: " + eqWhy + "; centreline alignment: " + notes[before];
+                    }
+                }
                 // ---- bottom: hanger at the invert <-> service / insulation / unit bottom face
                 if (sec.Round)
                 {

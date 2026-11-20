@@ -215,7 +215,33 @@ namespace RevoBIM.Tools.HangerAutomation
 
     public static class FhaCore
     {
-        public const string Version = "1.16.0";
+        // Bump this on every change to the tool (the owner's rule): it shows top right of the window and in the debug file.
+        public const string Version = "1.17.0";
+
+        /// <summary>Which build is running: the add-in version, build date, target framework and the DLL's own path and
+        /// write time - the first thing to read in a pasted debug file.</summary>
+        public static string BuildInfo()
+        {
+            try
+            {
+                System.Reflection.Assembly a = typeof(FhaCore).Assembly;
+                string date = "?";
+                foreach (object o in a.GetCustomAttributes(typeof(System.Reflection.AssemblyMetadataAttribute), false))
+                {
+                    var m = (System.Reflection.AssemblyMetadataAttribute)o;
+                    if (m.Key == "BuildDate") date = m.Value;
+                }
+                string loc = a.Location;
+                string written = "?";
+                try { written = File.GetLastWriteTime(loc).ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture); } catch (Exception) { }
+                return "RevoBIM Tools " + a.GetName().Version + ", built " + date + ", dll written " + written + ", "
+                       + Environment.Version + ", " + loc;
+            }
+            catch (Exception ex)
+            {
+                return "unknown (" + ex.Message + ")";
+            }
+        }
         public const string ToolName = "Hanger Automation";
         public const double MM = 304.8;
         public const int SettingsVersion = 3;
