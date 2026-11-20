@@ -16,7 +16,7 @@ namespace RevoBIM.Tools.HangerAutomation
         /// DuctInsulation elements hosted on it; FAB parts: their own InsulationThickness.</summary>
         public static double InsulationThickness(Element el)
         {
-            if (el is CableTray) return 0.0;
+            if (el is CableTray || el is Conduit) return 0.0;   // conduit: no insulation
             FabricationPart fp = el as FabricationPart;
             if (fp != null)
             {
@@ -57,6 +57,20 @@ namespace RevoBIM.Tools.HangerAutomation
             return sec;
         }
 
+        /// <summary>Section(el) read once per job (a service's size does not change while a job runs); every call gets its own
+        /// copy. The cache is cleared at each job start (LogContext).</summary>
+        public static Section SectionCached(Element el)
+        {
+            long k = Eid(el.Id);
+            Section s;
+            if (!HaCache.Sections.TryGetValue(k, out s))
+            {
+                s = Section(el);
+                HaCache.Sections[k] = s;
+            }
+            return s.Clone();
+        }
+
         /// <summary>{'a','b','width','depth','round'} for a Revit duct or fabrication straight (Python _section).</summary>
         public static Section RawSection(Element el)
         {
@@ -65,6 +79,14 @@ namespace RevoBIM.Tools.HangerAutomation
                 Curve c = ((LocationCurve)el.Location).Curve;
                 V3 a = Pt(c.GetEndPoint(0)), b = Pt(c.GetEndPoint(1));
                 double d = Truthy(ParamDouble(el, "RBS_PIPE_OUTER_DIAMETER")) ?? Truthy(ParamDouble(el, "RBS_PIPE_DIAMETER_PARAM")) ?? 0.0;
+                return new Section { A = a, B = b, Width = d, Depth = d, Round = true };
+            }
+            if (el is Conduit)
+            {
+                // round: the outside diameter (the size a hanger wraps), else the trade size
+                Curve c = ((LocationCurve)el.Location).Curve;
+                V3 a = Pt(c.GetEndPoint(0)), b = Pt(c.GetEndPoint(1));
+                double d = Truthy(ParamDouble(el, "RBS_CONDUIT_OUTER_DIAMETER_PARAM")) ?? Truthy(ParamDouble(el, "RBS_CONDUIT_DIAMETER_PARAM")) ?? 0.0;
                 return new Section { A = a, B = b, Width = d, Depth = d, Round = true };
             }
             if (el is CableTray)
@@ -106,6 +128,16 @@ namespace RevoBIM.Tools.HangerAutomation
             if (!Truthy(w2).HasValue && Truthy(dia).HasValue)
                 return new Section { A = fa, B = fb, Width = dia.Value, Depth = dia.Value, Round = true };
             double h2 = Truthy(Val(vals, "depth")) ?? Truthy(Val(vals, "height")) ?? Truthy(Val(vals, "main depth")) ?? 0.0;
+            if (!Truthy(w2).HasValue && h2 == 0.0)
+            {
+                // no usable dimension names: a round connector tells the size (FAB round ducts / pipes)
+                try
+                {
+                    if (ends[0].Shape == ConnectorProfileType.Round && ends[0].Radius > 0.0)
+                        return new Section { A = fa, B = fb, Width = ends[0].Radius * 2.0, Depth = ends[0].Radius * 2.0, Round = true };
+                }
+                catch (Exception) { }
+            }
             return new Section { A = fa, B = fb, Width = Truthy(w2) ?? 0.0, Depth = h2, Round = false };
         }
 
@@ -124,6 +156,16 @@ namespace RevoBIM.Tools.HangerAutomation
 
         /// <summary>Every level with its project elevation, lowest first.</summary>
         public static List<LevelElev> Levels(Document doc)
+        {
+            // read once per job (the list is only ever enumerated by the callers)
+            if (HaCache.LevelList != null && ReferenceEquals(HaCache.LevelsDoc, doc)) return HaCache.LevelList;
+            List<LevelElev> read = ReadLevels(doc);
+            HaCache.LevelsDoc = doc;
+            HaCache.LevelList = read;
+            return read;
+        }
+
+        private static List<LevelElev> ReadLevels(Document doc)
         {
             var o = new List<LevelElev>();
             foreach (Element e in new FilteredElementCollector(doc).OfClass(typeof(Level)))
@@ -328,21 +370,76 @@ namespace RevoBIM.Tools.HangerAutomation
             public List<double> Lvls;
             public FhaRevit.Soffit Ray;
 
+            /// <summary>Names of the hanger families (Family settings + the one being placed): a rod never stops at one of
+            /// their instances - MEP Ancillary Framing / Casework can be rod targets and hangers are MEP Ancillary Framing.</summary>
+            public HashSet<string> IgnoreFamilies = new HashSet<string>(StringComparer.Ordinal);
+
+            /// <summary>Element ids a rod ray ignores for this whole job (e.g. the fabrication hanger being swapped out).</summary>
+            public HashSet<long> Skip = new HashSet<long>();
+
             public SoffitFinder(Document doc, FhaSettings settings, FhaDebugLog log, bool wantStructure)
             {
                 Doc = doc;
                 Lvls = Levels(doc).Select(le => le.Elev).ToList();
                 Ray = wantStructure ? new FhaRevit.Soffit(doc, settings, log) : null;
+                if (Ray != null)
+                {
+                    try
+                    {
+                        foreach (string fam in FamsOf(settings).Keys) IgnoreFamilies.Add(fam);
+                        HfamChoice ch = ChoiceOf(settings);
+                        if (ch != null && !string.IsNullOrEmpty(ch.Family)) IgnoreFamilies.Add(ch.Family);
+                    }
+                    catch (Exception) { }
+                    FhaRevit.Soffit ray = Ray;
+                    ray.IgnoreElement = e =>
+                    {
+                        if (e is FabricationPart) return FhaRevit.IsHanger(e);
+                        FamilyInstance fi = e as FamilyInstance;
+                        if (fi == null) return false;
+                        try { return IgnoreFamilies.Contains(ElName(fi.Symbol.Family)); }
+                        catch (Exception) { return false; }
+                    };
+                }
             }
 
-            public double? Above(string mode, double x, double y, double z)
+            /// <summary>Z of the base of the level above or the structure above; a rod ray never stops at the elements in
+            /// `exclude` (the hanger being fitted and its group), at Skip, or at any hanger of a known hanger family.</summary>
+            public double? Above(string mode, double x, double y, double z, ICollection<long> exclude = null)
             {
                 if (mode == "structure" && Ray != null && Ray.Ok())
                 {
-                    double? hit = Ray.Above(x, y, z + 0.01);
+                    ICollection<long> ex = exclude;
+                    if (Skip.Count > 0)
+                    {
+                        var m = new HashSet<long>(Skip);
+                        if (exclude != null) foreach (long k in exclude) m.Add(k);
+                        ex = m;
+                    }
+                    double? hit = Ray.Above(x, y, z + 0.01, ex);
                     if (hit != null) return hit;
                 }
                 return HfamCore.LevelAbove(Lvls, z);
+            }
+
+            /// <summary>The ids a rod ray must ignore for this hanger: itself and, when it is in a group, the group's members.</summary>
+            public static HashSet<long> ExcludeIds(Element inst)
+            {
+                var set = new HashSet<long>();
+                if (inst == null) return set;
+                set.Add(Eid(inst.Id));
+                try
+                {
+                    ElementId gid = inst.GroupId;
+                    if (gid != null && Eid(gid) > 0)
+                    {
+                        Group g = inst.Document.GetElement(gid) as Group;
+                        if (g != null)
+                            foreach (ElementId m in g.GetMemberIds()) set.Add(Eid(m));
+                    }
+                }
+                catch (Exception) { }
+                return set;
             }
 
             public void Close()

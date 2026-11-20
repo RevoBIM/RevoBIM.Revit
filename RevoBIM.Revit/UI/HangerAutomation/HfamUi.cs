@@ -119,11 +119,13 @@ namespace RevoBIM.UI.HangerAutomation
         private static readonly string[] FamButtons =
         {
             "BtnFamPlace", "BtnFamRealign", "BtnFamAuto", "BtnFamRods", "BtnFamSettings", "BtnFamRefresh", "BtnFamRules",
+            "BtnFamSwap", "BtnFamRodCats", "BtnFamRodCatsPlace",
         };
 
         private static readonly string[] RodControls =
         {
             "ChkFamRodPlace", "ChkFamRodRealign", "ChkFamRodAuto", "ChkFamRodLinked", "BtnFamRods",
+            "BtnFamSwap", "BtnFamRodCats", "BtnFamRodCatsPlace",   // the swap tool and the rod target buttons: Family Hangers only
         };
 
         public const string DimDefault = "(default dimension type)";
@@ -312,7 +314,7 @@ namespace RevoBIM.UI.HangerAutomation
 
         public void Wire()
         {
-            string[] tools = Floor ? new[] { "Place", "Realign", "Auto", "Dims" } : new[] { "Place", "Realign", "Auto", "Rods", "Dims" };
+            string[] tools = Floor ? new[] { "Place", "Realign", "Auto", "Dims" } : new[] { "Place", "Realign", "Auto", "Swap", "Rods", "Dims" };
             fold = new Collapser(O.Win, tools, FoldChanged, O.ResizeForFold, Floor ? "Flr" : "Fam");
             fold.Load("");   // every tool starts folded; open the one you need
             C<ButtonBase>("BtnFamToggleAll").Click += ToggleAll;
@@ -334,7 +336,13 @@ namespace RevoBIM.UI.HangerAutomation
             C<ButtonBase>("BtnFamRealign").Click += RealignClick;
             C<ButtonBase>("BtnFamAuto").Click += AutoClick;
             C<ButtonBase>("BtnFamDims").Click += DimsClick;
-            if (!Floor) C<ButtonBase>("BtnFamRods").Click += RodsClick;
+            if (!Floor)
+            {
+                C<ButtonBase>("BtnFamRods").Click += RodsClick;
+                C<ButtonBase>("BtnFamSwap").Click += SwapClick;
+                C<ButtonBase>("BtnFamRodCats").Click += RodCatsClick;
+                C<ButtonBase>("BtnFamRodCatsPlace").Click += RodCatsClick;
+            }
             C<ButtonBase>("BtnFamRules").Click += RulesClick;
         }
 
@@ -986,6 +994,21 @@ namespace RevoBIM.UI.HangerAutomation
         private void AutoClick(object sender, RoutedEventArgs e)
         {
             Run(HfamRevit.JobAuto, HcircRevit.JobAuto);
+        }
+
+        /// <summary>
+        /// Fab Hanger to Family Swap: the same checks as Pick and place (a family and type chosen, set up, widths
+        /// or diameter set); the swap job handles rectangular and circular families itself.
+        /// </summary>
+        private void SwapClick(object sender, RoutedEventArgs e)
+        {
+            Run(HfamRevit.JobSwap, HfamRevit.JobSwap);
+        }
+
+        /// <summary>The "Rod targets..." window (categories the drop rods can run up to besides floors, framing and roofs).</summary>
+        private void RodCatsClick(object sender, RoutedEventArgs e)
+        {
+            RodCatsDialog.Run(O);
         }
 
         private void RodsClick(object sender, RoutedEventArgs e)

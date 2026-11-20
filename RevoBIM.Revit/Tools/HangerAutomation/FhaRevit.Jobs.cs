@@ -268,6 +268,7 @@ namespace RevoBIM.Tools.HangerAutomation
         public static JobResult JobPlace(UIDocument uidoc, FhaSettings settings, FhaDebugLog log)
         {
             Document doc = uidoc.Document;
+            HaTiming.BeginJob(log);
             JobResult res = NewResult("Auto place hangers");
             List<FabricationPart> seeds = GetSelection(uidoc, "duct", "Select the fabrication duct run to hang");
             if (seeds.Count == 0)
@@ -408,15 +409,22 @@ namespace RevoBIM.Tools.HangerAutomation
                         Transaction t = StartTxn(doc, "Place hanger");
                         try
                         {
-                            FabricationPart h = CreateHanger(doc, pk.Button, pk.Cond, host, pl.Conn, pl.Dist, log);
+                            FabricationPart h;
+                            using (HaTiming.Time("place"))
+                            {
+                                h = CreateHanger(doc, pk.Button, pk.Cond, host, pl.Conn, pl.Dist, log);
+                                if (h != null) ws.Apply(h, host, true);
+                            }
                             if (h == null)
                             {
                                 Rollback(t);
                                 res.Failed++;
                                 continue;
                             }
-                            ws.Apply(h, host, true);
-                            if (Committed(t))
+                            bool committed;
+                            using (HaTiming.Time("commit"))
+                                committed = Committed(t);
+                            if (committed)
                                 made.Add(new KeyValuePair<FabricationPart, FabricationPart>(h, host));
                             else
                                 res.Failed++;
@@ -426,6 +434,10 @@ namespace RevoBIM.Tools.HangerAutomation
                             log.Add("place on " + Inv(EidValue(host.Id)) + ": " + ex.Message);
                             Rollback(t);
                             res.Failed++;
+                        }
+                        finally
+                        {
+                            HaTiming.Flush(log, "FAB hanger on " + Inv(EidValue(host.Id)));
                         }
                     }
                     if (soffit != null)
@@ -437,7 +449,8 @@ namespace RevoBIM.Tools.HangerAutomation
                             string outcome;
                             try
                             {
-                                outcome = ExtendRods(doc, h, soffit, log);
+                                using (HaTiming.Time("rods"))
+                                    outcome = ExtendRods(doc, h, soffit, log);
                             }
                             catch (Exception ex)
                             {
@@ -446,9 +459,15 @@ namespace RevoBIM.Tools.HangerAutomation
                             }
                             if (outcome == "failed" || outcome == "already")
                                 Rollback(t);
-                            else if (!Committed(t))
-                                outcome = "failed";
+                            else
+                            {
+                                bool ok;
+                                using (HaTiming.Time("commit"))
+                                    ok = Committed(t);
+                                if (!ok) outcome = "failed";
+                            }
                             rods[outcome] += 1;
+                            HaTiming.Flush(log, "FAB hanger " + Inv(EidValue(h.Id)) + " rods");
                         }
                     }
                     if (made.Count > 0 && wantDims)
@@ -466,6 +485,7 @@ namespace RevoBIM.Tools.HangerAutomation
             {
                 if (soffit != null) soffit.Close();
                 tg.Assimilate();
+                HaTiming.EndJob(log, "FAB Auto place");
             }
             foreach (var c in created)   // read back after the group has closed
             {

@@ -148,13 +148,60 @@ namespace RevoBIM.Tools.HangerAutomation
 
             public bool Ok() { return Ri != null; }
 
-            /// <summary>Z of the first structure face above (x, y, z), or null.</summary>
-            public double? Above(double x, double y, double z)
+            /// <summary>Elements a ray never stops at, whatever the caller passes (e.g. everything a job placed / is swapping out).</summary>
+            public HashSet<long> IgnoreIds = new HashSet<long>();
+
+            /// <summary>Further elements a ray never stops at (hangers: MEP Ancillary Framing and Fabrication Hangers can be rod
+            /// target categories). Default: fabrication hangers.</summary>
+            public Func<Element, bool> IgnoreElement = e => e is FabricationPart && IsHanger(e);
+
+            /// <summary>True when a ray hit is on an element to ignore. Hits in a link are never ignored (an id there is not ours).</summary>
+            private bool IsIgnored(Reference r, ICollection<long> exclude)
             {
                 try
                 {
-                    ReferenceWithContext hit = Ri.FindNearest(new XYZ(x, y, z), XYZ.BasisZ);
-                    if (hit != null) return hit.GetReference().GlobalPoint.Z;
+                    if (EidValue(r.LinkedElementId) > 0) return false;
+                    long id = EidValue(r.ElementId);
+                    if (exclude != null && exclude.Contains(id)) return true;
+                    if (IgnoreIds.Contains(id)) return true;
+                    if (IgnoreElement != null)
+                    {
+                        Element e = Doc.GetElement(r.ElementId);
+                        if (e != null && IgnoreElement(e)) return true;
+                    }
+                }
+                catch (Exception) { }
+                return false;
+            }
+
+            /// <summary>Z of the first structure face above (x, y, z), or null. Nothing excluded: the nearest hit (FindNearest).
+            /// Otherwise, when the nearest hit is on an ignored element (the hanger itself, hangers of the same run ...), every hit is
+            /// taken nearest first and the first one not ignored is used.</summary>
+            public double? Above(double x, double y, double z, ICollection<long> exclude = null)
+            {
+                try
+                {
+                    XYZ origin = new XYZ(x, y, z);
+                    ReferenceWithContext hit = Ri.FindNearest(origin, XYZ.BasisZ);
+                    if (hit == null) return null;
+                    if (!IsIgnored(hit.GetReference(), exclude)) return hit.GetReference().GlobalPoint.Z;
+                    int skipped = 0;
+                    var ids = new List<string>();
+                    foreach (ReferenceWithContext h in Ri.Find(origin, XYZ.BasisZ).OrderBy(w => w.Proximity))
+                    {
+                        Reference r = h.GetReference();
+                        if (IsIgnored(r, exclude))
+                        {
+                            skipped++;
+                            string sid = Inv(EidValue(r.ElementId));
+                            if (!ids.Contains(sid) && ids.Count < 6) ids.Add(sid);
+                            continue;
+                        }
+                        Log.Add("   ray: ignored " + Inv(skipped) + " face(s) of the hanger / other hangers (elements " + string.Join(", ", ids)
+                                + "), stopped at element " + Inv(EidValue(r.ElementId)) + (EidValue(r.LinkedElementId) > 0 ? " in a link" : ""));
+                        return r.GlobalPoint.Z;
+                    }
+                    Log.Add("   ray: only the hanger / other hangers above (" + Inv(skipped) + " faces) - no structure hit");
                 }
                 catch (Exception ex)
                 {
@@ -214,7 +261,7 @@ namespace RevoBIM.Tools.HangerAutomation
                     // cast from under the hanger: a rod already pushed into the slab
                     // would otherwise see the slab's top face as the next soffit
                     double startZ = baseZ != null ? Math.Min(end.Z, baseZ.Value) - 0.05 : end.Z - 1.0;
-                    double? hit = soffit.Ok() ? soffit.Above(end.X, end.Y, startZ) : null;
+                    double? hit = soffit.Ok() ? soffit.Above(end.X, end.Y, startZ, new[] { EidValue(hanger.Id) }) : null;
                     if (hit == null) continue;
                     double ext = 0.0;
                     try { ext = info.GetRodStructureExtension(i); }

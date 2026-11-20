@@ -86,7 +86,8 @@ namespace RevoBIM.Tools.HangerAutomation
             V3 axisVec = new V3(1.0, 0.0, 0.0);
             try
             {
-                doc.Regenerate();
+                using (HaTiming.Time("fit.regen"))
+                    doc.Regenerate();
                 XYZ v = cfg.Get("axis", "X") == "X" ? inst.HandOrientation : inst.FacingOrientation;
                 axisVec = new V3(v.X, v.Y, 0.0);
             }
@@ -110,7 +111,9 @@ namespace RevoBIM.Tools.HangerAutomation
             if (rod)
             {
                 string soffit = cfg.Get("soffit", "level");
-                double? top = finder.Above(soffit, q.X, q.Y, zBot);
+                double? top;
+                using (HaTiming.Time("fit.rod"))
+                    top = finder.Above(soffit, q.X, q.Y, zBot, SoffitFinder.ExcludeIds(inst));   // never stops at this hanger
                 double? L = HfamCore.RodLength(zBot, top);
                 if (L == null)
                 {
@@ -190,13 +193,17 @@ namespace RevoBIM.Tools.HangerAutomation
         public static PlaceOutcome PlaceOne(Document doc, FamilySymbol symbol, Element duct, Section sec, V3 q, FamConfig cfg, bool rod,
                                             SoffitFinder finder, FhaDebugLog log, FhaRevit.Worksets ws = null, BaseSurface baseEl = null)
         {
+            HaTiming.Scope placeScope = HaTiming.Time("place");
             Level level;
             if (IsFloor(cfg))
                 level = FloorLevel(doc, duct, q.Z - sec.Depth / 2.0, log);
             else
                 level = ElementLevel(doc, duct, q.Z);
             if (level == null)
+            {
+                placeScope.Dispose();
                 return new PlaceOutcome { Inst = null, Problems = new List<string> { "the duct has no level" } };
+            }
             try
             {
                 if (!symbol.IsActive)
@@ -233,6 +240,7 @@ namespace RevoBIM.Tools.HangerAutomation
                 }
                 catch (Exception ex)
                 {
+                    placeScope.Dispose();
                     return new PlaceOutcome { Inst = null, Problems = new List<string> { "Revit refused to place " + ElName(symbol) + ": " + ex.Message } };
                 }
             }
@@ -241,11 +249,25 @@ namespace RevoBIM.Tools.HangerAutomation
                 ws.Apply(inst, duct, true);
             else
                 FhaRevit.MatchWorkset(inst, duct);
+            placeScope.Dispose();
             log.Add("+ hanger " + Inv(Eid(inst.Id)) + " on " + Describe(duct) + " at " + Fpt(q) + " (" + (placement.Length > 0 ? placement : "?") + ")");
             LogSection(log, sec);
-            List<string> problems = FitToDuct(doc, inst, sec, q, level, cfg, rod, finder, log, baseEl);
-            FhaRevit.WriteServiceComment(inst, FhaRevit.ServicesOf(doc, sec.Keys, duct), log);
+            log.Add("   service category: " + CategoryText(duct));
+            List<string> problems;
+            using (HaTiming.Time("fit"))
+                problems = FitToDuct(doc, inst, sec, q, level, cfg, rod, finder, log, baseEl);
+            using (HaTiming.Time("comment"))
+                FhaRevit.WriteServiceComment(inst, FhaRevit.ServicesOf(doc, sec.Keys, duct), log);
             return new PlaceOutcome { Inst = inst, Problems = problems };
+        }
+
+        /// <summary>'Pipes (pipe)', 'Conduits (conduit)', 'Fabrication Ductwork (FAB duct)' - the category of a service for the log.</summary>
+        public static string CategoryText(Element el)
+        {
+            string cat;
+            try { cat = el.Category != null ? el.Category.Name : "?"; }
+            catch (Exception) { cat = "?"; }
+            return cat + " (" + ServiceKind(el) + ")";
         }
 
         /// <summary>The instance's location point, or null.</summary>
@@ -307,17 +329,20 @@ namespace RevoBIM.Tools.HangerAutomation
             V3? pn = InstancePoint(inst);
             if (pn == null)
                 return new List<string> { "the hanger has no location point" };
+            HaTiming.Scope moveScope = HaTiming.Time("realign");
             V3 p = pn.Value;
             V3 q = HfamCore.OnLine(sec.A, sec.B, p);
             log.Add("~ hanger " + Inv(Eid(inst.Id)) + " at " + Fpt(p) + " -> " + Fpt(q) + " | sideways "
                     + Fmm(HfamCore.PlanOffset(sec.A, sec.B, p)) + " mm | on " + Describe(duct));
             LogSection(log, sec);
+            log.Add("   service category: " + CategoryText(duct));
             try
             {
                 ElementTransformUtils.MoveElement(doc, inst.Id, new XYZ(q.X - p.X, q.Y - p.Y, 0.0));
             }
             catch (Exception ex)
             {
+                moveScope.Dispose();
                 return new List<string> { "could not move it: " + ex.Message };
             }
             Level ductLevel;
@@ -340,12 +365,14 @@ namespace RevoBIM.Tools.HangerAutomation
             if (ws != null)
                 ws.Apply(inst, duct, false);
             doc.Regenerate();
+            moveScope.Dispose();
             if (level == null)
             {
                 problems.Add("no level");
                 return problems;
             }
-            problems.AddRange(FitToDuct(doc, inst, sec, q, level, cfg, rod, finder, log, baseEl));
+            using (HaTiming.Time("fit"))
+                problems.AddRange(FitToDuct(doc, inst, sec, q, level, cfg, rod, finder, log, baseEl));
             return problems;
         }
     }

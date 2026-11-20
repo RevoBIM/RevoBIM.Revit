@@ -126,10 +126,11 @@ namespace RevoBIM.Tools.HangerAutomation
             return null;
         }
 
-        /// <summary>A Revit MEP curve a hanger can carry: duct, pipe or cable tray.</summary>
+        /// <summary>A Revit MEP curve a hanger can carry: duct, pipe, cable tray or conduit (conduit added with the
+        /// circular-family categories: round, outside diameter, no insulation).</summary>
         public static bool IsRvtDuct(Element el)
         {
-            return el is Duct || el is Pipe || el is CableTray;
+            return el is Duct || el is Pipe || el is CableTray || el is Conduit;
         }
 
         /// <summary>A fabrication duct or pipe part (not a hanger).</summary>
@@ -150,6 +151,7 @@ namespace RevoBIM.Tools.HangerAutomation
         {
             if (el is Pipe) return "pipe";
             if (el is CableTray) return "cable tray";
+            if (el is Conduit) return "conduit";
             if (el is Duct) return "duct";
             if (el is FabricationPart) return CatIs(el, "OST_FabricationPipework") ? "FAB pipe" : "FAB duct";
             return "service";
@@ -164,6 +166,7 @@ namespace RevoBIM.Tools.HangerAutomation
         public static readonly string[] RunCategories =
         {
             "OST_DuctFitting", "OST_DuctAccessory", "OST_PipeFitting", "OST_PipeAccessory", "OST_CableTrayFitting",
+            "OST_ConduitFitting",
         };
 
         public static bool IsRunMember(Element el)
@@ -273,6 +276,8 @@ namespace RevoBIM.Tools.HangerAutomation
         public static void LogContext(UIDocument uidoc, FhaSettings settings, FhaDebugLog log, string title, FamilySymbol symbol = null, FamConfig cfg = null)
         {
             Document doc = uidoc.Document;
+            HaCache.Reset();          // per-job caches (levels, sections) start empty
+            HaTiming.BeginJob(log);   // per-phase timing lines in the debug log
             log.Add("== " + title + (IsFloor(settings) ? " (Family Floor Support tab)" : ""));
             try { log.Add("model: " + doc.Title + " | workshared: " + doc.IsWorkshared.ToString()); }
             catch (Exception) { }

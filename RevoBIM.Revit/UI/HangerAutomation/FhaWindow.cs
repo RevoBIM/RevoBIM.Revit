@@ -30,7 +30,7 @@ namespace RevoBIM.UI.HangerAutomation
         };
 
         private const int WatchdogSeconds = 20;
-        private static readonly string[] JobButtons = { "BtnRehost", "BtnExtend", "BtnPlace" };
+        private static readonly string[] JobButtons = { "BtnRehost", "BtnExtend", "BtnPlace", "BtnRodCatsFab" };
         private static readonly string[][] Checks =
         {
             new[] { "ChkReplace", "rehost_replace" }, new[] { "ChkExtendAfter", "extend_after" },
@@ -116,6 +116,7 @@ namespace RevoBIM.UI.HangerAutomation
         public FamTab Flr;
         public SvcTab Svc;
         private int nButtons;
+        private bool built;
 
         Autodesk.Revit.UI.UIApplication IFamOwner.UiApp { get { return UiApp; } }
 
@@ -158,13 +159,16 @@ namespace RevoBIM.UI.HangerAutomation
                 tab.OpenDoc = null;   // from here on previews go through the ExternalEvent
             }
             Svc.Wire();
-            ShowTab(Sget(Settings, "active_tab", "fab"));
+            // open on the tab that was open last time - except the Service Type Assigner, which reads the model: that opens on Family Hangers
+            string startTab = Sget(Settings, "active_tab", "fab");
+            ShowTab(startTab == "svc" ? "fam" : startTab);
             FhaUi.SetIcon(Win);
             Chrome.AddGrips((Panel)C("GripLayer"));
             FhaUi.OwnWindow(Win, uiapp);
             EggRoute = FhaUi.AttachEgg(Win, (FrameworkElement)C("Logo"), () => ThemeName);
             ((TextBlock)C("VerTxt")).Text = "v" + FhaCore.Version;
             Theme();
+            built = true;   // from here on a tab change is saved
         }
 
         private static string Sget(IDictionary<string, string> s, string key, string dflt)
@@ -324,6 +328,7 @@ namespace RevoBIM.UI.HangerAutomation
             ((ButtonBase)C("BtnRehost")).Click += RehostClick;
             ((ButtonBase)C("BtnExtend")).Click += ExtendClick;
             ((ButtonBase)C("BtnPlace")).Click += PlaceClick;
+            ((ButtonBase)C("BtnRodCatsFab")).Click += RodCatsClick;
             ((ButtonBase)C("TabFab")).Click += TabFabClick;
             ((ButtonBase)C("TabFam")).Click += TabFamClick;
             ((ButtonBase)C("TabFloor")).Click += TabFloorClick;
@@ -340,6 +345,7 @@ namespace RevoBIM.UI.HangerAutomation
             ApplyTab();
             Fit(false);
             if (Tab == "svc" && Svc != null) Svc.Shown();   // reads the hangers the first time
+            if (built) Save();   // the open tab is remembered for next time
         }
 
         private void ApplyTab()
@@ -499,6 +505,12 @@ namespace RevoBIM.UI.HangerAutomation
             Start("place");
         }
 
+        /// <summary>The "Rod targets..." window: which categories rods can run up to besides floors, framing and roofs.</summary>
+        private void RodCatsClick(object sender, RoutedEventArgs e)
+        {
+            RodCatsDialog.Run(this);
+        }
+
         private void Key(object sender, KeyEventArgs e)
         {
             try
@@ -539,6 +551,7 @@ namespace RevoBIM.UI.HangerAutomation
 
         private void Closed(object sender, EventArgs e)
         {
+            Save();   // however the window closed (the Close buttons, Alt+F4, Revit shutting down): keep the settings and the open tab
             current = null;
             StopTimer();
         }

@@ -22,7 +22,7 @@ namespace RevoBIM.Tools.HangerAutomation
             HfamRevit.LogContext(uidoc, settings, log, "Place " + Title(cfg) + " on service", symbol, cfg);
             HfamRevit.SoffitFinder finder;
             bool rod = RodOf(settings, "fam_rod_place", cfg, log, doc, out finder);
-            HfamRevit.Locker locker = FhaCore.AsBool(settings, "fam_lock_place") ? new HfamRevit.Locker(doc, uidoc.ActiveView, log) : null;
+            HfamRevit.Locker locker = FhaCore.AsBool(settings, "fam_lock_place") ? NewLocker(doc, uidoc.ActiveView, log, cfg) : null;
             FhaRevit.Worksets ws = new FhaRevit.Worksets(doc, SGet(settings, "fam_workset", ""), log);
             HfamRevit.BasePick pickedBase = HfamRevit.FloorBasePick(uidoc, settings, res, log);
             HfamRevit.BaseSurface baseEl = pickedBase != null ? new HfamRevit.BaseSurface(doc, pickedBase.El, pickedBase.Link, log) : null;
@@ -36,7 +36,7 @@ namespace RevoBIM.Tools.HangerAutomation
                     HfamRevit.PickedPoint pp;
                     try
                     {
-                        pp = HfamRevit.PickDuctPoint(uidoc, "Click on a pipe or round duct where the " + Title(cfg) + " goes (Esc to finish)",
+                        pp = HfamRevit.PickDuctPoint(uidoc, "Click on a pipe, conduit or round duct where the " + Title(cfg) + " goes (Esc to finish)",
                                                      HfamRevit.IsHostDuct);
                     }
                     catch (Exception)
@@ -62,7 +62,10 @@ namespace RevoBIM.Tools.HangerAutomation
                         HfamRevit.PlaceOutcome po = PlaceCirc(doc, symbol, svc, sec, q, cfg, log, ws, baseEl, rod, finder);
                         List<string> problems = po.Problems;
                         HfamRevit.LockIf(locker, po.Inst, svc, sec, q, problems, log);
-                        if (po.Inst == null || !FhaRevit.Committed(t))
+                        bool committed;
+                        using (HaTiming.Time("commit"))
+                            committed = po.Inst != null && FhaRevit.Committed(t);
+                        if (!committed)
                         {
                             FhaRevit.Rollback(t);
                             res.Failed++;
@@ -79,6 +82,10 @@ namespace RevoBIM.Tools.HangerAutomation
                         FhaRevit.Rollback(t);
                         res.Failed++;
                     }
+                    finally
+                    {
+                        HaTiming.Flush(log);
+                    }
                 }
             }
             finally
@@ -86,6 +93,7 @@ namespace RevoBIM.Tools.HangerAutomation
                 Close(finder);
                 if (baseEl != null)
                     baseEl.Close();
+                HaTiming.EndJob(log, "circular Pick and place");
             }
             res.Lines.AddRange(SortedDistinct(issues));
             res.Lines.AddRange(ws.Problems);
@@ -116,7 +124,7 @@ namespace RevoBIM.Tools.HangerAutomation
                 try
                 {
                     IList<Reference> refs = uidoc.Selection.PickObjects(ObjectType.Element, new HfamRevit.HfamFilter(HfamRevit.IsHostDuct),
-                                                                        "Pick the pipe or round duct, then Finish");
+                                                                        "Pick the pipe, conduit or round duct, then Finish");
                     picked = refs.Select(r => doc.GetElement(r.ElementId)).ToList();
                 }
                 catch (Exception)
@@ -166,7 +174,7 @@ namespace RevoBIM.Tools.HangerAutomation
             foreach (HfamRevit.ServiceSec s in straights) byId[Eid(s.El.Id)] = s;
             var segs = straights.Select(s => new KeySeg(Eid(s.El.Id), s.Sec.A, s.Sec.B)).ToList();
             bool outside = FhaCore.AsBool(settings, "fam_ins_realign");
-            HfamRevit.Locker locker = FhaCore.AsBool(settings, "fam_lock_realign") ? new HfamRevit.Locker(doc, uidoc.ActiveView, log) : null;
+            HfamRevit.Locker locker = FhaCore.AsBool(settings, "fam_lock_realign") ? NewLocker(doc, uidoc.ActiveView, log, chosenCfg) : null;
             FhaRevit.Worksets ws = new FhaRevit.Worksets(doc, SGet(settings, "fam_workset", ""), log);
             FhaRevit.Checkout(doc, supports, log);
             HfamRevit.BasePick pickedBase = HfamRevit.FloorBasePick(uidoc, settings, res, log);
@@ -175,6 +183,7 @@ namespace RevoBIM.Tools.HangerAutomation
             HfamRevit.BaseSurface baseEl = pickedBase != null ? new HfamRevit.BaseSurface(doc, pickedBase.El, pickedBase.Link, log) : null;
             var issues = new List<string>();
             var done = new List<DoneItem>();
+            Section pickedSec0 = null;
             try
             {
                 foreach (Element he in supports)
@@ -202,7 +211,8 @@ namespace RevoBIM.Tools.HangerAutomation
                     long? key = p != null ? HfamCore.PickSegment(p.Value, segs, 300.0 / MM) : null;
                     Element segEl;
                     Section sec;
-                    Section pickedSec = HfamRevit.Section(picked[0]);   // by_id.get(key, (picked[0], section(picked[0]))): the default is built either way
+                    if (pickedSec0 == null) pickedSec0 = HfamRevit.Section(picked[0]);   // by_id.get(key, (picked[0], section(picked[0]))): read once per job
+                    Section pickedSec = pickedSec0;
                     HfamRevit.ServiceSec found;
                     if (key != null && byId.TryGetValue(key.Value, out found)) { segEl = found.El; sec = found.Sec; }
                     else { segEl = picked[0]; sec = pickedSec; }
@@ -222,7 +232,10 @@ namespace RevoBIM.Tools.HangerAutomation
                         List<string> problems = RealignCirc(doc, h, segEl, sec, cfg, log, ws, baseEl, rod, finder);
                         if (p != null)
                             HfamRevit.LockIf(locker, h, segEl, sec, HfamCore.OnLine(sec.A, sec.B, p.Value), problems, log);
-                        if (FhaRevit.Committed(t))
+                        bool committed;
+                        using (HaTiming.Time("commit"))
+                            committed = FhaRevit.Committed(t);
+                        if (committed)
                             done.Add(new DoneItem { Inst = h, Cfg = cfg, Sec = sec });
                         else
                             res.Failed++;
@@ -234,6 +247,10 @@ namespace RevoBIM.Tools.HangerAutomation
                         FhaRevit.Rollback(t);
                         res.Failed++;
                     }
+                    finally
+                    {
+                        HaTiming.Flush(log);
+                    }
                 }
             }
             finally
@@ -242,6 +259,7 @@ namespace RevoBIM.Tools.HangerAutomation
                 if (baseEl != null)
                     baseEl.Close();
                 tg.Assimilate();
+                HaTiming.EndJob(log, "circular Re-align");
             }
             foreach (DoneItem d in done)
             {
@@ -278,7 +296,7 @@ namespace RevoBIM.Tools.HangerAutomation
                 try
                 {
                     IList<Reference> refs = uidoc.Selection.PickObjects(ObjectType.Element, new HfamRevit.HfamFilter(HfamRevit.IsRunMember),
-                                                                        "Select the run(s) - pipes or round ducts and their fittings - then Finish");
+                                                                        "Select the run(s) - pipes, conduits or round ducts and their fittings - then Finish");
                     seeds = refs.Select(r => doc.GetElement(r.ElementId)).ToList();
                 }
                 catch (Exception)
@@ -313,7 +331,7 @@ namespace RevoBIM.Tools.HangerAutomation
             double existClear = FhaCore.AsFloat(settings, "existing_clear", 300.0) / MM;
             List<V3> tapPts = FhaRevit.AllTapPoints(doc);
             bool outside = FhaCore.AsBool(settings, "fam_ins_auto");
-            HfamRevit.Locker locker = FhaCore.AsBool(settings, "fam_lock_auto") ? new HfamRevit.Locker(doc, uidoc.ActiveView, log) : null;
+            HfamRevit.Locker locker = FhaCore.AsBool(settings, "fam_lock_auto") ? NewLocker(doc, uidoc.ActiveView, log, cfg) : null;
             DimTargets targets = FhaRevit.DimTargets(uidoc, settings, "fam_dims", res, log);   // asks in a 3D view
             bool wantDims = targets != null;
             DimensionType dimType = FhaRevit.FindDimType(doc, SGet(settings, "fam_dim_type", ""));
@@ -336,7 +354,7 @@ namespace RevoBIM.Tools.HangerAutomation
                 {
                     List<ChainItem> chain = span.Chain;
                     List<Element> straightEls = chain.Where(it => it.Kind == "straight").Select(it => elems[it.Id]).ToList();
-                    List<Section> secs = straightEls.Select(e => HfamRevit.Section(e)).ToList();
+                    List<Section> secs = straightEls.Select(e => HfamRevit.SectionCached(e)).ToList();
                     if (!secs.All(sc => sc.Round))
                     {
                         for (int i = 0; i < straightEls.Count; i++)
@@ -420,7 +438,10 @@ namespace RevoBIM.Tools.HangerAutomation
                             HfamRevit.PlaceOutcome po = PlaceCirc(doc, symbol, host, sec, q, cfg, log, ws, baseEl, rod, finder);
                             HfamRevit.LockIf(locker, po.Inst, host, sec, q, po.Problems, log);
                             issues.AddRange(po.Problems);
-                            if (po.Inst != null && FhaRevit.Committed(t))
+                            bool committed;
+                            using (HaTiming.Time("commit"))
+                                committed = po.Inst != null && FhaRevit.Committed(t);
+                            if (committed)
                             {
                                 made.Add(new KeyValuePair<FamilyInstance, Section>(po.Inst, sec));
                             }
@@ -435,6 +456,10 @@ namespace RevoBIM.Tools.HangerAutomation
                             log.Add("auto place: " + ex.Message);
                             FhaRevit.Rollback(t);
                             res.Failed++;
+                        }
+                        finally
+                        {
+                            HaTiming.Flush(log);
                         }
                     }
                     if (made.Count > 0 && wantDims)
@@ -458,6 +483,7 @@ namespace RevoBIM.Tools.HangerAutomation
                 if (baseEl != null)
                     baseEl.Close();
                 tg.Assimilate();
+                HaTiming.EndJob(log, "circular Auto place");
             }
             if (madeAll.Count == 0 && res.Failed == 0 && notRound.Count == 0)
                 res.Lines.Add("Nothing to place - every span already has its " + Noun(cfg) + "s or is too short.");

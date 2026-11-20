@@ -34,6 +34,30 @@ namespace RevoBIM.Tools.HangerAutomation
             return res;
         }
 
+        /// <summary>Lines with a reference in an element's geometry. view != null: the geometry as that view shows it (its detail
+        /// level and visibility decide whether a centreline exists); else the geometry at `detail`, whatever any view shows.
+        /// Non-visible objects are included (a pipe / duct centreline is one).</summary>
+        public static List<Line> GeoLines(Element el, View view, ViewDetailLevel? detail)
+        {
+            var res = new GeoItemsResult();
+            Options opt = new Options();
+            opt.ComputeReferences = true;
+            opt.IncludeNonVisibleObjects = true;
+            if (view != null) opt.View = view;
+            else if (detail != null)
+            {
+                try { opt.DetailLevel = detail.Value; }
+                catch (Exception) { }
+            }
+            try
+            {
+                GeometryElement geo = el.get_Geometry(opt);
+                if (geo != null) GeoWalk(geo, res);
+            }
+            catch (Exception) { }
+            return res.Lines;
+        }
+
         private static void GeoWalk(IEnumerable<GeometryObject> geo, GeoItemsResult res)
         {
             foreach (GeometryObject g in geo)
@@ -75,6 +99,65 @@ namespace RevoBIM.Tools.HangerAutomation
             return "Hanger Automation - bottom locks " + HostKind(host) + " " + Inv(Eid(host.Id));
         }
 
+        /// <summary>The tool's own lock views (sections and centre-lock plans) already in the model, read once per Locker,
+        /// plus the view family types needed to make more.</summary>
+        public class LockViews
+        {
+            public const string Prefix = "Hanger Automation - ";
+            public Dictionary<string, View> Named = new Dictionary<string, View>(StringComparer.Ordinal);
+            public ViewFamilyType SectionVft, PlanVft;
+            public Dictionary<long, ViewPlan> Plans = new Dictionary<long, ViewPlan>();
+            public HashSet<long> PlanFailed = new HashSet<long>();
+            private bool _loaded;
+
+            public void Load(Document doc)
+            {
+                if (_loaded) return;
+                _loaded = true;
+                foreach (Type t in new[] { typeof(ViewSection), typeof(ViewPlan) })
+                {
+                    try
+                    {
+                        foreach (Element e in new FilteredElementCollector(doc).OfClass(t))
+                        {
+                            View v = (View)e;
+                            try
+                            {
+                                if (v.IsTemplate) continue;
+                            }
+                            catch (Exception) { }
+                            string nm = ElName(v);
+                            if (nm.StartsWith(Prefix, StringComparison.Ordinal) && !Named.ContainsKey(nm)) Named[nm] = v;
+                        }
+                    }
+                    catch (Exception) { }
+                }
+                try
+                {
+                    foreach (Element e in new FilteredElementCollector(doc).OfClass(typeof(ViewFamilyType)))
+                    {
+                        ViewFamilyType v = (ViewFamilyType)e;
+                        if (SectionVft == null && v.ViewFamily == ViewFamily.Section) SectionVft = v;
+                        if (PlanVft == null && v.ViewFamily == ViewFamily.FloorPlan) PlanVft = v;
+                        if (SectionVft != null && PlanVft != null) break;
+                    }
+                }
+                catch (Exception) { }
+            }
+
+            /// <summary>A view made on an earlier run (exact name, else its first '(n)' copy).</summary>
+            public View Find(string name)
+            {
+                View best = null;
+                foreach (KeyValuePair<string, View> kv in Named)
+                {
+                    if (kv.Key == name) return kv.Value;
+                    if (best == null && kv.Key.StartsWith(name + " (", StringComparison.Ordinal)) best = kv.Value;
+                }
+                return best;
+            }
+        }
+
         /// <summary>A bottom-lock section made on an earlier run (exact name, else its
         /// first '(n)' copy), so each service keeps one.</summary>
         public static ViewSection FindLockSection(Document doc, string name)
@@ -99,26 +182,44 @@ namespace RevoBIM.Tools.HangerAutomation
             return best;
         }
 
-        /// <summary>A section along the service that holds its hangers' bottom locks
-        /// (a lock on a horizontal face lives in a section / elevation view and is
-        /// deleted with it). Reuses the one made on an earlier run.</summary>
         public static ViewSection MakeLockSection(Document doc, Element service, Section sec, FhaDebugLog log)
         {
+            return MakeLockSection(doc, service, sec, log, null);
+        }
+
+        /// <summary>A section along the service that holds its hangers' bottom locks
+        /// (a lock on a horizontal face lives in a section / elevation view and is
+        /// deleted with it). Reuses the one made on an earlier run. `views` (optional): the Locker's
+        /// read-once list of the tool's views, so a run over many services does not scan every section for each.</summary>
+        public static ViewSection MakeLockSection(Document doc, Element service, Section sec, FhaDebugLog log, LockViews views)
+        {
             string baseName = LockSectionName(service);
-            ViewSection old = FindLockSection(doc, baseName);
+            ViewSection old;
+            if (views != null)
+            {
+                views.Load(doc);
+                old = views.Find(baseName) as ViewSection;
+            }
+            else
+                old = FindLockSection(doc, baseName);
             if (old != null)
             {
                 log.Add("   lock section: reusing " + ElName(old));
                 return old;
             }
             ViewFamilyType vft = null;
-            foreach (Element e in new FilteredElementCollector(doc).OfClass(typeof(ViewFamilyType)))
+            if (views != null)
+                vft = views.SectionVft;
+            else
             {
-                ViewFamilyType v = (ViewFamilyType)e;
-                if (v.ViewFamily == ViewFamily.Section)
+                foreach (Element e in new FilteredElementCollector(doc).OfClass(typeof(ViewFamilyType)))
                 {
-                    vft = v;
-                    break;
+                    ViewFamilyType v = (ViewFamilyType)e;
+                    if (v.ViewFamily == ViewFamily.Section)
+                    {
+                        vft = v;
+                        break;
+                    }
                 }
             }
             if (vft == null) return null;
@@ -148,6 +249,7 @@ namespace RevoBIM.Tools.HangerAutomation
             }
             try { doc.Regenerate(); }   // so the new view has geometry to take references from
             catch (Exception) { }
+            if (views != null) views.Named[ElName(view)] = view;
             log.Add("   lock section: " + ElName(view));
             return view;
         }
@@ -293,6 +395,13 @@ namespace RevoBIM.Tools.HangerAutomation
         /// simply refused. Returns the pair or null; err = the last refusal (null if none).</summary>
         public static AlignHit TryAlign(Document doc, View view, List<RefItem> targets, List<RefItem> candidates, FhaDebugLog log, int maxTries, out string err)
         {
+            int attempts;
+            return TryAlign(doc, view, targets, candidates, log, maxTries, out err, out attempts);
+        }
+
+        /// <summary>As above, also saying how many pairs were tried.</summary>
+        public static AlignHit TryAlign(Document doc, View view, List<RefItem> targets, List<RefItem> candidates, FhaDebugLog log, int maxTries, out string err, out int attempts)
+        {
             int n = 0;
             string last = null;
             foreach (RefItem t in targets)
@@ -303,12 +412,14 @@ namespace RevoBIM.Tools.HangerAutomation
                     if (n > maxTries)
                     {
                         err = last;
+                        attempts = n - 1;
                         return null;
                     }
                     try
                     {
                         doc.Create.NewAlignment(view, t.Ref, c.Ref);
                         err = null;
+                        attempts = n;
                         return new AlignHit { TargetLabel = t.Label, CandidateLabel = c.Label };
                     }
                     catch (Exception ex)
@@ -318,6 +429,7 @@ namespace RevoBIM.Tools.HangerAutomation
                 }
             }
             err = last;
+            attempts = n;
             return null;
         }
 
@@ -335,7 +447,12 @@ namespace RevoBIM.Tools.HangerAutomation
         /// kept per service). Units (equipment, duct accessories): to the unit's
         /// centre planes and bottom face. Single services only; shared hangers are
         /// never locked. Every reference the family offers is tried, so a family
-        /// whose centre plane is a Strong / Weak reference still locks.</summary>
+        /// whose centre plane is a Strong / Weak reference still locks.
+        ///
+        /// Centre lock (rewritten): the centreline is looked for in several ways and the alignment is tried in the active plan (when
+        /// it shows the service) and in a plan of the tool's own with a view range that shows everything on the level - the
+        /// centre plane of the hanger family is aligned to the service's CENTRELINE reference. Every step is logged. Each
+        /// attempt group runs in a sub-transaction that is rolled back unless an alignment was made.</summary>
         public class Locker
         {
             public Document Doc;
@@ -343,6 +460,29 @@ namespace RevoBIM.Tools.HangerAutomation
             public View Plan;
             public Dictionary<long, ViewSection> Sections = new Dictionary<long, ViewSection>();
             public HashSet<long?> Told = new HashSet<long?>();
+            /// <summary>Round services only: also lock the family's Center (Elevation) plane to the centreline in the lock
+            /// section (circular hangers, whose reference sits at the service centre). Best effort, never reported as a note.</summary>
+            public bool ElevationCentre;
+
+            private readonly LockViews _views = new LockViews();
+            private readonly Dictionary<string, List<RefItem>> _targets = new Dictionary<string, List<RefItem>>(StringComparer.Ordinal);
+            private readonly Dictionary<string, BottomInfo> _bottoms = new Dictionary<string, BottomInfo>(StringComparer.Ordinal);
+            private readonly Dictionary<string, string> _worked = new Dictionary<string, string>(StringComparer.Ordinal);
+            private readonly Dictionary<string, int> _fails = new Dictionary<string, int>(StringComparer.Ordinal);
+            private string _lastSource;
+
+            private class BottomInfo
+            {
+                public List<RefItem> Items;
+                public double ZLow;
+                public bool None;
+            }
+
+            private class TargetSource
+            {
+                public string Key, Label;
+                public Func<List<RefItem>> Get;
+            }
 
             public Locker(Document doc, View view, FhaDebugLog log)
             {
@@ -359,7 +499,7 @@ namespace RevoBIM.Tools.HangerAutomation
                 {
                     try
                     {
-                        Sections[key] = MakeLockSection(Doc, service, sec, Log);
+                        Sections[key] = MakeLockSection(Doc, service, sec, Log, _views);
                     }
                     catch (Exception ex)
                     {
@@ -380,6 +520,493 @@ namespace RevoBIM.Tools.HangerAutomation
                 Log.Add("   family reference planes: " + FamilyReferenceSummary(inst));
             }
 
+            private static string FamKey(FamilyInstance inst)
+            {
+                try { return Inv(Eid(inst.Symbol.Family.Id)); }
+                catch (Exception) { return "?"; }
+            }
+
+            /// <summary>The hanger references with the one that worked last time for this family first (labels of faces are
+            /// compared without their height).</summary>
+            private List<RefItem> Prefer(List<RefItem> items, string key)
+            {
+                string w;
+                if (!_worked.TryGetValue(key, out w)) return items;
+                var first = items.Where(i => NormLabel(i.Label) == w).ToList();
+                if (first.Count == 0) return items;
+                var o = new List<RefItem>(first);
+                o.AddRange(items.Where(i => NormLabel(i.Label) != w));
+                return o;
+            }
+
+            private static string NormLabel(string label)
+            {
+                return label.StartsWith("face at ", StringComparison.Ordinal) ? "face" : label;
+            }
+
+            /// <summary>How many pairs one lock may try: all 80 normally; 16 once this family has refused twice running (a family
+            /// that cannot lock would otherwise cost 80 refusals for every hanger).</summary>
+            private int MaxTries(string key)
+            {
+                int n;
+                return _fails.TryGetValue(key, out n) && n >= 2 ? 16 : 80;
+            }
+
+            private void Outcome(string key, bool ok)
+            {
+                int n;
+                _fails.TryGetValue(key, out n);
+                _fails[key] = ok ? 0 : n + 1;
+            }
+
+            // ------------------------------------------------------------ centre lock
+            private static string StableKey(Document doc, Reference r)
+            {
+                try { return r.ConvertToStableRepresentation(doc); }
+                catch (Exception) { return null; }
+            }
+
+            /// <summary>The geometry lines of a service that run along it (parallel in plan, on its centreline), as references.
+            /// Logs what was found and what was turned away - once, the result is cached.</summary>
+            private List<RefItem> CentrelineRefs(string cacheKey, string label, Func<List<Line>> read, V3 along, V3 a, string what)
+            {
+                List<RefItem> hit;
+                if (_targets.TryGetValue(cacheKey, out hit)) return hit;
+                var o = new List<RefItem>();
+                List<Line> lines;
+                try { lines = read(); }
+                catch (Exception ex)
+                {
+                    Log.Add("   centreline [" + label + "]: " + ex.Message);
+                    lines = new List<Line>();
+                }
+                int notAlong = 0, far = 0;
+                double nearest = double.MaxValue;
+                foreach (Line ln in lines)
+                {
+                    try
+                    {
+                        XYZ d = ln.Direction;
+                        double xy = Math.Sqrt(d.X * d.X + d.Y * d.Y);
+                        if (xy < 1e-6 || Math.Abs((d.X * along.X + d.Y * along.Y) / xy) < 0.9999)
+                        {
+                            notAlong++;
+                            continue;
+                        }
+                        XYZ p = ln.Origin;
+                        double dist = Math.Abs((p.X - a.X) * along.Y - (p.Y - a.Y) * along.X);
+                        nearest = Math.Min(nearest, dist);
+                        if (dist > 0.02)
+                        {
+                            far++;
+                            continue;
+                        }
+                        o.Add(new RefItem(ln.Reference, "centreline"));
+                    }
+                    catch (Exception) { }
+                }
+                Log.Add("   centreline [" + label + "] of " + what + ": " + Inv(lines.Count) + " line(s) with a reference, " + Inv(o.Count)
+                        + " along the run on its centreline" + (notAlong > 0 ? ", " + Inv(notAlong) + " not along it" : "")
+                        + (far > 0 ? ", " + Inv(far) + " off the centreline (nearest " + Fmm(nearest) + " mm)" : ""));
+                _targets[cacheKey] = o;
+                return o;
+            }
+
+            private List<TargetSource> CentreSources(Element host, Section sec, View view, V3 along, string what)
+            {
+                string hid = Inv(Eid(host.Id));
+                string vid = Inv(Eid(view.Id));
+                string vname = ElName(view);
+                var l = new List<TargetSource>();
+                l.Add(new TargetSource
+                {
+                    Key = "view", Label = "geometry as view \"" + vname + "\" shows it",
+                    Get = () => CentrelineRefs(hid + "|v" + vid, "view " + vname, () => GeoLines(host, view, null), along, sec.A, what),
+                });
+                foreach (ViewDetailLevel dl in new[] { ViewDetailLevel.Coarse, ViewDetailLevel.Medium, ViewDetailLevel.Fine })
+                {
+                    ViewDetailLevel d2 = dl;
+                    l.Add(new TargetSource
+                    {
+                        Key = d2.ToString(), Label = "geometry at " + d2.ToString() + " detail (no view)",
+                        Get = () => CentrelineRefs(hid + "|" + d2.ToString(), "no view, " + d2.ToString(), () => GeoLines(host, null, d2), along, sec.A, what),
+                    });
+                }
+                l.Add(new TargetSource
+                {
+                    Key = "loc", Label = "location curve reference",
+                    Get = () =>
+                    {
+                        List<RefItem> hit;
+                        if (_targets.TryGetValue(hid + "|loc", out hit)) return hit;
+                        var o = new List<RefItem>();
+                        try
+                        {
+                            LocationCurve lc = host.Location as LocationCurve;
+                            Reference r = lc != null && lc.Curve != null ? lc.Curve.Reference : null;
+                            if (r != null) o.Add(new RefItem(r, "location curve"));
+                        }
+                        catch (Exception) { }
+                        Log.Add("   centreline [location curve] of " + what + ": " + (o.Count > 0 ? "a reference" : "no reference"));
+                        _targets[hid + "|loc"] = o;
+                        return o;
+                    },
+                });
+                if (_lastSource != null)   // what worked last time goes first
+                {
+                    var first = l.Where(s => s.Key == _lastSource).ToList();
+                    if (first.Count > 0)
+                    {
+                        var re = new List<TargetSource>(first);
+                        re.AddRange(l.Where(s => s.Key != _lastSource));
+                        l = re;
+                    }
+                }
+                return l;
+            }
+
+            /// <summary>Does the plan show a service at height z (its view range)? True when that cannot be read.</summary>
+            private bool PlanShows(View view, double z, out string why)
+            {
+                why = "";
+                ViewPlan vp = view as ViewPlan;
+                if (vp == null) return true;
+                try
+                {
+                    PlanViewRange r = vp.GetViewRange();
+                    double lo = double.MaxValue, hi = double.MinValue;
+                    foreach (PlanViewPlane pl in new[] { PlanViewPlane.TopClipPlane, PlanViewPlane.CutPlane, PlanViewPlane.BottomClipPlane, PlanViewPlane.ViewDepthPlane })
+                    {
+                        ElementId lid = r.GetLevelId(pl);
+                        Level lv = lid != null ? Doc.GetElement(lid) as Level : null;
+                        if (lv == null)
+                        {
+                            why = "view range uses a relative level - not checked";
+                            return true;
+                        }
+                        double zz = lv.ProjectElevation + r.GetOffset(pl);
+                        lo = Math.Min(lo, zz);
+                        hi = Math.Max(hi, zz);
+                    }
+                    why = "view range " + Fmm(lo) + " .. " + Fmm(hi) + " mm";
+                    return z >= lo - 0.01 && z <= hi + 0.01;
+                }
+                catch (Exception) { return true; }
+            }
+
+            /// <summary>The tool's own plan for a level: coarse detail, coordination discipline, a view range that shows everything
+            /// on the level - so the duct is in it whatever the user's own plans show. Made once per level, reused by name on later runs.</summary>
+            private View DedicatedPlan(Level level)
+            {
+                if (level == null) return null;
+                long lk = Eid(level.Id);
+                ViewPlan vp;
+                if (_views.Plans.TryGetValue(lk, out vp) && vp != null && Alive(vp)) return vp;
+                if (_views.PlanFailed.Contains(lk)) return null;
+                _views.Load(Doc);
+                string name = LockViews.Prefix + "centre locks " + ElName(level);
+                vp = _views.Find(name) as ViewPlan;
+                if (vp != null)
+                {
+                    Log.Add("   lock plan: reusing " + ElName(vp));
+                    _views.Plans[lk] = vp;
+                    return vp;
+                }
+                if (_views.PlanVft == null)
+                {
+                    Log.Add("   lock plan: no floor plan view type in the model");
+                    _views.PlanFailed.Add(lk);
+                    return null;
+                }
+                try
+                {
+                    vp = ViewPlan.Create(Doc, _views.PlanVft.Id, level.Id);
+                    try { vp.ViewTemplateId = ElementId.InvalidElementId; }
+                    catch (Exception) { }
+                    try { vp.Discipline = ViewDiscipline.Coordination; }
+                    catch (Exception) { }
+                    try { vp.DetailLevel = ViewDetailLevel.Coarse; }
+                    catch (Exception) { }
+                    string range = "?";
+                    foreach (double big in new[] { 1000.0, 200.0 })
+                    {
+                        try
+                        {
+                            PlanViewRange vr = vp.GetViewRange();
+                            foreach (PlanViewPlane pl in new[] { PlanViewPlane.TopClipPlane, PlanViewPlane.CutPlane, PlanViewPlane.BottomClipPlane, PlanViewPlane.ViewDepthPlane })
+                                vr.SetLevelId(pl, level.Id);
+                            vr.SetOffset(PlanViewPlane.TopClipPlane, big);
+                            vr.SetOffset(PlanViewPlane.CutPlane, big - 1.0);
+                            vr.SetOffset(PlanViewPlane.BottomClipPlane, -(big - 1.0));
+                            vr.SetOffset(PlanViewPlane.ViewDepthPlane, -big);
+                            vp.SetViewRange(vr);
+                            range = "+/-" + Fm(big * MM, 0) + " mm about the level";
+                            break;
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Add("   lock plan: view range +/-" + Fm(big, 0) + " ft refused: " + ex.Message);
+                        }
+                    }
+                    for (int n = 0; n < 20; n++)
+                    {
+                        try
+                        {
+                            vp.Name = n == 0 ? name : name + " (" + Inv(n) + ")";
+                            break;
+                        }
+                        catch (Exception) { continue; }
+                    }
+                    try { Doc.Regenerate(); }   // so the new view has geometry to take references from
+                    catch (Exception) { }
+                    _views.Named[ElName(vp)] = vp;
+                    _views.Plans[lk] = vp;
+                    Log.Add("   lock plan: made " + ElName(vp) + " (coarse, view range " + range + ")");
+                    return vp;
+                }
+                catch (Exception ex)
+                {
+                    Log.Add("   lock plan: could not make a plan for " + ElName(level) + ": " + ex.Message);
+                    _views.PlanFailed.Add(lk);
+                    return null;
+                }
+            }
+
+            private Level LevelOf(FamilyInstance inst, V3 q)
+            {
+                try
+                {
+                    Level lv = Doc.GetElement(inst.LevelId) as Level;
+                    if (lv != null) return lv;
+                }
+                catch (Exception) { }
+                return ElementLevel(Doc, inst, q.Z);
+            }
+
+            /// <summary>Revit only aligns references that already coincide: if the hanger's origin (its centre planes pass through
+            /// it) has drifted a hair off the centreline in plan, put it back. A real offset (3 mm and more) is left alone.</summary>
+            private void SnapOntoCentreline(FamilyInstance inst, Section sec)
+            {
+                try
+                {
+                    V3? pn = InstancePoint(inst);
+                    if (pn == null) return;
+                    double off = HfamCore.PlanOffset(sec.A, sec.B, pn.Value);
+                    if (off > 1e-4 && off < 0.01)
+                    {
+                        V3 t = HfamCore.OnLine(sec.A, sec.B, pn.Value);
+                        ElementTransformUtils.MoveElement(Doc, inst.Id, new XYZ(t.X - pn.Value.X, t.Y - pn.Value.Y, 0.0));
+                        Log.Add("   centre lock: hanger was " + Fm(off * MM, 2) + " mm off the centreline in plan - moved onto it");
+                    }
+                    else if (off >= 0.01)
+                        Log.Add("   centre lock: hanger origin is " + Fm(off * MM, 1) + " mm off the centreline in plan - alignment will be refused");
+                }
+                catch (Exception ex)
+                {
+                    Log.Add("   centre lock: snap onto the centreline: " + ex.Message);
+                }
+            }
+
+            /// <summary>One attempt group - every target against every hanger reference in one view - in a sub-transaction
+            /// kept only when an alignment was made.</summary>
+            private AlignHit Attempt(View view, List<RefItem> targets, List<RefItem> cands, int maxTries, out string err, out int attempts)
+            {
+                SubTransaction st = null;
+                try
+                {
+                    st = new SubTransaction(Doc);
+                    st.Start();
+                }
+                catch (Exception)
+                {
+                    st = null;
+                }
+                AlignHit hit = null;
+                err = null;
+                attempts = 0;
+                try
+                {
+                    hit = TryAlign(Doc, view, targets, cands, Log, maxTries, out err, out attempts);
+                }
+                finally
+                {
+                    if (st != null)
+                    {
+                        try
+                        {
+                            if (hit != null) st.Commit();
+                            else st.RollBack();
+                        }
+                        catch (Exception) { }
+                    }
+                }
+                return hit;
+            }
+
+            private void LockCentre(FamilyInstance inst, Element host, Section sec, V3 q, V3 along, string alongType, string square,
+                                    bool unit, string what, List<string> notes)
+            {
+                string famKey = FamKey(inst);
+                string ck = famKey + "|centre";
+                List<RefItem> cands = Prefer(InstanceRefs(inst, new[] { alongType, square, "StrongReference", "WeakReference",
+                                                                         "Left", "Right", "Front", "Back" }), ck);
+                if (cands.Count == 0)
+                {
+                    Log.Add("   centre lock: the hanger family offers no reference planes to lock with");
+                    notes.Add("the hanger family has no reference planes to lock with - in the family editor set the centre plane that runs along the "
+                              + what + " to Is Reference: " + RefLabels[alongType]);
+                    return;
+                }
+                if (!unit) SnapOntoCentreline(inst, sec);
+                int maxTries = MaxTries(ck);
+                if (maxTries < 80)
+                    Log.Add("   centre lock: this family refused the last two hangers - trying only the first " + Inv(maxTries) + " pairs");
+                Level level = LevelOf(inst, q);
+                string last = null;
+                int tried = 0, targetsSeen = 0;
+                var seen = new HashSet<string>(StringComparer.Ordinal);
+                var sourcesTried = new List<string>();
+                for (int vi = 0; vi < 2; vi++)
+                {
+                    View view; string vlabel;
+                    if (vi == 0)
+                    {
+                        if (Plan == null)
+                        {
+                            Log.Add("   centre lock: the active view is not a plan - using the tool's own lock plan");
+                            continue;
+                        }
+                        string why;
+                        if (!PlanShows(Plan, q.Z, out why))
+                        {
+                            Log.Add("   centre lock: the active plan \"" + ElName(Plan) + "\" does not show the " + what + " (centre at " + Fmm(q.Z) + " mm; " + why
+                                    + ") - using the tool's own lock plan");
+                            continue;
+                        }
+                        view = Plan;
+                        vlabel = "active plan \"" + ElName(Plan) + "\"";
+                    }
+                    else
+                    {
+                        view = DedicatedPlan(level);
+                        if (view == null) continue;
+                        vlabel = "lock plan \"" + ElName(view) + "\"";
+                    }
+                    List<TargetSource> sources;
+                    if (unit)
+                    {
+                        sources = new List<TargetSource>
+                        {
+                            new TargetSource { Key = "unit", Label = "centre planes of the unit",
+                                               Get = () => InstanceRefs(host, new[] { "CenterLeftRight", "CenterFrontBack", "StrongReference", "WeakReference" }) },
+                        };
+                    }
+                    else
+                        sources = CentreSources(host, sec, view, along, what);
+                    foreach (TargetSource ts in sources)
+                    {
+                        List<RefItem> all;
+                        try { all = ts.Get(); }
+                        catch (Exception ex)
+                        {
+                            Log.Add("   centre lock [" + vlabel + " / " + ts.Label + "]: " + ex.Message);
+                            continue;
+                        }
+                        var items = new List<RefItem>();
+                        foreach (RefItem it in all)
+                        {
+                            string sk = StableKey(Doc, it.Ref);
+                            if (sk == null || seen.Add(sk + "@" + Inv(Eid(view.Id)))) items.Add(it);
+                        }
+                        targetsSeen += all.Count;
+                        if (items.Count == 0)
+                        {
+                            if (all.Count == 0) sourcesTried.Add(ts.Label + ": none");
+                            continue;
+                        }
+                        string err; int attempts;
+                        AlignHit hit = Attempt(view, items, cands, maxTries - tried, out err, out attempts);
+                        tried += attempts;
+                        if (hit != null)
+                        {
+                            Log.Add("   locked to the " + (unit ? "unit centre" : "centreline") + ": hanger " + hit.CandidateLabel + " <-> " + hit.TargetLabel
+                                    + " [" + vlabel + " / " + ts.Label + ", pair " + Inv(attempts) + "]");
+                            _worked[ck] = NormLabel(hit.CandidateLabel);
+                            _lastSource = ts.Key;
+                            Outcome(ck, true);
+                            if (!unit && sec.Round && ElevationCentre) LockElevationCentre(inst, host, sec, along, what);
+                            return;
+                        }
+                        last = err ?? last;
+                        sourcesTried.Add(ts.Label + ": " + Inv(items.Count) + " target(s) refused" + (err != null ? " (" + err + ")" : ""));
+                        Log.Add("   centre lock [" + vlabel + " / " + ts.Label + "]: " + Inv(items.Count) + " target(s) x " + Inv(cands.Count)
+                                + " hanger reference(s) - Revit refused all" + (err != null ? " (last refusal: " + err + ")" : ""));
+                        if (tried >= maxTries) break;
+                    }
+                    if (tried >= maxTries) break;
+                }
+                Outcome(ck, false);
+                if (targetsSeen == 0)
+                {
+                    Log.Add("   centre lock: no reference to the " + what + (unit ? " centre planes" : " centreline") + " found anywhere (" + string.Join("; ", sourcesTried) + ")");
+                    notes.Add(!unit ? "no centreline reference on the " + what : "the " + what + " family has no centre reference planes");
+                }
+                else if (unit)
+                    notes.Add("the hanger is centred on the " + what + "'s geometry, which is off its centre reference planes - no centre lock");
+                else
+                    notes.Add("no reference plane of the hanger lies on the " + what + " centreline (" + Inv(cands.Count) + " tried) - in the "
+                              + "family editor set the centre plane that runs along the " + what + " to Is Reference: "
+                              + RefLabels[alongType] + (!string.IsNullOrEmpty(last) ? " (last refusal: " + last + ")" : ""));
+            }
+
+            /// <summary>Round services: the family's Center (Elevation) plane to the centreline in the lock section (a horizontal
+            /// plane contains a level service's centreline). Best effort: logged only.</summary>
+            private void LockElevationCentre(FamilyInstance inst, Element host, Section sec, V3 along, string what)
+            {
+                try
+                {
+                    double len = Math.Max(FhaCore.VLen(FhaCore.VSub(sec.B, sec.A)), 1e-6);
+                    if (Math.Abs(sec.B.Z - sec.A.Z) > 0.001 * len)
+                    {
+                        Log.Add("   centre elevation lock: the " + what + " slopes - skipped");
+                        return;
+                    }
+                    List<RefItem> cands = InstanceRefs(inst, new[] { "CenterElevation" });
+                    if (cands.Count == 0)
+                    {
+                        Log.Add("   centre elevation lock: the family offers no Center (Elevation) reference - skipped");
+                        return;
+                    }
+                    ViewSection view = SectionFor(host, sec);
+                    if (view == null)
+                    {
+                        Log.Add("   centre elevation lock: no section view type - skipped");
+                        return;
+                    }
+                    string hid = Inv(Eid(host.Id));
+                    List<RefItem> targets = CentrelineRefs(hid + "|s" + Inv(Eid(view.Id)), "section " + ElName(view),
+                                                           () => GeoLines(host, view, null), along, sec.A, what);
+                    if (targets.Count == 0)
+                        targets = CentrelineRefs(hid + "|Coarse", "no view, Coarse", () => GeoLines(host, null, ViewDetailLevel.Coarse), along, sec.A, what);
+                    if (targets.Count == 0)
+                    {
+                        Log.Add("   centre elevation lock: no centreline reference in the lock section - skipped");
+                        return;
+                    }
+                    string err; int attempts;
+                    AlignHit hit = Attempt(view, targets, cands, 16, out err, out attempts);
+                    if (hit != null)
+                        Log.Add("   locked the centre elevation: hanger " + hit.CandidateLabel + " <-> " + what + " centreline");
+                    else
+                        Log.Add("   centre elevation lock: refused" + (err != null ? " (" + err + ")" : "") + " - the family's Center (Elevation) is not at the " + what + " centre");
+                }
+                catch (Exception ex)
+                {
+                    Log.Add("   centre elevation lock: " + ex.Message);
+                }
+            }
+
+            // ------------------------------------------------------------ the lock
             /// <summary>Lock one hanger to its service (or unit); returns the notes for whatever could not be locked.</summary>
             public List<string> Lock(FamilyInstance inst, Element host, Section sec, V3 q)
             {
@@ -393,84 +1020,64 @@ namespace RevoBIM.Tools.HangerAutomation
                 XYZ h = inst.HandOrientation, f = inst.FacingOrientation;
                 string square = HfamCore.ReferenceTypeAcross(new V3(h.X, h.Y, 0.0), new V3(f.X, f.Y, 0.0), along);
                 string alongType = square == "CenterLeftRight" ? "CenterFrontBack" : "CenterLeftRight";
-                if (Plan == null)
-                    notes.Add("centre lock needs a plan view open");
-                else
-                {
-                    List<RefItem> cands = InstanceRefs(inst, new[] { alongType, square, "StrongReference", "WeakReference",
-                                                                       "Left", "Right", "Front", "Back" });
-                    List<RefItem> targets;
-                    if (unit)
-                        targets = InstanceRefs(host, new[] { "CenterLeftRight", "CenterFrontBack", "StrongReference", "WeakReference" });
-                    else
-                    {
-                        GeoItemsResult gi = GeoItems(host, Plan);
-                        targets = new List<RefItem>();
-                        foreach (Line ln in gi.Lines)
-                        {
-                            try
-                            {
-                                XYZ d = ln.Direction;
-                                if (Math.Abs(d.X * along.X + d.Y * along.Y) > 0.999)
-                                    targets.Add(new RefItem(ln.Reference, "centreline"));
-                            }
-                            catch (Exception) { }
-                        }
-                    }
-                    if (targets.Count == 0)
-                        notes.Add(!unit ? "no centreline reference on the " + what : "the " + what + " family has no centre reference planes");
-                    else if (cands.Count == 0)
-                        notes.Add("the hanger family has no reference planes to lock with - in the family editor set the centre plane that runs along the "
-                                  + what + " to Is Reference: " + RefLabels[alongType]);
-                    else
-                    {
-                        string err;
-                        AlignHit hit = TryAlign(Doc, Plan, targets, cands, Log, 80, out err);
-                        if (hit != null)
-                            Log.Add("   locked to the " + (unit ? "unit centre" : "centreline") + ": hanger " + hit.CandidateLabel + " <-> " + hit.TargetLabel);
-                        else if (unit)
-                            notes.Add("the hanger is centred on the " + what + "'s geometry, which is off its centre reference planes - no centre lock");
-                        else
-                            notes.Add("no reference plane of the hanger lies on the " + what + " centreline (" + Inv(cands.Count) + " tried) - in the "
-                                      + "family editor set the centre plane that runs along the " + what + " to Is Reference: "
-                                      + RefLabels[alongType] + (!string.IsNullOrEmpty(err) ? " (last refusal: " + err + ")" : ""));
-                    }
-                }
+                using (HaTiming.Time("lock.centre"))
+                    LockCentre(inst, host, sec, q, along, alongType, square, unit, what, notes);
                 // ---- bottom: hanger at the invert <-> service / insulation / unit bottom face
                 if (sec.Round)
                 {
                     Log.Add("   round " + what + ": centre lock only (no flat bottom face)");
                     return notes;
                 }
+                using (HaTiming.Time("lock.bottom"))
+                    LockBottom(inst, host, sec, q, unit, what, notes);
+                return notes;
+            }
+
+            private void LockBottom(FamilyInstance inst, Element host, Section sec, V3 q, bool unit, string what, List<string> notes)
+            {
                 double zInv = q.Z - sec.Depth / 2.0;
-                var owners = new List<Element> { host };
-                if (sec.InsUsed)
+                string bk = Inv(Eid(host.Id)) + (sec.InsUsed ? "|ins" : "|bare") + (unit ? "|unit" : "");
+                BottomInfo bi;
+                if (!_bottoms.TryGetValue(bk, out bi))
                 {
-                    try
+                    // the service's own bottom faces: read once per service (every hanger on it shares them)
+                    bi = new BottomInfo();
+                    var owners = new List<Element> { host };
+                    if (sec.InsUsed)
                     {
-                        var ins = InsulationLiningBase.GetInsulationIds(Doc, host.Id).Select(i => Doc.GetElement(i)).ToList();
-                        if (ins.Count > 0) owners = ins;
+                        try
+                        {
+                            var ins = InsulationLiningBase.GetInsulationIds(Doc, host.Id).Select(i => Doc.GetElement(i)).ToList();
+                            if (ins.Count > 0) owners = ins;
+                        }
+                        catch (Exception) { }
                     }
-                    catch (Exception) { }
+                    var downs = new List<FaceZ>();
+                    foreach (Element el in owners)
+                        downs.AddRange(ElementFaces(el).Where(fz => fz.Nz < -0.99));
+                    if (downs.Count == 0)
+                        bi.None = true;
+                    else
+                    {
+                        bi.ZLow = downs.Min(fz => fz.Z);
+                        bi.Items = downs.Where(fz => Math.Abs(fz.Z - bi.ZLow) < 2.0 / MM)
+                                        .Select(fz => new RefItem(fz.Face.Reference, "bottom face at " + Fmm(fz.Z))).ToList();
+                        if (unit)
+                            bi.Items.AddRange(InstanceRefs(host, new[] { "Bottom" }));
+                    }
+                    _bottoms[bk] = bi;
                 }
-                var downs = new List<FaceZ>();
-                foreach (Element el in owners)
-                    downs.AddRange(ElementFaces(el).Where(fz => fz.Nz < -0.99));
-                if (downs.Count == 0)
+                if (bi.None)
                 {
                     notes.Add("no flat bottom face found on the " + what);
-                    return notes;
+                    return;
                 }
-                double zLow = downs.Min(fz => fz.Z);
-                var bottoms = downs.Where(fz => Math.Abs(fz.Z - zLow) < 2.0 / MM)
-                                   .Select(fz => new RefItem(fz.Face.Reference, "bottom face at " + Fmm(fz.Z))).ToList();
-                if (unit)
-                    bottoms.AddRange(InstanceRefs(host, new[] { "Bottom" }));
+                List<RefItem> bottoms = bi.Items;
                 ViewSection view = SectionFor(host, sec);
                 if (view == null)
                 {
                     notes.Add("no section view type for the bottom lock");
-                    return notes;
+                    return;
                 }
                 List<FaceZ> hfaces = ElementFaces(inst, view);
                 if (hfaces.Count == 0) hfaces = ElementFaces(inst);
@@ -483,19 +1090,24 @@ namespace RevoBIM.Tools.HangerAutomation
                     string heights = FlatHeights(hfaces);
                     notes.Add("no face or reference plane of the hanger at the invert " + Fmm(zInv) + " (its flat faces are at "
                               + (heights.Length > 0 ? heights : "-") + ")");
-                    return notes;
+                    return;
                 }
-                string err2;
-                AlignHit hit2 = TryAlign(Doc, view, bottoms, cands2, Log, 80, out err2);
+                string bkey = FamKey(inst) + "|bottom";
+                cands2 = Prefer(cands2, bkey);
+                string err2; int attempts;
+                AlignHit hit2 = Attempt(view, bottoms, cands2, MaxTries(bkey), out err2, out attempts);
+                Outcome(bkey, hit2 != null);
                 if (hit2 != null)
+                {
+                    _worked[bkey] = NormLabel(hit2.CandidateLabel);
                     Log.Add("   locked to the bottom: hanger " + hit2.CandidateLabel + " <-> " + what + " " + hit2.TargetLabel);
+                }
                 else
                 {
                     string heights = FlatHeights(hfaces);
                     notes.Add("bottom lock refused - the hanger has nothing exactly at the invert " + Fmm(zInv) + " (its flat faces are at "
                               + (heights.Length > 0 ? heights : "-") + ")" + (!string.IsNullOrEmpty(err2) ? "; Revit: " + err2 : ""));
                 }
-                return notes;
             }
 
             /// <summary>', '.join(sorted(set(fmm(z) ...))) of the flat faces - sorted as text, as the Python did.</summary>
@@ -515,10 +1127,13 @@ namespace RevoBIM.Tools.HangerAutomation
                 log.Add("   not locked: shared hanger");
                 return;
             }
-            foreach (string n in locker.Lock(inst, service, sec, q))
+            using (HaTiming.Time("lock"))
             {
-                log.Add("   lock: " + n);
-                problems.Add("Lock: " + n);
+                foreach (string n in locker.Lock(inst, service, sec, q))
+                {
+                    log.Add("   lock: " + n);
+                    problems.Add("Lock: " + n);
+                }
             }
         }
     }

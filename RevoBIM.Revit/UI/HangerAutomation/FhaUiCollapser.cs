@@ -51,6 +51,8 @@ namespace RevoBIM.UI.HangerAutomation
                 {
                 }
                 var hdr = (UIElement)C("Hdr" + Prefix + k);
+                var hb = hdr as Border;
+                if (hb != null && hb.Background == null) hb.Background = Brushes.Transparent;   // the whole header row takes the click
                 hdr.MouseLeftButtonUp += Clicker(k);
                 hdr.MouseEnter += Hover(k, true);
                 hdr.MouseLeave += Hover(k, false);
@@ -64,7 +66,33 @@ namespace RevoBIM.UI.HangerAutomation
 
         private System.Windows.Input.MouseButtonEventHandler Clicker(string key)
         {
-            return (sender, e) => Toggle(key);
+            return (sender, e) =>
+            {
+                // a button placed in the header (the tool's run button) is a click on that button, never a fold
+                if (e.Handled || FromButton(e.OriginalSource as DependencyObject, sender as DependencyObject)) return;
+                Toggle(key);
+            };
+        }
+
+        /// <summary>True when <paramref name="source"/> sits inside a button between itself and the header.</summary>
+        private static bool FromButton(DependencyObject source, DependencyObject header)
+        {
+            int guard = 0;
+            while (source != null && !ReferenceEquals(source, header) && guard++ < 200)
+            {
+                if (source is System.Windows.Controls.Primitives.ButtonBase) return true;
+                DependencyObject next = null;
+                try
+                {
+                    next = source is Visual || source is System.Windows.Media.Media3D.Visual3D ? VisualTreeHelper.GetParent(source) : null;
+                }
+                catch (Exception)
+                {
+                }
+                if (next == null) next = LogicalTreeHelper.GetParent(source);
+                source = next;
+            }
+            return false;
         }
 
         private System.Windows.Input.MouseEventHandler Hover(string key, bool on)
@@ -75,7 +103,7 @@ namespace RevoBIM.UI.HangerAutomation
                 {
                     var hdr = (Border)C("Hdr" + Prefix + key);
                     if (on) hdr.SetResourceReference(Border.BackgroundProperty, "HoverBgBrush");
-                    else hdr.Background = null;
+                    else hdr.Background = Brushes.Transparent;   // never null: a null background is not hit-testable, so only the title and chevron would click
                 }
                 catch (Exception)
                 {

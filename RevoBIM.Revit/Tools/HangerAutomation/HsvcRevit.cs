@@ -33,7 +33,7 @@ namespace RevoBIM.Tools.HangerAutomation
     {
         public const double MM = FhaCore.MM;
         public static readonly string[] HangerCats = { "OST_FabricationHangers", "OST_MEPAncillaryFraming" };
-        public static readonly string[] ServiceCats = { "OST_DuctCurves", "OST_PipeCurves", "OST_CableTray" };
+        public static readonly string[] ServiceCats = { "OST_DuctCurves", "OST_PipeCurves", "OST_CableTray", "OST_Conduit" };
         public const string ViewName = "Hanger Automation - hanger check";
         public const double BoxPadMm = 1000.0;
         public const int SeeThrough = 60;

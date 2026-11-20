@@ -149,7 +149,8 @@
               <StackPanel Orientation="Horizontal">
                 <CheckBox x:Name="ChkFloors" Content="Floors" Margin="0,3,18,3"/>
                 <CheckBox x:Name="ChkFraming" Content="Structural framing" Margin="0,3,18,3"/>
-                <CheckBox x:Name="ChkRoofs" Content="Roofs" Margin="0,3,0,3"/>
+                <CheckBox x:Name="ChkRoofs" Content="Roofs" Margin="0,3,12,3"/>
+                <Button x:Name="BtnRodCatsFab" Style="{DynamicResource Chip}" Padding="9,2" Margin="0,1,0,1" Content="Rod targets..." ToolTip="Choose more categories the rods can run up to (besides floors, framing and roofs)"/>
               </StackPanel>
               <Button x:Name="BtnExtend" Style="{DynamicResource Primary}" Content="Extend selected" HorizontalAlignment="Right" Margin="0,6,0,0"/>
             </StackPanel>
@@ -287,6 +288,7 @@
                       <ColumnDefinition Width="38"/>
                       <ColumnDefinition Width="*"/>
                       <ColumnDefinition Width="Auto"/>
+                      <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <Viewbox Grid.Column="0" Width="26" Height="26" HorizontalAlignment="Left">
                       <Canvas Width="24" Height="24">
@@ -302,7 +304,8 @@
                       <Border Width="4" Height="16" Background="{DynamicResource BlueBrush}" Margin="0,0,8,0"/>
                       <TextBlock Text="Place hanger on service" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center"/>
                     </StackPanel>
-                    <Path x:Name="ChvFamPlace" Grid.Column="2" Width="12" Height="8" Stretch="Uniform" VerticalAlignment="Center" Margin="8,0,2,0" RenderTransformOrigin="0.5,0.5" Stroke="{DynamicResource MutedBrush}" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Data="M0,0 L6,6 L12,0"/>
+                    <Button x:Name="BtnFamPlace" Grid.Column="2" Style="{DynamicResource Primary}" Padding="12,3" Margin="8,0,0,0" VerticalAlignment="Center" Content="Pick and place" ToolTip="Click on services or units one after another; Esc to finish"/>
+                    <Path x:Name="ChvFamPlace" Grid.Column="3" Width="12" Height="8" Stretch="Uniform" VerticalAlignment="Center" Margin="8,0,2,0" RenderTransformOrigin="0.5,0.5" Stroke="{DynamicResource MutedBrush}" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Data="M0,0 L6,6 L12,0"/>
                   </Grid>
                 </Border>
                 <Border x:Name="BodyFamPlace" ClipToBounds="True">
@@ -311,9 +314,9 @@
                       <WrapPanel>
                         <CheckBox x:Name="ChkFamInsPlace" Content="Hanger outside insulation" Margin="0,3,16,3" ToolTip="Ticked: the hanger wraps the insulation (width + 2 x thickness, invert lowered by the thickness). Unticked: it fits the bare duct inside the insulation."/>
                         <CheckBox x:Name="ChkFamLockPlace" Content="Lock to the service centre and bottom" Margin="0,3,16,3" ToolTip="Align-locks the hanger to the service centreline (in the plan view) and its bottom face (in one section per service, reused on later runs). Round services lock to the centre only. Never on shared hangers."/>
-                      <CheckBox x:Name="ChkFamRodPlace" Content="Extend drop rod up to soffit" Margin="0,3,0,3"/>
+                      <CheckBox x:Name="ChkFamRodPlace" Content="Extend drop rod up to soffit" Margin="0,3,8,3"/>
+                      <Button x:Name="BtnFamRodCatsPlace" Style="{DynamicResource Chip}" Padding="9,2" Margin="0,2,0,2" Content="Rod targets..." ToolTip="Choose which categories the drop rods can run up to (besides floors, framing and roofs)"/>
                       </WrapPanel>
-                    <Button x:Name="BtnFamPlace" HorizontalAlignment="Right" Margin="0,8,0,0" Style="{DynamicResource Primary}" Content="Pick and place" ToolTip="Click on services or units one after another; Esc to finish"/>
                   </StackPanel>
                 </Border>
               </StackPanel>
@@ -325,6 +328,7 @@
                     <Grid.ColumnDefinitions>
                       <ColumnDefinition Width="38"/>
                       <ColumnDefinition Width="*"/>
+                      <ColumnDefinition Width="Auto"/>
                       <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <Viewbox Grid.Column="0" Width="26" Height="26" HorizontalAlignment="Left">
@@ -341,7 +345,8 @@
                       <Border Width="4" Height="16" Background="{DynamicResource BlueBrush}" Margin="0,0,8,0"/>
                       <TextBlock Text="Re-align hangers to service" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center"/>
                     </StackPanel>
-                    <Path x:Name="ChvFamRealign" Grid.Column="2" Width="12" Height="8" Stretch="Uniform" VerticalAlignment="Center" Margin="8,0,2,0" RenderTransformOrigin="0.5,0.5" Stroke="{DynamicResource MutedBrush}" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Data="M0,0 L6,6 L12,0"/>
+                    <Button x:Name="BtnFamRealign" Grid.Column="2" Style="{DynamicResource Primary}" Padding="12,3" Margin="8,0,0,0" VerticalAlignment="Center" Content="Pick duct, then hangers" ToolTip="Run this tool"/>
+                    <Path x:Name="ChvFamRealign" Grid.Column="3" Width="12" Height="8" Stretch="Uniform" VerticalAlignment="Center" Margin="8,0,2,0" RenderTransformOrigin="0.5,0.5" Stroke="{DynamicResource MutedBrush}" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Data="M0,0 L6,6 L12,0"/>
                   </Grid>
                 </Border>
                 <Border x:Name="BodyFamRealign" ClipToBounds="True">
@@ -352,7 +357,6 @@
                         <CheckBox x:Name="ChkFamLockRealign" Content="Lock to the service centre and bottom" Margin="0,3,16,3" ToolTip="Align-locks the hanger to the service centreline (in the plan view) and its bottom face (in one section per service, reused on later runs). Round services lock to the centre only. Never on shared hangers."/>
                       <CheckBox x:Name="ChkFamRodRealign" Content="Re-extend drop rod to soffit" Margin="0,3,0,3"/>
                       </WrapPanel>
-                    <Button x:Name="BtnFamRealign" HorizontalAlignment="Right" Margin="0,8,0,0" Style="{DynamicResource Primary}" Content="Pick duct, then hangers"/>
                   </StackPanel>
                 </Border>
               </StackPanel>
@@ -364,6 +368,7 @@
                     <Grid.ColumnDefinitions>
                       <ColumnDefinition Width="38"/>
                       <ColumnDefinition Width="*"/>
+                      <ColumnDefinition Width="Auto"/>
                       <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <Viewbox Grid.Column="0" Width="26" Height="26" HorizontalAlignment="Left">
@@ -380,7 +385,8 @@
                       <Border Width="4" Height="16" Background="{DynamicResource OrangeBrush}" Margin="0,0,8,0"/>
                       <TextBlock Text="Auto place hangers along selected run" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center"/>
                     </StackPanel>
-                    <Path x:Name="ChvFamAuto" Grid.Column="2" Width="12" Height="8" Stretch="Uniform" VerticalAlignment="Center" Margin="8,0,2,0" RenderTransformOrigin="0.5,0.5" Stroke="{DynamicResource MutedBrush}" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Data="M0,0 L6,6 L12,0"/>
+                    <Button x:Name="BtnFamAuto" Grid.Column="2" Style="{DynamicResource Primary}" Padding="12,3" Margin="8,0,0,0" VerticalAlignment="Center" Content="Select run and place" ToolTip="Run this tool"/>
+                    <Path x:Name="ChvFamAuto" Grid.Column="3" Width="12" Height="8" Stretch="Uniform" VerticalAlignment="Center" Margin="8,0,2,0" RenderTransformOrigin="0.5,0.5" Stroke="{DynamicResource MutedBrush}" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Data="M0,0 L6,6 L12,0"/>
                   </Grid>
                 </Border>
                 <Border x:Name="BodyFamAuto" ClipToBounds="True">
@@ -436,7 +442,40 @@
                         <TextBlock Grid.Column="3" Text="Type" VerticalAlignment="Center" Margin="0,2,6,2"/>
                         <ComboBox x:Name="CmbFamAutoDimType" Grid.Column="4" Margin="0,2" ToolTip="Dimension type - shared with the Dimension placer"/>
                       </Grid>
-                    <Button x:Name="BtnFamAuto" HorizontalAlignment="Right" Margin="0,8,0,0" Style="{DynamicResource Primary}" Content="Select run and place"/>
+                  </StackPanel>
+                </Border>
+              </StackPanel>
+            </Border>
+            <Border Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="1" CornerRadius="5" Margin="0,0,0,8">
+              <StackPanel>
+                <Border x:Name="HdrFamSwap" Background="Transparent" CornerRadius="5" Padding="12,8" Cursor="Hand" ToolTip="Click to show or hide this tool">
+                  <Grid>
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="38"/>
+                      <ColumnDefinition Width="*"/>
+                      <ColumnDefinition Width="Auto"/>
+                      <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Viewbox Grid.Column="0" Width="26" Height="26" HorizontalAlignment="Left">
+                      <Canvas Width="24" Height="24">
+                      <Path Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.2" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Data="M1,2 L23,2"/>
+                      <Path Stroke="{DynamicResource OrangeBrush}" StrokeThickness="1.6" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Data="M5,2 L5,5 M19,2 L19,5"/>
+                      <Path Stroke="{DynamicResource BlueBrush}" StrokeThickness="1.8" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Data="M3,10 L20,10 M16,6.5 L20,10 L16,13.5"/>
+                      <Path Stroke="{DynamicResource GreenBrush}" StrokeThickness="1.8" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Data="M21,18 L4,18 M8,14.5 L4,18 L8,21.5"/>
+                      </Canvas>
+                    </Viewbox>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                      <Border Width="4" Height="16" Background="{DynamicResource OrangeBrush}" Margin="0,0,8,0"/>
+                      <TextBlock Text="Fab Hanger to Family Swap" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <Button x:Name="BtnFamSwap" Grid.Column="2" Style="{DynamicResource Primary}" Padding="12,3" Margin="8,0,0,0" VerticalAlignment="Center" Content="Select and swap" ToolTip="Swap the selected fabrication hangers (or the ones you pick) for the family hanger chosen in the list"/>
+                    <Path x:Name="ChvFamSwap" Grid.Column="3" Width="12" Height="8" Stretch="Uniform" VerticalAlignment="Center" Margin="8,0,2,0" RenderTransformOrigin="0.5,0.5" Stroke="{DynamicResource MutedBrush}" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Data="M0,0 L6,6 L12,0"/>
+                  </Grid>
+                </Border>
+                <Border x:Name="BodyFamSwap" ClipToBounds="True">
+                  <StackPanel Margin="50,0,12,10">
+                    <TextBlock Text="Swaps MEP Fabrication hangers already in the model for the family hanger chosen in the list. Select the fabrication hangers first (or press Select and swap and pick them). Each family hanger is placed with the same rules as Pick and place - position, service and size are taken from the fabrication hanger it replaces; if that hanger was not hosted on the right service, the family hanger is sized and set to the service it really sits on. The fabrication hanger is removed once its replacement is placed." Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,0,0,4"/>
+                    <TextBlock Text="Uses the options of Place hanger on service (outside insulation, lock, drop rod)." Foreground="{DynamicResource MutedBrush}" FontSize="11" TextWrapping="Wrap" Margin="0,2,0,0"/>
                   </StackPanel>
                 </Border>
               </StackPanel>
@@ -448,6 +487,7 @@
                     <Grid.ColumnDefinitions>
                       <ColumnDefinition Width="38"/>
                       <ColumnDefinition Width="*"/>
+                      <ColumnDefinition Width="Auto"/>
                       <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <Viewbox Grid.Column="0" Width="26" Height="26" HorizontalAlignment="Left">
@@ -462,14 +502,15 @@
                       <Border Width="4" Height="16" Background="{DynamicResource BlueBrush}" Margin="0,0,8,0"/>
                       <TextBlock Text="Drop rod extender" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center"/>
                     </StackPanel>
-                    <Path x:Name="ChvFamRods" Grid.Column="2" Width="12" Height="8" Stretch="Uniform" VerticalAlignment="Center" Margin="8,0,2,0" RenderTransformOrigin="0.5,0.5" Stroke="{DynamicResource MutedBrush}" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Data="M0,0 L6,6 L12,0"/>
+                    <Button x:Name="BtnFamRods" Grid.Column="2" Style="{DynamicResource Primary}" Padding="12,3" Margin="8,0,0,0" VerticalAlignment="Center" Content="Pick hangers, then target" ToolTip="Run this tool"/>
+                    <Path x:Name="ChvFamRods" Grid.Column="3" Width="12" Height="8" Stretch="Uniform" VerticalAlignment="Center" Margin="8,0,2,0" RenderTransformOrigin="0.5,0.5" Stroke="{DynamicResource MutedBrush}" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Data="M0,0 L6,6 L12,0"/>
                   </Grid>
                 </Border>
                 <Border x:Name="BodyFamRods" ClipToBounds="True">
                   <StackPanel Margin="50,0,12,10">
                     <TextBlock Text="Pick one or more hangers, then the element to hang them from - a floor, beam, steel or service, in this model or a linked one. Each drop rod runs up to that element&apos;s underside above it, or its lowest point." Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,0,0,4"/>
                     <CheckBox x:Name="ChkFamRodLinked" Content="Target is in a linked model" ToolTip="Go straight to picking inside a link. Unticked, clicking a link still works - you are asked to click the element inside it next."/>
-                    <Button x:Name="BtnFamRods" HorizontalAlignment="Right" Margin="0,8,0,0" Style="{DynamicResource Primary}" Content="Pick hangers, then target"/>
+                    <Button x:Name="BtnFamRodCats" Style="{DynamicResource Chip}" Padding="9,3" Margin="0,6,0,0" HorizontalAlignment="Left" Content="Rod targets..." ToolTip="Choose which categories the drop rods can run up to when Extend drop rod up to soffit is used (besides floors, framing and roofs)"/>
                   </StackPanel>
                 </Border>
               </StackPanel>
@@ -481,6 +522,7 @@
                     <Grid.ColumnDefinitions>
                       <ColumnDefinition Width="38"/>
                       <ColumnDefinition Width="*"/>
+                      <ColumnDefinition Width="Auto"/>
                       <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <Viewbox Grid.Column="0" Width="26" Height="26" HorizontalAlignment="Left">
@@ -496,7 +538,8 @@
                       <Border Width="4" Height="16" Background="{DynamicResource GreenBrush}" Margin="0,0,8,0"/>
                       <TextBlock Text="Dimension placer" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center"/>
                     </StackPanel>
-                    <Path x:Name="ChvFamDims" Grid.Column="2" Width="12" Height="8" Stretch="Uniform" VerticalAlignment="Center" Margin="8,0,2,0" RenderTransformOrigin="0.5,0.5" Stroke="{DynamicResource MutedBrush}" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Data="M0,0 L6,6 L12,0"/>
+                    <Button x:Name="BtnFamDims" Grid.Column="2" Style="{DynamicResource Primary}" Padding="12,3" Margin="8,0,0,0" VerticalAlignment="Center" Content="Pick hangers and dimension" ToolTip="Run this tool"/>
+                    <Path x:Name="ChvFamDims" Grid.Column="3" Width="12" Height="8" Stretch="Uniform" VerticalAlignment="Center" Margin="8,0,2,0" RenderTransformOrigin="0.5,0.5" Stroke="{DynamicResource MutedBrush}" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Data="M0,0 L6,6 L12,0"/>
                   </Grid>
                 </Border>
                 <Border x:Name="BodyFamDims" ClipToBounds="True">
@@ -516,7 +559,6 @@
                         <ComboBox x:Name="CmbFamDimType" Grid.Column="4" Margin="0,2"/>
                       </Grid>
                       <TextBlock x:Name="FamDimHint" Text="Open a floor plan to use this." Foreground="{DynamicResource OrangeBrush}" FontSize="11" Margin="0,3,0,0"/>
-                    <Button x:Name="BtnFamDims" HorizontalAlignment="Right" Margin="0,8,0,0" Style="{DynamicResource Primary}" Content="Pick hangers and dimension"/>
                   </StackPanel>
                 </Border>
               </StackPanel>
@@ -642,6 +684,7 @@
                       <ColumnDefinition Width="38"/>
                       <ColumnDefinition Width="*"/>
                       <ColumnDefinition Width="Auto"/>
+                      <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <Viewbox Grid.Column="0" Width="26" Height="26" HorizontalAlignment="Left">
                       <Canvas Width="24" Height="24">
@@ -657,7 +700,8 @@
                       <Border Width="4" Height="16" Background="{DynamicResource BlueBrush}" Margin="0,0,8,0"/>
                       <TextBlock Text="Place support on service" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center"/>
                     </StackPanel>
-                    <Path x:Name="ChvFlrPlace" Grid.Column="2" Width="12" Height="8" Stretch="Uniform" VerticalAlignment="Center" Margin="8,0,2,0" RenderTransformOrigin="0.5,0.5" Stroke="{DynamicResource MutedBrush}" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Data="M0,0 L6,6 L12,0"/>
+                    <Button x:Name="BtnFlrPlace" Grid.Column="2" Style="{DynamicResource Primary}" Padding="12,3" Margin="8,0,0,0" VerticalAlignment="Center" Content="Pick and place" ToolTip="Click on services or units one after another; Esc to finish"/>
+                    <Path x:Name="ChvFlrPlace" Grid.Column="3" Width="12" Height="8" Stretch="Uniform" VerticalAlignment="Center" Margin="8,0,2,0" RenderTransformOrigin="0.5,0.5" Stroke="{DynamicResource MutedBrush}" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Data="M0,0 L6,6 L12,0"/>
                   </Grid>
                 </Border>
                 <Border x:Name="BodyFlrPlace" ClipToBounds="True">
@@ -667,7 +711,6 @@
                         <CheckBox x:Name="ChkFlrInsPlace" Content="Support outside insulation" Margin="0,3,16,3" ToolTip="Ticked: the support goes round the insulation (width and height + 2 x thickness, first bar lowered by the thickness). Unticked: it fits the bare duct inside the insulation."/>
                         <CheckBox x:Name="ChkFlrLockPlace" Content="Lock to the service centre and bottom" Margin="0,3,16,3" ToolTip="Align-locks the support to the service centreline (in the plan view) and its bottom face (in one section per service, reused on later runs). Round services lock to the centre only. Never on shared supports."/>
                       </WrapPanel>
-                    <Button x:Name="BtnFlrPlace" HorizontalAlignment="Right" Margin="0,8,0,0" Style="{DynamicResource Primary}" Content="Pick and place" ToolTip="Click on services or units one after another; Esc to finish"/>
                   </StackPanel>
                 </Border>
               </StackPanel>
@@ -679,6 +722,7 @@
                     <Grid.ColumnDefinitions>
                       <ColumnDefinition Width="38"/>
                       <ColumnDefinition Width="*"/>
+                      <ColumnDefinition Width="Auto"/>
                       <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <Viewbox Grid.Column="0" Width="26" Height="26" HorizontalAlignment="Left">
@@ -695,7 +739,8 @@
                       <Border Width="4" Height="16" Background="{DynamicResource BlueBrush}" Margin="0,0,8,0"/>
                       <TextBlock Text="Re-align supports to service" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center"/>
                     </StackPanel>
-                    <Path x:Name="ChvFlrRealign" Grid.Column="2" Width="12" Height="8" Stretch="Uniform" VerticalAlignment="Center" Margin="8,0,2,0" RenderTransformOrigin="0.5,0.5" Stroke="{DynamicResource MutedBrush}" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Data="M0,0 L6,6 L12,0"/>
+                    <Button x:Name="BtnFlrRealign" Grid.Column="2" Style="{DynamicResource Primary}" Padding="12,3" Margin="8,0,0,0" VerticalAlignment="Center" Content="Pick duct, then supports" ToolTip="Run this tool"/>
+                    <Path x:Name="ChvFlrRealign" Grid.Column="3" Width="12" Height="8" Stretch="Uniform" VerticalAlignment="Center" Margin="8,0,2,0" RenderTransformOrigin="0.5,0.5" Stroke="{DynamicResource MutedBrush}" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Data="M0,0 L6,6 L12,0"/>
                   </Grid>
                 </Border>
                 <Border x:Name="BodyFlrRealign" ClipToBounds="True">
@@ -705,7 +750,6 @@
                         <CheckBox x:Name="ChkFlrInsRealign" Content="Support outside insulation" Margin="0,3,16,3" ToolTip="Ticked: the support goes round the insulation (width and height + 2 x thickness, first bar lowered by the thickness). Unticked: it fits the bare duct inside the insulation."/>
                         <CheckBox x:Name="ChkFlrLockRealign" Content="Lock to the service centre and bottom" Margin="0,3,16,3" ToolTip="Align-locks the support to the service centreline (in the plan view) and its bottom face (in one section per service, reused on later runs). Round services lock to the centre only. Never on shared supports."/>
                       </WrapPanel>
-                    <Button x:Name="BtnFlrRealign" HorizontalAlignment="Right" Margin="0,8,0,0" Style="{DynamicResource Primary}" Content="Pick duct, then supports"/>
                   </StackPanel>
                 </Border>
               </StackPanel>
@@ -717,6 +761,7 @@
                     <Grid.ColumnDefinitions>
                       <ColumnDefinition Width="38"/>
                       <ColumnDefinition Width="*"/>
+                      <ColumnDefinition Width="Auto"/>
                       <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <Viewbox Grid.Column="0" Width="26" Height="26" HorizontalAlignment="Left">
@@ -733,7 +778,8 @@
                       <Border Width="4" Height="16" Background="{DynamicResource OrangeBrush}" Margin="0,0,8,0"/>
                       <TextBlock Text="Auto place supports along selected run" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center"/>
                     </StackPanel>
-                    <Path x:Name="ChvFlrAuto" Grid.Column="2" Width="12" Height="8" Stretch="Uniform" VerticalAlignment="Center" Margin="8,0,2,0" RenderTransformOrigin="0.5,0.5" Stroke="{DynamicResource MutedBrush}" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Data="M0,0 L6,6 L12,0"/>
+                    <Button x:Name="BtnFlrAuto" Grid.Column="2" Style="{DynamicResource Primary}" Padding="12,3" Margin="8,0,0,0" VerticalAlignment="Center" Content="Select run and place" ToolTip="Run this tool"/>
+                    <Path x:Name="ChvFlrAuto" Grid.Column="3" Width="12" Height="8" Stretch="Uniform" VerticalAlignment="Center" Margin="8,0,2,0" RenderTransformOrigin="0.5,0.5" Stroke="{DynamicResource MutedBrush}" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Data="M0,0 L6,6 L12,0"/>
                   </Grid>
                 </Border>
                 <Border x:Name="BodyFlrAuto" ClipToBounds="True">
@@ -788,7 +834,6 @@
                         <TextBlock Grid.Column="3" Text="Type" VerticalAlignment="Center" Margin="0,2,6,2"/>
                         <ComboBox x:Name="CmbFlrAutoDimType" Grid.Column="4" Margin="0,2" ToolTip="Dimension type - shared with the Dimension placer"/>
                       </Grid>
-                    <Button x:Name="BtnFlrAuto" HorizontalAlignment="Right" Margin="0,8,0,0" Style="{DynamicResource Primary}" Content="Select run and place"/>
                   </StackPanel>
                 </Border>
               </StackPanel>
@@ -800,6 +845,7 @@
                     <Grid.ColumnDefinitions>
                       <ColumnDefinition Width="38"/>
                       <ColumnDefinition Width="*"/>
+                      <ColumnDefinition Width="Auto"/>
                       <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <Viewbox Grid.Column="0" Width="26" Height="26" HorizontalAlignment="Left">
@@ -815,7 +861,8 @@
                       <Border Width="4" Height="16" Background="{DynamicResource GreenBrush}" Margin="0,0,8,0"/>
                       <TextBlock Text="Dimension placer" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center"/>
                     </StackPanel>
-                    <Path x:Name="ChvFlrDims" Grid.Column="2" Width="12" Height="8" Stretch="Uniform" VerticalAlignment="Center" Margin="8,0,2,0" RenderTransformOrigin="0.5,0.5" Stroke="{DynamicResource MutedBrush}" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Data="M0,0 L6,6 L12,0"/>
+                    <Button x:Name="BtnFlrDims" Grid.Column="2" Style="{DynamicResource Primary}" Padding="12,3" Margin="8,0,0,0" VerticalAlignment="Center" Content="Pick supports and dimension" ToolTip="Run this tool"/>
+                    <Path x:Name="ChvFlrDims" Grid.Column="3" Width="12" Height="8" Stretch="Uniform" VerticalAlignment="Center" Margin="8,0,2,0" RenderTransformOrigin="0.5,0.5" Stroke="{DynamicResource MutedBrush}" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Data="M0,0 L6,6 L12,0"/>
                   </Grid>
                 </Border>
                 <Border x:Name="BodyFlrDims" ClipToBounds="True">
@@ -835,7 +882,6 @@
                         <ComboBox x:Name="CmbFlrDimType" Grid.Column="4" Margin="0,2"/>
                       </Grid>
                       <TextBlock x:Name="FlrDimHint" Text="Open a floor plan to use this." Foreground="{DynamicResource OrangeBrush}" FontSize="11" Margin="0,3,0,0"/>
-                    <Button x:Name="BtnFlrDims" HorizontalAlignment="Right" Margin="0,8,0,0" Style="{DynamicResource Primary}" Content="Pick supports and dimension"/>
                   </StackPanel>
                 </Border>
               </StackPanel>

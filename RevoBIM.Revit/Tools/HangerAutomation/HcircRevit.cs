@@ -45,7 +45,7 @@ namespace RevoBIM.Tools.HangerAutomation
     {
         public const double MM = FhaCore.MM;
         public const double Tol = HfamRevit.Tol;    // TOL = hr.TOL
-        public const string NotRound = "A Circular System Based {1} goes on a pipe or round duct - {0} was skipped.";   // NOT_ROUND
+        public const string NotRound = "A Circular System Based {1} goes on a pipe, conduit, round duct or round FAB duct / pipe - {0} was skipped.";   // NOT_ROUND
 
         // ---------------------------------------------------------------- private plumbing
         private static long Eid(ElementId id) { return FhaRevit.EidValue(id); }
@@ -57,7 +57,7 @@ namespace RevoBIM.Tools.HangerAutomation
         private static string Describe(Element el) { return HfamRevit.Describe(el); }
 
         /// <summary>NOT_ROUND.format(name, noun).</summary>
-        private static string NotRoundText(string name, string noun)
+        public static string NotRoundText(string name, string noun)
         {
             // {1} first: the noun never holds a placeholder, an element name might ("{1}" in a name must stay as typed)
             return NotRound.Replace("{1}", noun).Replace("{0}", name);
@@ -378,7 +378,9 @@ namespace RevoBIM.Tools.HangerAutomation
                 problems.Add("diameter parameter \"" + OrNotSet(cfg.Get("dia", null)) + "\" not found or read only - set it in Family settings");
             if (rod)   // from the hanger's reference (the centreline) up
             {
-                double? top = finder.Above(cfg.Get("soffit", "level"), q.X, q.Y, q.Z);
+                double? top;
+                using (HaTiming.Time("fit.rod"))
+                    top = finder.Above(cfg.Get("soffit", "level"), q.X, q.Y, q.Z, HfamRevit.SoffitFinder.ExcludeIds(inst));   // never stops at this hanger
                 double? len = HfamCore.RodLength(q.Z, top);
                 if (len == null)
                 {
@@ -420,13 +422,17 @@ namespace RevoBIM.Tools.HangerAutomation
                                                        bool rod = false, HfamRevit.SoffitFinder finder = null)
         {
             bool floor = HfamRevit.IsFloor(cfg);
+            HaTiming.Scope placeScope = HaTiming.Time("place");
             Level level;
             if (floor)
                 level = HfamRevit.FloorLevel(doc, service, q.Z - sec.Depth / 2.0, log);
             else
                 level = HfamRevit.ElementLevel(doc, service, q.Z);
             if (level == null)
+            {
+                placeScope.Dispose();
                 return new HfamRevit.PlaceOutcome { Inst = null, Problems = new List<string> { "the service has no level" } };
+            }
             try
             {
                 if (!symbol.IsActive)
@@ -463,6 +469,7 @@ namespace RevoBIM.Tools.HangerAutomation
                 }
                 catch (Exception ex)
                 {
+                    placeScope.Dispose();
                     return new HfamRevit.PlaceOutcome { Inst = null, Problems = new List<string> { "Revit refused to place " + ElName(symbol) + ": " + ex.Message } };
                 }
             }
@@ -471,13 +478,19 @@ namespace RevoBIM.Tools.HangerAutomation
                 ws.Apply(inst, service, true);
             else
                 FhaRevit.MatchWorkset(inst, service);
+            placeScope.Dispose();
             log.Add("+ " + Title(cfg) + " " + Inv(Eid(inst.Id)) + " on " + Describe(service) + " at " + Fpt(q) + " ("
                     + (placement.Length > 0 ? placement : "?") + ")");
             HfamRevit.LogSection(log, sec);
-            FhaRevit.WriteServiceComment(inst, new List<Element> { service }, log);
-            if (!floor)
-                return new HfamRevit.PlaceOutcome { Inst = inst, Problems = FitCircHanger(doc, inst, sec, q, level, cfg, rod, finder, log) };
-            return new HfamRevit.PlaceOutcome { Inst = inst, Problems = FitCirc(doc, inst, sec, q, level, cfg, log, baseEl) };
+            log.Add("   service category: " + HfamRevit.CategoryText(service));
+            using (HaTiming.Time("comment"))
+                FhaRevit.WriteServiceComment(inst, new List<Element> { service }, log);
+            using (HaTiming.Time("fit"))
+            {
+                if (!floor)
+                    return new HfamRevit.PlaceOutcome { Inst = inst, Problems = FitCircHanger(doc, inst, sec, q, level, cfg, rod, finder, log) };
+                return new HfamRevit.PlaceOutcome { Inst = inst, Problems = FitCirc(doc, inst, sec, q, level, cfg, log, baseEl) };
+            }
         }
 
         /// <summary>Slide a ring support sideways onto the service centreline (never along the run), then refit it.
@@ -494,6 +507,7 @@ namespace RevoBIM.Tools.HangerAutomation
             log.Add("~ " + Title(cfg) + " " + Inv(Eid(inst.Id)) + " at " + Fpt(p) + " -> " + Fpt(q) + " | sideways "
                     + Fmm(HfamCore.PlanOffset(sec.A, sec.B, p)) + " mm | on " + Describe(service));
             HfamRevit.LogSection(log, sec);
+            log.Add("   service category: " + HfamRevit.CategoryText(service));
             try
             {
                 ElementTransformUtils.MoveElement(doc, inst.Id, new XYZ(q.X - p.X, q.Y - p.Y, 0.0));
@@ -527,12 +541,15 @@ namespace RevoBIM.Tools.HangerAutomation
                 problems.Add("no level");
                 return problems;
             }
-            if (!HfamRevit.IsFloor(cfg))
+            using (HaTiming.Time("fit"))
             {
-                problems.AddRange(FitCircHanger(doc, inst, sec, q, level, cfg, rod, finder, log));
-                return problems;
+                if (!HfamRevit.IsFloor(cfg))
+                {
+                    problems.AddRange(FitCircHanger(doc, inst, sec, q, level, cfg, rod, finder, log));
+                    return problems;
+                }
+                problems.AddRange(FitCirc(doc, inst, sec, q, level, cfg, log, baseEl));
             }
-            problems.AddRange(FitCirc(doc, inst, sec, q, level, cfg, log, baseEl));
             return problems;
         }
 
@@ -562,6 +579,15 @@ namespace RevoBIM.Tools.HangerAutomation
             bool rod = FhaCore.AsBool(settings, key) && !HfamRevit.IsFloor(cfg);
             finder = rod ? new HfamRevit.SoffitFinder(doc, settings, log, rod && cfg.Get("soffit", null) == "structure") : null;
             return rod;
+        }
+
+        /// <summary>The align locker for a circular job; a circular hanger's reference sits at the service centre, so its Center
+        /// (Elevation) plane is locked to the centreline as well (best effort).</summary>
+        private static HfamRevit.Locker NewLocker(Document doc, View view, FhaDebugLog log, FamConfig cfg)
+        {
+            HfamRevit.Locker l = new HfamRevit.Locker(doc, view, log);
+            l.ElevationCentre = !HfamRevit.IsFloor(cfg);
+            return l;
         }
 
         private static void Close(HfamRevit.SoffitFinder finder)

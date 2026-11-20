@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -14,7 +14,7 @@ namespace RevoBIM.Tools.HangerAutomation
         /// <summary>fitted section of an element: its section with the insulation rule applied.</summary>
         public static Section Fitted(Element el, bool outside)
         {
-            return HfamCore.ApplyInsulation(Section(el), outside);
+            return HfamCore.ApplyInsulation(SectionCached(el), outside);
         }
 
         /// <summary>The (section, point) pair bundle_for returns.</summary>
@@ -210,7 +210,7 @@ namespace RevoBIM.Tools.HangerAutomation
                     {
                         string prompt = group.Count > 0
                             ? "Click on one of the selected services where the " + NounOf(settings) + " goes - it goes round all of them (Esc to finish)"
-                            : "Click on a duct, pipe, cable tray, mechanical equipment or duct accessory where the " + NounOf(settings) + " goes (Esc to finish)";
+                            : "Click on a duct, pipe, cable tray, conduit, mechanical equipment or duct accessory where the " + NounOf(settings) + " goes (Esc to finish)";
                         pp = PickDuctPoint(uidoc, prompt, pickTest);
                     }
                     catch (Exception)
@@ -252,15 +252,21 @@ namespace RevoBIM.Tools.HangerAutomation
                         PlaceOutcome po = PlaceOne(doc, symbol, duct, sec, q, cfg, rod, finder, log, ws, baseEl);
                         List<string> problems = po.Problems;
                         LockIf(locker, po.Inst, duct, sec, q, problems, log);
-                        if (po.Inst == null || !FhaRevit.Committed(t))
+                        bool committed;
+                        using (HaTiming.Time("commit"))
+                            committed = po.Inst != null && FhaRevit.Committed(t);
+                        if (!committed)
                         {
                             FhaRevit.Rollback(t);
                             res.Failed++;
                             issues.AddRange(problems);
                             continue;
                         }
-                        if (Verify(po.Inst, cfg, sec, res, problems, log))
-                            res.Done++;
+                        using (HaTiming.Time("verify"))
+                        {
+                            if (Verify(po.Inst, cfg, sec, res, problems, log))
+                                res.Done++;
+                        }
                         issues.AddRange(problems);
                     }
                     catch (Exception ex)
@@ -269,12 +275,17 @@ namespace RevoBIM.Tools.HangerAutomation
                         FhaRevit.Rollback(t);
                         res.Failed++;
                     }
+                    finally
+                    {
+                        HaTiming.Flush(log);
+                    }
                 }
             }
             finally
             {
                 finder.Close();
                 if (baseEl != null) baseEl.Close();
+                HaTiming.EndJob(log, "Pick and place");
             }
             res.Lines.AddRange(SortedDistinct(issues));
             res.Lines.AddRange(ws.Problems);
@@ -310,7 +321,7 @@ namespace RevoBIM.Tools.HangerAutomation
                 try
                 {
                     IList<Reference> refs = uidoc.Selection.PickObjects(ObjectType.Element, new HfamFilter(IsHostDuct),
-                                                                        "Pick the duct, pipe or cable tray (several to hang together), then Finish");
+                                                                        "Pick the duct, pipe, cable tray or conduit (several to hang together), then Finish");
                     picked = refs.Select(r => doc.GetElement(r.ElementId)).ToList();
                 }
                 catch (Exception)
@@ -385,6 +396,12 @@ namespace RevoBIM.Tools.HangerAutomation
                     cfgs.Add(cfg);
                 }
                 finder = new SoffitFinder(doc, settings, log, rod && cfgs.Any(c => c.Get("soffit", "") == "structure"));
+                // per-job work done once (it did not change from hanger to hanger): the picked service's section and,
+                // with several services picked, every straight with the insulation rule applied
+                Section ductSec0 = Section(duct);
+                List<ServiceSec> othersAll = null;
+                if (picked.Count > 1)
+                    othersAll = straights.Select(s => new ServiceSec(s.El, HfamCore.ApplyInsulation(s.Sec, outside))).ToList();
                 for (int hi = 0; hi < hangers.Count; hi++)
                 {
                     FamilyInstance h = (FamilyInstance)hangers[hi];
@@ -393,7 +410,7 @@ namespace RevoBIM.Tools.HangerAutomation
                     long? key = p != null ? HfamCore.PickSegment(p.Value, segs, 300.0 / MM) : null;
                     Element segEl;
                     Section sec;
-                    Section ductSec = Section(duct);   // by_id.get(key, (duct, section(duct))): the default is built either way
+                    Section ductSec = ductSec0;   // by_id.get(key, (duct, section(duct))): read once above
                     ServiceSec found;
                     if (key != null && byId.TryGetValue(key.Value, out found)) { segEl = found.El; sec = found.Sec; }
                     else { segEl = duct; sec = ductSec; }
@@ -401,8 +418,7 @@ namespace RevoBIM.Tools.HangerAutomation
                     if (p != null && picked.Count > 1)
                     {
                         V3 q0 = HfamCore.OnLine(sec.A, sec.B, p.Value);
-                        var others = straights.Select(s => new ServiceSec(s.El, HfamCore.ApplyInsulation(s.Sec, outside))).ToList();
-                        sec = BundleFor(segEl, sec, q0, others, outside, log, rules).Sec;
+                        sec = BundleFor(segEl, sec, q0, othersAll, outside, log, rules).Sec;
                     }
                     if (key == null)
                         log.Add("hanger " + Inv(Eid(h.Id)) + ": not over any straight of the run - using the picked duct");
@@ -412,7 +428,10 @@ namespace RevoBIM.Tools.HangerAutomation
                         List<string> problems = RealignOne(doc, h, segEl, sec, cfg, rod, finder, log, ws, baseEl);
                         if (p != null)
                             LockIf(locker, h, segEl, sec, HfamCore.OnLine(sec.A, sec.B, p.Value), problems, log);
-                        if (FhaRevit.Committed(t))
+                        bool committed;
+                        using (HaTiming.Time("commit"))
+                            committed = FhaRevit.Committed(t);
+                        if (committed)
                             done.Add(new DoneItem { Inst = h, Cfg = cfg, Sec = sec });
                         else
                             res.Failed++;
@@ -424,6 +443,10 @@ namespace RevoBIM.Tools.HangerAutomation
                         FhaRevit.Rollback(t);
                         res.Failed++;
                     }
+                    finally
+                    {
+                        HaTiming.Flush(log);
+                    }
                 }
             }
             finally
@@ -431,6 +454,7 @@ namespace RevoBIM.Tools.HangerAutomation
                 if (finder != null) finder.Close();
                 if (baseEl != null) baseEl.Close();
                 tg.Assimilate();
+                HaTiming.EndJob(log, "Re-align");
             }
             foreach (DoneItem d in done)
             {
@@ -513,7 +537,7 @@ namespace RevoBIM.Tools.HangerAutomation
                 try
                 {
                     IList<Reference> refs = uidoc.Selection.PickObjects(ObjectType.Element, new HfamFilter(IsRunMember),
-                                                                        "Select the run(s) - ducts, pipes or cable trays and their fittings - then Finish");
+                                                                        "Select the run(s) - ducts, pipes, cable trays or conduits and their fittings - then Finish");
                     seeds = refs.Select(r => doc.GetElement(r.ElementId)).ToList();
                 }
                 catch (Exception)
@@ -569,7 +593,7 @@ namespace RevoBIM.Tools.HangerAutomation
             var sized = new List<KeyValuePair<double, Span>>();
             foreach (Span span in spans)
             {
-                double maxW = span.Chain.Where(it => it.Kind == "straight").Select(it => Section(elems[it.Id]).Width).Max();
+                double maxW = span.Chain.Where(it => it.Kind == "straight").Select(it => SectionCached(elems[it.Id]).Width).Max();
                 sized.Add(new KeyValuePair<double, Span>(-maxW, span));
             }
             spans = sized.Select((x, i) => new { x, i }).OrderBy(z => z.x.Key).ThenBy(z => z.i).Select(z => z.x.Value).ToList();   // widest first leads a group
@@ -603,7 +627,7 @@ namespace RevoBIM.Tools.HangerAutomation
                     if (segs.Count == 0)
                         continue;
                     List<Element> straightEls = chain.Where(it => it.Kind == "straight").Select(it => elems[it.Id]).ToList();
-                    List<Section> secs = straightEls.Select(e => Section(e)).ToList();
+                    List<Section> secs = straightEls.Select(e => SectionCached(e)).ToList();
                     double width = secs.Max(sc => sc.Width);
                     double depth = secs.Max(sc => sc.Depth);
                     bool isRound = secs.All(sc => sc.Round);
@@ -690,7 +714,10 @@ namespace RevoBIM.Tools.HangerAutomation
                             PlaceOutcome po = PlaceOne(doc, symbol, host, sec, q, cfg, rod, finder, log, ws, baseEl);
                             LockIf(locker, po.Inst, host, sec, q, po.Problems, log);
                             issues.AddRange(po.Problems);
-                            if (po.Inst != null && FhaRevit.Committed(t))
+                            bool committed;
+                            using (HaTiming.Time("commit"))
+                                committed = po.Inst != null && FhaRevit.Committed(t);
+                            if (committed)
                             {
                                 made.Add(new KeyValuePair<FamilyInstance, Section>(po.Inst, sec));
                                 if ((sec.Keys != null ? sec.Keys.Count : 0) > 1)
@@ -708,6 +735,10 @@ namespace RevoBIM.Tools.HangerAutomation
                             FhaRevit.Rollback(t);
                             res.Failed++;
                         }
+                        finally
+                        {
+                            HaTiming.Flush(log);
+                        }
                     }
                     if (made.Count > 0 && wantDims)
                     {
@@ -716,9 +747,13 @@ namespace RevoBIM.Tools.HangerAutomation
                         V3 pEnd = points.ContainsKey(lastId) ? points[lastId].Value : segs[segs.Count - 1].B;
                         List<Element> hs = made.Select(m => (Element)m.Key).ToList();
                         Element firstEl = straightEls[0], lastEl = straightEls[straightEls.Count - 1];
-                        if (FhaRevit.DimensionInTargets(doc, targets, pStart, pEnd,
-                                v => ChainDimension(doc, v, pStart, pEnd, hs, firstEl, lastEl, cfg.Axis, settings, log, dimType), log))
-                            dimmed++;
+                        using (HaTiming.Time("dims"))
+                        {
+                            if (FhaRevit.DimensionInTargets(doc, targets, pStart, pEnd,
+                                    v => ChainDimension(doc, v, pStart, pEnd, hs, firstEl, lastEl, cfg.Axis, settings, log, dimType), log))
+                                dimmed++;
+                        }
+                        HaTiming.Flush(log, "dimensions of the span");
                     }
                     madeAll.AddRange(made);
                 }
@@ -728,6 +763,7 @@ namespace RevoBIM.Tools.HangerAutomation
                 finder.Close();
                 if (baseEl != null) baseEl.Close();
                 tg.Assimilate();
+                HaTiming.EndJob(log, "Auto place");
             }
             if (madeAll.Count == 0 && res.Failed == 0)
                 res.Lines.Add("Nothing to place - every span already has its hangers or is too short.");
