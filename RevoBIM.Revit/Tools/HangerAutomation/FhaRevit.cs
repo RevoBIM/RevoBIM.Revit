@@ -212,8 +212,10 @@ namespace RevoBIM.Tools.HangerAutomation
         }
 
         /// <summary>The current selection filtered to ducts / hangers (want = "duct" or "hanger"), else ask for a pick.</summary>
-        public static List<FabricationPart> GetSelection(UIDocument uidoc, string want, string prompt)
+        public static List<FabricationPart> GetSelection(UIDocument uidoc, string want, string prompt, string title = null, string detail = null)
         {
+            if (title == null) title = want == "duct" ? "Select the duct run" : "Select the hangers";
+            if (detail == null) detail = FhaFinish.Detail(want == "duct" ? "Pick the fabrication duct run" : "Pick the fabrication hangers");
             Document doc = uidoc.Document;
             Func<Element, bool> keep = want == "duct" ? (Func<Element, bool>)IsDuct : IsHanger;
             var els = new List<FabricationPart>();
@@ -225,7 +227,7 @@ namespace RevoBIM.Tools.HangerAutomation
             if (els.Count > 0) return els;
             try
             {
-                IList<Reference> refs = uidoc.Selection.PickObjects(ObjectType.Element, new FabFilter(want), prompt);
+                IList<Reference> refs = FhaFinish.PickObjects(uidoc, new FabFilter(want), prompt, title, detail);
                 var o = new List<FabricationPart>();
                 foreach (Reference r in refs)
                 {

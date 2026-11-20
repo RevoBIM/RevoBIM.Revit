@@ -14,6 +14,7 @@
           <RowDefinition Height="*"/>
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <!-- ================ header ================ -->
@@ -988,8 +989,27 @@
 
         <TextBox x:Name="LogBox" Grid.Row="3" Height="84" Margin="14,0,14,10" IsReadOnly="True" TextWrapping="Wrap" FontFamily="Consolas" FontSize="11" Tag="Results appear here"/>
 
+        <!-- ================ Finish Selection card: shown only while Revit waits on a multiple selection ================ -->
+        <Border x:Name="FinishCard" Grid.Row="4" Visibility="Collapsed" Margin="14,0,14,10" Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource BlueBrush}" BorderThickness="1.5" CornerRadius="4">
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="4"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Border Grid.Column="0" CornerRadius="3,0,0,3" Background="{DynamicResource BlueBrush}"/>
+            <StackPanel Grid.Column="1" Margin="11,8,12,10">
+              <TextBlock x:Name="FinishEyebrow" Text="SELECTION" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource BlueBrush}"/>
+              <TextBlock x:Name="FinishTitle" Text="Select the elements" FontSize="14" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,2,0,0" Foreground="{DynamicResource TextBrush}"/>
+              <TextBlock x:Name="FinishDetail" TextWrapping="Wrap" FontSize="11.5" Margin="0,3,0,0" Foreground="{DynamicResource MutedBrush}"/>
+              <Border Background="{DynamicResource BarBrush}" CornerRadius="3" Padding="7,3" Margin="0,7,0,0" HorizontalAlignment="Left">
+                <TextBlock x:Name="FinishHint" FontSize="10.5" TextWrapping="Wrap" Foreground="{DynamicResource TextBrush}" Text="Finish Selection  &#x00B7;  Options Bar Finish  &#x00B7;  Return     &#x00B7;     Esc to stop"/>
+              </Border>
+              <Button x:Name="BtnFinish" Style="{DynamicResource Primary}" Margin="0,10,0,0" Padding="10,8" FontSize="13" FontWeight="SemiBold" Content="&#x2713;  Finish Selection" ToolTip="Finish the selection - the same as Finish on the Options Bar or Return (pressed once per pick)"/>
+            </StackPanel>
+          </Grid>
+        </Border>
         <!-- ================ footer ================ -->
-        <Border x:Name="FooterBar" Grid.Row="4" Background="{DynamicResource BarBrush}" CornerRadius="0,0,6,6" Padding="12,8">
+        <Border x:Name="FooterBar" Grid.Row="5" Background="{DynamicResource BarBrush}" CornerRadius="0,0,6,6" Padding="12,8">
           <Grid>
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>

@@ -59,7 +59,8 @@ namespace RevoBIM.Tools.HangerAutomation
             Document doc = uidoc.Document;
             JobResult res = NewResult("Extend hangers to structure");
             if (hangers == null)
-                hangers = GetSelection(uidoc, "hanger", "Select fabrication hangers to extend to structure");
+                hangers = GetSelection(uidoc, "hanger", "Select fabrication hangers to extend to structure",
+                                       "Select the hangers", FhaFinish.Detail("Pick the fabrication hangers whose rods are to be extended up to the structure"));
             if (hangers.Count == 0)
             {
                 res.Lines.Add("No fabrication hangers selected.");
@@ -130,7 +131,8 @@ namespace RevoBIM.Tools.HangerAutomation
         {
             Document doc = uidoc.Document;
             JobResult res = NewResult("Auto rehost and size");
-            List<FabricationPart> hangers = GetSelection(uidoc, "hanger", "Select fabrication hangers to rehost");
+            List<FabricationPart> hangers = GetSelection(uidoc, "hanger", "Select fabrication hangers to rehost",
+                                                         "Select the hangers", FhaFinish.Detail("Pick the fabrication hangers to rehost on the nearest duct and size"));
             if (hangers.Count == 0)
             {
                 res.Lines.Add("No fabrication hangers selected.");
@@ -270,7 +272,8 @@ namespace RevoBIM.Tools.HangerAutomation
             Document doc = uidoc.Document;
             HaTiming.BeginJob(log);
             JobResult res = NewResult("Auto place hangers");
-            List<FabricationPart> seeds = GetSelection(uidoc, "duct", "Select the fabrication duct run to hang");
+            List<FabricationPart> seeds = GetSelection(uidoc, "duct", "Select the fabrication duct run to hang",
+                                                       "Select the run", FhaFinish.Detail("Pick the fabrication duct run to place hangers on"));
             if (seeds.Count == 0)
             {
                 res.Lines.Add("No fabrication duct selected.");

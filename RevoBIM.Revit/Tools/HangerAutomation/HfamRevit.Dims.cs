@@ -269,8 +269,9 @@ namespace RevoBIM.Tools.HangerAutomation
             {
                 try
                 {
-                    IList<Reference> refs = uidoc.Selection.PickObjects(ObjectType.Element, new HfamFilter(e => allowed.Contains(Eid(e.Id))),
-                                                                        "Select hangers to dimension (box or click), then Finish");
+                    IList<Reference> refs = FhaFinish.PickObjects(uidoc, new HfamFilter(e => allowed.Contains(Eid(e.Id))),
+                                                                  "Select hangers to dimension (box or click), then Finish",
+                                                                  "Select the hangers", FhaFinish.Detail("Pick at least two hangers to dimension (box or click)"));
                     picked = refs.Select(r => doc.GetElement(r.ElementId)).ToList();
                 }
                 catch (Exception)

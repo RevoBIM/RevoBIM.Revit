@@ -320,8 +320,9 @@ namespace RevoBIM.Tools.HangerAutomation
             {
                 try
                 {
-                    IList<Reference> refs = uidoc.Selection.PickObjects(ObjectType.Element, new HfamFilter(IsHostDuct),
-                                                                        "Pick the duct, pipe, cable tray or conduit (several to hang together), then Finish");
+                    IList<Reference> refs = FhaFinish.PickObjects(uidoc, new HfamFilter(IsHostDuct),
+                                                                  "Pick the duct, pipe, cable tray or conduit (several to hang together), then Finish",
+                                                                  "Select the services", FhaFinish.Detail("Pick the duct, pipe, cable tray or conduit the hangers are to follow (several to hang together)"));
                     picked = refs.Select(r => doc.GetElement(r.ElementId)).ToList();
                 }
                 catch (Exception)
@@ -338,8 +339,9 @@ namespace RevoBIM.Tools.HangerAutomation
             List<Element> hangers;
             try
             {
-                IList<Reference> refs = uidoc.Selection.PickObjects(ObjectType.Element, new HfamFilter(IsHangerFamily),
-                                                                    "Pick the hangers to re-align, then Finish");
+                IList<Reference> refs = FhaFinish.PickObjects(uidoc, new HfamFilter(IsHangerFamily),
+                                                              "Pick the hangers to re-align, then Finish",
+                                                              "Select the hangers", FhaFinish.Detail("Pick the hangers to re-align to the service"));
                 hangers = refs.Select(r => doc.GetElement(r.ElementId)).ToList();
             }
             catch (Exception)
@@ -536,8 +538,9 @@ namespace RevoBIM.Tools.HangerAutomation
             {
                 try
                 {
-                    IList<Reference> refs = uidoc.Selection.PickObjects(ObjectType.Element, new HfamFilter(IsRunMember),
-                                                                        "Select the run(s) - ducts, pipes, cable trays or conduits and their fittings - then Finish");
+                    IList<Reference> refs = FhaFinish.PickObjects(uidoc, new HfamFilter(IsRunMember),
+                                                                  "Select the run(s) - ducts, pipes, cable trays or conduits and their fittings - then Finish",
+                                                                  "Select the run", FhaFinish.Detail("Pick the run(s) to hang - ducts, pipes, cable trays or conduits and their fittings"));
                     seeds = refs.Select(r => doc.GetElement(r.ElementId)).ToList();
                 }
                 catch (Exception)

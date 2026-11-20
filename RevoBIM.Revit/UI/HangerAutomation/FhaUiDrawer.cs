@@ -42,6 +42,8 @@ namespace RevoBIM.UI.HangerAutomation
         /// <summary>If set, called on expand instead of re-showing the collapsed elements.</summary>
         public Action ShowBody;
         public Action<bool> OnChange;
+        /// <summary>Called when a slide has landed (body collapsed after a shrink, window restored after an expand).</summary>
+        public Action Landed;
         public FhaDrawer Owner;
         public UIElement Grips;
 
@@ -131,6 +133,28 @@ namespace RevoBIM.UI.HangerAutomation
         }
 
         /// <summary>Hold the body at a fixed height for the slide (clipped, not squashed).</summary>
+        /// <summary>
+        /// The height the window comes back to on expand changes by <paramref name="delta"/> (a section of the window
+        /// appeared or went while it was shrunk).
+        /// </summary>
+        public void AdjustSavedHeight(double delta)
+        {
+            if (saved == null) return;
+            saved.Height = Math.Max(saved.MinHeight, saved.Height + delta);
+        }
+
+        private void Notify()
+        {
+            if (Landed == null) return;
+            try
+            {
+                Landed();
+            }
+            catch (Exception)
+            {
+            }
+        }
+
         private void Pin(double height)
         {
             try
@@ -287,6 +311,7 @@ namespace RevoBIM.UI.HangerAutomation
             catch (Exception)
             {
             }
+            Notify();
         }
 
         // ---- expand
@@ -370,6 +395,7 @@ namespace RevoBIM.UI.HangerAutomation
                 {
                 }
             }
+            Notify();
         }
 
         /// <summary>A dialog is closing: an owner it parked comes back.</summary>

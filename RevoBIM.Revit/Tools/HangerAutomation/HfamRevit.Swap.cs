@@ -215,7 +215,8 @@ namespace RevoBIM.Tools.HangerAutomation
             FamilySymbol symbol = Chosen(uidoc, settings, res, out cfg);
             if (symbol == null)
                 return res;
-            List<FabricationPart> fabs = FhaRevit.GetSelection(uidoc, "hanger", "Select the fabrication hangers to swap for the chosen family hanger");
+            List<FabricationPart> fabs = FhaRevit.GetSelection(uidoc, "hanger", "Select the fabrication hangers to swap for the chosen family hanger",
+                                                               "Select the hangers to swap", FhaFinish.Detail("Pick the fabrication hangers to swap for the chosen family hanger"));
             if (fabs.Count == 0)
             {
                 res.Lines.Add("No fabrication hangers selected.");

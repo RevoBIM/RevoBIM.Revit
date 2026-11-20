@@ -192,6 +192,24 @@ namespace RevoBIM.UI.HangerAutomation
             }
         }
 
+        /// <summary>
+        /// The window changed height while full screen (the Finish Selection card came or went): the size it returns
+        /// to when full screen is left changes with it.
+        /// </summary>
+        public void AdjustSavedHeight(double delta)
+        {
+            try
+            {
+                if (saved == null) return;
+                Bounds b = saved.Value;
+                b.Height = Math.Max(Win.MinHeight, b.Height + delta);
+                saved = b;
+            }
+            catch (Exception)
+            {
+            }
+        }
+
         public void ToggleFull()
         {
             try
