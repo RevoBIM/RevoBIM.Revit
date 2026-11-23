@@ -1,0 +1,16 @@
+# The keyboard shortcuts the installer sets in Revit (KeyboardShortcuts.xml), one line per button:
+#   Keys | Panel | Button | Name
+#     Keys    what you type in Revit, e.g. XS
+#     Panel   the ribbon panel the button was created on in App.cs (it is part of Revit's command id)
+#     Button  the button's internal name, the first argument of its PushButtonData in App.cs
+#     Name    the name Revit's shortcut list shows (\n is a line break, as in the button's own text)
+# SetShortcuts.ps1 reads this; make-assets.ps1 turns it into the list the installer shows. A shortcut
+# is given to a command and taken off any other command that had it. Lines starting with # are ignored.
+# Give the buttons on the RevoBIM tab shortcuts, not their copies on the Modify tab: two commands on
+# one shortcut make Revit ask which you meant.
+
+H6|FAB Automation|RevoBIM_HangerAutomation|Hanger\nAutomation
+XS|Sheet Tools|RevoBIM_ProSheetsExporter|Pro Sheets\nExporter
+R5|Sheet Tools|RevoBIM_RevisionManager|Revision\nManager
+NU|Coordination|RevoBIM_NudgeUp|Nudge Up
+ND|Coordination|RevoBIM_NudgeDown|Nudge Down

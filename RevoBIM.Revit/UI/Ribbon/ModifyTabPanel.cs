@@ -62,9 +62,13 @@ namespace RevoBIM.UI.Ribbon
         private static readonly Stopwatch idleClock = Stopwatch.StartNew();
         private static long idleLast;
 
-        // The log is for diagnosis, not a trace of every click: the tab dumps are capped.
+        // The log is for diagnosis, not a trace of every click: the tab dumps are capped, "fix" lines
+        // are limited per selection, and the file stops growing past 256 KB.
         private static int dumps;
         private const int MaxDumps = 10;
+        private static int fixLogged;
+        private static string lastKind = "";
+        private const long MaxLogBytes = 262144;
 
         /// <summary>Move the panels now if the ribbon is ready, else once Revit has started. Never throws.</summary>
         public static void Install(UIControlledApplication app, string tabName)
@@ -159,8 +163,10 @@ namespace RevoBIM.UI.Ribbon
                     {
                         if (!applying && args.PropertyName == "IsVisible" && p.IsVisible != Wanted(p))
                         {
-                            Log("fix: Revit set the " + NameOf(p) + " panel to " + (p.IsVisible ? "shown" : "hidden") +
-                                ", the selection wants it " + (Wanted(p) ? "shown" : "hidden"));
+                            // Revit does this several times per selection: the first few are enough for the log.
+                            if (fixLogged++ < 2)
+                                Log("fix: Revit set the " + NameOf(p) + " panel to " + (p.IsVisible ? "shown" : "hidden") +
+                                    ", the selection wants it " + (Wanted(p) ? "shown" : "hidden") + " - put back");
                             Settle();
                         }
                     };
@@ -246,17 +252,25 @@ namespace RevoBIM.UI.Ribbon
         private static void Decide(Document doc, ICollection<ElementId> ids, string source)
         {
             int sheets = 0, views = 0, viewports = 0, models = 0, other = 0;
+            var otherKinds = new List<string>();
             if (doc != null && ids != null)
             {
                 foreach (ElementId id in ids.Take(500))
                 {
                     Element element = doc.GetElement(id);
                     if (element == null) continue;
-                    if (element is ViewSheet) sheets++;
+                    // Anything in the Sheets category counts as a sheet, whatever class Revit gives it.
+                    if (element is ViewSheet || InSheetsCategory(element)) sheets++;
                     else if (element is Viewport) viewports++;
                     else if (element is View view) { if (!view.IsTemplate) views++; else other++; }
                     else if (element.Category != null && element.Category.CategoryType == CategoryType.Model) models++;
-                    else other++;
+                    else
+                    {
+                        other++;
+                        // What it was, so a selection that should have counted can be seen in the log.
+                        if (otherKinds.Count < 3)
+                            otherKinds.Add(element.GetType().Name + " / " + (element.Category?.Name ?? "no category"));
+                    }
                 }
             }
             seenToken = Token(doc, ids ?? new List<ElementId>());
@@ -268,12 +282,17 @@ namespace RevoBIM.UI.Ribbon
             wantSheet = wantedSheet;
             wantNudge = wantedNudge;
 
-            if (changed)
+            // One line per different kind of selection, not per click.
+            string kind = sheets + "/" + views + "/" + viewports + "/" + models + "/" + other + "/" + string.Join(",", otherKinds);
+            if (changed || kind != lastKind)
             {
-                Log(string.Format("{0}: sheets={1} views={2} viewports={3} model={4} other={5} -> RevoBIM panel {6}, Nudge panel {7}{8}",
-                    source, sheets, views, viewports, models, other, wantSheet ? "SHOWN" : "hidden",
-                    wantNudge ? "SHOWN" : "hidden", doc == null ? "" : "  doc=" + doc.Title));
-                if (wantSheet || wantNudge)
+                lastKind = kind;
+                fixLogged = 0;
+                Log(string.Format("{0}: sheets={1} views={2} viewports={3} model={4} other={5}{6} -> RevoBIM panel {7}, Nudge panel {8}{9}",
+                    source, sheets, views, viewports, models, other,
+                    otherKinds.Count > 0 ? " [" + string.Join("; ", otherKinds) + "]" : "",
+                    wantSheet ? "SHOWN" : "hidden", wantNudge ? "SHOWN" : "hidden", doc == null ? "" : "  doc=" + doc.Title));
+                if (changed && (wantSheet || wantNudge))
                     DumpTabs("when a panel is wanted");
             }
             Settle();
@@ -282,6 +301,19 @@ namespace RevoBIM.UI.Ribbon
         // ======================================================================
         // putting the wanted state on the ribbon
         // ======================================================================
+
+        /// <summary>True for an element Revit files under the Sheets category.</summary>
+        private static bool InSheetsCategory(Element element)
+        {
+            try
+            {
+                return element.Category != null && element.Category.BuiltInCategory == BuiltInCategory.OST_Sheets;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
 
         private static bool Wanted(AW.RibbonPanel panel)
         {
@@ -415,6 +447,9 @@ namespace RevoBIM.UI.Ribbon
             try
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(LogPath()));
+                var info = new FileInfo(LogPath());
+                if (info.Exists && info.Length > MaxLogBytes)
+                    return;
                 File.AppendAllText(LogPath(), DateTime.Now.ToString("HH:mm:ss") + "  " + text + "\n",
                                    new UTF8Encoding(false));
             }

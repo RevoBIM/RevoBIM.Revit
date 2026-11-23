@@ -13,6 +13,8 @@
 #define Res            "..\RevoBIM.Revit\Resources"
 ; The RevoBIM Arcade: one self-contained exe for every Revit version, published by build-installer.ps1
 #define ArcadeExe      "..\RevoBIM.Arcade\publish\RevoBIM.Arcade.exe"
+; The keyboard shortcut list ("XS Pro Sheets Exporter, ..."), written from shortcuts.txt by make-assets.ps1
+#include "assets\shortcuts.inc"
 
 [Setup]
 ; Fixed for the life of the product. Upgrades work because every version shares this AppId.
@@ -66,6 +68,10 @@ Name: "r2025"; Description: "Revit 2025"; Types: full custom
 Name: "r2026"; Description: "Revit 2026"; Types: full custom
 Name: "r2027"; Description: "Revit 2027"; Types: full custom
 
+[Tasks]
+; Ticked by default. A silent install can leave it off with /TASKS="!shortcuts".
+Name: "shortcuts"; Description: "Set the RevoBIM keyboard shortcuts in Revit:  {#ShortcutList}"; GroupDescription: "Keyboard shortcuts"
+
 [Files]
 ; Never ship RevitAPI*.dll - the Nice3point packages are reference only.
 Source: "assets\revobim.ico"; DestDir: "{app}"; Flags: ignoreversion
@@ -84,6 +90,9 @@ Source: "{#ArcadeExe}"; DestDir: "{app}\ArcadeApp"; Flags: ignoreversion
 ; Tool icons for the "What is included" page (wizard only, not installed). The list is generated from
 ; installer\tools.txt by make-assets.ps1.
 #include "assets\tools_files.inc"
+; The keyboard shortcut script and its list: run once from the temp folder after the files are in, not installed.
+Source: "SetShortcuts.ps1"; Flags: dontcopy
+Source: "shortcuts.txt"; Flags: dontcopy
 
 [InstallDelete]
 ; Remove the previous version's files before copying the new ones,
@@ -287,6 +296,9 @@ begin
   Result := MemoComponentsInfo + NewLine + NewLine +
     'Install location:' + NewLine + Space + ExpandConstant('{app}') + NewLine + NewLine +
     'Any existing RevoBIM files for these Revit versions will be replaced.';
+  if WizardIsTaskSelected('shortcuts') then
+    Result := Result + NewLine + NewLine + 'Keyboard shortcuts to set:' + NewLine + Space + '{#ShortcutList}' +
+      NewLine + Space + '(a shortcut already on another command is moved to the RevoBIM one; your old file is kept as a backup)';
 end;
 
 // Keep Enter / Next as the default action: stop Re-check grabbing focus on its page.
@@ -361,6 +373,34 @@ begin
   SaveStringsToFile(ManifestPath, Lines, False);
 end;
 
+// ------------------------------------------------------------- shortcuts
+
+// Set the keyboard shortcuts for the chosen Revit versions. SetShortcuts.ps1 edits each version's
+// KeyboardShortcuts.xml (Revit is closed, or it would rewrite the file on exit), keeps a backup, and
+// logs to %AppData%\RevoBIM\logs\keyboard_shortcuts.txt. It never fails the install.
+procedure SetKeyboardShortcuts();
+var
+  Years: String;
+  ResultCode: Integer;
+begin
+  Years := '';
+  if WizardIsComponentSelected('r2024') then Years := Years + ',2024';
+  if WizardIsComponentSelected('r2025') then Years := Years + ',2025';
+  if WizardIsComponentSelected('r2026') then Years := Years + ',2026';
+  if WizardIsComponentSelected('r2027') then Years := Years + ',2027';
+  if Years = '' then Exit;
+  Delete(Years, 1, 1);
+  try
+    ExtractTemporaryFile('SetShortcuts.ps1');
+    ExtractTemporaryFile('shortcuts.txt');
+    Exec('powershell.exe',
+         '-NoProfile -ExecutionPolicy Bypass -File "' + ExpandConstant('{tmp}\SetShortcuts.ps1') + '" -Years ' + Years,
+         ExpandConstant('{tmp}'), SW_HIDE, ewWaitUntilTerminated, ResultCode);
+  except
+    // Shortcuts are a convenience: whatever goes wrong here must not undo an install.
+  end;
+end;
+
 procedure CurStepChanged(CurStep: TSetupStep);
 begin
   if CurStep = ssPostInstall then
@@ -369,5 +409,6 @@ begin
     if WizardIsComponentSelected('r2025') then WriteManifest('2025');
     if WizardIsComponentSelected('r2026') then WriteManifest('2026');
     if WizardIsComponentSelected('r2027') then WriteManifest('2027');
+    if WizardIsTaskSelected('shortcuts') then SetKeyboardShortcuts();
   end;
 end;

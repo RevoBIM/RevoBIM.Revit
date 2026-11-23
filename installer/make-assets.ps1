@@ -217,5 +217,18 @@ foreach ($t in $tools) {
 $enc = New-Object System.Text.UTF8Encoding($false)
 [System.IO.File]::WriteAllText((Join-Path $assets 'tools.rtf'), $rtf.ToString(), $enc)
 [System.IO.File]::WriteAllText((Join-Path $assets 'tools_files.inc'), "Source: `"assets\tools.rtf`"; Flags: dontcopy`r`n", $enc)
+
+# The keyboard shortcuts the installer offers to set come from installer\shortcuts.txt
+# (Keys|Panel|Button|Name). Written out as assets\shortcuts.inc, a preprocessor define holding the list
+# for the wizard's task page and summary, so it is never typed twice.
+$pairs = @()
+foreach ($line in [System.IO.File]::ReadAllLines((Join-Path $PSScriptRoot 'shortcuts.txt'), [System.Text.Encoding]::UTF8)) {
+    $t = $line.Trim()
+    if ($t -eq '' -or $t.StartsWith('#')) { continue }
+    $p = $t.Split('|')
+    if ($p.Count -lt 4) { throw "shortcuts.txt: expected Keys|Panel|Button|Name, got: $t" }
+    $pairs += ($p[0].Trim() + ' ' + (($p[3..($p.Count - 1)] -join '|').Trim().Replace('\n', ' ')))
+}
+[System.IO.File]::WriteAllText((Join-Path $assets 'shortcuts.inc'), "#define ShortcutList `"" + ($pairs -join ', ') + "`"`r`n", $enc)
 if ($custom) { $custom.Dispose() }
 Write-Host "Installer artwork written to $assets"
