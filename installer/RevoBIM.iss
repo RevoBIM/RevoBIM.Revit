@@ -70,7 +70,7 @@ Name: "r2027"; Description: "Revit 2027"; Types: full custom
 
 [Tasks]
 ; Ticked by default. A silent install can leave it off with /TASKS="!shortcuts".
-Name: "shortcuts"; Description: "Set the RevoBIM keyboard shortcuts in Revit:  {#ShortcutList}"; GroupDescription: "Keyboard shortcuts"
+Name: "shortcuts"; Description: "Set the RevoBIM keyboard shortcuts in Revit (listed above)"; GroupDescription: "Keyboard shortcuts"
 
 [Files]
 ; Never ship RevitAPI*.dll - the Nice3point packages are reference only.
@@ -93,6 +93,7 @@ Source: "{#ArcadeExe}"; DestDir: "{app}\ArcadeApp"; Flags: ignoreversion
 ; The keyboard shortcut script and its list: run once from the temp folder after the files are in, not installed.
 Source: "SetShortcuts.ps1"; Flags: dontcopy
 Source: "shortcuts.txt"; Flags: dontcopy
+Source: "assets\shortcuts.rtf"; Flags: dontcopy
 
 [InstallDelete]
 ; Remove the previous version's files before copying the new ones,
@@ -246,6 +247,32 @@ begin
     'Works with Revit 2024, 2025, 2026 and 2027. More tools arrive as they are converted.',
     0, Page.SurfaceHeight - ScaleY(32), W, ScaleY(32), 9, False, ColMuted);
 end;
+// Select Tasks page: the shortcuts as a table (shortcut in bold, then the tool), generated from
+// shortcuts.txt by make-assets.ps1. The task checkbox list is squeezed to a strip at the bottom.
+procedure CreateShortcutTable();
+var
+  Rich: TRichEditViewer;
+  Rtf: AnsiString;
+  ListTop, ListH: Integer;
+begin
+  ListH := ScaleY(48);
+  ListTop := WizardForm.TasksList.Top;
+  Rich := TRichEditViewer.Create(WizardForm);
+  Rich.Parent := WizardForm.TasksList.Parent;
+  Rich.SetBounds(WizardForm.TasksList.Left, ListTop,
+    WizardForm.TasksList.Width, WizardForm.TasksList.Height - ListH - ScaleY(6));
+  Rich.BorderStyle := bsNone;
+  Rich.ScrollBars := ssVertical;
+  Rich.ReadOnly := True;
+  Rich.UseRichEdit := True;
+  Rich.Color := WizardForm.TasksList.Color;
+  ExtractTemporaryFile('shortcuts.rtf');
+  if LoadStringFromFile(ExpandConstant('{tmp}\shortcuts.rtf'), Rtf) then
+    Rich.RTFText := Rtf;
+  WizardForm.TasksList.Top := ListTop + Rich.Height + ScaleY(6);
+  WizardForm.TasksList.Height := ListH;
+end;
+
 procedure InitializeWizard();
 var
   PrevVersion: String;
@@ -255,6 +282,7 @@ var
 begin
   CreateRevitPage();
   CreateIncludedPage();
+  CreateShortcutTable();
   RefreshRevitStatus();
 
   // Tell the user when this is an upgrade.

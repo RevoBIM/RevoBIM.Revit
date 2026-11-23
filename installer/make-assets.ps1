@@ -1,4 +1,4 @@
-# Generates the installer artwork into installer\assets\:
+﻿# Generates the installer artwork into installer\assets\:
 #   revobim.ico, wizard-large*.bmp (left panel), wizard-small*.bmp (header logo)
 #
 # The mark is drawn in the RevoBIM palette (dark tile, blue / orange / green blocks).
@@ -230,5 +230,25 @@ foreach ($line in [System.IO.File]::ReadAllLines((Join-Path $PSScriptRoot 'short
     $pairs += ($p[0].Trim() + ' ' + (($p[3..($p.Count - 1)] -join '|').Trim().Replace('\n', ' ')))
 }
 [System.IO.File]::WriteAllText((Join-Path $assets 'shortcuts.inc'), "#define ShortcutList `"" + ($pairs -join ', ') + "`"`r`n", $enc)
+# The same list as a table for the Select Tasks page: two columns, Shortcut (bold) and Tool.
+$rows = @()
+foreach ($line in [System.IO.File]::ReadAllLines((Join-Path $PSScriptRoot 'shortcuts.txt'), [System.Text.Encoding]::UTF8)) {
+    $t = $line.Trim()
+    if ($t -eq '' -or $t.StartsWith('#')) { continue }
+    $p = $t.Split('|')
+    $rows += [pscustomobject]@{ Keys = $p[0].Trim(); Name = (($p[3..($p.Count - 1)] -join '|').Trim().Replace('\n', ' ')) }
+}
+$border = '\clbrdrt\brdrs\brdrw10\brdrcf2\clbrdrl\brdrs\brdrw10\brdrcf2\clbrdrb\brdrs\brdrw10\brdrcf2\clbrdrr\brdrs\brdrw10\brdrcf2'
+$def = '\trowd\trgaph90\trleft0' + $border + '\cellx1100' + $border + '\cellx5600'
+$s = New-Object System.Text.StringBuilder
+[void]$s.Append('{\rtf1\ansi\deff0{\fonttbl{\f0\fnil\fcharset0 Segoe UI;}}')
+[void]$s.Append('{\colortbl;' + (Rtf-Colour '#F2F2F2') + (Rtf-Colour '#6A6A70') + (Rtf-Colour '#E8912D') + '}')
+[void]$s.Append('\viewkind4\uc1\f0\fs18\cf1' + "`r`n")
+[void]$s.Append($def + '\intbl\b\cf3 Shortcut\cell Tool\cell\b0\cf1\row' + "`r`n")
+foreach ($r in $rows) {
+    [void]$s.Append($def + '\intbl\b\cf1 ' + (Rtf-Escape $r.Keys) + '\b0\cell ' + (Rtf-Escape $r.Name) + '\cell\row' + "`r`n")
+}
+[void]$s.Append('}')
+[System.IO.File]::WriteAllText((Join-Path $assets 'shortcuts.rtf'), $s.ToString(), $enc)
 if ($custom) { $custom.Dispose() }
 Write-Host "Installer artwork written to $assets"

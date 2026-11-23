@@ -17,3 +17,4 @@ ND|Coordination|RevoBIM_NudgeDown|Nudge Down
 A1|Coordination|RevoBIM_FindInView|Find in\nView
 AB|Coordination%RevoBIM_MatchOffset|RevoBIM_MatchOffsetBottom|Match Offset Bottom
 AQ|Coordination%RevoBIM_MatchOffset|RevoBIM_MatchOffsetMiddle|Match Offset Middle
+3A|Coordination%RevoBIM_ModelTools|RevoBIM_Align3D|3D Align
