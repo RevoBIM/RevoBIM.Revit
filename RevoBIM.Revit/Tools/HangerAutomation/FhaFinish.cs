@@ -62,7 +62,7 @@ namespace RevoBIM.Tools.HangerAutomation
         public static Action<FinishRequest> Listener;
 
         private static volatile FinishRequest current;
-        private static bool pressed;
+        private static volatile bool pressed;
         private static IntPtr lastMain = IntPtr.Zero;
         private static FhaDebugLog armedLog;
 
@@ -141,6 +141,111 @@ namespace RevoBIM.Tools.HangerAutomation
             if (req.MainWindow != IntPtr.Zero) lastMain = req.MainWindow;
             Log("Finish Selection: armed for \"" + req.Title + "\"");
             Notify(req);
+            StartPrewarm(req);
+        }
+
+        // ================================================================ finding the button ahead of the click
+        // Searching Revit's whole UI Automation tree takes seconds. The search starts as soon as a pick is armed, on its own
+        // thread, while the user is still selecting, so the click only has to Invoke the button already found. The element found
+        // is kept: Revit's Options Bar / ribbon Finish (AutomationId ID_FINISH_MULTI_PICK_DBAR) is usually the same element
+        // pick after pick, and a stale one fails its first property read and is searched for again.
+        private const string FinishId = "ID_FINISH_MULTI_PICK_DBAR";
+        private static AutomationElement found;
+        private static long foundMs = -1;
+
+        private static void StartPrewarm(FinishRequest req)
+        {
+            IntPtr hwnd = req.MainWindow != IntPtr.Zero ? req.MainWindow : lastMain;
+            if (hwnd == IntPtr.Zero) return;
+            try
+            {
+                var t = new Thread(new ThreadStart(() => Prewarm(req, hwnd)));
+                t.IsBackground = true;
+                t.Name = "FhaFinishPrewarm";
+                t.Start();
+            }
+            catch (Exception)
+            {
+            }
+        }
+
+        private static void Prewarm(FinishRequest req, IntPtr hwnd)
+        {
+            try
+            {
+                if (Usable(found))
+                {
+                    Log("Finish Selection: button from the last pick still there");
+                    return;
+                }
+                found = null;
+                var sw = System.Diagnostics.Stopwatch.StartNew();
+                for (int i = 0; i < 20 && ReferenceEquals(current, req) && !pressed; i++)   // the button appears once the pick has started
+                {
+                    AutomationElement e = FindFinishFast(hwnd);
+                    if (e != null)
+                    {
+                        found = e;
+                        foundMs = sw.ElapsedMilliseconds;
+                        Log("Finish Selection: button found ahead of the click in " + foundMs + " ms");
+                        return;
+                    }
+                    Thread.Sleep(250);
+                }
+                Log("Finish Selection: button not found ahead of the click (" + sw.ElapsedMilliseconds + " ms)");
+            }
+            catch (Exception ex)
+            {
+                Log("Finish Selection: search ahead failed: " + ex.Message);
+            }
+        }
+
+        /// <summary>True when the element still answers and can be pressed.</summary>
+        private static bool Usable(AutomationElement e)
+        {
+            if (e == null) return false;
+            try
+            {
+                return e.Current.IsEnabled && !e.Current.IsOffscreen;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        /// <summary>FindFirst (stops at the first match) for Revit's Finish button by its AutomationId, else by name.</summary>
+        private static AutomationElement FindFinishFast(IntPtr hwnd)
+        {
+            AutomationElement root = AutomationElement.FromHandle(hwnd);
+            System.Windows.Automation.Condition byId = new AndCondition(new PropertyCondition(AutomationElement.AutomationIdProperty, FinishId),
+                                              new PropertyCondition(AutomationElement.IsInvokePatternAvailableProperty, true));
+            AutomationElement e = root.FindFirst(TreeScope.Descendants, byId);
+            if (e != null) return e;
+            System.Windows.Automation.Condition byName = new AndCondition(new PropertyCondition(AutomationElement.NameProperty, "Finish", PropertyConditionFlags.IgnoreCase),
+                                                new PropertyCondition(AutomationElement.IsInvokePatternAvailableProperty, true));
+            return root.FindFirst(TreeScope.Descendants, byName);
+        }
+
+        /// <summary>Invoke the button found ahead of the click.</summary>
+        private static bool InvokeFound()
+        {
+            AutomationElement e = found;
+            if (!Usable(e)) return false;
+            try
+            {
+                object pat;
+                if (!e.TryGetCurrentPattern(InvokePattern.Pattern, out pat)) return false;
+                Log("Finish Selection: invoking the button found ahead of the click");
+                ((InvokePattern)pat).Invoke();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Log("Finish Selection: the button found ahead failed: " + ex.Message);
+                found = null;
+                return false;
+            }
         }
 
         /// <summary>Hide the card (the Python arm_finish(False)).</summary>
@@ -228,7 +333,16 @@ namespace RevoBIM.Tools.HangerAutomation
             {
                 FinishRequest req = current;
                 // each way is tried in turn and checked: if Revit is still waiting on the pick afterwards, the next way runs
+                if (InvokeFound() && Landed(req, "button found ahead")) return;
                 if (FinishByButton(hwnd) && Landed(req, "Win32 button")) return;
+                AutomationElement fast = null;
+                try { fast = FindFinishFast(hwnd); }
+                catch (Exception) { }
+                if (fast != null)
+                {
+                    found = fast;
+                    if (InvokeFound() && Landed(req, "UI Automation (quick search)")) return;
+                }
                 if (FinishByAutomation(hwnd) && Landed(req, "UI Automation")) return;
                 if (FinishByMouse(hwnd) && Landed(req, "mouse click")) return;
                 FinishByReturn(hwnd);
@@ -252,12 +366,12 @@ namespace RevoBIM.Tools.HangerAutomation
         /// </summary>
         private static bool Landed(FinishRequest req, string how)
         {
-            for (int i = 0; i < 15; i++)
+            for (int i = 0; i < 30; i++)
             {
-                Thread.Sleep(100);
+                Thread.Sleep(50);
                 if (!ReferenceEquals(current, req))
                 {
-                    Log("Finish Selection: " + how + " finished the pick");
+                    Log("Finish Selection: " + how + " finished the pick (" + ((i + 1) * 50) + " ms)");
                     return true;
                 }
             }

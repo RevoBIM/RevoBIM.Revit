@@ -75,6 +75,7 @@ namespace RevoBIM.UI.HangerAutomation
                 log.Add("Hanger Automation " + FhaCore.Version + ", Revit " + revit + ", egg: " +
                         (owner != null ? owner.EggRoute : "?"));
                 log.Add("build: " + FhaCore.BuildInfo());
+                if (!string.IsNullOrEmpty(FhaWindow.OpenTiming)) log.Add("window open: " + FhaWindow.OpenTiming);
                 if (job == null)
                 {
                     err = "No job was queued.";

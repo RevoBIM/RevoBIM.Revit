@@ -59,8 +59,9 @@ namespace RevoBIM.Tools.HangerAutomation
 
             private readonly Dictionary<string, List<SymLine>> _symLines = new Dictionary<string, List<SymLine>>(StringComparer.Ordinal);
             private readonly HashSet<string> _symLogged = new HashSet<string>(StringComparer.Ordinal);
-            private readonly Dictionary<string, string> _symKind = new Dictionary<string, string>(StringComparer.Ordinal);       // category -> "source|level"
-            private readonly Dictionary<string, EqSpec> _symWorked = new Dictionary<string, EqSpec>(StringComparer.Ordinal);    // family -> hanger reference
+            // learned across jobs in the same model (cleared in the constructor when the model changes)
+            private static readonly Dictionary<string, string> _symKind = new Dictionary<string, string>(StringComparer.Ordinal);       // category -> "source|level"
+            private static readonly Dictionary<string, EqSpec> _symWorked = new Dictionary<string, EqSpec>(StringComparer.Ordinal);    // family -> hanger reference
             private readonly HashSet<string> _noFaces = new HashSet<string>(StringComparer.Ordinal);                             // category|shape: no side faces
             private readonly HashSet<string> _oldRefused = new HashSet<string>(StringComparer.Ordinal);                          // category: old centreline refused
             private bool _eqSawSides;
@@ -408,13 +409,6 @@ namespace RevoBIM.Tools.HangerAutomation
                         Log.Add("   centre elevation lock: no section view - the symbol route is skipped");
                         return false;
                     }
-                    int raw;
-                    List<SymLine> lines = SymLinesFor(host, view, "view", sec, along, what, null, out raw);
-                    if (lines.Count == 0)
-                    {
-                        Log.Add("   centre elevation lock: no symbol centreline of the " + what + " in the lock section (" + Inv(raw) + " line(s) read)");
-                        return false;
-                    }
                     var cands = new List<RefItem>();
                     foreach (RefItem it in SymCands(inst))
                     {
@@ -437,7 +431,15 @@ namespace RevoBIM.Tools.HangerAutomation
                     };
                     int tries = 0;
                     string last = "";
-                    foreach (SymLine ln in lines.Take(3))
+                    var seenLn = new HashSet<string>(StringComparer.Ordinal);
+                    int linesSeen = 0;
+                    foreach (string src in new[] { "Coarse", "view" })   // no-view geometry first: quick; the view's only if that is refused
+                    {
+                    int raw;
+                    var lines = SymLinesFor(host, view, src, sec, along, what, null, out raw)
+                                .Where(l => seenLn.Add(l.Stable ?? Guid.NewGuid().ToString())).Take(3).ToList();
+                    linesSeen += lines.Count;
+                    foreach (SymLine ln in lines)
                     {
                         foreach (RefItem cand in cands.Take(4))
                         {
@@ -451,12 +453,14 @@ namespace RevoBIM.Tools.HangerAutomation
                                         + cand.Type + "], " + (o == 0 ? "centreline first" : "hanger plane first") + "]: " + text);
                                 if (s == 2)
                                 {
-                                    Log.Add("   locked the centre elevation: hanger \"" + cand.Name + "\" <-> " + what + " symbol centreline");
+                                    Log.Add("   locked the centre elevation: hanger \"" + cand.Name + "\" <-> " + what + " symbol centreline (" + src + " geometry)");
                                     return true;
                                 }
                             }
                         }
                     }
+                    }
+                    if (linesSeen == 0) Log.Add("   centre elevation lock: no symbol centreline of the " + what + " found");
                     Log.Add("   centre elevation lock: symbol route not locked after " + Inv(tries) + " attempt(s); last: " + last);
                     return false;
                 }
@@ -530,7 +534,9 @@ namespace RevoBIM.Tools.HangerAutomation
                 var seen = new HashSet<string>(StringComparer.Ordinal);
                 var srcNotes = new List<string>();
                 int linesTotal = 0;
-                string[] baseSrc = { "view", "Fine", "Medium", "Coarse" };
+                // no-view geometry first: reading an element's geometry through a view makes Revit bring that view up to date
+                // first (seconds in a big model); the same centreline comes without a view
+                string[] baseSrc = { "Coarse", "Fine", "view", "Medium" };
                 for (int vi = 0; vi < 2; vi++)
                 {
                     View view; string vlabel;

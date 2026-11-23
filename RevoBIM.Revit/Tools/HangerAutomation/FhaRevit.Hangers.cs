@@ -40,6 +40,33 @@ namespace RevoBIM.Tools.HangerAutomation
     {
         // ======================================================== hanger buttons
         /// <summary>[(label, service_id, button)] for every hanger button in the loaded services.</summary>
+        private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<Document, Tuple<string, List<string>>> ButtonLabelCache =
+            new System.Runtime.CompilerServices.ConditionalWeakTable<Document, Tuple<string, List<string>>>();
+
+        /// <summary>The hanger button labels for the FAB tab's list. Walking every palette of every service is slow, so the
+        /// labels are kept per document and read again only when the loaded services change.</summary>
+        public static List<string> HangerButtonLabels(Document doc)
+        {
+            string stamp = "";
+            try
+            {
+                FabricationConfiguration cfg = FabricationConfiguration.GetFabricationConfiguration(doc);
+                if (cfg == null) return new List<string>();
+                stamp = string.Join(",", cfg.GetAllLoadedServices().Select(s => s.ServiceId.ToString(System.Globalization.CultureInfo.InvariantCulture)));
+            }
+            catch (Exception) { }
+            Tuple<string, List<string>> hit;
+            if (stamp.Length > 0 && ButtonLabelCache.TryGetValue(doc, out hit) && hit.Item1 == stamp) return new List<string>(hit.Item2);
+            List<string> labels = HangerButtons(doc).Select(b => b.Label).ToList();
+            try
+            {
+                ButtonLabelCache.Remove(doc);
+                ButtonLabelCache.Add(doc, Tuple.Create(stamp, labels));
+            }
+            catch (Exception) { }
+            return new List<string>(labels);
+        }
+
         public static List<HangerButton> HangerButtons(Document doc)
         {
             var o = new List<HangerButton>();

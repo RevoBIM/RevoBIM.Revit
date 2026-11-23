@@ -96,7 +96,30 @@ namespace RevoBIM.Tools.HangerAutomation
                     Reason = "no structure category ticked";
                     return;
                 }
-                Transaction t = StartTxn(doc, "Temporary 3D view");
+                // one clean 3D view kept in the model and reused job after job: making a fresh view each time made Revit
+                // prepare it again for the first ray (seconds in a big model)
+                View = KeptRayView(doc);
+                if (View != null)
+                {
+                    try
+                    {
+                        if (View.ViewTemplateId != ElementId.InvalidElementId || View.IsSectionBoxActive)
+                        {
+                            Transaction tc = StartTxn(doc, "Clean the rod ray view");
+                            try
+                            {
+                                View.ViewTemplateId = ElementId.InvalidElementId;
+                                View.IsSectionBoxActive = false;
+                                Committed(tc);
+                            }
+                            catch (Exception) { Rollback(tc); }
+                        }
+                    }
+                    catch (Exception) { }
+                    log.Add("rod rays: reusing the 3D view \"" + RayViewName + "\"");
+                }
+                Transaction t = View != null ? null : StartTxn(doc, "Rod ray 3D view");
+                if (t != null)
                 try
                 {
                     ViewFamilyType vft = null;
@@ -113,8 +136,10 @@ namespace RevoBIM.Tools.HangerAutomation
                     catch (Exception) { }
                     try { View.IsSectionBoxActive = false; }
                     catch (Exception) { }
+                    try { View.Name = RayViewName; }
+                    catch (Exception) { }
                     if (Committed(t))
-                        Temp = true;
+                        log.Add("rod rays: made the 3D view \"" + RayViewName + "\" (kept for the next jobs)");
                     else
                         View = null;
                 }
@@ -147,6 +172,21 @@ namespace RevoBIM.Tools.HangerAutomation
             }
 
             public bool Ok() { return Ri != null; }
+
+            public const string RayViewName = "Hanger Automation - rod rays";
+
+            private static View3D KeptRayView(Document doc)
+            {
+                try
+                {
+                    foreach (View3D v in new FilteredElementCollector(doc).OfClass(typeof(View3D)))
+                        if (!v.IsTemplate && v.Name == RayViewName) return v;
+                }
+                catch (Exception) { }
+                return null;
+            }
+
+            private bool firstRay = true;
 
             /// <summary>Elements a ray never stops at, whatever the caller passes (e.g. everything a job placed / is swapping out).</summary>
             public HashSet<long> IgnoreIds = new HashSet<long>();
@@ -182,7 +222,15 @@ namespace RevoBIM.Tools.HangerAutomation
                 try
                 {
                     XYZ origin = new XYZ(x, y, z);
-                    ReferenceWithContext hit = Ri.FindNearest(origin, XYZ.BasisZ);
+                    ReferenceWithContext hit;
+                    if (firstRay)   // the first ray of a job pays for Revit preparing the view: timed on its own
+                    {
+                        firstRay = false;
+                        var sw = System.Diagnostics.Stopwatch.StartNew();
+                        hit = Ri.FindNearest(origin, XYZ.BasisZ);
+                        Log.Add("   rod rays: first ray " + Inv(sw.ElapsedMilliseconds) + " ms");
+                    }
+                    else hit = Ri.FindNearest(origin, XYZ.BasisZ);
                     if (hit == null) return null;
                     if (!IsIgnored(hit.GetReference(), exclude)) return hit.GetReference().GlobalPoint.Z;
                     int skipped = 0;

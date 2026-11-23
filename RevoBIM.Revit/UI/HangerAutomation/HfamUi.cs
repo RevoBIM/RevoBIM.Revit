@@ -34,6 +34,9 @@ namespace RevoBIM.UI.HangerAutomation
         /// <summary>The model's user worksets (Python owner.worksets).</summary>
         List<string> Worksets { get; }
 
+        /// <summary>The project's linear dimension type names, read once when the window opens.</summary>
+        List<string> DimTypeNames { get; }
+
         /// <summary>Python owner.uiapp.</summary>
         Autodesk.Revit.UI.UIApplication UiApp { get; }
 
@@ -219,7 +222,7 @@ namespace RevoBIM.UI.HangerAutomation
             var dims = new List<string>();
             try
             {
-                dims = FhaRevit.LinearDimensionTypes(doc).Select(d => d.Key).ToList();
+                dims = owner.DimTypeNames;   // read once by the window
                 ViewOk = HfamRevit.IsFloorPlan(owner.UiApp.ActiveUIDocument.ActiveView);
             }
             catch (Exception)
@@ -749,18 +752,9 @@ namespace RevoBIM.UI.HangerAutomation
         {
             wantPreview = it.Key;
             string key = it.Key;
-            if (OpenDoc != null)   // opening the tool: read it now, so the chosen family shows at once
+            if (OpenDoc != null)   // opening the tool: the preview is read once the window is on screen (FhaWindow.ContentRendered)
             {
-                byte[] data;
-                try
-                {
-                    data = HfamRevit.PreviewBytes(OpenDoc, it.Id);
-                }
-                catch (Exception)
-                {
-                    data = null;
-                }
-                GotPreview(key, data);
+                ShowPreview(null, "Loading...");
                 return;
             }
             bool started = O.StartQuiet(HfamRevit.PreviewJobFor(it.Id), (res, err) => GotPreview(key, res as byte[]));

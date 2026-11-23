@@ -110,6 +110,10 @@ namespace RevoBIM.UI.HangerAutomation
         private double? foldContent;
         public string Tab { get; set; } = "fab";
         public List<string> Worksets { get; private set; }
+        public List<string> DimTypeNames { get; private set; }
+
+        /// <summary>How long each stage of the last window open took - first lines of every debug file and of Copy debug.</summary>
+        public static string OpenTiming = "";
         private List<string> wsValues = new List<string>();
         public DimViewsUI DimUi { get; private set; }
         public FamTab Fam;
@@ -129,7 +133,9 @@ namespace RevoBIM.UI.HangerAutomation
         public FhaWindow(UIApplication uiapp)
         {
             UiApp = uiapp;
+            var lap = new OpenLaps();
             Win = FhaUi.LoadWindow();
+            lap.Mark("layout");
             Chrome = new FhaChrome(Win);
             Drawer = null;
             Settings = new FhaSettings(FhaCore.LoadSettings());
@@ -146,15 +152,29 @@ namespace RevoBIM.UI.HangerAutomation
             catch (Exception)
             {
             }
+            lap.Mark("settings");
             Worksets = doc != null ? FhaRevit.UserWorksets(doc).Select(w => w.Key).ToList() : new List<string>();
+            lap.Mark("worksets");
+            DimTypeNames = new List<string>();
+            try
+            {
+                if (doc != null) DimTypeNames = FhaRevit.LinearDimensionTypes(doc).Select(d => d.Key).ToList();
+            }
+            catch (Exception)
+            {
+            }
+            lap.Mark("dimension types");
             DimUi = new DimViewsUI(this);   // prompts and the Dimension views picker, for the jobs
             Fam = new FamTab(this, doc);
             Flr = new FamTab(this, doc, "floor", Fam.Items);
             Svc = new SvcTab(this);   // Hanger Service Type Assigner
+            lap.Mark("family types");
             FillLists();
+            lap.Mark("fabrication buttons");
             LoadControls();
             foreach (FamTab t in FamTabs()) t.Load(Settings);
             Svc.Load(Settings);
+            lap.Mark("controls");
             Drawer = new FhaDrawer(Win, Chrome, (FrameworkElement)C("HeaderBar"), (FrameworkElement)C("ShrinkBtn"),
                                    (UIElement)C("ShrinkIcon"), (UIElement)C("ExpandIcon"), body: BodyParts, showBody: ShowBody,
                                    grips: (UIElement)C("GripLayer"));
@@ -162,10 +182,7 @@ namespace RevoBIM.UI.HangerAutomation
             finishListener = OnFinishRequest;
             Wire();
             foreach (FamTab tab in FamTabs())
-            {
-                tab.Wire();
-                tab.OpenDoc = null;   // from here on previews go through the ExternalEvent
-            }
+                tab.Wire();   // OpenDoc stays set until the window is on screen (ContentRendered): previews wait till then
             Svc.Wire();
             // open on the tab that was open last time - except the Service Type Assigner, which reads the model: that opens on Family Hangers
             string startTab = Sget(Settings, "active_tab", "fab");
@@ -176,7 +193,29 @@ namespace RevoBIM.UI.HangerAutomation
             EggRoute = FhaUi.AttachEgg(Win, (FrameworkElement)C("Logo"), () => ThemeName);
             ((TextBlock)C("VerTxt")).Text = "v" + FhaCore.Version;
             Theme();
+            lap.Mark("wiring and theme");
+            OpenTiming = lap.Text();
             built = true;   // from here on a tab change is saved
+        }
+
+        /// <summary>Stopwatch laps for the window open: "layout 310 ms, settings 4 ms, ... (total 820 ms)".</summary>
+        private sealed class OpenLaps
+        {
+            private readonly System.Diagnostics.Stopwatch sw = System.Diagnostics.Stopwatch.StartNew();
+            private long last;
+            private readonly List<string> parts = new List<string>();
+
+            public void Mark(string what)
+            {
+                long now = sw.ElapsedMilliseconds;
+                parts.Add(what + " " + (now - last) + " ms");
+                last = now;
+            }
+
+            public string Text()
+            {
+                return string.Join(", ", parts) + " (total " + sw.ElapsedMilliseconds + " ms)";
+            }
         }
 
         private static string Sget(IDictionary<string, string> s, string key, string dflt)
@@ -205,12 +244,11 @@ namespace RevoBIM.UI.HangerAutomation
         private void FillLists()
         {
             var labels = new List<string>();
-            var dims = new List<string>();
+            var dims = DimTypeNames ?? new List<string>();
             try
             {
                 Autodesk.Revit.DB.Document doc = UiApp.ActiveUIDocument.Document;
-                labels = FhaRevit.HangerButtons(doc).Select(b => b.Label).ToList();
-                dims = FhaRevit.LinearDimensionTypes(doc).Select(d => d.Key).ToList();
+                labels = FhaRevit.HangerButtonLabels(doc);
             }
             catch (Exception)
             {
@@ -576,6 +614,15 @@ namespace RevoBIM.UI.HangerAutomation
         private void ContentRendered(object sender, EventArgs e)
         {
             Fit(false);
+            // the window is on screen: now read the chosen families' previews (they were left out of the open to make it quicker)
+            try
+            {
+                foreach (FamTab t in FamTabs()) t.OpenDoc = null;
+                if (!Busy) (Tab == "floor" ? Flr : Fam).RetryPreview();
+            }
+            catch (Exception)
+            {
+            }
         }
 
         private void TabFabClick(object sender, RoutedEventArgs e)
@@ -732,7 +779,7 @@ namespace RevoBIM.UI.HangerAutomation
             {
                 var keys = Gather().ToList();
                 keys.Sort((a, b) => string.CompareOrdinal(a.Key, b.Key));
-                string text = "Hanger Automation " + FhaCore.Version + "\n\n" +
+                string text = "Hanger Automation " + FhaCore.Version + "\nwindow open: " + OpenTiming + "\n\n" +
                               (LastDebug.Length > 0 ? LastDebug : "(nothing run yet)") + "\n\nSettings:\n" +
                               string.Join("\n", keys.Select(kv => kv.Key + "=" + kv.Value)) + "\n\nFamily tabs:\n" +
                               string.Join("\n\n", FamTabs().Select(t => t.DebugText()));

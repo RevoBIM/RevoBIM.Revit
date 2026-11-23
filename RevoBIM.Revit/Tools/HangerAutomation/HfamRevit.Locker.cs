@@ -497,7 +497,17 @@ namespace RevoBIM.Tools.HangerAutomation
             {
                 Doc = doc; Log = log;
                 Plan = (view != null && Array.IndexOf(PlanTypes, view.ViewType.ToString()) >= 0) ? view : null;
+                // what worked (hanger reference per family, service line kind per category) carries over to the next job in the
+                // same model, so a later job goes straight to the working pair instead of probing again
+                if (!ReferenceEquals(_learnedDoc, doc))
+                {
+                    _learnedDoc = doc;
+                    _symKind.Clear();
+                    _symWorked.Clear();
+                }
             }
+
+            private static Document _learnedDoc;
 
             private ViewSection SectionFor(Element service, Section sec)
             {
