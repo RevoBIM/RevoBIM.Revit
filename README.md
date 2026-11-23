@@ -4,20 +4,32 @@ Revit add-in by RevoBIM LTD for building services BIM, for **Revit 2024, 2025, 2
 
 ## Download
 
-[![Download RevoBIM Tools 0.3.0](https://img.shields.io/badge/Download-RevoBIM%20Tools%200.3.0-2EA44F?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/RevoBIM/RevoBIM.Revit/releases/download/v0.3.0/RevoBIM_Tools-0.3.0.exe)
+[![Download RevoBIM Tools 0.6.5](https://img.shields.io/badge/Download-RevoBIM%20Tools%200.6.5-2EA44F?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/RevoBIM/RevoBIM.Revit/releases/download/v0.6.5/RevoBIM_Tools-0.6.5.exe)
 
-**Build 0.3.0** · released 16 November 2026 · [all releases](https://github.com/RevoBIM/RevoBIM.Revit/releases)
+**Build 0.6.5** · released 23 November 2026 · [all releases](https://github.com/RevoBIM/RevoBIM.Revit/releases)
 
 ## Install
 
 1. Close every Revit window.
-2. Run `RevoBIM_Tools-0.3.0.exe` and pick the Revit versions to install for. No admin rights are needed.
+2. Run `RevoBIM_Tools-0.6.5.exe` and pick the Revit versions to install for. No admin rights are needed.
 3. Start Revit. The tools are on the **RevoBIM** tab. **About**, on the right of the tab, shows the installed version and its release date.
 
 Installing a newer version replaces the old one.
 
 ## Change log
 
+### 0.6.5 — 23 November 2026
+
+Keyboard shortcuts, tidier Modify tab, and Hanger Automation updates. Install it over any earlier version.
+
+**New**
+- **Keyboard shortcuts** — the installer can set them in Revit (ticked by default): **XS** Pro Sheets Exporter, **R5** Revision Manager, **H6** Hanger Automation, **NU** Nudge Up, **ND** Nudge Down. A shortcut already on another command moves to the RevoBIM one, and your old shortcuts file is kept as a backup. A Revit version that has never saved its shortcuts is skipped: start it once, change any shortcut, close it, and run the installer again.
+- **Routines** dropdown has its own icon.
+
+**Changed**
+- **Modify tab** — the RevoBIM group (Pro Sheets Exporter, Revision Manager) shows only while a sheet or view is selected: in the Project Browser, a view on a sheet, or a sheet's title block picked in the sheet view. The Nudge group shows only while model elements are selected. Both stay hidden otherwise.
+- **Pro Sheets Exporter** — opening it with sheets selected ticks them and shows only those sheets (tick *Show all* for the rest); right-click *Open in ProSheets* on views opens the Views list filtered to them.
+- **Hanger Automation** — faster Finish Selection and window opening; family list grouped by family with style symbols; a prompt for circular hangers on rectangular services; symbol-level centre elevation lock; service type parameter chooser.
 ### 0.3.0 — 16 November 2026
 
 Four new tools, and a clearer installer. Install it over 0.2.x.

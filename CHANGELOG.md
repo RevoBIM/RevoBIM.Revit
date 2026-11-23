@@ -3,6 +3,21 @@
 All notable changes to RevoBIM Tools. The installer for each version is on the
 [Releases page](https://github.com/RevoBIM/RevoBIM.Revit/releases).
 
+## 0.6.5 — 23 November 2026
+
+Keyboard shortcuts, tidier Modify tab, and Hanger Automation updates. Install it over any earlier version.
+
+**New**
+- **Keyboard shortcuts** — the installer can set them in Revit (ticked by default): **XS** Pro Sheets Exporter, **R5** Revision Manager, **H6** Hanger Automation, **NU** Nudge Up, **ND** Nudge Down. A shortcut already on another command moves to the RevoBIM one, and your old shortcuts file is kept as a backup. A Revit version that has never saved its shortcuts is skipped: start it once, change any shortcut, close it, and run the installer again.
+- **Routines** dropdown has its own icon.
+
+**Changed**
+- **Modify tab** — the RevoBIM group (Pro Sheets Exporter, Revision Manager) shows only while a sheet or view is selected: in the Project Browser, a view on a sheet, or a sheet's title block picked in the sheet view. The Nudge group shows only while model elements are selected. Both stay hidden otherwise.
+- **Pro Sheets Exporter** — opening it with sheets selected ticks them and shows only those sheets (tick *Show all* for the rest); right-click *Open in ProSheets* on views opens the Views list filtered to them.
+- **Hanger Automation** — faster Finish Selection and window opening; family list grouped by family with style symbols; a prompt for circular hangers on rectangular services; symbol-level centre elevation lock; service type parameter chooser.
+
+Versions 0.4.0 to 0.5.3 are described on the Releases page.
+
 ## 0.3.0 — 16 November 2026
 
 Four new tools, and a clearer installer. Install it over 0.2.x.
