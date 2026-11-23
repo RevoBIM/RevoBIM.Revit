@@ -23,8 +23,8 @@ namespace RevoBIM
             var routines = new PulldownButtonData("RevoBIM_Routines", "Routines")
             {
                 ToolTip = "Routine tools.",
-                LargeImage = Icon("Arcade", 32),
-                Image = Icon("Arcade", 16),
+                LargeImage = Icon("Routines", 32),
+                Image = Icon("Routines", 16),
             };
             var routinesButton = coordination.AddItem(routines) as PulldownButton;
             if (routinesButton != null)
@@ -182,7 +182,7 @@ namespace RevoBIM
             };
             sheetTools.AddItem(revisionManager);
 
-            // --- "RevoBIM" panel on the Modify tab, shown while a sheet or view is selected.
+            // --- "RevoBIM" panel on the Modify tab, shown only while a sheet or view is selected.
             //     Built here with the normal API on the RevoBIM tab, then moved across by
             //     UI\Ribbon\ModifyTabPanel.cs: Revit's API cannot add to the Modify tab itself.
             RibbonPanel modifyPanel = app.CreateRibbonPanel(TabName, UI.Ribbon.ModifyTabPanel.PanelName);
@@ -203,7 +203,8 @@ namespace RevoBIM
                 Image = Icon("RevisionManager", 16),
             });
 
-            // --- "Nudge" panel on the Modify tab, always shown: Nudge Up and Nudge Down.
+            // --- "Nudge" panel on the Modify tab, shown only while model elements are selected:
+            //     Nudge Up and Nudge Down.
             RibbonPanel nudgePanel = app.CreateRibbonPanel(TabName, UI.Ribbon.ModifyTabPanel.NudgePanelName);
             nudgePanel.AddItem(new PushButtonData(
                 "RevoBIM_NudgeUp_Modify", "Nudge\nUp", dll, typeof(Commands.NudgeUpCommand).FullName)
