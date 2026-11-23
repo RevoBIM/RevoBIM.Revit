@@ -86,6 +86,39 @@ namespace RevoBIM
                 });
             }
 
+            // Model Tools: tools that change the model geometry. 3D Align and its settings are the first members.
+            var modelTools = new PulldownButtonData("RevoBIM_ModelTools", "Model\nTools")
+            {
+                ToolTip = "Tools that change the geometry of the model.",
+                LargeImage = Icon("ModelTools", 32),
+                Image = Icon("ModelTools", 16),
+            };
+            var modelToolsButton = coordination.AddItem(modelTools) as PulldownButton;
+            if (modelToolsButton != null)
+            {
+                modelToolsButton.AddPushButton(new PushButtonData(
+                    "RevoBIM_Align3D", "3D Align", dll, typeof(Commands.Align3DCommand).FullName)
+                {
+                    ToolTip = "Centre one pipe, duct, cable tray or conduit on another, in plan.\n\n" +
+                              "Click a vertical, then: another vertical is centred on it in X and Y; a horizontal has its centreline " +
+                              "run through the vertical's centre. Click a horizontal, then a vertical: the vertical moves onto the " +
+                              "horizontal's centreline. Nothing changes height or fall. Pre-select the first element to skip the " +
+                              "first click. Keeps going until Escape.",
+                    AvailabilityClassName = typeof(Commands.ProjectDocumentAvailability).FullName,
+                    LargeImage = Icon("Align3D", 32),
+                    Image = Icon("Align3D", 16),
+                });
+                modelToolsButton.AddPushButton(new PushButtonData(
+                    "RevoBIM_Align3DSettings", "3D Align Settings", dll, typeof(Commands.Align3DSettingsCommand).FullName)
+                {
+                    ToolTip = "3D Align settings: keep going or stop after one, when the results window shows, what to do when " +
+                              "Revit will not move an element with its connections, the largest move allowed, and the theme.",
+                    AvailabilityClassName = typeof(Commands.AlwaysAvailable).FullName,
+                    LargeImage = Icon("Align3DSettings", 32),
+                    Image = Icon("Align3DSettings", 16),
+                });
+            }
+
             var routines = new PulldownButtonData("RevoBIM_Routines", "Routines")
             {
                 ToolTip = "Routine tools.",
@@ -105,6 +138,30 @@ namespace RevoBIM
                     AvailabilityClassName = typeof(Commands.AlwaysAvailable).FullName,
                     LargeImage = Icon("BulkRename", 32),
                     Image = Icon("BulkRename", 16),
+                });
+                routinesButton.AddPushButton(new PushButtonData(
+                    "RevoBIM_SheetNamePush", "Sheet Name\nPush", dll, typeof(Commands.SheetNamePushCommand).FullName)
+                {
+                    ToolTip = "Browse, edit and stamp sheets in one window.\n\nTick sheets, click a row to highlight, Ctrl+click to add to " +
+                              "the selection, Shift+click for a range. Double-click a sheet number or name to edit it; edits stage in orange " +
+                              "and are only written when Apply Edits is pressed. Sheet numbers already in use are flagged red, with a filter " +
+                              "to isolate them.\n\nFind & Replace and Prefix / Suffix stage changes the same way, on the ticked sheets (or " +
+                              "everything shown if none are ticked).\n\nPush splits each Sheet Name on \"_\" and writes the three segments to " +
+                              "the target parameters set behind the gear icon - BGL_Sheet Title 1 / 2 / 3 by default. The chosen text format " +
+                              "is remembered between runs.",
+                    AvailabilityClassName = typeof(Commands.ProjectDocumentAvailability).FullName,
+                    LargeImage = Icon("SheetNamePush", 32),
+                    Image = Icon("SheetNamePush", 16),
+                });
+                routinesButton.AddPushButton(new PushButtonData(
+                    "RevoBIM_UnhideInView", "Unhide in\nView", dll, typeof(Commands.UnhideInViewCommand).FullName)
+                {
+                    ToolTip = "Lists every element hidden in a view (Hide in View > Elements) and every category hidden in it, " +
+                              "with a count of hidden elements for every view in the project. Tick elements, categories or whole " +
+                              "views and Unhide. Modeless - Revit stays usable while it is open.",
+                    AvailabilityClassName = typeof(Commands.ProjectDocumentAvailability).FullName,
+                    LargeImage = Icon("UnhideInView", 32),
+                    Image = Icon("UnhideInView", 16),
                 });
                 routinesButton.AddPushButton(new PushButtonData(
                     "RevoBIM_Arcade", "RevoBIM\nArcade", dll, typeof(Commands.ArcadeCommand).FullName)

@@ -35,7 +35,7 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <EnableDefaultCompileItems>true</EnableDefaultCompileItems>
-    <Version>0.8.0</Version>
+    <Version>0.9.0</Version>
     <!-- REVIT2024, REVIT2025 ... for the few places the API differs between versions -->
     <DefineConstants>$(DefineConstants);REVIT$(RevitVersion)</DefineConstants>
     <!-- bin\<Configuration>\<framework>\ per version, so the builds never overwrite each other -->
@@ -142,6 +142,27 @@
     <Page Remove="UI\MatchOffset\Layouts\**" />
     <None Remove="UI\MatchOffset\Layouts\**" />
     <EmbeddedResource Include="UI\MatchOffset\Layouts\*.xaml" LogicalName="RevoBIM.UI.MatchOffset.Layouts.%(Filename)%(Extension)" />
+  </ItemGroup>
+  <!-- Sheet Name Push layouts: the pyRevit XAML verbatim, loaded at runtime by UI\SheetNamePush\SnpUi.cs (its handler
+       names are lifted out and wired in code). Embedded as RevoBIM.UI.SheetNamePush.Layouts.<file>. -->
+  <ItemGroup>
+    <Page Remove="UI\SheetNamePush\Layouts\**" />
+    <None Remove="UI\SheetNamePush\Layouts\**" />
+    <EmbeddedResource Include="UI\SheetNamePush\Layouts\*.xaml" LogicalName="RevoBIM.UI.SheetNamePush.Layouts.%(Filename)%(Extension)" />
+  </ItemGroup>
+  <!-- 3D Align layouts: the pyRevit XAML verbatim, loaded at runtime by UI\Align3D\A3dUi.cs.
+       Embedded as RevoBIM.UI.Align3D.Layouts.<file>. -->
+  <ItemGroup>
+    <Page Remove="UI\Align3D\Layouts\**" />
+    <None Remove="UI\Align3D\Layouts\**" />
+    <EmbeddedResource Include="UI\Align3D\Layouts\*.xaml" LogicalName="RevoBIM.UI.Align3D.Layouts.%(Filename)%(Extension)" />
+  </ItemGroup>
+  <!-- Unhide in View layouts: the pyRevit XAML verbatim, loaded at runtime by UI\UnhideInView\UivUi.cs.
+       Embedded as RevoBIM.UI.UnhideInView.Layouts.<file>. -->
+  <ItemGroup>
+    <Page Remove="UI\UnhideInView\Layouts\**" />
+    <None Remove="UI\UnhideInView\Layouts\**" />
+    <EmbeddedResource Include="UI\UnhideInView\Layouts\*.xaml" LogicalName="RevoBIM.UI.UnhideInView.Layouts.%(Filename)%(Extension)" />
   </ItemGroup>
   <!-- Per-user deploy for the version being built: no admin rights needed. Copies the DLL and writes the .addin manifest. -->
   <Target Name="DeployAddin" AfterTargets="Build">

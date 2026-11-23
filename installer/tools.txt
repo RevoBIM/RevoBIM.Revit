@@ -12,6 +12,9 @@ Coordination|MatchOffset|Match Offset|Take the top, middle or bottom offset off 
 Coordination|NudgeUp|Nudge Up|Raise selected elements by the Nudge increment (default 50mm).
 Coordination|NudgeDown|Nudge Down|Lower selected elements by the Nudge increment (default 50mm).
 Coordination|NudgeSettings|Nudge Settings|Set the Nudge increment and how the buttons behave.
+Coordination|Align3D|3D Align|Centre one pipe, duct, cable tray or conduit on another in plan; keeps going until Escape.
+Coordination|SheetNamePush|Sheet Name Push|Browse and edit sheet numbers and names, stage find/replace and prefix/suffix, and push name segments into sheet parameters.
+Coordination|UnhideInView|Unhide in View|List the elements and categories hidden in each view and unhide what you tick.
 Coordination|BulkRename|Bulk Rename|Find and replace, prefix or suffix across the views, sheets and families selected in the Project Browser.
 Coordination|Arcade|RevoBIM Arcade|Pacman, Tetris and Snake, in its own window.
 FAB Automation|HangerAutomation|Hanger Automation|Fabrication and family hangers: place, size, re-align and extend hangers on duct runs.
