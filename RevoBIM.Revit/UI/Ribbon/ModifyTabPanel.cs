@@ -18,7 +18,8 @@ namespace RevoBIM.UI.Ribbon
     /// Two RevoBIM panels on Revit's Modify tab, each shown only for the selection it is for:
     ///
     /// - "RevoBIM" (Pro Sheets Exporter, Revision Manager): while a sheet or a view is selected -
-    ///   in the Project Browser, or a view placed on a sheet (a viewport counts as its view).
+    ///   in the Project Browser, a view placed on a sheet (a viewport counts as its view), or the
+    ///   sheet's title block picked in the sheet view (that is how a sheet is selected on screen).
     /// - "Nudge" (Nudge Up, Nudge Down): while model elements are selected.
     ///
     /// With nothing selected, or anything else, both are hidden.
@@ -259,8 +260,8 @@ namespace RevoBIM.UI.Ribbon
                 {
                     Element element = doc.GetElement(id);
                     if (element == null) continue;
-                    // Anything in the Sheets category counts as a sheet, whatever class Revit gives it.
-                    if (element is ViewSheet || InSheetsCategory(element)) sheets++;
+                    // A sheet, or its title block picked in the sheet view, counts as a sheet.
+                    if (element is ViewSheet || IsSheetItem(element)) sheets++;
                     else if (element is Viewport) viewports++;
                     else if (element is View view) { if (!view.IsTemplate) views++; else other++; }
                     else if (element.Category != null && element.Category.CategoryType == CategoryType.Model) models++;
@@ -302,12 +303,19 @@ namespace RevoBIM.UI.Ribbon
         // putting the wanted state on the ribbon
         // ======================================================================
 
-        /// <summary>True for an element Revit files under the Sheets category.</summary>
-        private static bool InSheetsCategory(Element element)
+        /// <summary>
+        /// True for what stands for "the sheet" when it is picked in the drawing area: anything in the
+        /// Sheets category, and the sheet's title block - the frame family you click to select the sheet
+        /// itself in a sheet view.
+        /// </summary>
+        private static bool IsSheetItem(Element element)
         {
             try
             {
-                return element.Category != null && element.Category.BuiltInCategory == BuiltInCategory.OST_Sheets;
+                if (element.Category == null)
+                    return false;
+                BuiltInCategory category = element.Category.BuiltInCategory;
+                return category == BuiltInCategory.OST_Sheets || category == BuiltInCategory.OST_TitleBlocks;
             }
             catch (Exception)
             {
