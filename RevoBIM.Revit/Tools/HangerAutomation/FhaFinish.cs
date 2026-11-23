@@ -173,17 +173,18 @@ namespace RevoBIM.Tools.HangerAutomation
         {
             try
             {
-                if (Usable(found))
+                if (Usable(found) && Ready(found))
                 {
                     Log("Finish Selection: button from the last pick still there");
                     return;
                 }
                 found = null;
+                foundPat = null;
                 var sw = System.Diagnostics.Stopwatch.StartNew();
                 for (int i = 0; i < 20 && ReferenceEquals(current, req) && !pressed; i++)   // the button appears once the pick has started
                 {
                     AutomationElement e = FindFinishFast(hwnd);
-                    if (e != null)
+                    if (e != null && Ready(e))
                     {
                         found = e;
                         foundMs = sw.ElapsedMilliseconds;
@@ -227,9 +228,45 @@ namespace RevoBIM.Tools.HangerAutomation
             return root.FindFirst(TreeScope.Descendants, byName);
         }
 
-        /// <summary>Invoke the button found ahead of the click.</summary>
+        /// <summary>The button's Invoke pattern, fetched ahead of the click too: the press is then a single call into Revit.</summary>
+        private static volatile InvokePattern foundPat;
+
+        private static bool Ready(AutomationElement e)
+        {
+            try
+            {
+                object pat;
+                if (!e.TryGetCurrentPattern(InvokePattern.Pattern, out pat)) return false;
+                foundPat = (InvokePattern)pat;
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        /// <summary>Invoke the button found ahead of the click: straight through its pattern (no checks first - each check is
+        /// another round trip into Revit); if that fails, the slower checked route below.</summary>
         private static bool InvokeFound()
         {
+            InvokePattern ip = foundPat;
+            if (ip != null)
+            {
+                var sw = System.Diagnostics.Stopwatch.StartNew();
+                try
+                {
+                    ip.Invoke();
+                    Log("Finish Selection: pressed the button found ahead of the click (" + sw.ElapsedMilliseconds + " ms)");
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    Log("Finish Selection: the button found ahead is gone (" + ex.Message + ") - searching again");
+                    foundPat = null;
+                    found = null;
+                }
+            }
             AutomationElement e = found;
             if (!Usable(e)) return false;
             try
@@ -333,7 +370,7 @@ namespace RevoBIM.Tools.HangerAutomation
             {
                 FinishRequest req = current;
                 // each way is tried in turn and checked: if Revit is still waiting on the pick afterwards, the next way runs
-                if (InvokeFound() && Landed(req, "button found ahead")) return;
+                if (InvokeFound() && Landed(req, "button found ahead", 600)) return;
                 if (FinishByButton(hwnd) && Landed(req, "Win32 button")) return;
                 AutomationElement fast = null;
                 try { fast = FindFinishFast(hwnd); }
@@ -364,9 +401,9 @@ namespace RevoBIM.Tools.HangerAutomation
         /// Wait (up to ~1.5 s) for the pick to end after a press. The pick ending disarms the card, so a request that is
         /// still current afterwards means Revit did not take the press.
         /// </summary>
-        private static bool Landed(FinishRequest req, string how)
+        private static bool Landed(FinishRequest req, string how, int maxMs = 1500)
         {
-            for (int i = 0; i < 30; i++)
+            for (int i = 0; i < maxMs / 50; i++)
             {
                 Thread.Sleep(50);
                 if (!ReferenceEquals(current, req))
