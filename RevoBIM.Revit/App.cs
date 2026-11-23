@@ -20,6 +20,17 @@ namespace RevoBIM
             // --- Coordination (pyRevit: Coordination.panel). Routines is a dropdown that will collect
             //     the routine tools as they are converted; RevoBIM Arcade is its first member.
             RibbonPanel coordination = app.CreateRibbonPanel(TabName, "Coordination");
+            var findInView = new PushButtonData(
+                "RevoBIM_FindInView", "Find in\nView", dll, typeof(Commands.FindInViewCommand).FullName)
+            {
+                ToolTip = "Select one or more elements, then pick the view you want them in. Narrow the list by view " +
+                          "type and by keyword - the search covers the view name, type, sheet and scale at once. " +
+                          "Show Me opens the view and zooms to the selection. If the selection is already drawn in " +
+                          "the plan you are in, it just zooms there. With nothing selected, type an element id.",
+                LargeImage = Icon("FindInView", 32),
+                Image = Icon("FindInView", 16),
+            };
+            coordination.AddItem(findInView);
             var routines = new PulldownButtonData("RevoBIM_Routines", "Routines")
             {
                 ToolTip = "Routine tools.",

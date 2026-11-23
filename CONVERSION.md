@@ -21,7 +21,7 @@ Status values: Not started, Converted (built, not yet tried in Revit), Tested (w
 | 3D Extend Settings | Coordination | Not started | In 3D Extend Tools pulldown. |
 | 3D Extend | Coordination | Not started | In 3D Extend Tools pulldown. |
 | ClashAnalysis | Coordination | Not started |  |
-| Find in View | Coordination | Not started |  |
+| Find in View | Coordination | Converted | v1.17.0 port, large button on the Coordination panel (keyboard shortcut A1). Pure logic in `Tools\FindInView\FivCore.cs` (= fiv_core), Revit side in `FivModel.cs` (= fiv_model; the one write is the single-transaction category switch-on), debug log in `FivLog.cs`; command in `Commands\FindInViewCommand.cs` (staged like script.py); windows in `UI\FindInView\` (pyRevit XAML verbatim in `Layouts\`; `FivUi.cs` = loader, theme, drawer, chrome, message; `FivWindow.cs` = main; `FivByIdWindow.cs` = Find by ID). Shares `%APPDATA%\RevoBIM\find_in_view.txt` and `find_in_view_last_error.txt` with the pyRevit version; new `find_in_view_debug.txt` (build info header, then `selection:`, `zoom-here:`, `unhide:`, `tiling:`, `zoom:`, `result:` lines). Logo easter egg armed on the logo of the main, Find by ID and message windows. Not ported: the bench scripts (`bench_logic.py`, `import_check.py`) and the pyRevit-lib egg loader. Not yet tried in Revit. |
 | Match Offset Bottom | Coordination | Not started | In Match Offset pulldown. |
 | Match Offset Middle | Coordination | Not started | In Match Offset pulldown. |
 | Match Offset Settings | Coordination | Not started | In Match Offset pulldown. |

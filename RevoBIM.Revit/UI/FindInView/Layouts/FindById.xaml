@@ -1,0 +1,124 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Find by ID"
+        Width="480" SizeToContent="Height"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ShowInTaskbar="False" ResizeMode="NoResize"
+        TextOptions.TextFormattingMode="Display"
+        FontFamily="Segoe UI" FontSize="12.5">
+
+  <Border x:Name="RootBorder" CornerRadius="6" Margin="6"
+          Background="{DynamicResource WindowBg}"
+          BorderBrush="{DynamicResource ChromeEdge}" BorderThickness="1">
+    <Border.Effect>
+      <DropShadowEffect BlurRadius="14" ShadowDepth="0" Opacity="0.45" Color="#000000"/>
+    </Border.Effect>
+
+    <Grid x:Name="RootGrid">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+
+      <!-- ===================== header ===================== -->
+
+      <Border x:Name="HeaderBar" Grid.Row="0" CornerRadius="5,5,0,0"
+              Background="{DynamicResource BarBg}"
+              BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="0,0,0,1"
+              Padding="14,8">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+
+          <Image x:Name="HeaderIcon" Grid.Column="0" Width="26" Height="26"
+                 Margin="0,0,9,0" VerticalAlignment="Center"/>
+
+          <StackPanel Grid.Column="1" VerticalAlignment="Center">
+            <TextBlock Text="RevoBIM" FontSize="17" FontWeight="Bold"
+                       Foreground="{DynamicResource BlueBrush}"/>
+            <TextBlock x:Name="TitleTool" Text="Find by ID" FontSize="13"
+                       Margin="1,-2,0,0"
+                       Foreground="{DynamicResource OrangeBrush}"/>
+          </StackPanel>
+
+          <TextBlock x:Name="VersionText" Grid.Column="3" Text="v1.0.0" FontSize="11"
+                     VerticalAlignment="Center" Margin="0,0,8,0"
+                     Foreground="{DynamicResource MutedBrush}"/>
+
+<Button x:Name="ShrinkBtn" Grid.Column="4"
+                  Style="{DynamicResource ChromeButton}"
+                  ToolTip="Shrink to the taskbar so Revit can be seen (Ctrl+Shift+H)">
+            <Grid Width="12" Height="12">
+              <Path x:Name="PathShrink" StrokeThickness="1.4"
+                    Stroke="{DynamicResource MutedBrush}"
+                    Data="M 6,0.5 L 6,7 M 3,4.2 L 6,7.4 L 9,4.2 M 1.5,10.5 L 10.5,10.5"/>
+              <Path x:Name="PathExpand" StrokeThickness="1.6" Visibility="Collapsed"
+                    Stroke="{DynamicResource GreenBrush}"
+                    Data="M 6,11 L 6,4.5 M 3,7.3 L 6,4.1 L 9,7.3 M 1.5,1 L 10.5,1"/>
+            </Grid>
+          </Button>
+
+          <Button x:Name="CloseBtn" Grid.Column="5" Content="&#x2715;"
+                  Style="{DynamicResource CloseButton}"/>
+        </Grid>
+      </Border>
+
+      <!-- ===================== body ===================== -->
+
+      <StackPanel Grid.Row="1" Margin="16,14,16,6">
+        <TextBlock Text="ID - use a semicolon for more than one:"
+                   Margin="0,0,0,6"
+                   Foreground="{DynamicResource TextBrush}"/>
+
+        <TextBox x:Name="IdBox" Height="76" Tag="e.g. 1234567; 1234568"
+                 AcceptsReturn="True" TextWrapping="Wrap"
+                 VerticalContentAlignment="Top"
+                 VerticalScrollBarVisibility="Auto"
+                 Style="{DynamicResource ThemedTextBox}"/>
+
+        <TextBlock x:Name="StatusText" TextWrapping="Wrap" FontSize="11"
+                   Margin="2,8,0,0" MinHeight="30"
+                   Foreground="{DynamicResource MutedBrush}"
+                   Text="Nothing is selected, so type the element ids to find. Element unique ids work too."/>
+      </StackPanel>
+
+      <!-- ===================== footer ===================== -->
+
+      <Border Grid.Row="2" CornerRadius="0,0,5,5"
+              Background="{DynamicResource BarBg}"
+              BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="0,1,0,0"
+              Padding="14,9">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+
+          <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+            <Button x:Name="SkipBtn" Content="Skip, just open the views"
+                    Style="{DynamicResource ThemedButton}"
+                    ToolTip="Open the view list with nothing selected. Show Me will open the view without zooming."/>
+            <TextBlock x:Name="CountText" VerticalAlignment="Center" FontSize="12"
+                       Margin="12,0,0,0"
+                       Foreground="{DynamicResource MutedBrush}"/>
+          </StackPanel>
+
+          <Button x:Name="CancelBtn" Grid.Column="1" Content="Cancel"
+                  Style="{DynamicResource ThemedButton}" Margin="0,0,10,0"/>
+
+          <Button x:Name="FindBtn" Grid.Column="2" Content="Find"
+                  Style="{DynamicResource GreenButton}" IsEnabled="False"/>
+        </Grid>
+      </Border>
+    </Grid>
+  </Border>
+</Window>

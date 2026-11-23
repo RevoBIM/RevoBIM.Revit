@@ -14,3 +14,4 @@ XS|Sheet Tools|RevoBIM_ProSheetsExporter|Pro Sheets\nExporter
 R5|Sheet Tools|RevoBIM_RevisionManager|Revision\nManager
 NU|Coordination|RevoBIM_NudgeUp|Nudge Up
 ND|Coordination|RevoBIM_NudgeDown|Nudge Down
+A1|Coordination|RevoBIM_FindInView|Find in\nView
