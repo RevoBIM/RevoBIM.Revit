@@ -93,6 +93,26 @@ namespace RevoBIM.Tools.Nudge
             return found;
         }
 
+        /// <summary>Take these keystrokes off every other command that holds them. Returns the names of the commands changed.</summary>
+        public System.Collections.Generic.List<string> TakeOff(string keys, XmlElement keep)
+        {
+            var wanted = Split(keys);
+            var changed = new System.Collections.Generic.List<string>();
+            if (wanted.Count == 0) return changed;
+            string skip = keep?.GetAttribute("CommandId");
+            foreach (XmlElement item in Items())
+            {
+                if (!string.IsNullOrEmpty(skip) && item.GetAttribute("CommandId") == skip) continue;
+                var have = Split(GetKeys(item));
+                if (!have.Overlaps(wanted)) continue;
+                have.ExceptWith(wanted);
+                SetKeys(item, string.Join("#", have));
+                string name = item.GetAttribute("CommandName");
+                changed.Add(string.IsNullOrEmpty(name) ? "(unnamed)" : name);
+            }
+            return changed;
+        }
+
         private static System.Collections.Generic.HashSet<string> Split(string keys) =>
             new System.Collections.Generic.HashSet<string>(
                 (keys ?? "").Split('#').Select(k => k.Trim().ToUpperInvariant()).Where(k => k.Length > 0));

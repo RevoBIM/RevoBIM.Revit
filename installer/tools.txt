@@ -8,6 +8,7 @@
 # adding a tool is one line here (plus its button in App.cs). Lines starting with # are ignored.
 
 Coordination|FindInView|Find in View|Select elements, then pick the view to see them in: it opens and zooms to the selection.
+Coordination|MatchOffset|Match Offset|Take the top, middle or bottom offset off one element and put the elements you click next on the same offset; Slope matches a falling pipe run.
 Coordination|NudgeUp|Nudge Up|Raise selected elements by the Nudge increment (default 50mm).
 Coordination|NudgeDown|Nudge Down|Lower selected elements by the Nudge increment (default 50mm).
 Coordination|NudgeSettings|Nudge Settings|Set the Nudge increment and how the buttons behave.

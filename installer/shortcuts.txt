@@ -15,3 +15,5 @@ R5|Sheet Tools|RevoBIM_RevisionManager|Revision\nManager
 NU|Coordination|RevoBIM_NudgeUp|Nudge Up
 ND|Coordination|RevoBIM_NudgeDown|Nudge Down
 A1|Coordination|RevoBIM_FindInView|Find in\nView
+AB|Coordination%RevoBIM_MatchOffset|RevoBIM_MatchOffsetBottom|Match Offset Bottom
+AQ|Coordination%RevoBIM_MatchOffset|RevoBIM_MatchOffsetMiddle|Match Offset Middle

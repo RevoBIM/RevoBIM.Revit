@@ -35,7 +35,7 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <EnableDefaultCompileItems>true</EnableDefaultCompileItems>
-    <Version>0.7.0</Version>
+    <Version>0.8.0</Version>
     <!-- REVIT2024, REVIT2025 ... for the few places the API differs between versions -->
     <DefineConstants>$(DefineConstants);REVIT$(RevitVersion)</DefineConstants>
     <!-- bin\<Configuration>\<framework>\ per version, so the builds never overwrite each other -->
@@ -134,6 +134,14 @@
     <Page Remove="UI\FindInView\Layouts\**" />
     <None Remove="UI\FindInView\Layouts\**" />
     <EmbeddedResource Include="UI\FindInView\Layouts\*.xaml" LogicalName="RevoBIM.UI.FindInView.Layouts.%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <!-- Match Offset layouts: the pyRevit XAML verbatim, loaded at runtime by UI\MatchOffset\MoUi.cs.
+       Embedded as RevoBIM.UI.MatchOffset.Layouts.<file>. -->
+  <ItemGroup>
+    <Page Remove="UI\MatchOffset\Layouts\**" />
+    <None Remove="UI\MatchOffset\Layouts\**" />
+    <EmbeddedResource Include="UI\MatchOffset\Layouts\*.xaml" LogicalName="RevoBIM.UI.MatchOffset.Layouts.%(Filename)%(Extension)" />
   </ItemGroup>
   <!-- Per-user deploy for the version being built: no admin rights needed. Copies the DLL and writes the .addin manifest. -->
   <Target Name="DeployAddin" AfterTargets="Build">

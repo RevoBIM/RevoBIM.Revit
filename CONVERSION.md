@@ -22,11 +22,11 @@ Status values: Not started, Converted (built, not yet tried in Revit), Tested (w
 | 3D Extend | Coordination | Not started | In 3D Extend Tools pulldown. |
 | ClashAnalysis | Coordination | Not started |  |
 | Find in View | Coordination | Converted | v1.17.0 port, large button on the Coordination panel (keyboard shortcut A1). Pure logic in `Tools\FindInView\FivCore.cs` (= fiv_core), Revit side in `FivModel.cs` (= fiv_model; the one write is the single-transaction category switch-on), debug log in `FivLog.cs`; command in `Commands\FindInViewCommand.cs` (staged like script.py); windows in `UI\FindInView\` (pyRevit XAML verbatim in `Layouts\`; `FivUi.cs` = loader, theme, drawer, chrome, message; `FivWindow.cs` = main; `FivByIdWindow.cs` = Find by ID). Shares `%APPDATA%\RevoBIM\find_in_view.txt` and `find_in_view_last_error.txt` with the pyRevit version; new `find_in_view_debug.txt` (build info header, then `selection:`, `zoom-here:`, `unhide:`, `tiling:`, `zoom:`, `result:` lines). Logo easter egg armed on the logo of the main, Find by ID and message windows. Not ported: the bench scripts (`bench_logic.py`, `import_check.py`) and the pyRevit-lib egg loader. Not yet tried in Revit. |
-| Match Offset Bottom | Coordination | Not started | In Match Offset pulldown. |
-| Match Offset Middle | Coordination | Not started | In Match Offset pulldown. |
-| Match Offset Settings | Coordination | Not started | In Match Offset pulldown. |
-| Match Offset Slope | Coordination | Not started | In Match Offset pulldown. |
-| Match Offset Top | Coordination | Not started | In Match Offset pulldown. |
+| Match Offset Bottom | Coordination | Converted | v1.18.0 port (add-in 0.8.0), in the "Match Offset" pulldown on the Coordination panel. Logic in `Tools\MatchOffset\` (`MoCore` = mo_core, `MoModel` = mo_model, `MoRun` = mo_run, `MoDebug` = mo_debug; Slope: `MosGeom`, `MosModel`, `MosRun`), windows in `UI\MatchOffset\` (pyRevit XAML verbatim in `Layouts\`), commands in `Commands\MatchOffsetCommands.cs`. Shares `%APPDATA%\RevoBIM\match_offset.txt`, `match_offset.log`, `match_offset_last_error.txt` with the pyRevit version; the debug report `match_offset_debug.txt` now starts with a build line. Logo easter egg armed on the Settings window only. Not ported: the bench scripts (`bench_logic.py`, `import_check.py`) and the pyRevit-lib egg loader. Not yet tried in Revit. Keyboard shortcut AB (installer, `installer\shortcuts.txt`). |
+| Match Offset Middle | Coordination | Converted | Same code as Bottom (anchor "middle"). Keyboard shortcut AQ (installer, `installer\shortcuts.txt`). Not yet tried in Revit. |
+| Match Offset Settings | Coordination | Converted | Window `UI\MatchOffset\MoSettingsWindow.cs`; writes shortcuts into KeyboardShortcuts.xml through `NudgeShortcuts` (matched by button id). Not yet tried in Revit. |
+| Match Offset Slope | Coordination | Converted | Slope code in `MosGeom`/`MosModel`/`MosRun`; works on pipes only. Not yet tried in Revit. |
+| Match Offset Top | Coordination | Converted | Same code as Bottom (anchor "top"). Not yet tried in Revit. |
 | Centreline Snap | Coordination | Not started | In MEP Link pulldown. |
 | Corner Link | Coordination | Not started | In MEP Link pulldown. |
 | Link Settings | Coordination | Not started | In MEP Link pulldown. |

@@ -31,6 +31,61 @@ namespace RevoBIM
                 Image = Icon("FindInView", 16),
             };
             coordination.AddItem(findInView);
+
+            // Match Offset (pyRevit: Match Offset.pulldown): take the bottom, middle or top offset off one element and put the
+            // elements clicked next on the same offset. Bottom, Middle and Top open no window; give them keyboard shortcuts.
+            var matchOffset = new PulldownButtonData("RevoBIM_MatchOffset", "Match\nOffset")
+            {
+                ToolTip = "Take the top, middle or bottom offset off one element and put the next elements you click on the same offset.",
+                LargeImage = Icon("MatchOffset", 32),
+                Image = Icon("MatchOffset", 16),
+            };
+            var matchOffsetButton = coordination.AddItem(matchOffset) as PulldownButton;
+            if (matchOffsetButton != null)
+            {
+                matchOffsetButton.AddPushButton(new PushButtonData(
+                    "RevoBIM_MatchOffsetBottom", "Match Offset Bottom", dll, typeof(Commands.MatchOffsetBottomCommand).FullName)
+                {
+                    ToolTip = "Match Offset Bottom. First click takes the bottom offset off an element; every click after it puts that " +
+                              "element's bottom on the same offset. Escape finishes. Give it a keyboard shortcut and the whole tool is keys, click, click.",
+                    LargeImage = Icon("MatchOffsetBottom", 32),
+                    Image = Icon("MatchOffsetBottom", 16),
+                });
+                matchOffsetButton.AddPushButton(new PushButtonData(
+                    "RevoBIM_MatchOffsetMiddle", "Match Offset Middle", dll, typeof(Commands.MatchOffsetMiddleCommand).FullName)
+                {
+                    ToolTip = "Match Offset Middle. First click takes the middle offset off an element; every click after it puts that " +
+                              "element's middle on the same offset. Escape finishes. Give it a keyboard shortcut and the whole tool is keys, click, click.",
+                    LargeImage = Icon("MatchOffsetMiddle", 32),
+                    Image = Icon("MatchOffsetMiddle", 16),
+                });
+                matchOffsetButton.AddPushButton(new PushButtonData(
+                    "RevoBIM_MatchOffsetTop", "Match Offset Top", dll, typeof(Commands.MatchOffsetTopCommand).FullName)
+                {
+                    ToolTip = "Match Offset Top. First click takes the top offset off an element; every click after it puts that " +
+                              "element's top on the same offset. Escape finishes. Give it a keyboard shortcut and the whole tool is keys, click, click.",
+                    LargeImage = Icon("MatchOffsetTop", 32),
+                    Image = Icon("MatchOffsetTop", 16),
+                });
+                matchOffsetButton.AddPushButton(new PushButtonData(
+                    "RevoBIM_MatchOffsetSlope", "Match Offset Slope", dll, typeof(Commands.MatchOffsetSlopeCommand).FullName)
+                {
+                    ToolTip = "Match Offset Slope. First click takes the fall and elevation off a main; every click after it puts a branch run " +
+                              "on that fall and lands it on the main's centreline where the two cross in plan, then trims and fits it. " +
+                              "For connecting an existing drainage run into a main.",
+                    LargeImage = Icon("MatchOffsetSlope", 32),
+                    Image = Icon("MatchOffsetSlope", 16),
+                });
+                matchOffsetButton.AddPushButton(new PushButtonData(
+                    "RevoBIM_MatchOffsetSettings", "Match Offset Settings", dll, typeof(Commands.MatchOffsetSettingsCommand).FullName)
+                {
+                    ToolTip = "Rounding, what can be picked, how results are reported, and a one press mapping of the commands onto keyboard shortcuts.",
+                    AvailabilityClassName = typeof(Commands.AlwaysAvailable).FullName,
+                    LargeImage = Icon("MatchOffsetSettings", 32),
+                    Image = Icon("MatchOffsetSettings", 16),
+                });
+            }
+
             var routines = new PulldownButtonData("RevoBIM_Routines", "Routines")
             {
                 ToolTip = "Routine tools.",

@@ -52,7 +52,7 @@ try {
             Panel = $panel
             Id    = "CustomCtrl_%CustomCtrl_%RevoBIM%$panel%$button"
             Name  = ($p[3..($p.Count - 1)] -join '|').Trim().Replace('\n', "`n")
-            Path  = "RevoBIM>$panel"
+            Path  = "RevoBIM>" + ($panel -split '%')[0]   # a button inside a pulldown has Panel = <panel>%<pulldown id>
         }
     }
     $ourIds = @($wanted | ForEach-Object { $_.Id })

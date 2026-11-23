@@ -1,0 +1,527 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RevoBIM Match Offset Settings"
+        Width="920" SizeToContent="Height"
+        WindowStyle="None" AllowsTransparency="True" ResizeMode="NoResize"
+        Background="Transparent" ShowInTaskbar="False">
+  <Border Background="{DynamicResource WindowBrush}"
+          BorderBrush="{DynamicResource EdgeBrush}"
+          BorderThickness="1" CornerRadius="6">
+    <Grid x:Name="RootGrid">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+      </Grid.RowDefinitions>
+
+      <!-- ================= header ================= -->
+      <Border x:Name="HeaderBar" Grid.Row="0"
+              Background="{DynamicResource BarBrush}"
+              CornerRadius="6,6,0,0" Padding="12,8,8,8">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+          </Grid.ColumnDefinitions>
+          <StackPanel x:Name="LogoArea" Grid.Column="0"
+                      Orientation="Horizontal" Background="Transparent"
+                      ToolTip="Three slow clicks. Go on.">
+            <Image x:Name="LogoImage" Width="28" Height="28"
+                   VerticalAlignment="Center" />
+            <StackPanel Margin="9,0,0,0" VerticalAlignment="Center">
+              <TextBlock Text="RevoBIM" FontSize="16" FontWeight="Bold"
+                         Foreground="{DynamicResource BlueBrush}" />
+              <TextBlock Text="Match Offset Settings" FontSize="12"
+                         Foreground="{DynamicResource OrangeBrush}" />
+            </StackPanel>
+          </StackPanel>
+          <Button x:Name="ThemeChip" Grid.Column="2" Content="Auto"
+                  Style="{DynamicResource ChipButton}"
+                  VerticalAlignment="Center" Margin="0,0,10,0"
+                  ToolTip="Auto follows Revit's own canvas theme" />
+          <TextBlock x:Name="VersionLabel" Grid.Column="3" Text="v1.2.0"
+                     Style="{DynamicResource MutedText}"
+                     VerticalAlignment="Center" Margin="0,0,8,0" />
+          <Button x:Name="CloseButton" Grid.Column="4" Content="&#x2715;"
+                  Style="{DynamicResource CloseButton}"
+                  VerticalAlignment="Center" />
+        </Grid>
+      </Border>
+
+      <!-- ================= tabs ================= -->
+      <StackPanel Grid.Row="1" Orientation="Horizontal"
+                  Margin="16,12,16,0">
+        <Button x:Name="TabOffset" Content="Match Offset"
+                Style="{DynamicResource ChipButton}" Margin="0,0,8,0" />
+        <Button x:Name="TabSlope" Content="Match Offset Slope"
+                Style="{DynamicResource ChipButton}" Margin="0,0,8,0" />
+        <Button x:Name="TabPicking" Content="Picking and shortcuts"
+                Style="{DynamicResource ChipButton}" />
+      </StackPanel>
+
+      <!-- ================= body ================= -->
+      <Grid Grid.Row="2" Height="470" Margin="16,12,16,10">
+        <Grid x:Name="PanelOffset">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="20" />
+            <ColumnDefinition Width="*" />
+          </Grid.ColumnDefinitions>
+        <StackPanel Grid.Column="0">
+          <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+            <Border Width="4" Background="{DynamicResource BlueBrush}"
+                    CornerRadius="2" Margin="0,0,9,0" />
+            <TextBlock Text="Rounding" Style="{DynamicResource SectionText}"
+                       VerticalAlignment="Center" />
+          </StackPanel>
+          <Grid Margin="0,0,0,8">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="130" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" VerticalAlignment="Center"
+                       TextWrapping="Wrap" Text="Round the offset to the nearest (mm)" />
+            <TextBox x:Name="RoundStep" Grid.Column="1" Text="0" Tag="0 = off" />
+          </Grid>
+          <TextBlock Style="{DynamicResource MutedText}"
+                     TextWrapping="Wrap" Margin="0,0,0,12" Text="0 means no rounding. Above 0, the first click rounds that element&apos;s own offset and every element after it is matched to the rounded value." />
+          <Grid Margin="0,0,0,8">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="170" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" VerticalAlignment="Center"
+                       TextWrapping="Wrap" Text="Round" />
+            <ComboBox x:Name="RoundMode" Grid.Column="1" />
+          </Grid>
+          <Grid Margin="0,0,0,8">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="170" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" VerticalAlignment="Center"
+                       TextWrapping="Wrap" Text="Round against" />
+            <ComboBox x:Name="RoundDatum" Grid.Column="1" />
+          </Grid>
+          <CheckBox x:Name="MoveSourceCheck" Margin="0,0,0,16"
+                    Content="Move the first element onto the rounded value too"
+                    ToolTip="With this off, the first element stays where it is and only the elements clicked after it move." />
+          <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+            <Border Width="4" Background="{DynamicResource OrangeBrush}"
+                    CornerRadius="2" Margin="0,0,9,0" />
+            <TextBlock Text="Measuring" Style="{DynamicResource SectionText}"
+                       VerticalAlignment="Center" />
+          </StackPanel>
+          <Grid Margin="0,0,0,8">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="170" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" VerticalAlignment="Center"
+                       TextWrapping="Wrap" Text="Top and bottom come from" />
+            <ComboBox x:Name="MeasureMode" Grid.Column="1" />
+          </Grid>
+          <CheckBox x:Name="InsulationCheck" Margin="0,0,0,8"
+                    Content="Count insulation as part of the size" />
+          <Grid Margin="0,0,0,6">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="170" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" VerticalAlignment="Center"
+                       TextWrapping="Wrap"
+                       Text="Equipment, fixtures and terminals measured from" />
+            <ComboBox x:Name="PointMeasure" Grid.Column="1" />
+          </Grid>
+          <TextBlock Style="{DynamicResource MutedText}"
+                     TextWrapping="Wrap" Margin="0,0,0,12" Text="On their real faces, Bottom and Top are the actual bottom and top of the solid geometry and Middle is the family&apos;s own offset from level. On their offset from level all three buttons are that one number. On their bounding box they are set out by the extents of whatever the family draws, which takes in flanges, bases, stubs and connectors." />
+
+          <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+            <Border Width="4" Background="{DynamicResource OrangeBrush}"
+                    CornerRadius="2" Margin="0,0,9,0" />
+            <TextBlock Text="Fabrication"
+                       Style="{DynamicResource SectionText}"
+                       VerticalAlignment="Center" />
+          </StackPanel>
+          <Grid Margin="0,0,0,8">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="170" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" VerticalAlignment="Center"
+                       TextWrapping="Wrap"
+                       Text="Fabrication parts measured from" />
+            <ComboBox x:Name="FabMeasure" Grid.Column="1" />
+          </Grid>
+          <Grid Margin="0,0,0,6">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="170" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" VerticalAlignment="Center"
+                       TextWrapping="Wrap"
+                       Text="Fabrication hangers measured from" />
+            <ComboBox x:Name="HangerTop" Grid.Column="1" />
+          </Grid>
+          <Grid Margin="0,0,0,6">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="170" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" VerticalAlignment="Center"
+                       TextWrapping="Wrap"
+                       Text="MEP ancillary framing measured from" />
+            <ComboBox x:Name="FramingMeasure" Grid.Column="1" />
+          </Grid>
+          <CheckBox x:Name="HangerRodsCheck" Margin="0,0,0,8"
+                    Content="Re-cut hanger rods so their tops stay put"
+                    ToolTip="A hanger hangs from the soffit: move the body and the rods have to change length to suit, or the tops come away from the structure. Rods Revit is hosting it re-solves itself." />
+          <TextBlock Style="{DynamicResource MutedText}"
+                     TextWrapping="Wrap" Margin="0,0,0,0" Text="A hanger is one height: the top face it holds its services on, so all three buttons are that. The top of its geometry is the top of its rods, up at the soffit, where nothing sits. Top and Bottom of Part are checked against the part&apos;s own solids before they are believed, because they are measured from the level rather than from the project base and a level offset read as a project elevation is out by the height of the level and still looks like a number." />
+        </StackPanel>
+        <StackPanel Grid.Column="2">
+          <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+            <Border Width="4" Background="{DynamicResource OrangeBrush}"
+                    CornerRadius="2" Margin="0,0,9,0" />
+            <TextBlock Text="What is left alone" Style="{DynamicResource SectionText}"
+                       VerticalAlignment="Center" />
+          </StackPanel>
+          <Grid Margin="0,0,0,8">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="190" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" VerticalAlignment="Center"
+                       TextWrapping="Wrap" Text="Sloping runs" />
+            <ComboBox x:Name="SlopedMode" Grid.Column="1" />
+          </Grid>
+          <Grid Margin="0,0,0,8">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="190" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" VerticalAlignment="Center"
+                       TextWrapping="Wrap" Text="Counts as level up to (degrees)" />
+            <TextBox x:Name="SlopeTol" Grid.Column="1" Text="0.5" />
+          </Grid>
+          <Grid Margin="0,0,0,8">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="190" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" VerticalAlignment="Center"
+                       TextWrapping="Wrap" Text="Connected fittings" />
+            <ComboBox x:Name="FittingMode" Grid.Column="1" />
+          </Grid>
+          <TextBlock Style="{DynamicResource MutedText}"
+                     TextWrapping="Wrap" Margin="0,0,0,16" Text="Match Offset Slope is the tool for a falling run: it matches the fall as well as the height." />
+          <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+            <Border Width="4" Background="{DynamicResource BlueBrush}"
+                    CornerRadius="2" Margin="0,0,9,0" />
+            <TextBlock Text="Behaviour" Style="{DynamicResource SectionText}"
+                       VerticalAlignment="Center" />
+          </StackPanel>
+          <CheckBox x:Name="PreselectCheck" Margin="0,0,0,8"
+                    Content="Apply to anything already selected, in one go" />
+          <CheckBox x:Name="RememberCheck" Margin="0,0,0,8"
+                    Content="Remember the datum between runs" />
+          <Grid Margin="0,0,0,8">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="190" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" VerticalAlignment="Center"
+                       TextWrapping="Wrap" Text="Show results" />
+            <ComboBox x:Name="ShowResults" Grid.Column="1" />
+          </Grid>
+        </StackPanel>
+        </Grid>
+        <Grid x:Name="PanelSlope" Visibility="Collapsed">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="20" />
+            <ColumnDefinition Width="*" />
+          </Grid.ColumnDefinitions>
+        <StackPanel Grid.Column="0">
+          <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+            <Border Width="4" Background="{DynamicResource BlueBrush}"
+                    CornerRadius="2" Margin="0,0,9,0" />
+            <TextBlock Text="The fall" Style="{DynamicResource SectionText}"
+                       VerticalAlignment="Center" />
+          </StackPanel>
+          <CheckBox x:Name="SlopeMatchCheck" Margin="0,0,0,8"
+                    Content="Change the slope of the branch&apos;s horizontal run to match Pipe 1"
+                    ToolTip="Cleared, the branch keeps its own fall and only its height is matched." />
+          <Grid Margin="0,0,0,8">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="190" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" VerticalAlignment="Center"
+                       TextWrapping="Wrap" Text="Take the fall from" />
+            <ComboBox x:Name="SlopeSource" Grid.Column="1" />
+          </Grid>
+          <Grid Margin="0,0,0,8">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="190" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" VerticalAlignment="Center"
+                       TextWrapping="Wrap" Text="Fixed fall, 1 in" />
+            <TextBox x:Name="SlopeFixedN" Grid.Column="1" Text="80" />
+          </Grid>
+          <Grid Margin="0,0,0,8">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="190" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" VerticalAlignment="Center"
+                       TextWrapping="Wrap" Text="The branch falls" />
+            <ComboBox x:Name="SlopeDirection" Grid.Column="1" />
+          </Grid>
+          <TextBlock Style="{DynamicResource MutedText}"
+                     TextWrapping="Wrap" Margin="0,0,0,16" Text="The whole horizontal run is tilted as one rigid body about the end that meets the main, so every joint in it stays joined. Uprights are let go, stretched to follow, and reconnected." />
+          <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+            <Border Width="4" Background="{DynamicResource OrangeBrush}"
+                    CornerRadius="2" Margin="0,0,9,0" />
+            <TextBlock Text="Where it stops" Style="{DynamicResource SectionText}"
+                       VerticalAlignment="Center" />
+          </StackPanel>
+          <Grid Margin="0,0,0,8">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="190" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" VerticalAlignment="Center"
+                       TextWrapping="Wrap" Text="Counts as an upright above (degrees)" />
+            <TextBox x:Name="SlopeSteep" Grid.Column="1" Text="46" />
+          </Grid>
+          <Grid Margin="0,0,0,14">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="190" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" VerticalAlignment="Center"
+                       TextWrapping="Wrap" Text="Refuse a run longer than" />
+            <TextBox x:Name="SlopeLimit" Grid.Column="1" Text="400" />
+          </Grid>
+
+          <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+            <Border Width="4" Background="{DynamicResource BlueBrush}"
+                    CornerRadius="2" Margin="0,0,9,0" />
+            <TextBlock Text="Repeating"
+                       Style="{DynamicResource SectionText}"
+                       VerticalAlignment="Center" />
+          </StackPanel>
+          <Grid Margin="0,0,0,6">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="190" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" VerticalAlignment="Center"
+                       TextWrapping="Wrap"
+                       Text="After each connection" />
+            <ComboBox x:Name="SlopeRepeat" Grid.Column="1" />
+          </Grid>
+          <TextBlock Style="{DynamicResource MutedText}"
+                     TextWrapping="Wrap" Margin="0,0,0,0" Text="In pairs the tool goes straight back to asking for a main, so a run of separate joints is click, click, click, click. Escape finishes either way, and the status line carries the running count." />
+        </StackPanel>
+        <StackPanel Grid.Column="2">
+          <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+            <Border Width="4" Background="{DynamicResource OrangeBrush}"
+                    CornerRadius="2" Margin="0,0,9,0" />
+            <TextBlock Text="Trim and fit" Style="{DynamicResource SectionText}"
+                       VerticalAlignment="Center" />
+          </StackPanel>
+          <CheckBox x:Name="SlopeTrimCheck" Margin="0,0,0,8"
+                    Content="Extend or trim the branch into the main"
+                    ToolTip="Cleared, the fall and the height are matched and the branch is left where it is." />
+          <Grid Margin="0,0,0,8">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="190" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" VerticalAlignment="Center"
+                       TextWrapping="Wrap" Text="Junction" />
+            <ComboBox x:Name="SlopeFitting" Grid.Column="1" />
+          </Grid>
+          <CheckBox x:Name="SlopeSquareCheck" Margin="0,0,0,8"
+                    Content="Square an angled branch in with a stub and a bend"
+                    ToolTip="Revit will only tee square to the run. An angled branch gets a square tee on the main, a short stub out of it, and a bend turning the branch into the stub - which is what Revit&apos;s own Trim/Extend does with a plain tee family." />
+          <Grid Margin="0,0,0,8">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="190" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" VerticalAlignment="Center"
+                       TextWrapping="Wrap"
+                       Text="Stub length (mm)" />
+            <TextBox x:Name="SlopeStub" Grid.Column="1" Text="0"
+                     Tag="0 = three diameters" />
+          </Grid>
+          <CheckBox x:Name="SlopeHandCheck" Margin="0,0,0,8"
+                    Content="Place the junction family by hand if Revit refuses"
+                    ToolTip="Revit&apos;s own call only ever places a square tee. Everything else - every swept and every 45 degree drainage junction - has to be placed as a family and turned onto the three pipes." />
+          <TextBlock Style="{DynamicResource MutedText}"
+                     TextWrapping="Wrap" Margin="0,0,0,12" Text="A crossing inside the main splits it and puts a tee across the three ends, falling back to the junction family placed by hand and then to a takeoff. A crossing at the end gives a bend, or a union where the two runs turn out to be in line." />
+          <CheckBox x:Name="SlopeInLineCheck" Margin="0,0,0,8"
+                    Content="Join two runs that are on the same line"
+                    ToolTip="Click one run then the other and they are put on one fall at one elevation and joined end to end, rather than being refused as parallel." />
+          <Grid Margin="0,0,0,12">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="190" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" VerticalAlignment="Center"
+                       TextWrapping="Wrap"
+                       Text="Counts as the same line within (mm)" />
+            <TextBox x:Name="SlopeLateral" Grid.Column="1" Text="50" />
+          </Grid>
+
+          <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+            <Border Width="4" Background="{DynamicResource BlueBrush}"
+                    CornerRadius="2" Margin="0,0,9,0" />
+            <TextBlock Text="Past the end of the main" Style="{DynamicResource SectionText}"
+                       VerticalAlignment="Center" />
+          </StackPanel>
+          <CheckBox x:Name="SlopeApparentCheck" Margin="0,0,0,8"
+                    Content="Allow an apparent intersection past the end of the main" />
+          <CheckBox x:Name="SlopeExtendCheck" Margin="0,0,0,8"
+                    Content="Carry the main out to it and turn in with a bend" />
+          <TextBlock Style="{DynamicResource MutedText}"
+                     TextWrapping="Wrap" Margin="0,0,0,0" Text="The branch is raised to the height the main&apos;s own fall would reach at that point. Only offered where the main&apos;s end has nothing joined to it, because there is nowhere to extend it to otherwise." />
+        </StackPanel>
+        </Grid>
+        <Grid x:Name="PanelPicking" Visibility="Collapsed">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="20" />
+            <ColumnDefinition Width="*" />
+          </Grid.ColumnDefinitions>
+        <StackPanel Grid.Column="0">
+          <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+            <Border Width="4" Background="{DynamicResource BlueBrush}"
+                    CornerRadius="2" Margin="0,0,9,0" />
+            <TextBlock Text="Keyboard shortcuts" Style="{DynamicResource SectionText}"
+                       VerticalAlignment="Center" />
+          </StackPanel>
+          <Grid Margin="0,0,0,6">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="90" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" VerticalAlignment="Center"
+                       TextWrapping="Wrap" Text="RevoBIM Match Offset Bottom" />
+            <TextBox x:Name="KeyBottom" Grid.Column="1" Text="" />
+          </Grid>
+          <Grid Margin="0,0,0,6">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="90" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" VerticalAlignment="Center"
+                       TextWrapping="Wrap" Text="RevoBIM Match Offset Middle" />
+            <TextBox x:Name="KeyMiddle" Grid.Column="1" Text="" />
+          </Grid>
+          <Grid Margin="0,0,0,6">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="90" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" VerticalAlignment="Center"
+                       TextWrapping="Wrap" Text="RevoBIM Match Offset Top" />
+            <TextBox x:Name="KeyTop" Grid.Column="1" Text="" />
+          </Grid>
+          <Grid Margin="0,0,0,6">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="90" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" VerticalAlignment="Center"
+                       TextWrapping="Wrap" Text="RevoBIM Match Offset Slope" />
+            <TextBox x:Name="KeySlope" Grid.Column="1" Text="" />
+          </Grid>
+          <StackPanel Orientation="Horizontal" Margin="0,2,0,6">
+            <Button x:Name="ApplyShortcuts" Content="Apply these shortcuts"
+                    Margin="0,0,8,0" />
+            <Button x:Name="OpenShortcuts"
+                    Content="Open Revit&apos;s shortcuts dialog" />
+          </StackPanel>
+          <TextBlock x:Name="ShortcutStatus" Text=""
+                     Style="{DynamicResource MutedText}" TextWrapping="Wrap"
+                     Margin="0,0,0,6" />
+          <TextBlock Style="{DynamicResource MutedText}"
+                     TextWrapping="Wrap" Margin="0,0,0,16" Text="Revit reads its shortcut file at startup, so a shortcut written here takes effect next time Revit opens. Opening Revit&apos;s own shortcuts dialog and pressing OK before then writes the whole file back from memory and throws the change away." />
+          <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+            <Border Width="4" Background="{DynamicResource OrangeBrush}"
+                    CornerRadius="2" Margin="0,0,9,0" />
+            <TextBlock Text="Diagnostics"
+                       Style="{DynamicResource SectionText}"
+                       VerticalAlignment="Center" />
+          </StackPanel>
+          <CheckBox x:Name="DebugCheck" Margin="0,0,0,8"
+                    Content="Show a debug report after every run"
+                    ToolTip="A copyable block carrying the settings, the geometry and Revit&apos;s own words about anything it refused." />
+          <CheckBox x:Name="SilentCheck" Margin="0,0,0,8"
+                    Content="Suppress every message"
+                    ToolTip="Nothing is put on screen at the end of a run - not the results window and not the debug report. A failure to start still reports itself, because a tool that dies silently is indistinguishable from a broken button." />
+          <TextBlock Style="{DynamicResource MutedText}"
+                     TextWrapping="Wrap" Margin="0,0,0,0" Text="The debug report is written to %APPDATA%\RevoBIM\match_offset_debug.txt whether its window is opened or not, so a suppressed run can still be looked at afterwards. Suppressing messages does not suppress a failure to start." />
+        </StackPanel>
+        <StackPanel Grid.Column="2">
+          <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+            <Border Width="4" Background="{DynamicResource OrangeBrush}"
+                    CornerRadius="2" Margin="0,0,9,0" />
+            <TextBlock Text="What can be picked" Style="{DynamicResource SectionText}"
+                       VerticalAlignment="Center" />
+          </StackPanel>
+          <Grid Margin="0,0,0,6">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto" />
+              <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBox x:Name="CategorySearch" Grid.Column="0"
+                     Tag="Search categories" Margin="0,0,8,0" />
+            <Button x:Name="CategoryAll" Grid.Column="1" Content="All"
+                    Margin="0,0,6,0" />
+            <Button x:Name="CategoryNone" Grid.Column="2" Content="None" />
+          </Grid>
+          <Border Background="{DynamicResource FieldBrush}"
+                  BorderBrush="{DynamicResource EdgeBrush}"
+                  BorderThickness="1" CornerRadius="3" Padding="8,6,8,6">
+            <ScrollViewer Height="320" VerticalScrollBarVisibility="Auto">
+              <StackPanel x:Name="CategoryPanel" />
+            </ScrollViewer>
+          </Border>
+          <TextBlock Style="{DynamicResource MutedText}"
+                     TextWrapping="Wrap" Margin="0,6,0,0" Text="Every standard MEP category, under its own heading. The structural and architectural ones at the bottom are off until they are ticked. Match Offset Slope always works on pipes only, whatever is ticked here." />
+        </StackPanel>
+        </Grid>
+      </Grid>
+
+      <!-- ================= footer ================= -->
+      <Border Grid.Row="3" Background="{DynamicResource BarBrush}"
+              CornerRadius="0,0,6,6" Padding="16,10,16,10">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+          </Grid.ColumnDefinitions>
+          <TextBlock x:Name="StatusText" Grid.Column="0" Text=""
+                     Style="{DynamicResource MutedText}"
+                     VerticalAlignment="Center" TextWrapping="Wrap" />
+          <Button x:Name="CloseFooter" Grid.Column="1" Content="Close"
+                  Margin="0,0,8,0" />
+          <Button x:Name="ApplyButton" Grid.Column="2" Content="Apply"
+                  Style="{DynamicResource PrimaryButton}" />
+        </Grid>
+      </Border>
+    </Grid>
+  </Border>
+</Window>
