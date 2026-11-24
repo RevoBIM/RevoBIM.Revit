@@ -1,0 +1,63 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RevoBIM Number Sequencer - check these"
+        Width="640" Height="440" MinWidth="460" MinHeight="300"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ResizeMode="NoResize" ShowInTaskbar="False" WindowStartupLocation="CenterOwner"
+        FontFamily="Segoe UI">
+    <Grid>
+        <Border Background="{DynamicResource Bg}" BorderBrush="{DynamicResource ChromeEdge}"
+                BorderThickness="1" CornerRadius="6">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- ======== Header ======== -->
+                <Border x:Name="RHeader" Grid.Row="0" Background="{DynamicResource Bar}" CornerRadius="6,6,0,0"
+                        Padding="12,8,8,8">
+                    <DockPanel>
+                        <Image x:Name="RIcon" DockPanel.Dock="Left" Width="28" Height="28" Margin="0,0,10,0"/>
+                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock x:Name="RVersion" Text="v0.0.0" FontSize="11" Foreground="{DynamicResource Muted}"
+                                       VerticalAlignment="Center" Margin="4,0,10,0"/>
+                            <Button x:Name="RCloseX" Style="{DynamicResource CloseButton}" ToolTip="Close">
+                                <Path Data="M0,0 L10,10 M10,0 L0,10" Stroke="{DynamicResource Text}" StrokeThickness="1.6"/>
+                            </Button>
+                        </StackPanel>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="RevoBIM" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource Blue}"/>
+                            <TextBlock Text="Number Sequencer - check these" FontSize="13"
+                                       Foreground="{DynamicResource Orange}" Margin="0,-3,0,0"/>
+                        </StackPanel>
+                    </DockPanel>
+                </Border>
+
+                <TextBlock x:Name="RSummary" Grid.Row="1" Margin="14,10,14,6" TextWrapping="Wrap"
+                           Foreground="{DynamicResource Text}" FontSize="12"/>
+
+                <Border Grid.Row="2" Margin="12,0,12,8" Background="{DynamicResource Field}"
+                        BorderBrush="{DynamicResource Edge}" BorderThickness="1" CornerRadius="4">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <StackPanel x:Name="RList" Margin="6"/>
+                    </ScrollViewer>
+                </Border>
+
+                <Border Grid.Row="3" Background="{DynamicResource Bar}" CornerRadius="0,0,6,6" Padding="12,8">
+                    <DockPanel>
+                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                            <Button x:Name="RCopyBtn" Tag="i:copy" Style="{DynamicResource ToolButton}" Content="Copy"/>
+                            <Button x:Name="RCloseBtn" Style="{DynamicResource ActionButton}" Content="Close"/>
+                        </StackPanel>
+                        <Button x:Name="RSelectBtn" Tag="i:pick" Style="{DynamicResource AccentButton}" Content="Select in Revit"
+                                HorizontalAlignment="Left"
+                                ToolTip="Select every listed element in Revit. Double-click a line for just that one."/>
+                    </DockPanel>
+                </Border>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

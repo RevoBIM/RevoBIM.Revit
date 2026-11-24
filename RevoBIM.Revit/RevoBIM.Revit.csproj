@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <!--
     One project, one build per Revit version. Pick the version with the configuration:
@@ -35,7 +35,7 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <EnableDefaultCompileItems>true</EnableDefaultCompileItems>
-    <Version>0.10.0</Version>
+    <Version>0.11.0</Version>
     <!-- REVIT2024, REVIT2025 ... for the few places the API differs between versions -->
     <DefineConstants>$(DefineConstants);REVIT$(RevitVersion)</DefineConstants>
     <!-- bin\<Configuration>\<framework>\ per version, so the builds never overwrite each other -->
@@ -157,6 +157,13 @@
     <None Remove="UI\Align3D\Layouts\**" />
     <EmbeddedResource Include="UI\Align3D\Layouts\*.xaml" LogicalName="RevoBIM.UI.Align3D.Layouts.%(Filename)%(Extension)" />
   </ItemGroup>
+  <!-- Number Sequencer layouts: the pyRevit XAML verbatim, loaded at runtime by UI\NumberSequencer\NsqUi.cs.
+       Embedded as RevoBIM.UI.NumberSequencer.Layouts.<file>. -->
+  <ItemGroup>
+    <Page Remove="UI\NumberSequencer\Layouts\**" />
+    <None Remove="UI\NumberSequencer\Layouts\**" />
+    <EmbeddedResource Include="UI\NumberSequencer\Layouts\*.xaml" LogicalName="RevoBIM.UI.NumberSequencer.Layouts.%(Filename)%(Extension)" />
+  </ItemGroup>
   <!-- Unhide in View layouts: the pyRevit XAML verbatim, loaded at runtime by UI\UnhideInView\UivUi.cs.
        Embedded as RevoBIM.UI.UnhideInView.Layouts.<file>. -->
   <ItemGroup>
@@ -178,3 +185,5 @@
   </Target>
 
 </Project>
+
+

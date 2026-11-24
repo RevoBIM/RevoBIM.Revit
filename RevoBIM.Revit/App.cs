@@ -19,6 +19,18 @@ namespace RevoBIM
 
             // --- Coordination (pyRevit: Coordination.panel). Routines is a dropdown that will collect
             //     the routine tools as they are converted; RevoBIM Arcade is its first member.
+            // --- Annotation (pyRevit: Annotation.panel): the first panel on the tab, as in pyRevit.
+            RibbonPanel annotation = app.CreateRibbonPanel(TabName, "Annotation");
+            annotation.AddItem(new PushButtonData(
+                "RevoBIM_NumberSequencer", "Number\nSequencer", dll, typeof(Commands.NumberSequencerCommand).FullName)
+            {
+                ToolTip = "RevoBIM Number Sequencer - number duct and pipe systems into a parameter you choose, branches first then on up the main. " +
+                          "Sequencer tab: tab-select or pick systems. System Selector tab: every duct or pipe system in the active view, ordered in a " +
+                          "table (drag to re-order), isolated with their tags and coloured to match the list, then Run. Revit stays usable while it is open.",
+                LargeImage = Icon("NumberSequencer", 32),
+                Image = Icon("NumberSequencer", 16),
+            });
+
             RibbonPanel coordination = app.CreateRibbonPanel(TabName, "Coordination");
             var findInView = new PushButtonData(
                 "RevoBIM_FindInView", "Find in\nView", dll, typeof(Commands.FindInViewCommand).FullName)

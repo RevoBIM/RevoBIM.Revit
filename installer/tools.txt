@@ -1,4 +1,4 @@
-# The tools shown on the installer's "What is included" page, in the order shown.
+﻿# The tools shown on the installer's "What is included" page, in the order shown.
 # One line per tool:  Group | Icon | Name | Description
 #   Group        the ribbon panel the tool sits on (a heading is drawn each time it changes)
 #   Icon         the folder under RevoBIM.Revit\Resources whose icon.png is used
@@ -7,6 +7,7 @@
 # make-assets.ps1 turns this into the icons and the list code that RevoBIM.iss includes, so
 # adding a tool is one line here (plus its button in App.cs). Lines starting with # are ignored.
 
+Annotation|NumberSequencer|Number Sequencer|Number duct and pipe systems into a parameter you choose, branches first then on up the main, and tag them; or order every system in the view in a table and run it.
 Coordination|FindInView|Find in View|Select elements, then pick the view to see them in: it opens and zooms to the selection.
 Coordination|MatchOffset|Match Offset|Take the top, middle or bottom offset off one element and put the elements you click next on the same offset; Slope matches a falling pipe run.
 Coordination|NudgeUp|Nudge Up|Raise selected elements by the Nudge increment (default 50mm).
@@ -25,3 +26,4 @@ Management|LegendCreator|Legend Creator|Family legends and system colour legends
 Sheet Tools|ProSheetsExporter|Pro Sheets Exporter|Batch export sheets and views to PDF, DWG, NWC and IFC.
 Sheet Tools|RevisionManager|Revision Manager|Add, edit, reorder and merge the project's revisions.
 BWIC Tools|BwicIdPush|BWIC ID Push|Click a linked Generic Model element, then a host element: copies CLM_BWIC ID into BGL_BWIC ID; repeats until Escape.
+
