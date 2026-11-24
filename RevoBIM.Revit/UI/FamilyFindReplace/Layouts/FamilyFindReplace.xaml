@@ -1,0 +1,436 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RevoBIM - Family Find and Replace"
+        Width="1180" Height="880" MinWidth="960" MinHeight="750"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ResizeMode="CanResize" ShowInTaskbar="True" SnapsToDevicePixels="True">
+
+  <Border CornerRadius="6" Background="{DynamicResource BgWindow}"
+          BorderBrush="{DynamicResource BrdWindow}" BorderThickness="1">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+
+      <!-- ============================ header ============================ -->
+      <Border x:Name="HeaderBar" Grid.Row="0" Background="{DynamicResource BgBar}"
+              CornerRadius="5,5,0,0" Padding="14,9">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+
+          <Image x:Name="IconImage" Grid.Column="0" Width="30" Height="30"
+                 Margin="0,0,10,0" VerticalAlignment="Center"/>
+
+          <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+            <TextBlock Text="RevoBIM" Style="{DynamicResource Wordmark}"/>
+            <TextBlock Text="Family Find &amp; Replace" Style="{DynamicResource ToolName}"
+                       Margin="9,0,0,1" VerticalAlignment="Bottom"/>
+          </StackPanel>
+
+          <TextBlock x:Name="ProgressText" Grid.Column="2" Text=""
+                     HorizontalAlignment="Right" VerticalAlignment="Center"
+                     Margin="0,0,14,0" FontSize="12" FontWeight="SemiBold"
+                     Foreground="{DynamicResource AccBlue}"/>
+
+          <TextBlock x:Name="VersionText" Grid.Column="3" Text="v1.0.0"
+                     Style="{DynamicResource VersionLabel}"
+                     VerticalAlignment="Center" Margin="0,0,10,0"/>
+
+          <Button x:Name="ShrinkBtn" Grid.Column="4"
+                  Style="{DynamicResource BtnShrink}"/>
+
+          <Button x:Name="CloseBtn" Grid.Column="5" Content="&#x2715;"
+                  Style="{DynamicResource BtnClose}"/>
+        </Grid>
+      </Border>
+
+      <!-- =========================== progress =========================== -->
+      <!-- The fill is two star columns rather than a width in pixels: it is a
+           ratio, so it is right at any window width with nothing measured.
+           The label sits over the top in white, which reads on both the filled
+           blue and the empty track behind it. -->
+      <Border x:Name="ProgressTrack" Grid.Row="1" Height="26"
+              Visibility="Collapsed"
+              Background="{DynamicResource BgField}"
+              BorderBrush="{DynamicResource BrdEdge}" BorderThickness="0,1,0,1">
+        <Grid>
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition x:Name="ProgressDone" Width="0*"/>
+              <ColumnDefinition x:Name="ProgressLeft" Width="100*"/>
+            </Grid.ColumnDefinitions>
+            <Border Grid.Column="0" Background="{DynamicResource ProgressFill}"/>
+          </Grid>
+
+          <TextBlock x:Name="ProgressLabel" HorizontalAlignment="Center"
+                     VerticalAlignment="Center" FontSize="11.5"
+                     FontWeight="SemiBold" TextTrimming="CharacterEllipsis"
+                     Foreground="{DynamicResource FgOnAccent}" Text=""/>
+        </Grid>
+      </Border>
+
+      <!-- ============================= body ============================= -->
+      <Grid Grid.Row="2" Margin="12,10,12,6">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="132"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="330"/>
+          <ColumnDefinition Width="330"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- =========================== scope bar =========================== -->
+        <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3"
+                Style="{DynamicResource Card}" Margin="0,0,0,10" Padding="12,8">
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="200"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" Style="{DynamicResource TickBlue}"/>
+            <TextBlock Grid.Column="1" Text="Replace across"
+                       Style="{DynamicResource SectionHeading}"/>
+            <TextBlock Grid.Column="2" Text="Scope"
+                       Style="{DynamicResource Muted}" VerticalAlignment="Center"
+                       Margin="18,0,8,0"/>
+            <ComboBox x:Name="ScopeCombo" Grid.Column="3"
+                      VerticalAlignment="Center"/>
+            <!-- Shown only in a drafting view, where the tool swaps import
+                 symbols for detail items rather than family for family. -->
+            <Border x:Name="ModeChip" Grid.Column="4" Margin="14,0,0,0"
+                    Padding="10,3" CornerRadius="3" VerticalAlignment="Center"
+                    Background="{DynamicResource AccOrangeDim}"
+                    BorderBrush="{DynamicResource AccOrange}" BorderThickness="1"
+                    Visibility="Collapsed">
+              <TextBlock FontSize="11.5" FontWeight="SemiBold"
+                         Foreground="{DynamicResource FgOnAccent}"
+                         Text="Drafting view: import symbols to detail items"/>
+            </Border>
+
+            <TextBlock x:Name="SrcCountText" Grid.Column="5" Margin="16,0,0,0"
+                       VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
+                       Style="{DynamicResource Muted}"
+                       Text="Choose a family to find."/>
+          </Grid>
+        </Border>
+
+        <!-- ============================ find card ========================== -->
+        <Border Grid.Row="1" Grid.Column="0" Style="{DynamicResource Card}"
+                Margin="0,0,10,0">
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <StackPanel Grid.Row="0" Orientation="Horizontal">
+              <Border Style="{DynamicResource TickBlue}"/>
+              <TextBlock Text="Find" Style="{DynamicResource SectionHeading}"/>
+            </StackPanel>
+
+            <Button x:Name="SrcPickBtn" Grid.Row="1" Margin="0,10,0,0"
+                    Content="Select family in the model"
+                    Style="{DynamicResource BtnGhost}"/>
+
+            <TextBlock Grid.Row="2" Text="Category" Style="{DynamicResource FieldLabel}"/>
+            <ComboBox x:Name="SrcCategoryCombo" Grid.Row="3"/>
+
+            <TextBlock Grid.Row="4" Text="Search family or type"
+                       Style="{DynamicResource FieldLabel}"/>
+            <TextBox x:Name="SrcSearchBox" Grid.Row="5"/>
+
+            <TextBlock Grid.Row="6" Text="Family" Style="{DynamicResource FieldLabel}"/>
+            <ListBox x:Name="SrcFamilyList" Grid.Row="7" MinHeight="110"/>
+
+            <TextBlock Grid.Row="8" Text="Type" Style="{DynamicResource FieldLabel}"/>
+            <ListBox x:Name="SrcTypeList" Grid.Row="9" MinHeight="90"/>
+          </Grid>
+        </Border>
+
+        <!-- ========================== replace card ========================= -->
+        <Border Grid.Row="1" Grid.Column="1" Style="{DynamicResource Card}"
+                Margin="0,0,10,0">
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <StackPanel Grid.Row="0" Orientation="Horizontal">
+              <Border Style="{DynamicResource TickOrange}"/>
+              <TextBlock Text="Replace with" Style="{DynamicResource SectionHeading}"/>
+            </StackPanel>
+
+            <Button x:Name="PickTargetBtn" Grid.Row="1" Margin="0,10,0,0"
+                    Content="Select family in the model"
+                    Style="{DynamicResource BtnGhost}"/>
+
+            <TextBlock Grid.Row="2" Text="Category" Style="{DynamicResource FieldLabel}"/>
+            <ComboBox x:Name="TgtCategoryCombo" Grid.Row="3"/>
+
+            <TextBlock Grid.Row="4" Text="Search family or type"
+                       Style="{DynamicResource FieldLabel}"/>
+            <TextBox x:Name="TgtSearchBox" Grid.Row="5"/>
+
+            <TextBlock Grid.Row="6" Text="Family" Style="{DynamicResource FieldLabel}"/>
+            <ListBox x:Name="TgtFamilyList" Grid.Row="7" MinHeight="110"/>
+
+            <TextBlock Grid.Row="8" Text="Type" Style="{DynamicResource FieldLabel}"/>
+            <ListBox x:Name="TgtTypeList" Grid.Row="9" MinHeight="90"/>
+
+            <TextBlock x:Name="TgtInfoText" Grid.Row="10" Margin="0,8,0,0"
+                       TextWrapping="Wrap" Style="{DynamicResource Muted}"
+                       Text="No replacement family chosen yet."/>
+          </Grid>
+        </Border>
+
+        <!-- ============= parameters (full height) + electrical ============= -->
+        <Grid Grid.Row="1" Grid.RowSpan="2" Grid.Column="2">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+
+          <Border Grid.Row="0" Style="{DynamicResource Card}" Margin="0,0,0,10">
+            <Grid>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+              </Grid.RowDefinitions>
+
+              <Grid Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0" Style="{DynamicResource TickBlue}"/>
+                <TextBlock Grid.Column="1" Text="Parameter values to retain"
+                           Style="{DynamicResource SectionHeading}"/>
+                <TextBlock x:Name="ParamCountText" Grid.Column="2"
+                           VerticalAlignment="Center"
+                           Style="{DynamicResource Muted}" Text=""/>
+              </Grid>
+
+              <TextBox x:Name="ParamSearchBox" Grid.Row="1" Margin="0,10,0,0"/>
+
+              <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,8,0,8">
+                <Button x:Name="ParamAllBtn" Content="All"
+                        Style="{DynamicResource BtnSmall}" Margin="0,0,6,0"/>
+                <Button x:Name="ParamNoneBtn" Content="None"
+                        Style="{DynamicResource BtnSmall}" Margin="0,0,6,0"/>
+                <Button x:Name="ParamSharedBtn" Content="Shared only"
+                        Style="{DynamicResource BtnSmall}" Margin="0,0,6,0"/>
+              </StackPanel>
+
+              <ListBox x:Name="ParamList" Grid.Row="3"/>
+
+              <TextBlock Grid.Row="4" Margin="0,8,0,0" TextWrapping="Wrap"
+                         Style="{DynamicResource Muted}"
+                         Text="Nothing is retained unless you tick it. Instance parameters only - workset and phasing always carry across."/>
+            </Grid>
+          </Border>
+
+          <!-- electrical, deliberately compact. Greyed as a whole in a
+               drafting view, where nothing carries a circuit. -->
+          <Border x:Name="ElecCard" Grid.Row="1" Style="{DynamicResource Card}"
+                  Padding="12,9">
+            <Grid>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+              </Grid.RowDefinitions>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+
+              <Button x:Name="ElecBtn" Grid.Row="0" Grid.Column="0"
+                      Content="Circuits retained? : On"
+                      Style="{DynamicResource BtnStatus}"/>
+
+              <TextBlock x:Name="ElecCircuitCount" Grid.Row="0" Grid.Column="1"
+                         Margin="12,0,0,0" VerticalAlignment="Center"
+                         TextTrimming="CharacterEllipsis"
+                         Style="{DynamicResource Muted}" Text=""/>
+
+              <TextBlock x:Name="ElecDetail" Grid.Row="1" Grid.Column="0"
+                         Grid.ColumnSpan="2" Margin="0,7,0,0"
+                         TextWrapping="Wrap" Style="{DynamicResource Muted}"
+                         Text="Choose both families to check the circuits."/>
+
+              <CheckBox x:Name="WiresCheck" Grid.Row="2" Grid.Column="0"
+                        Grid.ColumnSpan="2" Margin="0,8,0,0" IsChecked="True"
+                        Content="Reconnect wires to the replacement"/>
+            </Grid>
+          </Border>
+
+          <!-- placement, also compact -->
+          <Border Grid.Row="2" Style="{DynamicResource Card}" Margin="0,10,0,0"
+                  Padding="12,9">
+            <Grid>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+              </Grid.RowDefinitions>
+              <CheckBox x:Name="TagsCheck" Grid.Row="0" IsChecked="True"
+                        Content="Retain tags pointing at the originals"/>
+              <CheckBox x:Name="GroupsCheck" Grid.Row="1" Margin="0,8,0,0"
+                        IsChecked="False"
+                        Content="Replace inside groups"/>
+              <CheckBox x:Name="LevelBelowCheck" Grid.Row="2" Margin="0,8,0,0"
+                        IsChecked="True"
+                        Content="Associate with the nearest level below"/>
+              <CheckBox x:Name="MirrorCheck" Grid.Row="3" Margin="0,8,0,0"
+                        IsChecked="True" Visibility="Collapsed"
+                        Content="Mirror to match blocks mirrored in AutoCAD"/>
+              <!-- Off: insertion point to insertion point, as a family swap
+                   does. On: middle to middle. Drafting views only. -->
+              <CheckBox x:Name="CentreAlignCheck" Grid.Row="4" Margin="0,8,0,0"
+                        IsChecked="False" Visibility="Collapsed"
+                        Content="Line up centres instead of insertion points"/>
+              <TextBlock x:Name="LevelNote" Grid.Row="5" Margin="0,6,0,0"
+                         TextWrapping="Wrap" Style="{DynamicResource Muted}"
+                         Text="A face based family often carries no level, or carries its host's. Untick to keep the original's own level."/>
+            </Grid>
+          </Border>
+        </Grid>
+
+        <!-- ============================= report ============================ -->
+        <Border Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+                Style="{DynamicResource Card}" Margin="0,10,10,0">
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0" Margin="0,0,0,8">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+              </Grid.ColumnDefinitions>
+              <Border Grid.Column="0" Style="{DynamicResource TickBlue}"/>
+              <TextBlock Grid.Column="1" Text="Report"
+                         Style="{DynamicResource SectionHeading}"/>
+              <TextBlock x:Name="ReportSummary" Grid.Column="3"
+                         Style="{DynamicResource Muted}" VerticalAlignment="Center"
+                         Text=""/>
+            </Grid>
+
+            <ListBox x:Name="ReportList" Grid.Row="1"/>
+          </Grid>
+        </Border>
+      </Grid>
+
+      <!-- ============================ footer ============================ -->
+      <Border Grid.Row="3" Background="{DynamicResource BgBar}"
+              CornerRadius="0,0,5,5" Padding="14,9">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+
+          <Button x:Name="AdjustBtn" Grid.Column="0" IsEnabled="False"
+                  Content="Adjust orientation..."
+                  Style="{DynamicResource BtnOrange}"/>
+
+          <TextBlock x:Name="StatusText" Grid.Column="1" Margin="14,0,14,0"
+                     VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
+                     Style="{DynamicResource Muted}"
+                     Text="Reading the model..."/>
+
+          <Button x:Name="PreviewBtn" Grid.Column="2" Content="Preview"
+                  Style="{DynamicResource BtnGhost}" Margin="0,0,8,0"/>
+
+          <Button x:Name="RunBtn" Grid.Column="3" Content="Replace"
+                  Style="{DynamicResource BtnGreen}" IsEnabled="False"/>
+        </Grid>
+      </Border>
+
+      <!-- ======================== resize edges ========================= -->
+      <!-- Grid.RowSpan covers the whole window. The centre cell holds no
+           control and the Grid has no Background, so nothing here is
+           hit-testable except the 6px edges themselves. -->
+      <Grid Grid.Row="0" Grid.RowSpan="4">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="6"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="6"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="6"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="6"/>
+        </Grid.ColumnDefinitions>
+
+        <Thumb x:Name="GripNW" Grid.Row="0" Grid.Column="0" Cursor="SizeNWSE"
+               Style="{DynamicResource ResizeThumb}"/>
+        <Thumb x:Name="GripN"  Grid.Row="0" Grid.Column="1" Cursor="SizeNS"
+               Style="{DynamicResource ResizeThumb}"/>
+        <Thumb x:Name="GripNE" Grid.Row="0" Grid.Column="2" Cursor="SizeNESW"
+               Style="{DynamicResource ResizeThumb}"/>
+        <Thumb x:Name="GripW"  Grid.Row="1" Grid.Column="0" Cursor="SizeWE"
+               Style="{DynamicResource ResizeThumb}"/>
+        <Thumb x:Name="GripE"  Grid.Row="1" Grid.Column="2" Cursor="SizeWE"
+               Style="{DynamicResource ResizeThumb}"/>
+        <Thumb x:Name="GripSW" Grid.Row="2" Grid.Column="0" Cursor="SizeNESW"
+               Style="{DynamicResource ResizeThumb}"/>
+        <Thumb x:Name="GripS"  Grid.Row="2" Grid.Column="1" Cursor="SizeNS"
+               Style="{DynamicResource ResizeThumb}"/>
+        <Thumb x:Name="GripSE" Grid.Row="2" Grid.Column="2" Cursor="SizeNWSE"
+               Style="{DynamicResource ResizeThumb}"/>
+      </Grid>
+    </Grid>
+  </Border>
+</Window>

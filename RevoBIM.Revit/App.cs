@@ -324,6 +324,19 @@ namespace RevoBIM
                 Image = Icon("LegendCreator", 16),
             };
             management.AddItem(legendCreator);
+            var familyFindReplace = new PushButtonData(
+                "RevoBIM_FamilyFindReplace", "Family Find\n& Replace", dll, typeof(Commands.FamilyFindReplaceCommand).FullName)
+            {
+                ToolTip = "Swap one loadable family for another across the model. Find the original by category, family and type, or pick the " +
+                          "elements straight out of the model. Choose which instance parameters travel with the swap. Each replacement lands on " +
+                          "the original's insertion point and reads the same way round, and electrical circuits, tags and wires are carried across " +
+                          "before the original is deleted. Orientation and height are set afterwards, on the whole set at once. " +
+                          "In a drafting view it swaps import symbols (AutoCAD blocks) for detail items. Opens modeless.",
+                AvailabilityClassName = typeof(Commands.ProjectDocumentAvailability).FullName,
+                LargeImage = Icon("FamilyFindReplace", 32),
+                Image = Icon("FamilyFindReplace", 16),
+            };
+            management.AddItem(familyFindReplace);
 
             // --- Sheet Tools (pyRevit: Sheet Tools.panel)
             RibbonPanel sheetTools = app.CreateRibbonPanel(TabName, "Sheet Tools");

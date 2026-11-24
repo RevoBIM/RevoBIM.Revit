@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <!--
     One project, one build per Revit version. Pick the version with the configuration:
@@ -35,7 +35,7 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <EnableDefaultCompileItems>true</EnableDefaultCompileItems>
-    <Version>0.12.7</Version>
+    <Version>0.14.0</Version>
     <!-- REVIT2024, REVIT2025 ... for the few places the API differs between versions -->
     <DefineConstants>$(DefineConstants);REVIT$(RevitVersion)</DefineConstants>
     <!-- bin\<Configuration>\<framework>\ per version, so the builds never overwrite each other -->
@@ -177,6 +177,13 @@
     <Page Remove="UI\BwicPenetration\Layouts\**" />
     <None Remove="UI\BwicPenetration\Layouts\**" />
     <EmbeddedResource Include="UI\BwicPenetration\Layouts\*.xaml" LogicalName="RevoBIM.UI.BwicPenetration.Layouts.%(Filename)%(Extension)" />
+  </ItemGroup>
+  <!-- Family Find &amp; Replace layouts: the pyRevit XAML verbatim, loaded at runtime by UI\FamilyFindReplace\FfrUi.cs (its handlers are
+       wired in code). Embedded as RevoBIM.UI.FamilyFindReplace.Layouts.<file>. -->
+  <ItemGroup>
+    <Page Remove="UI\FamilyFindReplace\Layouts\**" />
+    <None Remove="UI\FamilyFindReplace\Layouts\**" />
+    <EmbeddedResource Include="UI\FamilyFindReplace\Layouts\*.xaml" LogicalName="RevoBIM.UI.FamilyFindReplace.Layouts.%(Filename)%(Extension)" />
   </ItemGroup>
   <!-- Per-user deploy for the version being built: no admin rights needed. Copies the DLL and writes the .addin manifest. -->
   <Target Name="DeployAddin" AfterTargets="Build">

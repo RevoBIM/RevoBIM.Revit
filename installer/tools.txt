@@ -23,6 +23,7 @@ Management|ExcelForRevit|Excel for Revit|Edit a schedule in a spreadsheet grid, 
 Management|FilterManager|Filter Manager|Edit every view filter, see them all in a table, and push them between view templates.
 Management|ModelCleanup|Model Cleanup|Save a detached copy and strip it ready to send.
 Management|LegendCreator|Legend Creator|Family legends and system colour legends from the model.
+Management|FamilyFindReplace|Family Find & Replace|Swap one loadable family for another across the model, keeping position, chosen parameters, circuits, tags and wires; in a drafting view, AutoCAD import symbols become detail items.
 Sheet Tools|ProSheetsExporter|Pro Sheets Exporter|Batch export sheets and views to PDF, DWG, NWC and IFC.
 Sheet Tools|RevisionManager|Revision Manager|Add, edit, reorder and merge the project's revisions.
 BWIC Tools|BwicIdPush|BWIC ID Push|Click a linked Generic Model element, then a host element: copies CLM_BWIC ID into BGL_BWIC ID; repeats until Escape.
