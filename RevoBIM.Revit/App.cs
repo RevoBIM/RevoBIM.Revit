@@ -232,6 +232,22 @@ namespace RevoBIM
                 Image = Icon("BwicIdPush", 16),
             };
             bwicTools.AddItem(bwicIdPush);
+            var bwicPenetration = new PushButtonData(
+                "RevoBIM_BwicPenetration", "BWIC\nPenetration", dll, typeof(Commands.BwicPenetrationCommand).FullName)
+            {
+                ToolTip = "Opens the RevoBIM BWIC Penetration window, with Wall, Slab and Global Placement tabs.\n\n" +
+                          "Wall (rectangular or circular): select the services, press Return, then pick the wall in the linked model. " +
+                          "Slab (rectangular, circular or automatic): select the services, press Return, then click the floor. " +
+                          "Each tab opens on its family, with its preview and Family settings.\n" +
+                          "Global Placement: sweeps the active view and places a BWIC around every group of pipes and cable trays passing " +
+                          "through a fire rated or blockwork wall in the chosen link. The settings behind the gear hold clearances, rules " +
+                          "and the workset; Global Placement uses the Wall tab's family. Escape returns to the window, which stays open " +
+                          "while you navigate. A prompt at the top of the Revit window says what to pick next at each step.",
+                AvailabilityClassName = typeof(Commands.ProjectDocumentAvailability).FullName,
+                LargeImage = Icon("BwicPenetration", 32),
+                Image = Icon("BwicPenetration", 16),
+            };
+            bwicTools.AddItem(bwicPenetration);
 
             // --- FAB Automation (pyRevit: FAB Automation.panel)
             RibbonPanel fabAutomation = app.CreateRibbonPanel(TabName, "FAB Automation");

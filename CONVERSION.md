@@ -1,4 +1,4 @@
-﻿# Conversion tracker
+# Conversion tracker
 
 Status values: Not started, Converted (built, not yet tried in Revit), Tested (works in Revit 2024).
 
@@ -17,7 +17,7 @@ Status values: Not started, Converted (built, not yet tried in Revit), Tested (w
 | Tag Untangle Horizontal | Annotation | Not started | In Tag Untangle stack. |
 | Tag Untangle Vertical | Annotation | Not started | In Tag Untangle stack. |
 | BWIC ID Push | BWIC Tools | Converted | v1.2.0 port (add-in 0.10.0), button on a new "BWIC Tools" panel. Code in `Tools\BwicIdPush\BwicIdPushRun.cs`, command in `Commands\BwicIdPushCommand.cs`; no window. Debug log `%APPDATA%\RevoBIM\bwic_id_push_debug.txt` starts with a build line. Not yet tried in Revit. |
-| BWIC Penetration | BWIC Tools | Not started |  |
+| BWIC Penetration | BWIC Tools | Converted | v2.21.0 port (add-in 0.12.0), button beside BWIC ID Push on the "BWIC Tools" panel. Wall (rectangular / circular), Slab (rectangular / circular / automatic) and Global Placement tabs, Family settings, preview, step prompts, Finish button, shrink-to-taskbar drawer and results window. XAML kept verbatim in `UI\BwicPenetration\Layouts\`; code in `Tools\BwicPenetration\` (`BwicCore*.cs` = bwic_core.py, `BwicGlobal*.cs` = bwic_global.py, `BwicFamilies.cs`, `BwicPrompt.cs`), windows in `UI\BwicPenetration\`, command in `Commands\BwicPenetrationCommand.cs`. Settings and family profiles in `%APPDATA%\RevoBIM\` (`bwic_penetration_settings.txt`, `bwic_penetration_families.json`; until those exist the pyRevit files in `%APPDATA%\RevoBIM PY` are read, so Family settings carry over). Debug log `%APPDATA%\RevoBIM\bwic_penetration_debug.txt` (tick Debug) opens with a tool and build line; a failed start writes `bwic_penetration_last_error.txt`. Not yet tried in Revit. |
 | 3D Extend Settings | Coordination | Not started | In 3D Extend Tools pulldown. |
 | 3D Extend | Coordination | Not started | In 3D Extend Tools pulldown. |
 | ClashAnalysis | Coordination | Not started |  |

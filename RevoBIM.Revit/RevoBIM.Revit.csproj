@@ -35,7 +35,7 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <EnableDefaultCompileItems>true</EnableDefaultCompileItems>
-    <Version>0.11.0</Version>
+    <Version>0.12.0</Version>
     <!-- REVIT2024, REVIT2025 ... for the few places the API differs between versions -->
     <DefineConstants>$(DefineConstants);REVIT$(RevitVersion)</DefineConstants>
     <!-- bin\<Configuration>\<framework>\ per version, so the builds never overwrite each other -->
@@ -170,6 +170,13 @@
     <Page Remove="UI\UnhideInView\Layouts\**" />
     <None Remove="UI\UnhideInView\Layouts\**" />
     <EmbeddedResource Include="UI\UnhideInView\Layouts\*.xaml" LogicalName="RevoBIM.UI.UnhideInView.Layouts.%(Filename)%(Extension)" />
+  </ItemGroup>
+  <!-- BWIC Penetration layouts: the pyRevit XAML verbatim, loaded at runtime by UI\BwicPenetration\BwiUi.cs (its handler names are
+       lifted out and wired in code). Embedded as RevoBIM.UI.BwicPenetration.Layouts.<file>. -->
+  <ItemGroup>
+    <Page Remove="UI\BwicPenetration\Layouts\**" />
+    <None Remove="UI\BwicPenetration\Layouts\**" />
+    <EmbeddedResource Include="UI\BwicPenetration\Layouts\*.xaml" LogicalName="RevoBIM.UI.BwicPenetration.Layouts.%(Filename)%(Extension)" />
   </ItemGroup>
   <!-- Per-user deploy for the version being built: no admin rights needed. Copies the DLL and writes the .addin manifest. -->
   <Target Name="DeployAddin" AfterTargets="Build">
