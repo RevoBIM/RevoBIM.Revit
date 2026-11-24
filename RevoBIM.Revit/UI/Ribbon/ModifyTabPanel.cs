@@ -15,19 +15,21 @@ using AW = Autodesk.Windows;
 namespace RevoBIM.UI.Ribbon
 {
     /// <summary>
-    /// Two RevoBIM panels on Revit's Modify tab, each shown only for the selection it is for:
+    /// Three RevoBIM panels on Revit's Modify tab, each shown only for the selection it is for:
     ///
     /// - "RevoBIM" (Pro Sheets Exporter, Revision Manager): while a sheet or a view is selected -
     ///   in the Project Browser, a view placed on a sheet (a viewport counts as its view), or the
     ///   sheet's title block picked in the sheet view (that is how a sheet is selected on screen).
+    /// - "Revisions" (Revision Manager alone): while a revision cloud is selected. Not shown beside
+    ///   the "RevoBIM" panel, which already has the button.
     /// - "Nudge" (Nudge Up, Nudge Down): while model elements are selected.
     ///
-    /// With nothing selected, or anything else, both are hidden.
+    /// With nothing selected, or anything else, all are hidden.
     ///
     /// Revit's API can only add panels to an add-in's own tab, so the panels are built on the
-    /// RevoBIM tab with the normal API (App.cs) and then moved across with AdWindows, the
-    /// ribbon library Revit itself is built on. The buttons keep their command bindings through
-    /// the move.
+    /// RevoBIM tab with the normal API (App.cs builds "RevoBIM" and "Nudge"; Install builds
+    /// "Revisions") and then moved across with AdWindows, the ribbon library Revit itself is
+    /// built on. The buttons keep their command bindings through the move.
     ///
     /// Why this is more than flipping IsVisible on each selection: Revit rebuilds parts of the
     /// Modify tab as the selection changes (it becomes "Modify | Walls" and so on) and can put a
@@ -45,6 +47,8 @@ namespace RevoBIM.UI.Ribbon
         public const string PanelName = "RevoBIM";
         /// <summary>The "Nudge" panel (Nudge Up, Nudge Down) moved to the Modify tab alongside it.</summary>
         public const string NudgePanelName = "Nudge";
+        /// <summary>The "Revisions" panel (Revision Manager alone) shown for a selected revision cloud.</summary>
+        public const string CloudPanelName = "Revisions";
         private const string ModifyTabId = "Modify";
 
         private static string ownTab;
@@ -52,10 +56,12 @@ namespace RevoBIM.UI.Ribbon
         private static AW.RibbonTab modify;
         private static AW.RibbonPanel sheetPanel;
         private static AW.RibbonPanel nudgePanel;
+        private static AW.RibbonPanel cloudPanel;
 
         // What the current selection says each panel should do.
         private static bool wantSheet;
         private static bool wantNudge;
+        private static bool wantCloud;
         private static string seenToken = "";
         private static bool applying;
         private static int settleLeft;
@@ -79,6 +85,7 @@ namespace RevoBIM.UI.Ribbon
             {
                 ui = Dispatcher.CurrentDispatcher;
                 LogReset("RevoBIM Modify tab panels - " + BuildInfo());
+                CreateCloudPanel(app, tabName);
                 if (!Move())
                 {
                     app.ControlledApplication.ApplicationInitialized += (sender, args) =>
@@ -93,6 +100,63 @@ namespace RevoBIM.UI.Ribbon
             catch (Exception err)
             {
                 Log("install failed: " + err);
+            }
+        }
+
+        // ======================================================================
+        // the Revisions panel
+        // ======================================================================
+
+        /// <summary>
+        /// Build the "Revisions" panel (Revision Manager alone) on the RevoBIM tab, to be moved to the
+        /// Modify tab with the others. A failure here only loses this panel.
+        /// </summary>
+        private static void CreateCloudPanel(UIControlledApplication app, string tabName)
+        {
+            try
+            {
+                RibbonPanel panel = app.CreateRibbonPanel(tabName, CloudPanelName);
+                panel.AddItem(new PushButtonData(
+                    "RevoBIM_RevisionManager_Cloud", "Revision\nManager", Assembly.GetExecutingAssembly().Location,
+                    typeof(Commands.RevisionManagerCommand).FullName)
+                {
+                    ToolTip = "RevoBIM Revision Manager. Add, edit, reorder, merge and delete the project's revisions, " +
+                              "with how many sheets use each one.\n\nOpens modeless, and picking a revision cloud in a " +
+                              "view takes the list to its revision. Nothing is written until Apply.",
+                    AvailabilityClassName = typeof(Commands.ProjectDocumentAvailability).FullName,
+                    LargeImage = Icon("RevisionManager", 32),
+                    Image = Icon("RevisionManager", 16),
+                });
+            }
+            catch (Exception err)
+            {
+                Log("could not build the Revisions panel: " + err.Message);
+            }
+        }
+
+        /// <summary>A tool's embedded ribbon icon (Resources\&lt;tool&gt;\icon.png), or null if it cannot be read.</summary>
+        private static System.Windows.Media.Imaging.BitmapImage Icon(string tool, int size)
+        {
+            try
+            {
+                using (Stream stream = Assembly.GetExecutingAssembly()
+                                               .GetManifestResourceStream("RevoBIM.Resources." + tool + ".icon.png"))
+                {
+                    if (stream == null) return null;
+                    var image = new System.Windows.Media.Imaging.BitmapImage();
+                    image.BeginInit();
+                    image.StreamSource = stream;
+                    image.DecodePixelWidth = size;
+                    image.DecodePixelHeight = size;
+                    image.CacheOption = System.Windows.Media.Imaging.BitmapCacheOption.OnLoad;
+                    image.EndInit();
+                    image.Freeze();
+                    return image;
+                }
+            }
+            catch (Exception)
+            {
+                return null;
             }
         }
 
@@ -138,9 +202,27 @@ namespace RevoBIM.UI.Ribbon
                     Log("could not move the Nudge panel to the Modify tab: " + err);
                 }
 
+                // Likewise the Revisions panel.
+                try
+                {
+                    AW.RibbonPanel cloud = own.Panels.FirstOrDefault(p => p.Source != null && p.Source.Title == CloudPanelName);
+                    if (cloud != null)
+                    {
+                        own.Panels.Remove(cloud);
+                        found.Panels.Add(cloud);
+                        cloud.IsVisible = false;
+                        cloudPanel = cloud;
+                    }
+                }
+                catch (Exception err)
+                {
+                    Log("could not move the Revisions panel to the Modify tab: " + err);
+                }
+
                 Watch(ribbon);
-                Log("moved: RevoBIM panel" + (nudgePanel != null ? " and Nudge panel" : " (Nudge panel not found)") +
-                    " to the Modify tab, both hidden until a selection asks for them");
+                Log("moved to the Modify tab, all hidden until a selection asks for them: RevoBIM panel" +
+                    (nudgePanel != null ? ", Nudge panel" : " (Nudge panel not found)") +
+                    (cloudPanel != null ? ", Revisions panel" : " (Revisions panel not found)"));
                 DumpTabs("after the move");
                 return true;
             }
@@ -156,9 +238,8 @@ namespace RevoBIM.UI.Ribbon
         {
             try
             {
-                foreach (AW.RibbonPanel panel in new[] { sheetPanel, nudgePanel })
+                foreach (AW.RibbonPanel panel in Panels())
                 {
-                    if (panel == null) continue;
                     AW.RibbonPanel p = panel;
                     p.PropertyChanged += (sender, args) =>
                     {
@@ -202,6 +283,7 @@ namespace RevoBIM.UI.Ribbon
                 Log("selection: could not read it: " + err.Message);
                 wantSheet = false;
                 wantNudge = false;
+                wantCloud = false;
                 Settle();
             }
         }
@@ -248,11 +330,13 @@ namespace RevoBIM.UI.Ribbon
 
         /// <summary>
         /// Sort the selection: a sheet or view (Project Browser, or a viewport on a sheet) wants the
-        /// RevoBIM panel; a model element wants the Nudge panel; anything else wants neither.
+        /// RevoBIM panel; a revision cloud wants the Revisions panel (unless the RevoBIM panel, which has
+        /// the same button, is already showing); a model element wants the Nudge panel; anything else
+        /// wants none.
         /// </summary>
         private static void Decide(Document doc, ICollection<ElementId> ids, string source)
         {
-            int sheets = 0, views = 0, viewports = 0, models = 0, other = 0;
+            int sheets = 0, views = 0, viewports = 0, clouds = 0, models = 0, other = 0;
             var otherKinds = new List<string>();
             if (doc != null && ids != null)
             {
@@ -263,6 +347,7 @@ namespace RevoBIM.UI.Ribbon
                     // A sheet, or its title block picked in the sheet view, counts as a sheet.
                     if (element is ViewSheet || IsSheetItem(element)) sheets++;
                     else if (element is Viewport) viewports++;
+                    else if (element is RevisionCloud) clouds++;
                     else if (element is View view) { if (!view.IsTemplate) views++; else other++; }
                     else if (element.Category != null && element.Category.CategoryType == CategoryType.Model) models++;
                     else
@@ -277,23 +362,28 @@ namespace RevoBIM.UI.Ribbon
             seenToken = Token(doc, ids ?? new List<ElementId>());
 
             // The sheet and view tools are for projects: not offered in the family editor.
-            bool wantedSheet = doc != null && !doc.IsFamilyDocument && (sheets + views + viewports) > 0;
+            bool project = doc != null && !doc.IsFamilyDocument;
+            bool wantedSheet = project && (sheets + views + viewports) > 0;
+            bool wantedCloud = project && clouds > 0 && !wantedSheet;
             bool wantedNudge = models > 0;
-            bool changed = wantedSheet != wantSheet || wantedNudge != wantNudge;
+            bool changed = wantedSheet != wantSheet || wantedNudge != wantNudge || wantedCloud != wantCloud;
             wantSheet = wantedSheet;
             wantNudge = wantedNudge;
+            wantCloud = wantedCloud;
 
             // One line per different kind of selection, not per click.
-            string kind = sheets + "/" + views + "/" + viewports + "/" + models + "/" + other + "/" + string.Join(",", otherKinds);
+            string kind = sheets + "/" + views + "/" + viewports + "/" + clouds + "/" + models + "/" + other + "/" +
+                          string.Join(",", otherKinds);
             if (changed || kind != lastKind)
             {
                 lastKind = kind;
                 fixLogged = 0;
-                Log(string.Format("{0}: sheets={1} views={2} viewports={3} model={4} other={5}{6} -> RevoBIM panel {7}, Nudge panel {8}{9}",
-                    source, sheets, views, viewports, models, other,
+                Log(string.Format("{0}: sheets={1} views={2} viewports={3} revision clouds={4} model={5} other={6}{7} -> RevoBIM panel {8}, Revisions panel {9}, Nudge panel {10}{11}",
+                    source, sheets, views, viewports, clouds, models, other,
                     otherKinds.Count > 0 ? " [" + string.Join("; ", otherKinds) + "]" : "",
-                    wantSheet ? "SHOWN" : "hidden", wantNudge ? "SHOWN" : "hidden", doc == null ? "" : "  doc=" + doc.Title));
-                if (changed && (wantSheet || wantNudge))
+                    wantSheet ? "SHOWN" : "hidden", wantCloud ? "SHOWN" : "hidden", wantNudge ? "SHOWN" : "hidden",
+                    doc == null ? "" : "  doc=" + doc.Title));
+                if (changed && (wantSheet || wantNudge || wantCloud))
                     DumpTabs("when a panel is wanted");
             }
             Settle();
@@ -323,14 +413,24 @@ namespace RevoBIM.UI.Ribbon
             }
         }
 
+        /// <summary>The panels that were found and moved to the Modify tab.</summary>
+        private static IEnumerable<AW.RibbonPanel> Panels()
+        {
+            return new[] { sheetPanel, nudgePanel, cloudPanel }.Where(panel => panel != null);
+        }
+
         private static bool Wanted(AW.RibbonPanel panel)
         {
-            return ReferenceEquals(panel, sheetPanel) ? wantSheet : wantNudge;
+            if (ReferenceEquals(panel, sheetPanel)) return wantSheet;
+            if (ReferenceEquals(panel, cloudPanel)) return wantCloud;
+            return wantNudge;
         }
 
         private static string NameOf(AW.RibbonPanel panel)
         {
-            return ReferenceEquals(panel, sheetPanel) ? PanelName : NudgePanelName;
+            if (ReferenceEquals(panel, sheetPanel)) return PanelName;
+            if (ReferenceEquals(panel, cloudPanel)) return CloudPanelName;
+            return NudgePanelName;
         }
 
         /// <summary>Apply now, and again a moment later: Revit finishes changing the tab after the event.</summary>
@@ -368,9 +468,9 @@ namespace RevoBIM.UI.Ribbon
             applying = true;
             try
             {
-                foreach (AW.RibbonPanel panel in new[] { sheetPanel, nudgePanel })
+                foreach (AW.RibbonPanel panel in Panels())
                 {
-                    if (panel != null && panel.IsVisible != Wanted(panel))
+                    if (panel.IsVisible != Wanted(panel))
                         panel.IsVisible = Wanted(panel);
                 }
             }
@@ -416,13 +516,13 @@ namespace RevoBIM.UI.Ribbon
                 var text = new StringBuilder("tabs (" + why + "), active=" + (ribbon.ActiveTab?.Id ?? "?") + ":");
                 foreach (AW.RibbonTab tab in ribbon.Tabs)
                 {
-                    bool ours = tab.Panels.Contains(sheetPanel) || (nudgePanel != null && tab.Panels.Contains(nudgePanel));
+                    bool ours = Panels().Any(panel => tab.Panels.Contains(panel));
                     if (!tab.IsVisible && !tab.IsContextualTab && !ours) continue; // the hidden ordinary tabs are noise
                     text.Append("\n    ").Append(tab.Id).Append(" \"").Append(tab.Title).Append("\" contextual=").Append(tab.IsContextualTab)
                         .Append(" merged=").Append(tab.IsMergedContextualTab).Append(" visible=").Append(tab.IsVisible)
                         .Append(" active=").Append(tab.IsActive).Append(" panels=").Append(tab.Panels.Count)
-                        .Append(ours ? "  <- holds RevoBIM panels (RevoBIM visible=" + sheetPanel.IsVisible +
-                                       (nudgePanel != null ? ", Nudge visible=" + nudgePanel.IsVisible : "") + ")" : "");
+                        .Append(ours ? "  <- holds RevoBIM panels (" +
+                                       string.Join(", ", Panels().Select(panel => NameOf(panel) + " visible=" + panel.IsVisible)) + ")" : "");
                 }
                 Log(text.ToString());
             }
