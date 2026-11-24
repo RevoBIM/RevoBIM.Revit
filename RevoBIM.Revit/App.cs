@@ -208,6 +208,19 @@ namespace RevoBIM
             };
             coordination.AddStackedItems(nudgeUp, nudgeDown, nudgeSettings);
 
+            // --- BWIC Tools (pyRevit: BWIC Tools.panel)
+            RibbonPanel bwicTools = app.CreateRibbonPanel(TabName, "BWIC Tools");
+            var bwicIdPush = new PushButtonData(
+                "RevoBIM_BwicIdPush", "BWIC ID\nPush", dll, typeof(Commands.BwicIdPushCommand).FullName)
+            {
+                ToolTip = "Push CLM_BWIC ID from a linked Generic Model element into BGL_BWIC ID on a host element. " +
+                          "Click the linked source, then the host target; repeats until Escape. Finishes silently.",
+                AvailabilityClassName = typeof(Commands.ProjectDocumentAvailability).FullName,
+                LargeImage = Icon("BwicIdPush", 32),
+                Image = Icon("BwicIdPush", 16),
+            };
+            bwicTools.AddItem(bwicIdPush);
+
             // --- FAB Automation (pyRevit: FAB Automation.panel)
             RibbonPanel fabAutomation = app.CreateRibbonPanel(TabName, "FAB Automation");
             var hangerAutomation = new PushButtonData(
@@ -238,6 +251,15 @@ namespace RevoBIM
             };
             management.AddItem(excelForRevit);
 
+            // BIM Tools: Filter Manager and Model Cleanup (Legend Creator now sits beside it on this panel).
+            var bimTools = new PulldownButtonData("RevoBIM_BIMTools", "BIM\nTools")
+            {
+                ToolTip = "BIM management tools: Filter Manager and Model Cleanup.",
+                LargeImage = Icon("ModelCleanup", 32),
+                Image = Icon("ModelCleanup", 16),
+            };
+            var bimToolsButton = management.AddItem(bimTools) as PulldownButton;
+
             var filterManager = new PushButtonData(
                 "RevoBIM_FilterManager", "Filter\nManager", dll, typeof(Commands.FilterManagerCommand).FullName)
             {
@@ -250,7 +272,7 @@ namespace RevoBIM
                 LargeImage = Icon("FilterManager", 32),
                 Image = Icon("FilterManager", 16),
             };
-            management.AddItem(filterManager);
+            bimToolsButton?.AddPushButton(filterManager);
 
             var modelCleanup = new PushButtonData(
                 "RevoBIM_ModelCleanup", "Model\nCleanup", dll, typeof(Commands.ModelCleanupCommand).FullName)
@@ -261,10 +283,8 @@ namespace RevoBIM
                 LargeImage = Icon("ModelCleanup", 32),
                 Image = Icon("ModelCleanup", 16),
             };
-            management.AddItem(modelCleanup);
+            bimToolsButton?.AddPushButton(modelCleanup);
 
-            // --- Project (pyRevit: Project.panel)
-            RibbonPanel project = app.CreateRibbonPanel(TabName, "Project");
             var legendCreator = new PushButtonData(
                 "RevoBIM_LegendCreator", "Legend\nCreator", dll, typeof(Commands.LegendCreatorCommand).FullName)
             {
@@ -275,7 +295,7 @@ namespace RevoBIM
                 LargeImage = Icon("LegendCreator", 32),
                 Image = Icon("LegendCreator", 16),
             };
-            project.AddItem(legendCreator);
+            management.AddItem(legendCreator);
 
             // --- Sheet Tools (pyRevit: Sheet Tools.panel)
             RibbonPanel sheetTools = app.CreateRibbonPanel(TabName, "Sheet Tools");

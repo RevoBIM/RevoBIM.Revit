@@ -16,7 +16,7 @@ Status values: Not started, Converted (built, not yet tried in Revit), Tested (w
 | Tag Aligner Settings | Annotation | Not started | In Tag Untangle stack. |
 | Tag Untangle Horizontal | Annotation | Not started | In Tag Untangle stack. |
 | Tag Untangle Vertical | Annotation | Not started | In Tag Untangle stack. |
-| BWIC ID Push | BWIC Tools | Not started |  |
+| BWIC ID Push | BWIC Tools | Converted | v1.2.0 port (add-in 0.10.0), button on a new "BWIC Tools" panel. Code in `Tools\BwicIdPush\BwicIdPushRun.cs`, command in `Commands\BwicIdPushCommand.cs`; no window. Debug log `%APPDATA%\RevoBIM\bwic_id_push_debug.txt` starts with a build line. Not yet tried in Revit. |
 | BWIC Penetration | BWIC Tools | Not started |  |
 | 3D Extend Settings | Coordination | Not started | In 3D Extend Tools pulldown. |
 | 3D Extend | Coordination | Not started | In 3D Extend Tools pulldown. |
