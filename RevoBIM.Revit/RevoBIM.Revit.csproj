@@ -2,6 +2,7 @@
 
   <!--
     One project, one build per Revit version. Pick the version with the configuration:
+      Debug R23 / Release R23   Revit 2023  net48
       Debug R24 / Release R24   Revit 2024  net48
       Debug R25 / Release R25   Revit 2025  net8.0-windows
       Debug R26 / Release R26   Revit 2026  net8.0-windows
@@ -10,7 +11,8 @@
     Command line: dotnet build RevoBIM.Revit.sln -c "Release R26"
   -->
   <PropertyGroup>
-    <Configurations>Debug;Release;Debug R24;Release R24;Debug R25;Release R25;Debug R26;Release R26;Debug R27;Release R27</Configurations>
+    <Configurations>Debug;Release;Debug R23;Release R23;Debug R24;Release R24;Debug R25;Release R25;Debug R26;Release R26;Debug R27;Release R27</Configurations>
+    <RevitVersion Condition="$(Configuration.EndsWith('R23'))">2023</RevitVersion>
     <RevitVersion Condition="$(Configuration.EndsWith('R25'))">2025</RevitVersion>
     <RevitVersion Condition="$(Configuration.EndsWith('R26'))">2026</RevitVersion>
     <RevitVersion Condition="$(Configuration.EndsWith('R27'))">2027</RevitVersion>
@@ -20,7 +22,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFramework Condition="'$(RevitVersion)' == '2024'">net48</TargetFramework>
+    <TargetFramework Condition="'$(RevitVersion)' == '2023' Or '$(RevitVersion)' == '2024'">net48</TargetFramework>
     <TargetFramework Condition="'$(RevitVersion)' == '2025' Or '$(RevitVersion)' == '2026'">net8.0-windows</TargetFramework>
     <TargetFramework Condition="'$(RevitVersion)' == '2027'">net10.0-windows</TargetFramework>
     <LangVersion>latest</LangVersion>
@@ -35,7 +37,7 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <EnableDefaultCompileItems>true</EnableDefaultCompileItems>
-    <Version>0.16.0</Version>
+    <Version>0.17.0</Version>
     <!-- REVIT2024, REVIT2025 ... for the few places the API differs between versions -->
     <DefineConstants>$(DefineConstants);REVIT$(RevitVersion)</DefineConstants>
     <!-- bin\<Configuration>\<framework>\ per version, so the builds never overwrite each other -->
@@ -54,6 +56,7 @@
 
   <!-- Revit API via Nice3point NuGet packages, the version matching the build. Reference only, never copied to the output. -->
   <PropertyGroup>
+    <RevitApiPackage Condition="'$(RevitVersion)' == '2023'">2023.0.1</RevitApiPackage>
     <RevitApiPackage Condition="'$(RevitVersion)' == '2024'">2024.2.0</RevitApiPackage>
     <RevitApiPackage Condition="'$(RevitVersion)' == '2025'">2025.4.60</RevitApiPackage>
     <RevitApiPackage Condition="'$(RevitVersion)' == '2026'">2026.4.10</RevitApiPackage>

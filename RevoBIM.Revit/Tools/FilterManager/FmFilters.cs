@@ -610,7 +610,7 @@ namespace RevoBIM.Tools.FilterManager
                     {
                         long parsed;
                         if (long.TryParse((rawValue ?? "").ToString().Trim(), out parsed))
-                            result = CallFactory(factory, pid, new ElementId(parsed));
+                            result = CallFactory(factory, pid, RevoBIM.Helpers.RevitCompat.Id(parsed));
                         else
                             throw new ArgumentException("'" + rawValue + "' is an element, so equals needs one of its values, not free text. Use contains for a text match.");
                     }

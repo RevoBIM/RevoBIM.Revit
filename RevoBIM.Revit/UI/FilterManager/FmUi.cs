@@ -670,7 +670,7 @@ namespace RevoBIM.UI.FilterManager
         {
             try
             {
-                string value = Autodesk.Revit.UI.UIThemeManager.CurrentCanvasTheme.ToString().ToLowerInvariant();
+                string value = RevoBIM.Helpers.RevitCompat.CanvasTheme().ToString().ToLowerInvariant();
                 if (value.Contains("dark")) return "dark";
                 if (value.Contains("light")) return "light";
             }

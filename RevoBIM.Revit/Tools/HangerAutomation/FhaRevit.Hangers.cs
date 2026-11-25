@@ -381,7 +381,7 @@ namespace RevoBIM.Tools.HangerAutomation
                 foreach (long k in keys)
                 {
                     Element e = null;
-                    try { e = doc.GetElement(new ElementId(k)); }
+                    try { e = doc.GetElement(RevoBIM.Helpers.RevitCompat.Id(k)); }
                     catch (Exception) { }
                     if (e != null) o.Add(e);
                 }

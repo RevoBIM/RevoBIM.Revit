@@ -355,7 +355,7 @@ namespace RevoBIM.Tools.ExcelForRevit
         /// <summary>ElementId from a number.</summary>
         public static ElementId MakeEid(long value)
         {
-            try { return new ElementId(value); }
+            try { return RevoBIM.Helpers.RevitCompat.Id(value); }
             catch (Exception) { return ElementId.InvalidElementId; }
         }
 

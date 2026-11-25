@@ -43,7 +43,7 @@ namespace RevoBIM.UI.Align3D
 
         public static string RevitTheme()
         {
-            try { return UIThemeManager.CurrentCanvasTheme == UITheme.Dark ? "dark" : "light"; } catch (Exception) { }
+            try { return RevoBIM.Helpers.RevitCompat.CanvasTheme() == UITheme.Dark ? "dark" : "light"; } catch (Exception) { }
             try { return UIThemeManager.CurrentTheme == UITheme.Dark ? "dark" : "light"; } catch (Exception) { return null; }
         }
 

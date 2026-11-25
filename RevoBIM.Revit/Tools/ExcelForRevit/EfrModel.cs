@@ -706,7 +706,7 @@ namespace RevoBIM.Tools.ExcelForRevit
                     try
                     {
                         if (targetEid == null)
-                            targetEid = new ElementId(targetInt);
+                            targetEid = RevoBIM.Helpers.RevitCompat.Id(targetInt);
                         elem = doc.GetElement(targetEid);
                     }
                     catch (Exception)

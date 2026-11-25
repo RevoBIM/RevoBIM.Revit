@@ -119,7 +119,7 @@ namespace RevoBIM.UI.HangerAutomation
         {
             try
             {
-                return Autodesk.Revit.UI.UIThemeManager.CurrentCanvasTheme == Autodesk.Revit.UI.UITheme.Dark;
+                return RevoBIM.Helpers.RevitCompat.CanvasTheme() == Autodesk.Revit.UI.UITheme.Dark;
             }
             catch (Exception)
             {

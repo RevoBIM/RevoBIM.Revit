@@ -46,7 +46,7 @@ namespace RevoBIM.Tools.ModelCleanup
 
         public static ElementId ToElementId(long value)
         {
-            return new ElementId(value);
+            return RevoBIM.Helpers.RevitCompat.Id(value);
         }
 
         public static string ElementName(Element element)

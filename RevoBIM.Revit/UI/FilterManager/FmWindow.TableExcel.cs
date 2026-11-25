@@ -567,7 +567,7 @@ namespace RevoBIM.UI.FilterManager
             {
                 long parsed;
                 if (long.TryParse((text ?? "").Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out parsed))
-                    return new ElementId(parsed);
+                    return RevoBIM.Helpers.RevitCompat.Id(parsed);
             }
             catch (Exception) { }
             return null;

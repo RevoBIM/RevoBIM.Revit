@@ -1,4 +1,4 @@
-#if !REVIT2024
+#if !REVIT2023 && !REVIT2024
 using System;
 using System.Collections.Generic;
 using System.IO;

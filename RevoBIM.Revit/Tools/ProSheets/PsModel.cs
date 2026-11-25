@@ -53,7 +53,7 @@ namespace RevoBIM.Tools.ProSheets
         /// </summary>
         public static ElementId MakeId(long value)
         {
-            return new ElementId(value);
+            return RevoBIM.Helpers.RevitCompat.Id(value);
         }
 
         /// <summary>

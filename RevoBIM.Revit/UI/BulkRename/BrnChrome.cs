@@ -394,12 +394,12 @@ namespace RevoBIM.UI.BulkRename
 
         // ---------- theme ----------
 
-        /// <summary>Revit's canvas. UIThemeManager.CurrentCanvasTheme, else the background colour it reports.</summary>
+        /// <summary>Revit's canvas. RevoBIM.Helpers.RevitCompat.CanvasTheme(), else the background colour it reports.</summary>
         private string CanvasTheme()
         {
             try
             {
-                return UIThemeManager.CurrentCanvasTheme == UITheme.Dark ? "dark" : "light";
+                return RevoBIM.Helpers.RevitCompat.CanvasTheme() == UITheme.Dark ? "dark" : "light";
             }
             catch (Exception)
             {

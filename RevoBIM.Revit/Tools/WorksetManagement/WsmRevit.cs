@@ -121,7 +121,7 @@ namespace RevoBIM.Tools.WorksetManagement
         /// <summary>'dark' / 'light' from Revit's canvas, or null.</summary>
         public static string CanvasTheme(Document document)
         {
-            try { return UIThemeManager.CurrentCanvasTheme == UITheme.Dark ? "dark" : "light"; } catch (Exception) { }
+            try { return RevoBIM.Helpers.RevitCompat.CanvasTheme() == UITheme.Dark ? "dark" : "light"; } catch (Exception) { }
             try { return UIThemeManager.CurrentTheme == UITheme.Dark ? "dark" : "light"; } catch (Exception) { }
             try
             {

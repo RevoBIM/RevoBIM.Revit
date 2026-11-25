@@ -238,7 +238,7 @@ namespace RevoBIM.Tools.FindInView
             {
                 try
                 {
-                    return doc.GetElement(new ElementId(number));
+                    return doc.GetElement(RevoBIM.Helpers.RevitCompat.Id(number));
                 }
                 catch (Exception)
                 {

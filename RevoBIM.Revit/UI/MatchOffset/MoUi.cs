@@ -69,7 +69,7 @@ namespace RevoBIM.UI.MatchOffset
         {
             try
             {
-                return UIThemeManager.CurrentCanvasTheme == UITheme.Dark ? Dark : Light;
+                return RevoBIM.Helpers.RevitCompat.CanvasTheme() == UITheme.Dark ? Dark : Light;
             }
             catch (Exception)
             {

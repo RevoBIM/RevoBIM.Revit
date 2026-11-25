@@ -1,5 +1,5 @@
 # Builds the Release DLL for every Revit version, then compiles the Inno Setup installer.
-# Output: dist\RevoBIM_Tools-<version>.exe  (installs Revit 2024, 2025, 2026 and 2027)
+# Output: dist\RevoBIM_Tools-<version>.exe  (installs Revit 2023, 2024, 2025, 2026 and 2027)
 # Usage:  powershell -ExecutionPolicy Bypass -File installer\build-installer.ps1
 #         add -SkipBuild to reuse the existing Release DLLs.
 param([switch]$SkipBuild)
@@ -11,6 +11,7 @@ $sln     = Join-Path $root 'RevoBIM.Revit.sln'
 
 # Revit version -> build configuration and output folder (must match RevoBIM.iss)
 $builds = [ordered]@{
+    '2023' = @{ Config = 'Release R23'; Framework = 'net48' }
     '2024' = @{ Config = 'Release R24'; Framework = 'net48' }
     '2025' = @{ Config = 'Release R25'; Framework = 'net8.0-windows' }
     '2026' = @{ Config = 'Release R26'; Framework = 'net8.0-windows' }

@@ -39,7 +39,7 @@ namespace RevoBIM.UI.AddinManager
         /// <summary>"dark", "light", or null where Revit will not say. The canvas is asked first, the ribbon theme second.</summary>
         public static string RevitTheme()
         {
-            try { return UIThemeManager.CurrentCanvasTheme == UITheme.Dark ? "dark" : "light"; } catch (Exception) { }
+            try { return RevoBIM.Helpers.RevitCompat.CanvasTheme() == UITheme.Dark ? "dark" : "light"; } catch (Exception) { }
             try { return UIThemeManager.CurrentTheme == UITheme.Dark ? "dark" : "light"; } catch (Exception) { }
             return null;
         }

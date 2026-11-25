@@ -18,13 +18,13 @@ namespace RevoBIM.Tools.ProSheets
         /// <summary>An ElementId from a key (ps_revisions._id; Revit 2024 has ElementId(Int64)).</summary>
         internal static ElementId Id(long value)
         {
-            return new ElementId(value);
+            return RevoBIM.Helpers.RevitCompat.Id(value);
         }
 
         /// <summary>An ElementId from a text key - int(value) in the Python, so it throws on bad text.</summary>
         internal static ElementId Id(string value)
         {
-            return new ElementId(long.Parse((value ?? "").Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture));
+            return RevoBIM.Helpers.RevitCompat.Id(long.Parse((value ?? "").Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture));
         }
 
         /// <summary>A List&lt;ElementId&gt;, which is what SetAdditionalRevisionIds takes.</summary>

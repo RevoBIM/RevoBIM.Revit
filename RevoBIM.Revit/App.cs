@@ -456,7 +456,7 @@ namespace RevoBIM
                 Image = Icon("About", 16),
             });
 
-#if !REVIT2024
+#if !REVIT2023 && !REVIT2024
             // Right-click menu (Revit 2025+): one creator for every RevoBIM entry, so each shows once:
             // "Open in ProSheets", "Express Export" and, with several items selected, "Run Bulk Rename".
             Commands.RevoBimContextMenu.Register(app);

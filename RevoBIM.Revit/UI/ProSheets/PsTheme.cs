@@ -341,7 +341,7 @@ namespace RevoBIM.UI.ProSheets
         {
             try
             {
-                Autodesk.Revit.UI.UITheme canvas = Autodesk.Revit.UI.UIThemeManager.CurrentCanvasTheme;
+                Autodesk.Revit.UI.UITheme canvas = RevoBIM.Helpers.RevitCompat.CanvasTheme();
                 if (canvas == Autodesk.Revit.UI.UITheme.Light) return "light";
                 if (canvas == Autodesk.Revit.UI.UITheme.Dark) return "dark";
             }

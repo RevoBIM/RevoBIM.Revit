@@ -309,7 +309,7 @@ namespace RevoBIM.Tools.HangerAutomation
                         if (pick.Rehosted)
                         {
                             string rl = "Fab hanger " + Inv(fid) + ": wrong association -> re-hosted to "
-                                        + string.Join(" + ", (sec.Keys ?? new List<long>()).Select(k => Describe(doc.GetElement(new ElementId(k)) ?? lead)));
+                                        + string.Join(" + ", (sec.Keys ?? new List<long>()).Select(k => Describe(doc.GetElement(RevoBIM.Helpers.RevitCompat.Id(k)) ?? lead)));
                             log.Add("   swap: " + rl.Substring(rl.IndexOf(':') + 2) + " (" + pick.Why + ")");
                             rehostLines.Add(rl);
                         }

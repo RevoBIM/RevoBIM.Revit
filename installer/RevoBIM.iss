@@ -6,6 +6,7 @@
 #define MyAppPublisher "RevoBIM LTD"
 ; One Release build per Revit version, made by build-installer.ps1
 #define Bin            "..\RevoBIM.Revit\bin"
+#define Build2023      Bin + "\Release R23\net48"
 #define Build2024      Bin + "\Release R24\net48"
 #define Build2025      Bin + "\Release R25\net8.0-windows"
 #define Build2026      Bin + "\Release R26\net8.0-windows"
@@ -30,7 +31,7 @@ VersionInfoDescription={#MyAppName} Setup
 UninstallDisplayName={#MyAppName} {#MyAppVersion}
 UninstallDisplayIcon={app}\revobim.ico
 SetupIconFile=assets\revobim.ico
-; Each Revit version gets its own subfolder: {app}\2024, {app}\2025, ...
+; Each Revit version gets its own subfolder: {app}\2023, {app}\2024, ...
 DefaultDirName={userappdata}\RevoBIM
 DisableWelcomePage=no
 DisableDirPage=yes
@@ -63,6 +64,7 @@ Name: "full";   Description: "All Revit versions"
 Name: "custom"; Description: "Custom"; Flags: iscustom
 
 [Components]
+Name: "r2023"; Description: "Revit 2023"; Types: full custom
 Name: "r2024"; Description: "Revit 2024"; Types: full custom
 Name: "r2025"; Description: "Revit 2025"; Types: full custom
 Name: "r2026"; Description: "Revit 2026"; Types: full custom
@@ -75,6 +77,8 @@ Name: "shortcuts"; Description: "Set the RevoBIM keyboard shortcuts in Revit (li
 [Files]
 ; Never ship RevitAPI*.dll - the Nice3point packages are reference only.
 Source: "assets\revobim.ico"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#Build2023}\RevoBIM.Revit.dll"; DestDir: "{app}\2023"; Flags: ignoreversion; Components: r2023
+Source: "{#Build2023}\RevoBIM.Revit.pdb"; DestDir: "{app}\2023"; Flags: ignoreversion skipifsourcedoesntexist; Components: r2023
 Source: "{#Build2024}\RevoBIM.Revit.dll"; DestDir: "{app}\2024"; Flags: ignoreversion; Components: r2024
 Source: "{#Build2024}\RevoBIM.Revit.pdb"; DestDir: "{app}\2024"; Flags: ignoreversion skipifsourcedoesntexist; Components: r2024
 Source: "{#Build2025}\RevoBIM.Revit.dll"; DestDir: "{app}\2025"; Flags: ignoreversion; Components: r2025
@@ -98,6 +102,8 @@ Source: "assets\shortcuts.rtf"; Flags: dontcopy
 [InstallDelete]
 ; Remove the previous version's files before copying the new ones,
 ; including the DLL's name before the project was renamed (RevoBIM.Revit2024.dll).
+Type: files; Name: "{app}\2023\*.dll"; Components: r2023
+Type: files; Name: "{app}\2023\*.pdb"; Components: r2023
 Type: files; Name: "{app}\2024\*.dll"; Components: r2024
 Type: files; Name: "{app}\2024\*.pdb"; Components: r2024
 Type: files; Name: "{app}\2025\*.dll"; Components: r2025
@@ -108,11 +114,13 @@ Type: files; Name: "{app}\2027\*.dll"; Components: r2027
 Type: files; Name: "{app}\2027\*.pdb"; Components: r2027
 
 [UninstallDelete]
+Type: filesandordirs; Name: "{app}\2023"
 Type: filesandordirs; Name: "{app}\2024"
 Type: filesandordirs; Name: "{app}\2025"
 Type: filesandordirs; Name: "{app}\2026"
 Type: filesandordirs; Name: "{app}\2027"
 Type: filesandordirs; Name: "{app}\ArcadeApp"
+Type: files; Name: "{userappdata}\Autodesk\Revit\Addins\2023\RevoBIM.addin"
 Type: files; Name: "{userappdata}\Autodesk\Revit\Addins\2024\RevoBIM.addin"
 Type: files; Name: "{userappdata}\Autodesk\Revit\Addins\2025\RevoBIM.addin"
 Type: files; Name: "{userappdata}\Autodesk\Revit\Addins\2026\RevoBIM.addin"
@@ -244,7 +252,7 @@ begin
     Rich.RTFText := Rtf;
 
   AddText(Page.Surface,
-    'Works with Revit 2024, 2025, 2026 and 2027. More tools arrive as they are converted.',
+    'Works with Revit 2023, 2024, 2025, 2026 and 2027. More tools arrive as they are converted.',
     0, Page.SurfaceHeight - ScaleY(32), W, ScaleY(32), 9, False, ColMuted);
 end;
 // Select Tasks page: the shortcuts as a table (shortcut in bold, then the tool), generated from
@@ -276,7 +284,7 @@ end;
 procedure InitializeWizard();
 var
   PrevVersion: String;
-  Years: array[0..3] of String;
+  Years: array[0..4] of String;
   I: Integer;
   AnyFound: Boolean;
 begin
@@ -303,12 +311,12 @@ begin
   WizardForm.TypesCombo.Visible := False;
   WizardForm.ComponentsDiskSpaceLabel.Visible := False;
 
-  Years[0] := '2024'; Years[1] := '2025'; Years[2] := '2026'; Years[3] := '2027';
+  Years[0] := '2023'; Years[1] := '2024'; Years[2] := '2025'; Years[3] := '2026'; Years[4] := '2027';
   AnyFound := False;
-  for I := 0 to 3 do
+  for I := 0 to 4 do
     if RevitFolderFound(Years[I]) then AnyFound := True;
   if AnyFound then
-    for I := 0 to 3 do
+    for I := 0 to 4 do
     begin
       WizardForm.ComponentsList.Checked[I] := RevitFolderFound(Years[I]);
       if RevitFolderFound(Years[I]) then
@@ -412,6 +420,7 @@ var
   ResultCode: Integer;
 begin
   Years := '';
+  if WizardIsComponentSelected('r2023') then Years := Years + ',2023';
   if WizardIsComponentSelected('r2024') then Years := Years + ',2024';
   if WizardIsComponentSelected('r2025') then Years := Years + ',2025';
   if WizardIsComponentSelected('r2026') then Years := Years + ',2026';
@@ -433,6 +442,7 @@ procedure CurStepChanged(CurStep: TSetupStep);
 begin
   if CurStep = ssPostInstall then
   begin
+    if WizardIsComponentSelected('r2023') then WriteManifest('2023');
     if WizardIsComponentSelected('r2024') then WriteManifest('2024');
     if WizardIsComponentSelected('r2025') then WriteManifest('2025');
     if WizardIsComponentSelected('r2026') then WriteManifest('2026');

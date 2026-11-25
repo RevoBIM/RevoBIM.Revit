@@ -66,7 +66,7 @@ namespace RevoBIM.UI.UnhideInView
         {
             try
             {
-                return UIThemeManager.CurrentCanvasTheme == UITheme.Dark ? "dark" : "light";
+                return RevoBIM.Helpers.RevitCompat.CanvasTheme() == UITheme.Dark ? "dark" : "light";
             }
             catch (Exception)
             {

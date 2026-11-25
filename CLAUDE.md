@@ -4,6 +4,7 @@ C# Revit add-in ("RevoBIM Tools") for Revit 2024, 2025, 2026 and 2027, being con
 
 ## Build and deploy
 - One project (`RevoBIM.Revit\RevoBIM.Revit.csproj`, assembly `RevoBIM.Revit.dll`), one build per Revit version, chosen by configuration:
+  `Debug R23`/`Release R23` = Revit 2023, net48 (also in the installer; 2024-only API goes through `Helpers\Revit2023Compat.cs`; no context menu, Model Cleanup purge scan finds nothing);
   `Debug R24`/`Release R24` = Revit 2024, net48; `R25` and `R26` = net8.0-windows; `R27` = net10.0-windows. Plain `Debug`/`Release` = Revit 2024.
   The symbol `REVIT2024` / `REVIT2025` / `REVIT2026` / `REVIT2027` is defined for the build, for the rare `#if` where the API differs.
 - The Revit API comes from the Nice3point NuGet packages (`Nice3point.Revit.Api.RevitAPI` / `RevitAPIUI`), the version matching the build (set in the csproj). Do not reference DLLs from `C:\Program Files\Autodesk\Revit 20xx`. Never copy Revit DLLs into the output; check `bin\` after changing references.

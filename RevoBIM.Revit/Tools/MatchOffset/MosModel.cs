@@ -210,7 +210,7 @@ namespace RevoBIM.Tools.MatchOffset
         public static Connector ConnectorByKey(Document doc, MosConKey key)
         {
             if (key == null) return null;
-            Element owner = doc.GetElement(new ElementId(key.Owner));
+            Element owner = doc.GetElement(RevoBIM.Helpers.RevitCompat.Id(key.Owner));
             if (owner == null) return null;
             foreach (Connector connector in Connectors(owner))
             {

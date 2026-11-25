@@ -15,7 +15,7 @@
 #   - nothing is written when the shortcuts are already as wanted.
 # What it did goes to %APPDATA%\RevoBIM\logs\keyboard_shortcuts.txt. It never fails the install.
 param(
-    [string]$Years = '2024,2025,2026,2027',
+    [string]$Years = '2023,2024,2025,2026,2027',
     [string]$Map = (Join-Path $PSScriptRoot 'shortcuts.txt'),
     [string]$AppData = $env:APPDATA,
     [switch]$DryRun
