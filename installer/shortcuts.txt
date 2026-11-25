@@ -12,9 +12,10 @@
 H6|FAB Automation|RevoBIM_HangerAutomation|Hanger\nAutomation
 XS|Sheet Tools|RevoBIM_ProSheetsExporter|Pro Sheets\nExporter
 R5|Sheet Tools|RevoBIM_RevisionManager|Revision\nManager
-NU|Coordination|RevoBIM_NudgeUp|Nudge Up
-ND|Coordination|RevoBIM_NudgeDown|Nudge Down
+NU|Coordination%RevoBIM_Routines|RevoBIM_NudgeUp|Nudge Up
+ND|Coordination%RevoBIM_Routines|RevoBIM_NudgeDown|Nudge Down
 A1|Coordination|RevoBIM_FindInView|Find in\nView
-AB|Coordination%RevoBIM_MatchOffset|RevoBIM_MatchOffsetBottom|Match Offset Bottom
-AQ|Coordination%RevoBIM_MatchOffset|RevoBIM_MatchOffsetMiddle|Match Offset Middle
+AB|Coordination%RevoBIM_Routines|RevoBIM_MatchOffsetBottom|Match Offset Bottom
+AQ|Coordination%RevoBIM_Routines|RevoBIM_MatchOffsetMiddle|Match Offset Middle
 3A|Coordination%RevoBIM_ModelTools|RevoBIM_Align3D|3D Align
+W2|BWIC Tools%RevoBIM_BwicTools|RevoBIM_BwicPenetration|BWIC\nPenetration

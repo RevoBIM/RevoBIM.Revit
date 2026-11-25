@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Reflection;
 using System.Windows.Media.Imaging;
@@ -15,13 +15,23 @@ namespace RevoBIM
         {
             try { app.CreateRibbonTab(TabName); } catch (Exception) { /* tab already exists */ }
 
+            // Addin Manager's dockable pane: Revit only accepts a registration while it is starting up.
+            UI.AddinManager.AmDock.Register(app);
+
             string dll = Assembly.GetExecutingAssembly().Location;
 
             // --- Coordination (pyRevit: Coordination.panel). Routines is a dropdown that will collect
             //     the routine tools as they are converted; RevoBIM Arcade is its first member.
             // --- Annotation (pyRevit: Annotation.panel): the first panel on the tab, as in pyRevit.
             RibbonPanel annotation = app.CreateRibbonPanel(TabName, "Annotation");
-            annotation.AddItem(new PushButtonData(
+            var annotationTools = new PulldownButtonData("RevoBIM_AnnotationTools", "Annotation\nTools")
+            {
+                ToolTip = "Annotation tools: Number Sequencer, Bulk Rename and Sheet Name Push.",
+                LargeImage = Icon("AnnotationToolsFolder", 32),
+                Image = Icon("AnnotationToolsFolder", 16),
+            };
+            var annotationToolsButton = annotation.AddItem(annotationTools) as PulldownButton;
+            annotationToolsButton?.AddPushButton(new PushButtonData(
                 "RevoBIM_NumberSequencer", "Number\nSequencer", dll, typeof(Commands.NumberSequencerCommand).FullName)
             {
                 ToolTip = "RevoBIM Number Sequencer - number duct and pipe systems into a parameter you choose, branches first then on up the main. " +
@@ -42,17 +52,19 @@ namespace RevoBIM
                 LargeImage = Icon("FindInView", 32),
                 Image = Icon("FindInView", 16),
             };
-            coordination.AddItem(findInView);
+            // Dropdowns come first on a panel; Find in View is added after them (below Routines).
 
             // Match Offset (pyRevit: Match Offset.pulldown): take the bottom, middle or top offset off one element and put the
             // elements clicked next on the same offset. Bottom, Middle and Top open no window; give them keyboard shortcuts.
-            var matchOffset = new PulldownButtonData("RevoBIM_MatchOffset", "Match\nOffset")
+            // Routines holds the Match Offset commands (a dropdown cannot sit inside another dropdown).
+            var routines = new PulldownButtonData("RevoBIM_Routines", "Routines")
             {
-                ToolTip = "Take the top, middle or bottom offset off one element and put the next elements you click on the same offset.",
-                LargeImage = Icon("MatchOffset", 32),
-                Image = Icon("MatchOffset", 16),
+                ToolTip = "Routine tools.",
+                LargeImage = Icon("Routines", 32),
+                Image = Icon("Routines", 16),
             };
-            var matchOffsetButton = coordination.AddItem(matchOffset) as PulldownButton;
+            var routinesButton = coordination.AddItem(routines) as PulldownButton;
+            var matchOffsetButton = routinesButton;
             if (matchOffsetButton != null)
             {
                 matchOffsetButton.AddPushButton(new PushButtonData(
@@ -60,24 +72,24 @@ namespace RevoBIM
                 {
                     ToolTip = "Match Offset Bottom. First click takes the bottom offset off an element; every click after it puts that " +
                               "element's bottom on the same offset. Escape finishes. Give it a keyboard shortcut and the whole tool is keys, click, click.",
-                    LargeImage = Icon("MatchOffsetBottom", 32),
                     Image = Icon("MatchOffsetBottom", 16),
+                    LargeImage = Icon("MatchOffsetBottom", 24),
                 });
                 matchOffsetButton.AddPushButton(new PushButtonData(
                     "RevoBIM_MatchOffsetMiddle", "Match Offset Middle", dll, typeof(Commands.MatchOffsetMiddleCommand).FullName)
                 {
                     ToolTip = "Match Offset Middle. First click takes the middle offset off an element; every click after it puts that " +
                               "element's middle on the same offset. Escape finishes. Give it a keyboard shortcut and the whole tool is keys, click, click.",
-                    LargeImage = Icon("MatchOffsetMiddle", 32),
                     Image = Icon("MatchOffsetMiddle", 16),
+                    LargeImage = Icon("MatchOffsetMiddle", 24),
                 });
                 matchOffsetButton.AddPushButton(new PushButtonData(
                     "RevoBIM_MatchOffsetTop", "Match Offset Top", dll, typeof(Commands.MatchOffsetTopCommand).FullName)
                 {
                     ToolTip = "Match Offset Top. First click takes the top offset off an element; every click after it puts that " +
                               "element's top on the same offset. Escape finishes. Give it a keyboard shortcut and the whole tool is keys, click, click.",
-                    LargeImage = Icon("MatchOffsetTop", 32),
                     Image = Icon("MatchOffsetTop", 16),
+                    LargeImage = Icon("MatchOffsetTop", 24),
                 });
                 matchOffsetButton.AddPushButton(new PushButtonData(
                     "RevoBIM_MatchOffsetSlope", "Match Offset Slope", dll, typeof(Commands.MatchOffsetSlopeCommand).FullName)
@@ -85,16 +97,16 @@ namespace RevoBIM
                     ToolTip = "Match Offset Slope. First click takes the fall and elevation off a main; every click after it puts a branch run " +
                               "on that fall and lands it on the main's centreline where the two cross in plan, then trims and fits it. " +
                               "For connecting an existing drainage run into a main.",
-                    LargeImage = Icon("MatchOffsetSlope", 32),
                     Image = Icon("MatchOffsetSlope", 16),
+                    LargeImage = Icon("MatchOffsetSlope", 24),
                 });
                 matchOffsetButton.AddPushButton(new PushButtonData(
                     "RevoBIM_MatchOffsetSettings", "Match Offset Settings", dll, typeof(Commands.MatchOffsetSettingsCommand).FullName)
                 {
                     ToolTip = "Rounding, what can be picked, how results are reported, and a one press mapping of the commands onto keyboard shortcuts.",
                     AvailabilityClassName = typeof(Commands.AlwaysAvailable).FullName,
-                    LargeImage = Icon("MatchOffsetSettings", 32),
                     Image = Icon("MatchOffsetSettings", 16),
+                    LargeImage = Icon("MatchOffsetSettings", 24),
                 });
             }
 
@@ -102,8 +114,8 @@ namespace RevoBIM
             var modelTools = new PulldownButtonData("RevoBIM_ModelTools", "Model\nTools")
             {
                 ToolTip = "Tools that change the geometry of the model.",
-                LargeImage = Icon("ModelTools", 32),
-                Image = Icon("ModelTools", 16),
+                LargeImage = Icon("ModelToolsFolder", 32),
+                Image = Icon("ModelToolsFolder", 16),
             };
             var modelToolsButton = coordination.AddItem(modelTools) as PulldownButton;
             if (modelToolsButton != null)
@@ -131,16 +143,10 @@ namespace RevoBIM
                 });
             }
 
-            var routines = new PulldownButtonData("RevoBIM_Routines", "Routines")
-            {
-                ToolTip = "Routine tools.",
-                LargeImage = Icon("Routines", 32),
-                Image = Icon("Routines", 16),
-            };
-            var routinesButton = coordination.AddItem(routines) as PulldownButton;
             if (routinesButton != null)
             {
-                routinesButton.AddPushButton(new PushButtonData(
+                routinesButton.AddSeparator();
+                annotation.AddItem(new PushButtonData(
                     "RevoBIM_BulkRename", "Bulk\nRename", dll, typeof(Commands.BulkRenameCommand).FullName)
                 {
                     ToolTip = "Select views, sheets, schedules or families in the Project Browser, then run this to " +
@@ -151,7 +157,7 @@ namespace RevoBIM
                     LargeImage = Icon("BulkRename", 32),
                     Image = Icon("BulkRename", 16),
                 });
-                routinesButton.AddPushButton(new PushButtonData(
+                annotationToolsButton?.AddPushButton(new PushButtonData(
                     "RevoBIM_SheetNamePush", "Sheet Name\nPush", dll, typeof(Commands.SheetNamePushCommand).FullName)
                 {
                     ToolTip = "Browse, edit and stamp sheets in one window.\n\nTick sheets, click a row to highlight, Ctrl+click to add to " +
@@ -172,8 +178,8 @@ namespace RevoBIM
                               "with a count of hidden elements for every view in the project. Tick elements, categories or whole " +
                               "views and Unhide. Modeless - Revit stays usable while it is open.",
                     AvailabilityClassName = typeof(Commands.ProjectDocumentAvailability).FullName,
-                    LargeImage = Icon("UnhideInView", 32),
                     Image = Icon("UnhideInView", 16),
+                    LargeImage = Icon("UnhideInView", 24),
                 });
                 routinesButton.AddPushButton(new PushButtonData(
                     "RevoBIM_Arcade", "RevoBIM\nArcade", dll, typeof(Commands.ArcadeCommand).FullName)
@@ -184,10 +190,12 @@ namespace RevoBIM
                               "starred as your default, or the game picker.\n\n" +
                               "Three slow clicks on the RevoBIM logo of any RevoBIM tool open it too.",
                     AvailabilityClassName = typeof(Commands.AlwaysAvailability).FullName,
-                    LargeImage = Icon("Arcade", 32),
                     Image = Icon("Arcade", 16),
+                    LargeImage = Icon("Arcade", 24),
                 });
             }
+
+            coordination.AddItem(findInView);
 
             // Nudge Up / Down / Settings: the pyRevit "stack3" stack, three small buttons.
             string nudgeUpTip = "Raise elements by the Nudge increment (default 50mm). " +
@@ -202,13 +210,13 @@ namespace RevoBIM
             {
                 ToolTip = nudgeUpTip,
                 Image = Icon("NudgeUp", 16),
-                LargeImage = Icon("NudgeUp", 32),
+                LargeImage = Icon("NudgeUp", 24),
             };
             var nudgeDown = new PushButtonData("RevoBIM_NudgeDown", "Nudge Down", dll, typeof(Commands.NudgeDownCommand).FullName)
             {
                 ToolTip = nudgeDownTip,
                 Image = Icon("NudgeDown", 16),
-                LargeImage = Icon("NudgeDown", 32),
+                LargeImage = Icon("NudgeDown", 24),
             };
             var nudgeSettings = new PushButtonData("RevoBIM_NudgeSettings", "Nudge Settings", dll, typeof(Commands.NudgeSettingsCommand).FullName)
             {
@@ -216,9 +224,13 @@ namespace RevoBIM
                           "Settings are shared by all three buttons and are kept between sessions.",
                 AvailabilityClassName = typeof(Commands.AlwaysAvailable).FullName,
                 Image = Icon("NudgeSettings", 16),
-                LargeImage = Icon("NudgeSettings", 32),
+                LargeImage = Icon("NudgeSettings", 24),
             };
-            coordination.AddStackedItems(nudgeUp, nudgeDown, nudgeSettings);
+            // Nudge Up / Down / Settings live in Routines (menu entries use the small 16px icon).
+            routinesButton?.AddSeparator();
+            routinesButton?.AddPushButton(nudgeUp);
+            routinesButton?.AddPushButton(nudgeDown);
+            routinesButton?.AddPushButton(nudgeSettings);
 
             // --- BWIC Tools (pyRevit: BWIC Tools.panel)
             RibbonPanel bwicTools = app.CreateRibbonPanel(TabName, "BWIC Tools");
@@ -231,7 +243,14 @@ namespace RevoBIM
                 LargeImage = Icon("BwicIdPush", 32),
                 Image = Icon("BwicIdPush", 16),
             };
-            bwicTools.AddItem(bwicIdPush);
+            var bwicDropdown = new PulldownButtonData("RevoBIM_BwicTools", "BWIC\nTools")
+            {
+                ToolTip = "BWIC tools: BWIC ID Push and BWIC Penetration.",
+                LargeImage = Icon("BwicToolsFolder", 32),
+                Image = Icon("BwicToolsFolder", 16),
+            };
+            var bwicDropdownButton = bwicTools.AddItem(bwicDropdown) as PulldownButton;
+            bwicDropdownButton?.AddPushButton(bwicIdPush);
             var bwicPenetration = new PushButtonData(
                 "RevoBIM_BwicPenetration", "BWIC\nPenetration", dll, typeof(Commands.BwicPenetrationCommand).FullName)
             {
@@ -247,7 +266,7 @@ namespace RevoBIM
                 LargeImage = Icon("BwicPenetration", 32),
                 Image = Icon("BwicPenetration", 16),
             };
-            bwicTools.AddItem(bwicPenetration);
+            bwicDropdownButton?.AddPushButton(bwicPenetration);
 
             // --- FAB Automation (pyRevit: FAB Automation.panel)
             RibbonPanel fabAutomation = app.CreateRibbonPanel(TabName, "FAB Automation");
@@ -277,17 +296,6 @@ namespace RevoBIM
                 LargeImage = Icon("ExcelForRevit", 32),
                 Image = Icon("ExcelForRevit", 16),
             };
-            management.AddItem(excelForRevit);
-
-            // BIM Tools: Filter Manager and Model Cleanup (Legend Creator now sits beside it on this panel).
-            var bimTools = new PulldownButtonData("RevoBIM_BIMTools", "BIM\nTools")
-            {
-                ToolTip = "BIM management tools: Filter Manager and Model Cleanup.",
-                LargeImage = Icon("ModelCleanup", 32),
-                Image = Icon("ModelCleanup", 16),
-            };
-            var bimToolsButton = management.AddItem(bimTools) as PulldownButton;
-
             var filterManager = new PushButtonData(
                 "RevoBIM_FilterManager", "Filter\nManager", dll, typeof(Commands.FilterManagerCommand).FullName)
             {
@@ -300,8 +308,6 @@ namespace RevoBIM
                 LargeImage = Icon("FilterManager", 32),
                 Image = Icon("FilterManager", 16),
             };
-            bimToolsButton?.AddPushButton(filterManager);
-
             var modelCleanup = new PushButtonData(
                 "RevoBIM_ModelCleanup", "Model\nCleanup", dll, typeof(Commands.ModelCleanupCommand).FullName)
             {
@@ -311,8 +317,6 @@ namespace RevoBIM
                 LargeImage = Icon("ModelCleanup", 32),
                 Image = Icon("ModelCleanup", 16),
             };
-            bimToolsButton?.AddPushButton(modelCleanup);
-
             var legendCreator = new PushButtonData(
                 "RevoBIM_LegendCreator", "Legend\nCreator", dll, typeof(Commands.LegendCreatorCommand).FullName)
             {
@@ -323,6 +327,31 @@ namespace RevoBIM
                 LargeImage = Icon("LegendCreator", 32),
                 Image = Icon("LegendCreator", 16),
             };
+
+            var worksetManagement = new PushButtonData(
+                "RevoBIM_WorksetManagement", "Workset\nManagement", dll, typeof(Commands.WorksetManagementCommand).FullName)
+            {
+                ToolTip = "Manage worksets in a sortable, filterable table - rename in bulk, delete or merge several at once moving their " +
+                          "elements to one workset, create through Excel - see them in a 3D view coloured by workset, work on scope boxes, and " +
+                          "assign elements onto worksets in order, by category or by routine templates built like Revit's view filters. " +
+                          "Worksets are checked out automatically when a change needs it. Opens modeless.",
+                AvailabilityClassName = typeof(Commands.ProjectDocumentAvailability).FullName,
+                LargeImage = Icon("WorksetManagement", 32),
+                Image = Icon("WorksetManagement", 16),
+            };
+
+            // BIM Tools (first on the panel): Filter Manager, Model Cleanup and Workset Management.
+            var bimTools = new PulldownButtonData("RevoBIM_BIMTools", "BIM\nTools")
+            {
+                ToolTip = "BIM management tools: Filter Manager, Model Cleanup and Workset Management.",
+                LargeImage = Icon("BIMToolsFolder", 32),
+                Image = Icon("BIMToolsFolder", 16),
+            };
+            var bimToolsButton = management.AddItem(bimTools) as PulldownButton;
+            bimToolsButton?.AddPushButton(filterManager);
+            bimToolsButton?.AddPushButton(modelCleanup);
+            bimToolsButton?.AddPushButton(worksetManagement);
+            management.AddItem(excelForRevit);
             management.AddItem(legendCreator);
             var familyFindReplace = new PushButtonData(
                 "RevoBIM_FamilyFindReplace", "Family Find\n& Replace", dll, typeof(Commands.FamilyFindReplaceCommand).FullName)
@@ -337,6 +366,16 @@ namespace RevoBIM
                 Image = Icon("FamilyFindReplace", 16),
             };
             management.AddItem(familyFindReplace);
+            management.AddItem(new PushButtonData(
+                "RevoBIM_AddinManager", "Addin\nManager", dll, typeof(Commands.AddinManagerCommand).FullName)
+            {
+                ToolTip = "Every button any addin has put on Revit's ribbon, in one searchable dockable panel, grouped by the " +
+                          "addin's tab. Search by name, or by what an addin does. Favourites, pins, Quick Access Toolbar and " +
+                          "keyboard shortcuts from the right-click menu. Click to show the panel, click again to hide it.",
+                AvailabilityClassName = typeof(Commands.AlwaysAvailable).FullName,
+                LargeImage = Icon("AddinManager", 32),
+                Image = Icon("AddinManager", 16),
+            });
 
             // --- Sheet Tools (pyRevit: Sheet Tools.panel)
             RibbonPanel sheetTools = app.CreateRibbonPanel(TabName, "Sheet Tools");

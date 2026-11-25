@@ -1,0 +1,281 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RevoBIM PY - Routine Templates"
+        Width="1180" Height="720" MinWidth="980" MinHeight="520"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ResizeMode="NoResize" ShowInTaskbar="False"
+        WindowStartupLocation="CenterOwner" FontFamily="Segoe UI">
+
+  <!-- ================================================================
+       Routine Template Manager - Revit's Filters dialog for workset
+       assignment.  Layout only: every brush and style is a DynamicResource
+       from Theme.xaml and the palette the main window writes.
+       ================================================================ -->
+
+  <Grid x:Name="RootGrid">
+    <Border x:Name="Frame" Background="{DynamicResource WindowBrush}"
+            BorderBrush="{DynamicResource ChromeBrush}" BorderThickness="1" CornerRadius="6">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="54"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- ============================================ header -->
+        <Border x:Name="HeaderBar" Grid.Row="0" Background="{DynamicResource BarBrush}"
+                CornerRadius="5,5,0,0" Padding="14,0,8,0">
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Image x:Name="HeaderIcon" Grid.Column="0" Width="30" Height="30"
+                   Margin="0,0,10,0" VerticalAlignment="Center"/>
+
+            <StackPanel x:Name="LogoBlock" Grid.Column="1" VerticalAlignment="Center"
+                        Background="Transparent" Cursor="Hand">
+              <TextBlock Text="RevoBIM" FontSize="20" FontWeight="Bold"
+                         Foreground="{DynamicResource BlueBrush}"/>
+              <TextBlock Text="Routine Templates" FontSize="15" Margin="1,-4,0,0"
+                         Foreground="{DynamicResource OrangeTextBrush}"/>
+            </StackPanel>
+
+            <TextBlock x:Name="ContextText" Grid.Column="2" Margin="24,0,12,0"
+                       VerticalAlignment="Center" FontSize="12" TextTrimming="CharacterEllipsis"
+                       Foreground="{DynamicResource MutedBrush}"/>
+
+            <Button x:Name="ThemeButton" Grid.Column="3" Style="{DynamicResource WsChip}"
+                    Margin="0,0,12,0" VerticalAlignment="Center"
+                    ToolTip="Theme: Auto follows Revit's canvas. Click to cycle Auto, Dark, Light.">
+              <StackPanel Orientation="Horizontal">
+                <Grid Width="13" Height="13" Margin="0,0,6,0" VerticalAlignment="Center">
+                  <Ellipse Stroke="{DynamicResource TextBrush}" StrokeThickness="1.4"/>
+                  <Path Data="M 6.5,0.7 A 5.8,5.8 0 0 0 6.5,12.3 Z"
+                        Fill="{DynamicResource TextBrush}"/>
+                </Grid>
+                <TextBlock x:Name="ThemeLabel" Text="Auto" VerticalAlignment="Center"/>
+              </StackPanel>
+            </Button>
+
+            <TextBlock x:Name="VersionText" Grid.Column="4" Text="v3.1.0" FontSize="11"
+                       Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center"
+                       Margin="0,0,12,0"/>
+
+            <Button x:Name="DebugButton" Grid.Column="5" Style="{DynamicResource WsCloseButton}"
+                    Margin="0,0,2,0"
+                    ToolTip="Debug report - saves everything needed to look into a problem, copies it to the clipboard and shows the file">
+              <Path Data="M 5,4 A 2,2 0 0 1 9,4 M 4,5 H 10 V 10 A 3,3 0 0 1 4,10 Z M 7,6 V 12 M 1,6 L 4,7 M 13,6 L 10,7 M 1,10 H 4 M 13,10 H 10 M 1.5,13.5 L 4.5,11.5 M 12.5,13.5 L 9.5,11.5"
+                    Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.3" Width="14" Height="14"/>
+            </Button>
+
+            <Button x:Name="ShrinkButton" Grid.Column="6" Style="{DynamicResource WsShrinkButton}"
+                    Margin="0,0,2,0"/>
+
+            <Button x:Name="FullScreenButton" Grid.Column="7" Style="{DynamicResource WsCloseButton}"
+                    ToolTip="Full screen (F11)" Margin="0,0,2,0">
+              <Path Data="M 1,5 V 1 H 5 M 9,1 H 13 V 5 M 13,9 V 13 H 9 M 5,13 H 1 V 9"
+                    Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.5"
+                    Width="13" Height="13"/>
+            </Button>
+
+            <Button x:Name="CloseButton" Grid.Column="8" Style="{DynamicResource WsCloseButton}"
+                    Content="&#x2715;" ToolTip="Close"/>
+          </Grid>
+        </Border>
+
+        <!-- ============================================ body -->
+        <Grid Grid.Row="1" Margin="14,12,14,10">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="250"/>
+            <ColumnDefinition Width="12"/>
+            <ColumnDefinition Width="290"/>
+            <ColumnDefinition Width="12"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+
+          <!-- templates -->
+          <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Row="0" Text="Routine templates" FontSize="12" FontWeight="SemiBold"
+                       Foreground="{DynamicResource OrangeTextBrush}" Margin="0,0,0,6"/>
+            <TextBox x:Name="TemplateSearch" Grid.Row="1" Height="30" Margin="0,0,0,6"
+                     Style="{DynamicResource WsTextBox}" Tag="Filter templates"/>
+            <Border Grid.Row="2" Background="{DynamicResource FieldBrush}"
+                    BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="1" CornerRadius="3">
+              <ListBox x:Name="TemplateList" Style="{DynamicResource WsListBox}"
+                       BorderThickness="0"/>
+            </Border>
+            <WrapPanel Grid.Row="3" Margin="0,8,0,0">
+              <Button x:Name="NewButton" Style="{DynamicResource WsButton}" Margin="0,0,6,6"
+                      ToolTip="A new, empty routine template">
+                <StackPanel Orientation="Horizontal">
+                  <Path Style="{DynamicResource WsIcon}" Stroke="{DynamicResource GreenBrush}"
+                        Data="M 8,2 V 14 M 2,8 H 14"/>
+                  <TextBlock Text="New" VerticalAlignment="Center"/>
+                </StackPanel>
+              </Button>
+              <Button x:Name="DuplicateButton" Style="{DynamicResource WsButton}" Margin="0,0,6,6"
+                      Content="Duplicate" ToolTip="A copy of the selected template"/>
+              <Button x:Name="RenameButton" Style="{DynamicResource WsButton}" Margin="0,0,6,6"
+                      Content="Rename"/>
+              <Button x:Name="DeleteButton" Style="{DynamicResource WsButton}" Margin="0,0,6,6"
+                      ToolTip="Delete the selected template">
+                <StackPanel Orientation="Horizontal">
+                  <Path Style="{DynamicResource WsIcon}" Stroke="{DynamicResource RedBrush}"
+                        Data="M 2,4 H 14 M 6,4 V 2 H 10 V 4 M 3.5,4 L 4.5,14 H 11.5 L 12.5,4"/>
+                  <TextBlock Text="Delete" VerticalAlignment="Center"/>
+                </StackPanel>
+              </Button>
+            </WrapPanel>
+          </Grid>
+
+          <!-- categories -->
+          <Grid Grid.Column="2">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Row="0" Text="Categories" FontSize="12" FontWeight="SemiBold"
+                       Foreground="{DynamicResource OrangeTextBrush}" Margin="0,0,0,6"/>
+            <TextBox x:Name="CategorySearch" Grid.Row="1" Height="30" Margin="0,0,0,6"
+                     Style="{DynamicResource WsTextBox}" Tag="Filter categories"/>
+            <CheckBox x:Name="HideUncheckedCheck" Grid.Row="2" Style="{DynamicResource WsCheck}"
+                      Content="Hide un-checked categories" Margin="2,0,0,6"/>
+            <Border Grid.Row="3" Background="{DynamicResource FieldBrush}"
+                    BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="1" CornerRadius="3">
+              <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <StackPanel x:Name="CategoryHost" Margin="8,6,8,6"/>
+              </ScrollViewer>
+            </Border>
+            <StackPanel Grid.Row="4" Orientation="Horizontal" Margin="0,8,0,0">
+              <Button x:Name="CheckAllButton" Style="{DynamicResource WsButton}" Margin="0,0,6,0"
+                      Content="Check All" ToolTip="Tick every category shown"/>
+              <Button x:Name="CheckNoneButton" Style="{DynamicResource WsButton}"
+                      Content="Check None" ToolTip="Untick every category shown"/>
+            </StackPanel>
+          </Grid>
+
+          <!-- rules -->
+          <Grid Grid.Column="4">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0" Margin="0,0,0,6">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+              </Grid.ColumnDefinitions>
+              <TextBlock Text="Filter rules" FontSize="12" FontWeight="SemiBold"
+                         Foreground="{DynamicResource OrangeTextBrush}" VerticalAlignment="Center"/>
+              <TextBlock x:Name="ParamStatus" Grid.Column="1" Margin="12,0,8,0" FontSize="11"
+                         Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center"
+                         TextTrimming="CharacterEllipsis"/>
+              <StackPanel Grid.Column="2" Orientation="Horizontal">
+                <Button x:Name="RootAndButton" Style="{DynamicResource WsSegmentOn}" Content="AND"
+                        Margin="0,0,4,0" ToolTip="Every rule must pass"/>
+                <Button x:Name="RootOrButton" Style="{DynamicResource WsSegment}" Content="OR"
+                        ToolTip="Any one rule passing is enough"/>
+              </StackPanel>
+            </Grid>
+            <Border Grid.Row="1" Background="{DynamicResource FieldBrush}"
+                    BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="1" CornerRadius="3">
+              <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <StackPanel x:Name="RuleHost" Margin="10,8,10,8"/>
+              </ScrollViewer>
+            </Border>
+            <Grid Grid.Row="2" Margin="0,8,0,0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+              </Grid.ColumnDefinitions>
+              <StackPanel Orientation="Horizontal">
+                <Button x:Name="AddRuleButton" Style="{DynamicResource WsButton}" Margin="0,0,6,0"
+                        ToolTip="A parameter, an operator and a value">
+                  <StackPanel Orientation="Horizontal">
+                    <Path Style="{DynamicResource WsIcon}" Stroke="{DynamicResource GreenBrush}"
+                          Data="M 8,2 V 14 M 2,8 H 14"/>
+                    <TextBlock Text="Add Rule" VerticalAlignment="Center"/>
+                  </StackPanel>
+                </Button>
+                <Button x:Name="AddSetButton" Style="{DynamicResource WsButton}"
+                        ToolTip="A group of rules with its own AND / OR">
+                  <StackPanel Orientation="Horizontal">
+                    <Path Style="{DynamicResource WsIcon}" Stroke="{DynamicResource BlueBrush}"
+                          Data="M 4,2 H 2 V 14 H 4 M 12,2 H 14 V 14 H 12 M 8,5 V 11 M 5,8 H 11"/>
+                    <TextBlock Text="Add Set" VerticalAlignment="Center"/>
+                  </StackPanel>
+                </Button>
+              </StackPanel>
+              <TextBlock x:Name="TestText" Grid.Column="1" Margin="12,0,8,0" FontSize="12"
+                         VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
+                         Foreground="{DynamicResource GreenTextBrush}"/>
+              <Button x:Name="TestButton" Grid.Column="2" Style="{DynamicResource WsBlueButton}"
+                      ToolTip="Count the elements in the model this template catches">
+                <StackPanel Orientation="Horizontal">
+                  <Path Style="{DynamicResource WsIcon}" Stroke="{DynamicResource OnAccentBrush}"
+                        Data="M 7,2 A 5,5 0 1 1 6.99,2 M 10.5,10.5 L 14.5,14.5"/>
+                  <TextBlock Text="Test" VerticalAlignment="Center"/>
+                </StackPanel>
+              </Button>
+            </Grid>
+            <TextBlock x:Name="ProblemText" Grid.Row="3" Margin="0,6,0,0" FontSize="11"
+                       TextWrapping="Wrap" Foreground="{DynamicResource RedBrush}"/>
+          </Grid>
+        </Grid>
+
+        <!-- ============================================ footer -->
+        <Border x:Name="FooterBar" Grid.Row="2" Background="{DynamicResource BarBrush}"
+                CornerRadius="0,0,5,5" Padding="14,0,14,0" Height="50">
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock x:Name="StatusText" VerticalAlignment="Center" FontSize="12"
+                       Foreground="{DynamicResource MutedBrush}" TextTrimming="CharacterEllipsis"
+                       Text="Changes are saved as you go."/>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+              <TextBlock Text="Use for" VerticalAlignment="Center" Margin="0,0,8,0"
+                         Foreground="{DynamicResource MutedBrush}"/>
+              <Grid x:Name="ForHost" Width="220" Margin="0,0,8,0"/>
+              <Button x:Name="UseButton" Style="{DynamicResource WsGreenButton}"
+                      Padding="16,6,16,6" FontWeight="SemiBold" Margin="0,0,8,0"
+                      ToolTip="Put this routine on the workset - it replaces any ticked categories">
+                <StackPanel Orientation="Horizontal">
+                  <Path Style="{DynamicResource WsIcon}" Stroke="{DynamicResource OnAccentBrush}"
+                        Data="M 2,8.5 L 6,12.5 L 14,3.5"/>
+                  <TextBlock x:Name="UseLabel" Text="Use for workset" VerticalAlignment="Center"/>
+                </StackPanel>
+              </Button>
+              <Button x:Name="DoneButton" Style="{DynamicResource WsButton}" Content="Close"
+                      MinWidth="90"/>
+            </StackPanel>
+          </Grid>
+        </Border>
+      </Grid>
+    </Border>
+    <Grid x:Name="GripLayer"/>
+  </Grid>
+</Window>
