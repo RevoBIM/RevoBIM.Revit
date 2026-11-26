@@ -28,9 +28,10 @@ namespace RevoBIM.UI.Wires
         // Both palettes carry exactly the same keys - a key missing from one is a brush left behind at its dark default after a swap.
         private static readonly Dictionary<string, string> DarkPalette = new Dictionary<string, string>
         {
-            { "Shell", "#232326" }, { "Card", "#2B2B2E" }, { "Field", "#1C1C1F" }, { "Bar", "#1C1C1F" }, { "Edge", "#3E3E42" }, { "Rim", "#4A4A50" },
-            { "Fg", "#E4E4E4" }, { "Muted", "#9A9A9E" }, { "Blue", "#4FA3E3" }, { "Orange", "#E8912D" }, { "Green", "#3FA75A" }, { "GreenHi", "#4EC06D" },
-            { "Red", "#D9534F" }, { "Sel", "#2B5473" }, { "Ghost", "#33333A" }, { "Disabled", "#3A3A3E" }, { "DisabledFg", "#77777B" }, { "OnAccent", "#FFFFFF" },
+            // Revit's own dark slate, shared with every other RevoBIM tool (the near-black neutral dark was retired in 3.8.0)
+            { "Shell", "#3C4454" }, { "Card", "#343C4A" }, { "Field", "#2D3441" }, { "Bar", "#222933" }, { "Edge", "#515C6B" }, { "Rim", "#5A6372" },
+            { "Fg", "#EEF0F4" }, { "Muted", "#A4AAB1" }, { "Blue", "#5AAEEB" }, { "Orange", "#E8912D" }, { "Green", "#3FA75A" }, { "GreenHi", "#4EC06D" },
+            { "Red", "#D9534F" }, { "Sel", "#3A7392" }, { "Ghost", "#46505F" }, { "Disabled", "#3A414D" }, { "DisabledFg", "#7B8290" }, { "OnAccent", "#FFFFFF" },
             // what sits on a blue fill - dark navy on the pale dark-mode blue, white on the deeper light-mode one
             { "OnBlue", "#0E2233" },
         };

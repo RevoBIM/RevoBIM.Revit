@@ -18,23 +18,23 @@
        only, BasedOn, which WPF will not accept as dynamic.
        ========================================================== -->
 
-  <SolidColorBrush x:Key="Shell"      Color="#232326"/>
-  <SolidColorBrush x:Key="Card"       Color="#2B2B2E"/>
-  <SolidColorBrush x:Key="Field"      Color="#1C1C1F"/>
-  <SolidColorBrush x:Key="Bar"        Color="#1C1C1F"/>
-  <SolidColorBrush x:Key="Edge"       Color="#3E3E42"/>
-  <SolidColorBrush x:Key="Rim"        Color="#4A4A50"/>
-  <SolidColorBrush x:Key="Fg"         Color="#E4E4E4"/>
-  <SolidColorBrush x:Key="Muted"      Color="#9A9A9E"/>
-  <SolidColorBrush x:Key="Blue"       Color="#4FA3E3"/>
+  <SolidColorBrush x:Key="Shell"      Color="#3C4454"/>
+  <SolidColorBrush x:Key="Card"       Color="#343C4A"/>
+  <SolidColorBrush x:Key="Field"      Color="#2D3441"/>
+  <SolidColorBrush x:Key="Bar"        Color="#222933"/>
+  <SolidColorBrush x:Key="Edge"       Color="#515C6B"/>
+  <SolidColorBrush x:Key="Rim"        Color="#5A6372"/>
+  <SolidColorBrush x:Key="Fg"         Color="#EEF0F4"/>
+  <SolidColorBrush x:Key="Muted"      Color="#A4AAB1"/>
+  <SolidColorBrush x:Key="Blue"       Color="#5AAEEB"/>
   <SolidColorBrush x:Key="Orange"     Color="#E8912D"/>
   <SolidColorBrush x:Key="Green"      Color="#3FA75A"/>
   <SolidColorBrush x:Key="GreenHi"    Color="#4EC06D"/>
   <SolidColorBrush x:Key="Red"        Color="#D9534F"/>
-  <SolidColorBrush x:Key="Sel"        Color="#2B5473"/>
-  <SolidColorBrush x:Key="Ghost"      Color="#33333A"/>
-  <SolidColorBrush x:Key="Disabled"   Color="#3A3A3E"/>
-  <SolidColorBrush x:Key="DisabledFg" Color="#77777B"/>
+  <SolidColorBrush x:Key="Sel"        Color="#3A7392"/>
+  <SolidColorBrush x:Key="Ghost"      Color="#46505F"/>
+  <SolidColorBrush x:Key="Disabled"   Color="#3A414D"/>
+  <SolidColorBrush x:Key="DisabledFg" Color="#7B8290"/>
   <SolidColorBrush x:Key="OnAccent"   Color="#FFFFFF"/>
   <SolidColorBrush x:Key="OnBlue"     Color="#0E2233"/>
 

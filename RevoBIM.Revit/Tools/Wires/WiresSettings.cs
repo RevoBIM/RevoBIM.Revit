@@ -25,7 +25,7 @@ namespace RevoBIM.Tools.Wires
     /// </summary>
     public static class WiresSettings
     {
-        public const string Version = "3.7.0";
+        public const string Version = "3.8.0";
         public const string ToolName = "Wires";
         public const int SettingsVersion = 19;
 
