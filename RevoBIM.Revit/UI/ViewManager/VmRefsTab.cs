@@ -16,7 +16,7 @@ namespace RevoBIM.UI.ViewManager
     /// View Reference Manager tab (port of RefsTab): every view, the columns that matter, edits staged in the grid, Excel out
     /// and back, and the title and detail number builders.
     /// </summary>
-    internal sealed class VmRefsTab
+    internal sealed class VmRefsTab : IVmBuilderHost
     {
         private readonly VmWindow owner;
         private readonly ComboBox typeCombo, filterCol, filterVal, setCol, setChoice, sheetCombo;
@@ -38,7 +38,8 @@ namespace RevoBIM.UI.ViewManager
 
         private List<VmCore.RefRow> rows = new List<VmCore.RefRow>();
         private List<VmCore.RefRow> shown = new List<VmCore.RefRow>();
-        public readonly VmCore.EditStore Store = new VmCore.EditStore();
+        private readonly VmCore.EditStore store = new VmCore.EditStore();
+        public VmCore.EditStore Store { get { return store; } }
         private List<VmCore.Field> fields;
         private string typeName;
         private List<string> typeValues = new List<string>();
@@ -769,6 +770,7 @@ namespace RevoBIM.UI.ViewManager
             {
                 owner.Log.Add("re-read failed: " + VmCore.Describe(ex));
             }
+            owner.InvalidateGridTabs(this);
             string message;
             if (failed.Count > 0)
             {
@@ -778,6 +780,8 @@ namespace RevoBIM.UI.ViewManager
             else message = "Wrote " + applied.Count + " edit(s) to the model.";
             owner.Finish(message, failed.Count > 0, failed.Count > 0);
         }
+
+        public void Invalidate() { loaded = false; }
 
         public void Revert()
         {

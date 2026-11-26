@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -26,6 +26,7 @@ namespace RevoBIM.UI.ViewManager
     /// </summary>
     internal sealed partial class VmWindow
     {
+        public const int TabRange = 2, TabViews = 3;     // the View Range and View Manager tabs
         public const int TabRefs = 4;           // index of the View Reference Manager tab
 
         public static VmWindow Current;
@@ -39,6 +40,8 @@ namespace RevoBIM.UI.ViewManager
         public VmChrome Chrome;
         public VmThemed Themed;
         public VmRefsTab Refs;
+        public VmViewsTab ViewsTab;
+        public VmRangeTab RangeTab;
         public string RefsError;
 
         private List<View> hostViews = new List<View>();
@@ -228,6 +231,19 @@ namespace RevoBIM.UI.ViewManager
             {
                 RefsError = VmCore.Describe(ex);
                 Log.Add("View Reference Manager failed to start: " + RefsError);
+                Log.Add(ex.ToString());
+            }
+
+            try { RangeTab = new VmRangeTab(this); }
+            catch (Exception ex)
+            {
+                Log.Add("View Range tab failed to start: " + VmCore.Describe(ex));
+                Log.Add(ex.ToString());
+            }
+            try { ViewsTab = new VmViewsTab(this); }
+            catch (Exception ex)
+            {
+                Log.Add("View Manager tab failed to start: " + VmCore.Describe(ex));
                 Log.Add(ex.ToString());
             }
 
@@ -811,7 +827,14 @@ namespace RevoBIM.UI.ViewManager
             {
                 if (Refs != null) Refs.UpdateState();
             }
-            else SetStatus("Placeholder tab - nothing to do here yet.");
+            else if (tab == TabRange)
+            {
+                if (RangeTab != null) RangeTab.UpdateState();
+            }
+            else if (tab == TabViews)
+            {
+                if (ViewsTab != null) ViewsTab.UpdateState();
+            }
         }
 
         private string SampleName()
@@ -845,6 +868,16 @@ namespace RevoBIM.UI.ViewManager
                 Refs.Reload();
                 return;
             }
+            if (CurrentTab() == TabRange && RangeTab != null)
+            {
+                RangeTab.Reload();
+                return;
+            }
+            if (CurrentTab() == TabViews && ViewsTab != null)
+            {
+                ViewsTab.Reload();
+                return;
+            }
             ReadModel();
             RebuildAll();
         }
@@ -862,7 +895,17 @@ namespace RevoBIM.UI.ViewManager
             BtnRfRevert.Visibility = refs ? Visibility.Visible : Visibility.Collapsed;
             try { chkRoomTags.Visibility = first ? Visibility.Visible : Visibility.Collapsed; } catch (Exception) { }
             if (refs && Refs != null) Refs.Activate();
+            if (index == TabRange && RangeTab != null) RangeTab.Activate();
+            if (index == TabViews && ViewsTab != null) ViewsTab.Activate();
             Refresh();
+        }
+
+        /// <summary>After one grid wrote to the model, the others read it again the next time they are shown.</summary>
+        public void InvalidateGridTabs(object except)
+        {
+            if (Refs != null && !ReferenceEquals(Refs, except)) Refs.Invalidate();
+            if (RangeTab != null && !ReferenceEquals(RangeTab, except)) RangeTab.Invalidate();
+            if (ViewsTab != null && !ReferenceEquals(ViewsTab, except)) ViewsTab.Invalidate();
         }
 
         // ---------------------------------------------------------------- debug --

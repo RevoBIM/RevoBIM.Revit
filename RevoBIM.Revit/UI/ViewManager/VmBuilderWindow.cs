@@ -7,13 +7,21 @@ using RevoBIM.Tools.ViewManager;
 
 namespace RevoBIM.UI.ViewManager
 {
+    /// <summary>What a builder window needs from the tab that opened it: the staged values to start from, and a place to hand the result back.</summary>
+    internal interface IVmBuilderHost
+    {
+        VmCore.EditStore Store { get; }
+        void BuilderClosed();
+        void AcceptBuilder(List<VmCore.EditItem> changes);
+    }
+
     /// <summary>
     /// Title on Sheet Builder and Detail Number Builder (port of BuilderWindow): pick or build a ruleset, watch the preview,
     /// apply it, tidy by hand, and stage the result. A private store, so nothing here touches the list until OK.
     /// </summary>
     internal sealed class VmBuilderWindow
     {
-        private readonly VmRefsTab tab;
+        private readonly IVmBuilderHost tab;
         private readonly VmWindow owner;
         private readonly string target, noun;
         private readonly Window window;
@@ -34,7 +42,7 @@ namespace RevoBIM.UI.ViewManager
         private bool loading;
         public readonly VmChrome Chrome;
 
-        public VmBuilderWindow(VmRefsTab tab, VmWindow owner, List<VmCore.RefRow> rows, string target)
+        public VmBuilderWindow(IVmBuilderHost tab, VmWindow owner, List<VmCore.RefRow> rows, string target)
         {
             this.tab = tab;
             this.owner = owner;

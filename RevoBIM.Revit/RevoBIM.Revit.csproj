@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <!--
     One project, one build per Revit version. Pick the version with the configuration:
@@ -37,7 +37,7 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <EnableDefaultCompileItems>true</EnableDefaultCompileItems>
-    <Version>0.18.0</Version>
+    <Version>0.19.0</Version>
     <!-- REVIT2024, REVIT2025 ... for the few places the API differs between versions -->
     <DefineConstants>$(DefineConstants);REVIT$(RevitVersion)</DefineConstants>
     <!-- bin\<Configuration>\<framework>\ per version, so the builds never overwrite each other -->
@@ -224,5 +224,6 @@
   </Target>
 
 </Project>
+
 
 

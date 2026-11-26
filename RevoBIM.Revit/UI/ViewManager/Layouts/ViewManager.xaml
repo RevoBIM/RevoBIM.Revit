@@ -285,54 +285,213 @@
           </Grid>
         </TabItem>
 
-        <!-- ================= TAB 3 - View Range (placeholder) ================= -->
+        <!-- ================= TAB 3 - View Range ================= -->
         <TabItem>
         <TabItem.Header>
           <StackPanel Orientation="Horizontal">
             <Grid Width="15" Height="15" Margin="0,0,7,0" VerticalAlignment="Center">
-              <Path Stretch="None" Stroke="{DynamicResource Orange}" StrokeThickness="1.3"
-                    Data="M 2,3 L 13,3 M 2,12 L 13,12 M 7.5,3 L 7.5,12 M 5.5,5 L 7.5,3 L 9.5,5 M 5.5,10 L 7.5,12 L 9.5,10"/>
+              <Path Stretch="None" Stroke="{DynamicResource Orange}" StrokeThickness="1.3" Data="M 2,3 L 13,3 M 2,12 L 13,12 M 7.5,3 L 7.5,12 M 5.5,5 L 7.5,3 L 9.5,5 M 5.5,10 L 7.5,12 L 9.5,10"/>
             </Grid>
             <TextBlock Text="View Range" VerticalAlignment="Center"/>
           </StackPanel>
         </TabItem.Header>
-          <Grid>
-            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-              <Grid Width="40" Height="40" HorizontalAlignment="Center" Margin="0,0,0,12">
-                <Path Stretch="Uniform" Width="38" Height="38" Stroke="{DynamicResource Orange}"
-                      StrokeThickness="1.4" Data="M 2,3 L 13,3 M 2,12 L 13,12 M 7.5,3 L 7.5,12 M 5.5,5 L 7.5,3 L 9.5,5 M 5.5,10 L 7.5,12 L 9.5,10"/>
-              </Grid>
-              <TextBlock Text="View Range" FontSize="16" FontWeight="SemiBold"
-                         HorizontalAlignment="Center"/>
-              <TextBlock Text="Placeholder - this tab is reserved for the view range tools." Foreground="{DynamicResource Muted}" Margin="0,6,0,0"
-                         HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="460"
-                         TextAlignment="Center"/>
-            </StackPanel>
+          <Grid Margin="14,10,14,10">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="8"/>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="8"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <DockPanel Grid.Row="0" LastChildFill="False">
+              <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
+                <Button x:Name="RgBatch" Style="{StaticResource GoSmall}" Padding="14,6,14,6" Margin="0,0,8,0" Content="Batch View Range Change" IsEnabled="False"
+                        ToolTip="Tick views, then set the same top, cut plane, bottom or view depth on all of them. Staged until Apply to Revit."/>
+                <Button x:Name="RgParams" Style="{StaticResource Ghost}" Padding="12,6,12,6" Margin="0,0,8,0"
+                        ToolTip="Add a view parameter as a column, to read, edit, filter and sort on.">
+                  <StackPanel Orientation="Horizontal">
+                    <Path Stretch="None" Stroke="{DynamicResource Orange}" StrokeThickness="1.5" Data="M 1,7 L 13,7 M 7,1 L 7,13" Margin="0,0,7,0" VerticalAlignment="Center"/>
+                    <TextBlock Text="Parameters" VerticalAlignment="Center"/>
+                  </StackPanel>
+                </Button>
+                <Button x:Name="RgGroup" Style="{StaticResource Ghost}" Padding="12,6,12,6" Margin="0,0,2,0"
+                        ToolTip="Group the rows under collapsible headings by the first sorted column (the first column if nothing is sorted). Click a heading to sort. Shift-click another heading to sort inside it.">
+                  <TextBlock x:Name="RgGroupText" Text="Group" VerticalAlignment="Center"/>
+                </Button>
+                <Button x:Name="RgExpand" Style="{StaticResource Flat}" Content="Open all" Margin="0,0,0,0" ToolTip="Open every group heading."/>
+                <Button x:Name="RgCollapse" Style="{StaticResource Flat}" Content="Close all" Margin="0,0,8,0" ToolTip="Close every group heading."/>
+                <Button x:Name="RgClearSort" Style="{StaticResource Flat}" Content="Clear sort" Margin="0,0,8,0" ToolTip="Back to the order Revit lists the views in."/>
+              </StackPanel>
+              <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                <TextBlock x:Name="RgInfo" Text="&#x24D8;" FontSize="15" Foreground="{DynamicResource Muted}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                <TextBox x:Name="RgSearch" Width="220" VerticalContentAlignment="Center" ToolTip="Keyword search across every column shown."/>
+                <Button x:Name="RgRefresh" Style="{StaticResource Ghost}" Padding="9,5,9,5" Margin="8,0,0,0" ToolTip="Re-read the model (keeps staged edits that still apply).">
+                  <Path Stretch="None" Stroke="{DynamicResource Orange}" StrokeThickness="1.6" Data="M 13,7 A 5.5,5.5 0 1 0 11.5,11 M 13.5,2.5 L 13,7 L 8.5,6.5"/>
+                </Button>
+              </StackPanel>
+            </DockPanel>
+
+            <DataGrid x:Name="RgGrid" Grid.Row="2" AutoGenerateColumns="False"
+                      CanUserAddRows="False" CanUserDeleteRows="False"
+                      CanUserReorderColumns="True" CanUserResizeColumns="True"
+                      SelectionMode="Extended" SelectionUnit="FullRow"
+                      EnableRowVirtualization="False"/>
+
+            <DockPanel Grid.Row="4" LastChildFill="False">
+              <TextBlock x:Name="RgSummary" DockPanel.Dock="Left" Foreground="{DynamicResource Muted}" VerticalAlignment="Center" Text=""/>
+              <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                <CheckBox x:Name="RgHide" Content="Hide Unchecked Views" VerticalAlignment="Center" Margin="0,0,16,0"/>
+                <Button x:Name="RgRevert" Content="Revert edits" Style="{StaticResource Ghost}" Padding="12,5,12,5" Margin="0,0,8,0" IsEnabled="False"/>
+                <Button x:Name="RgApply" Content="Apply to Revit" Style="{StaticResource Danger}" Padding="14,5,14,5" IsEnabled="False"/>
+              </StackPanel>
+            </DockPanel>
+
+            <Grid x:Name="RgOverlay" Grid.Row="0" Grid.RowSpan="5" Background="{DynamicResource Scrim}" Visibility="Collapsed" Panel.ZIndex="11">
+              <Border x:Name="RgColPanel" Background="{DynamicResource Panel}" BorderBrush="{DynamicResource Line}" BorderThickness="1" CornerRadius="3"
+                      Width="460" MaxHeight="520" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed">
+                <Grid Margin="20,16,20,16">
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/>
+                  </Grid.RowDefinitions>
+                  <TextBlock Grid.Row="0" Text="ADD A PARAMETER COLUMN" Style="{StaticResource Head}" Margin="0,0,0,6"/>
+                  <TextBlock x:Name="RgColNote" Grid.Row="1" TextWrapping="Wrap" Foreground="{DynamicResource Muted}" Margin="0,0,0,8"/>
+                  <TextBox x:Name="RgColSearch" Grid.Row="2" Margin="0,0,0,8"/>
+                  <Border Grid.Row="3" Background="{DynamicResource Sunken}" BorderBrush="{DynamicResource Line}" BorderThickness="1" Height="300">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel x:Name="RgColList"/></ScrollViewer>
+                  </Border>
+                  <Button x:Name="RgColClose" Grid.Row="4" Content="Close" Style="{StaticResource Ghost}" HorizontalAlignment="Right" Margin="0,10,0,0"/>
+                </Grid>
+              </Border>
+              <Border x:Name="RgBatchPanel" Background="{DynamicResource Panel}" BorderBrush="{DynamicResource Line}" BorderThickness="1" CornerRadius="3"
+                      Width="560" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed">
+                <StackPanel Margin="22,18,22,18">
+                  <TextBlock Text="BATCH VIEW RANGE CHANGE" Style="{StaticResource Head}" Margin="0,0,0,6"/>
+                  <TextBlock x:Name="RgBatchNote" TextWrapping="Wrap" Foreground="{DynamicResource Muted}" Margin="0,0,0,10"/>
+                  <Grid>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="110"/><ColumnDefinition Width="*"/><ColumnDefinition Width="140"/></Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Grid.Column="1" Text="Level" Foreground="{DynamicResource Muted}" Margin="0,0,0,4"/>
+                    <TextBlock x:Name="RgBatchOffHead" Grid.Row="0" Grid.Column="2" Text="Offset" Foreground="{DynamicResource Muted}" Margin="8,0,0,4"/>
+                    <TextBlock Grid.Row="1" Text="Top" VerticalAlignment="Center"/>
+                    <ComboBox x:Name="RgBL0" Grid.Row="1" Grid.Column="1" Margin="0,0,0,6"/>
+                    <TextBox x:Name="RgBO0" Grid.Row="1" Grid.Column="2" Margin="8,0,0,6"/>
+                    <TextBlock Grid.Row="2" Text="Cut plane" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="2" Grid.Column="1" Text="(level not changed here)" Foreground="{DynamicResource Muted}" VerticalAlignment="Center" Margin="0,0,0,6"/>
+                    <TextBox x:Name="RgBO1" Grid.Row="2" Grid.Column="2" Margin="8,0,0,6"/>
+                    <TextBlock Grid.Row="3" Text="Bottom" VerticalAlignment="Center"/>
+                    <ComboBox x:Name="RgBL2" Grid.Row="3" Grid.Column="1" Margin="0,0,0,6"/>
+                    <TextBox x:Name="RgBO2" Grid.Row="3" Grid.Column="2" Margin="8,0,0,6"/>
+                    <TextBlock Grid.Row="4" Text="View depth" VerticalAlignment="Center"/>
+                    <ComboBox x:Name="RgBL3" Grid.Row="4" Grid.Column="1" Margin="0,0,0,6"/>
+                    <TextBox x:Name="RgBO3" Grid.Row="4" Grid.Column="2" Margin="8,0,0,6"/>
+                  </Grid>
+                  <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,14,0,0">
+                    <Button x:Name="RgBatchClose" Content="Cancel" Style="{StaticResource Ghost}" Margin="0,0,8,0"/>
+                    <Button x:Name="RgBatchGo" Content="Stage on ticked views" Style="{StaticResource GoSmall}"/>
+                  </StackPanel>
+                </StackPanel>
+              </Border>
+            </Grid>
           </Grid>
         </TabItem>
-        <!-- ================ TAB 4 - View Manager (placeholder) ================ -->
+        <!-- ================ TAB 4 - View Manager ================ -->
         <TabItem>
         <TabItem.Header>
           <StackPanel Orientation="Horizontal">
             <Grid Width="15" Height="15" Margin="0,0,7,0" VerticalAlignment="Center">
-              <Path Stretch="None" Stroke="{DynamicResource Green}" StrokeThickness="1.3"
-                    Data="M 1,1 L 11,1 L 11,9 L 1,9 Z M 4,12 L 14,12 L 14,5 L 11,5 M 3.5,4 L 8.5,4"/>
+              <Path Stretch="None" Stroke="{DynamicResource Green}" StrokeThickness="1.3" Data="M 1,1 L 11,1 L 11,9 L 1,9 Z M 4,12 L 14,12 L 14,5 L 11,5 M 3.5,4 L 8.5,4"/>
             </Grid>
             <TextBlock Text="View Manager" VerticalAlignment="Center"/>
           </StackPanel>
         </TabItem.Header>
-          <Grid>
-            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-              <Grid Width="40" Height="40" HorizontalAlignment="Center" Margin="0,0,0,12">
-                <Path Stretch="Uniform" Width="38" Height="38" Stroke="{DynamicResource Green}"
-                      StrokeThickness="1.4" Data="M 1,1 L 11,1 L 11,9 L 1,9 Z M 4,12 L 14,12 L 14,5 L 11,5 M 3.5,4 L 8.5,4"/>
-              </Grid>
-              <TextBlock Text="View Manager" FontSize="16" FontWeight="SemiBold"
-                         HorizontalAlignment="Center"/>
-              <TextBlock Text="Placeholder - this tab is reserved for the View Manager 1st tab." Foreground="{DynamicResource Muted}" Margin="0,6,0,0"
-                         HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="460"
-                         TextAlignment="Center"/>
-            </StackPanel>
+          <Grid Margin="14,10,14,10">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="8"/>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="8"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <DockPanel Grid.Row="0" LastChildFill="False">
+              <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
+                <Button x:Name="VwBatch" Style="{StaticResource Ghost}" Padding="12,6,12,6" Margin="0,0,8,0" Content="Batch Action  &#x25BE;"
+                        ToolTip="Set one value on every ticked view, untick everything, or clear the staged edits."/>
+                <Button x:Name="VwExcel" Style="{StaticResource Ghost}" Padding="12,6,12,6" Margin="0,0,8,0" Content="Import/Export  &#x25BE;"
+                        ToolTip="Write the rows shown to an Excel workbook, or read an edited one back in. Nothing is written to the model until Apply to Revit."/>
+                <Button x:Name="VwRename" Style="{StaticResource Ghost}" Padding="12,6,12,6" Margin="0,0,8,0" Content="Rename  &#x25BE;" IsEnabled="False"
+                        ToolTip="Tick views, then write their titles on sheet or detail numbers from a ruleset built on the view names."/>
+                <Button x:Name="VwParams" Style="{StaticResource Ghost}" Padding="12,6,12,6" Margin="0,0,8,0"
+                        ToolTip="Add a view parameter as a column, to read, edit, filter and sort on.">
+                  <StackPanel Orientation="Horizontal">
+                    <Path Stretch="None" Stroke="{DynamicResource Orange}" StrokeThickness="1.5" Data="M 1,7 L 13,7 M 7,1 L 7,13" Margin="0,0,7,0" VerticalAlignment="Center"/>
+                    <TextBlock Text="Parameters" VerticalAlignment="Center"/>
+                  </StackPanel>
+                </Button>
+                <Button x:Name="VwGroup" Style="{StaticResource Ghost}" Padding="12,6,12,6" Margin="0,0,2,0"
+                        ToolTip="Group the rows under collapsible headings by the first sorted column (the first column if nothing is sorted). Click a heading to sort. Shift-click another heading to sort inside it.">
+                  <TextBlock x:Name="VwGroupText" Text="Group" VerticalAlignment="Center"/>
+                </Button>
+                <Button x:Name="VwExpand" Style="{StaticResource Flat}" Content="Open all" Margin="0,0,0,0" ToolTip="Open every group heading."/>
+                <Button x:Name="VwCollapse" Style="{StaticResource Flat}" Content="Close all" Margin="0,0,8,0" ToolTip="Close every group heading."/>
+                <Button x:Name="VwClearSort" Style="{StaticResource Flat}" Content="Clear sort" Margin="0,0,8,0" ToolTip="Back to the order Revit lists the views in."/>
+              </StackPanel>
+              <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                <TextBlock x:Name="VwInfo" Text="&#x24D8;" FontSize="15" Foreground="{DynamicResource Muted}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                <TextBox x:Name="VwSearch" Width="220" VerticalContentAlignment="Center" ToolTip="Keyword search across every column shown."/>
+                <Button x:Name="VwRefresh" Style="{StaticResource Ghost}" Padding="9,5,9,5" Margin="8,0,0,0" ToolTip="Re-read the model (keeps staged edits that still apply).">
+                  <Path Stretch="None" Stroke="{DynamicResource Orange}" StrokeThickness="1.6" Data="M 13,7 A 5.5,5.5 0 1 0 11.5,11 M 13.5,2.5 L 13,7 L 8.5,6.5"/>
+                </Button>
+              </StackPanel>
+            </DockPanel>
+
+            <DataGrid x:Name="VwGrid" Grid.Row="2" AutoGenerateColumns="False"
+                      CanUserAddRows="False" CanUserDeleteRows="False"
+                      CanUserReorderColumns="True" CanUserResizeColumns="True"
+                      SelectionMode="Extended" SelectionUnit="FullRow"
+                      EnableRowVirtualization="False"/>
+
+            <DockPanel Grid.Row="4" LastChildFill="False">
+              <TextBlock x:Name="VwSummary" DockPanel.Dock="Left" Foreground="{DynamicResource Muted}" VerticalAlignment="Center" Text=""/>
+              <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+
+                <Button x:Name="VwRevert" Content="Revert edits" Style="{StaticResource Ghost}" Padding="12,5,12,5" Margin="0,0,8,0" IsEnabled="False"/>
+                <Button x:Name="VwApply" Content="Apply to Revit" Style="{StaticResource Danger}" Padding="14,5,14,5" IsEnabled="False"/>
+              </StackPanel>
+            </DockPanel>
+
+            <Grid x:Name="VwOverlay" Grid.Row="0" Grid.RowSpan="5" Background="{DynamicResource Scrim}" Visibility="Collapsed" Panel.ZIndex="11">
+              <Border x:Name="VwColPanel" Background="{DynamicResource Panel}" BorderBrush="{DynamicResource Line}" BorderThickness="1" CornerRadius="3"
+                      Width="460" MaxHeight="520" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed">
+                <Grid Margin="20,16,20,16">
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/>
+                  </Grid.RowDefinitions>
+                  <TextBlock Grid.Row="0" Text="ADD A PARAMETER COLUMN" Style="{StaticResource Head}" Margin="0,0,0,6"/>
+                  <TextBlock x:Name="VwColNote" Grid.Row="1" TextWrapping="Wrap" Foreground="{DynamicResource Muted}" Margin="0,0,0,8"/>
+                  <TextBox x:Name="VwColSearch" Grid.Row="2" Margin="0,0,0,8"/>
+                  <Border Grid.Row="3" Background="{DynamicResource Sunken}" BorderBrush="{DynamicResource Line}" BorderThickness="1" Height="300">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel x:Name="VwColList"/></ScrollViewer>
+                  </Border>
+                  <Button x:Name="VwColClose" Grid.Row="4" Content="Close" Style="{StaticResource Ghost}" HorizontalAlignment="Right" Margin="0,10,0,0"/>
+                </Grid>
+              </Border>
+              <Border x:Name="VwSetPanel" Background="{DynamicResource Panel}" BorderBrush="{DynamicResource Line}" BorderThickness="1" CornerRadius="3"
+                      Width="560" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed">
+                <StackPanel Margin="22,18,22,18">
+                  <TextBlock Text="SET A VALUE ON THE TICKED VIEWS" Style="{StaticResource Head}" Margin="0,0,0,6"/>
+                  <TextBlock x:Name="VwSetNote" TextWrapping="Wrap" Foreground="{DynamicResource Muted}" Margin="0,0,0,10"/>
+                  <StackPanel Orientation="Horizontal">
+                    <ComboBox x:Name="VwSetCol" Width="190" Margin="0,0,8,0"/>
+                    <TextBox x:Name="VwSetText" Width="260"/>
+                    <ComboBox x:Name="VwSetChoice" Width="260" Visibility="Collapsed"/>
+                  </StackPanel>
+                  <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,14,0,0">
+                    <Button x:Name="VwSetClose" Content="Cancel" Style="{StaticResource Ghost}" Margin="0,0,8,0"/>
+                    <Button x:Name="VwSetGo" Content="Stage on ticked views" Style="{StaticResource GoSmall}"/>
+                  </StackPanel>
+                </StackPanel>
+              </Border>
+            </Grid>
           </Grid>
         </TabItem>
         <!-- ================ TAB 5 - View Reference Manager ================ -->

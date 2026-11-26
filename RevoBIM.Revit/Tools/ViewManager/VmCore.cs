@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -14,7 +14,7 @@ namespace RevoBIM.Tools.ViewManager
     /// </summary>
     public static class VmCore
     {
-        public const string Version = "1.13.1";
+        public const string Version = "1.14.0";
         public const string ToolName = "View Manager";
 
         public const string NamePrefix = "DEP_";
@@ -409,6 +409,12 @@ namespace RevoBIM.Tools.ViewManager
             public readonly string Key, Label, Kind, Param;
             public readonly bool Writable;
             public readonly double Width;
+            /// <summary>When set, the cell is a dropdown of the store's choices for this key, and an empty value reads as this label.</summary>
+            public string NoneLabel;
+            /// <summary>The cell is a dropdown even without a NoneLabel.</summary>
+            public bool Dropdown;
+            /// <summary>Right-aligned number cell (an offset).</summary>
+            public bool Numeric;
 
             public Field(string key, string label, string kind, bool writable, double width = 150, string param = null)
             {
@@ -510,6 +516,8 @@ namespace RevoBIM.Tools.ViewManager
             public Dictionary<CellKey, string> Edits = new Dictionary<CellKey, string>();
             /// <summary>field key -> the values it may take (a view template, a viewport type). A blank in the list means "none" is allowed.</summary>
             public Dictionary<string, List<string>> Choices = new Dictionary<string, List<string>>();
+            /// <summary>An extra check per cell (key, text) -> a reason, or "" when fine. Used for the view range offsets.</summary>
+            public Func<string, string, string> Validate;
 
             public EditStore(IEnumerable<RefRow> rows = null)
             {
@@ -568,6 +576,11 @@ namespace RevoBIM.Tools.ViewManager
                 }
                 if (Choices.ContainsKey(key) && Canonical(key, text) == null)
                     return "'" + text + "' is not one of the available values for this column.";
+                if (Validate != null)
+                {
+                    string why2 = Validate(key, text);
+                    if (!string.IsNullOrEmpty(why2)) return why2;
+                }
                 return "";
             }
 
@@ -1248,3 +1261,4 @@ namespace RevoBIM.Tools.ViewManager
         }
     }
 }
+
