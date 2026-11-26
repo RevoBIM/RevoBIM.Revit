@@ -169,7 +169,7 @@ namespace RevoBIM.Tools.NumberSequencer
     /// </summary>
     public static class NsqCore
     {
-        public const string Version = "1.14.0";
+        public const string Version = "1.15.0";
         public const string ToolName = "Number Sequencer";
         public const string SettingsFile = "number_sequencer.txt";
         public const string DebugFile = "number_sequencer_debug.txt";
@@ -211,7 +211,7 @@ namespace RevoBIM.Tools.NumberSequencer
             { "theme", "auto" }, { "debug", "on" }, { "tab", "seq" }, { "sel_kind", "duct" },
             { "sel_skip", "" }, { "view_g1", "" }, { "view_g2", "" }, { "tag_views", "" },
             { "view_kinds_off", "" }, { "iso3d_view", "" }, { "collapsed", "" },
-            { "tag_untagged", "on" }, { "tag_tab", "sheets" }, { "win_w", "" }, { "win_h", "" },
+            { "tag_untagged", "on" }, { "tag_scope", "view" }, { "tag_leader", "off" }, { "tag_offx", "0" }, { "tag_offy", "0" }, { "tag_elbow", "off" }, { "tag_elbow_mm", "300" }, { "tag_remove", "off" }, { "tag_untangle", "off" }, { "pos_form", "0" }, { "tag_tab", "sheets" }, { "win_w", "" }, { "win_h", "" },
         };
 
         public static string SettingsDir()
@@ -2126,7 +2126,7 @@ namespace RevoBIM.Tools.NumberSequencer
         /// otherwise columns down, each back up. variant (0-3) picks the start corner and first direction. Within a row
         /// each next element is the nearest one ahead in the direction of travel.
         /// </summary>
-        public static List<long> SnakeOrder(Dictionary<long, double[]> uv, bool leftRight, int variant)
+        public static List<long> SnakeOrder(Dictionary<long, double[]> uv, bool leftRight, int variant, long? first = null)
         {
             var keys = uv.Keys.OrderBy(k => k).ToList();
             if (keys.Count <= 1) return keys;
@@ -2162,13 +2162,32 @@ namespace RevoBIM.Tools.NumberSequencer
                 rows[rows.Count - 1].Add(k);
                 prev = sv;
             }
+            var sorted = rows.Select(r => r.OrderBy(t).ThenBy(k => k).ToList()).ToList();
             var o = new List<long>();
-            for (int i = 0; i < rows.Count; i++)
+            int r0 = 0;
+            var behind = new List<long>();
+            if (first != null)
             {
-                var row = rows[i].OrderBy(t).ThenBy(k => k).ToList();
+                int hit = sorted.FindIndex(r => r.Contains(first.Value));
+                if (hit >= 0)
+                {
+                    r0 = hit;
+                    double tf = t(first.Value);
+                    behind = sorted[hit].Where(k => t(k) < tf).ToList();
+                    sorted[hit] = sorted[hit].Where(k => t(k) >= tf).ToList();
+                }
+            }
+            // the rows from the picked one onward, then the rows before it, each row back the other way
+            var seq = new List<List<long>>();
+            for (int i = r0; i < sorted.Count; i++) seq.Add(sorted[i]);
+            for (int i = r0 - 1; i >= 0; i--) seq.Add(sorted[i]);
+            for (int i = 0; i < seq.Count; i++)
+            {
+                var row = new List<long>(seq[i]);
                 if (i % 2 == 1) row.Reverse();
                 o.AddRange(row);
             }
+            o.AddRange(behind);
             return o;
         }
 
@@ -2183,6 +2202,9 @@ namespace RevoBIM.Tools.NumberSequencer
         }
     }
 }
+
+
+
 
 
 

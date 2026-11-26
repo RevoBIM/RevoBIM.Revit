@@ -1,4 +1,4 @@
-<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+﻿<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="RevoBIM Number Sequencer"
         Width="980" Height="900" MinWidth="680" MinHeight="360"
@@ -98,29 +98,33 @@
                                         <TextBlock x:Name="SysCountText" DockPanel.Dock="Right" Text="" FontSize="11" Margin="0,0,8,0"
                                                    Foreground="{DynamicResource Muted}" VerticalAlignment="Center"/>
                                         <Border Style="{DynamicResource StepBadge}"><TextBlock Style="{DynamicResource StepText}" Text="1"/></Border>
-                                        <TextBlock Text="Systems in the sequence" FontSize="13" FontWeight="SemiBold"
+                                        <TextBlock Text="Elements in the sequence" FontSize="13" FontWeight="SemiBold"
                                                    Foreground="{DynamicResource Text}" VerticalAlignment="Center"/>
                                     </DockPanel>
                                     <StackPanel x:Name="SeqSysBody" Margin="0,6,0,0">
                                         <WrapPanel Margin="0,0,0,6">
                                             <Button x:Name="AddSelBtn" Tag="i:add" Style="{DynamicResource AccentButton}" Content="Add selection"
-                                                    ToolTip="Add the systems selected in Revit (tab-select one or more duct systems first)"/>
-                                            <Button x:Name="PickSysBtn" Tag="i:pick" Style="{DynamicResource ToolButton}" Content="Pick systems"
+                                                    ToolTip="Add the elements selected in Revit - any category (Air Terminals, Sprinklers, Fittings...). Then tick the categories to number."/>
+                                            <Button x:Name="AllInViewBtn" Tag="i:show" Style="{DynamicResource ToolButton}" Content="All in view"
+                                                    ToolTip="Add every model element visible in the active view, then tick the categories to number"/>
+                                            <Button x:Name="PickSysBtn" Visibility="Collapsed" Tag="i:pick" Style="{DynamicResource ToolButton}" Content="Pick systems"
                                                     ToolTip="Click the first element of each system in the order to number them - Esc when done"/>
-                                            <Button x:Name="SysUpBtn" Tag="i:up" Style="{DynamicResource ChipButton}" Content="Up" ToolTip="Number this system earlier"/>
-                                            <Button x:Name="SysDownBtn" Tag="i:down" Style="{DynamicResource ChipButton}" Content="Down" ToolTip="Number this system later"/>
-                                            <Button x:Name="SysRemoveBtn" Tag="i:remove" Style="{DynamicResource ChipButton}" Content="Remove"/>
+                                            <Button x:Name="SysUpBtn" Visibility="Collapsed" Tag="i:up" Style="{DynamicResource ChipButton}" Content="Up" ToolTip="Number this system earlier"/>
+                                            <Button x:Name="SysDownBtn" Visibility="Collapsed" Tag="i:down" Style="{DynamicResource ChipButton}" Content="Down" ToolTip="Number this system later"/>
+                                            <Button x:Name="SysRemoveBtn" Visibility="Collapsed" Tag="i:remove" Style="{DynamicResource ChipButton}" Content="Remove"/>
                                             <Button x:Name="SysClearBtn" Tag="i:clear" Style="{DynamicResource ChipButton}" Content="Clear"/>
                                         </WrapPanel>
-                                        <CheckBox x:Name="PosCheck" Content="Order by position (any category, e.g. Air Terminals)" Margin="0,0,0,4"
+                                        <CheckBox x:Name="PosCheck" IsChecked="True" Visibility="Collapsed" Content="Order by position (any category, e.g. Air Terminals)" Margin="0,0,0,4"
                                                   ToolTip="Number whatever is selected in Revit, in the order it sits in the view: a snake left to right, or top to bottom. Add selection reads the selected elements of any category."/>
-                                        <WrapPanel x:Name="PosPanel" Margin="0,0,0,6" Visibility="Collapsed">
-                                            <RadioButton x:Name="PosLR" GroupName="PosOrder" Content="Left to right snake" IsChecked="True"
-                                                         ToolTip="Row by row across the view, each row back the other way"/>
-                                            <RadioButton x:Name="PosTB" GroupName="PosOrder" Content="Top to bottom snake"
-                                                         ToolTip="Column by column down the view, each column back up"/>
-                                            <Button x:Name="PosShuffleBtn" Tag="i:refresh" Style="{DynamicResource ChipButton}" Content="Shuffle"
-                                                    ToolTip="Try another start corner / first direction. The lines in the view show the order; Run Sequence applies it."/>
+                                        <WrapPanel x:Name="PosPanel" Margin="0,0,0,6">
+                                            <ComboBox x:Name="PosForm" MinWidth="230" Margin="0,0,6,0" ToolTip="The order: across the view row by row, or down it column by column. Each row or column goes back the other way.">
+                                                <ComboBoxItem Content="Left to right, rows going down" IsSelected="True"/>
+                                                <ComboBoxItem Content="Left to right, rows going up"/>
+                                                <ComboBoxItem Content="Top to bottom, columns going right"/>
+                                                <ComboBoxItem Content="Top to bottom, columns going left"/>
+                                            </ComboBox>
+                                            <Button x:Name="PosPickBtn" Tag="i:start" Style="{DynamicResource GreenFillButton}" Content="Pick first element"
+                                                    ToolTip="Click the element that gets the first number. The lines in the view show the order; Run Sequence applies it."/>
                                             <Button x:Name="PosClearBtn" Tag="i:remove" Style="{DynamicResource ChipButton}" Content="Clear lines"
                                                     ToolTip="Remove the preview lines and put the view back"/>
                                         </WrapPanel>
@@ -447,6 +451,29 @@
                                     <ComboBox x:Name="TagCombo" Margin="0,0,0,4"/>
                                     <CheckBox x:Name="TagUntaggedCheck" Content="Tag untagged only" Margin="0,2,0,4"
                                               ToolTip="Leave elements that already have a tag in a view alone. Off: they get this tag too (never the same tag twice)."/>
+                                    <StackPanel Orientation="Horizontal" Margin="0,2,0,4">
+                                        <RadioButton x:Name="TagScopeView" GroupName="TagScope" Content="Current view" IsChecked="True" Margin="0,0,14,0"
+                                                     ToolTip="Tag in the view you are in"/>
+                                        <RadioButton x:Name="TagScopeTicked" GroupName="TagScope" Content="Ticked views / sheets (6.2)"
+                                                     ToolTip="Tag in every view ticked below, wherever the numbered elements show"/>
+                                    </StackPanel>
+                                    <CheckBox x:Name="TagLeaderCheck" Content="Leader" Margin="0,2,0,4" ToolTip="Draw a leader from the tag to the element"/>
+                                    <StackPanel Orientation="Horizontal" Margin="0,2,0,4">
+                                        <TextBlock Text="Offset X" VerticalAlignment="Center" Margin="0,0,6,0" Foreground="{DynamicResource Muted}"/>
+                                        <TextBox x:Name="TagOffX" Width="56" Margin="0,0,10,0" ToolTip="mm to the right of the element (negative = left)"/>
+                                        <TextBlock Text="Y" VerticalAlignment="Center" Margin="0,0,6,0" Foreground="{DynamicResource Muted}"/>
+                                        <TextBox x:Name="TagOffY" Width="56" Margin="0,0,6,0" ToolTip="mm above the element (negative = below)"/>
+                                        <TextBlock Text="mm" VerticalAlignment="Center" Foreground="{DynamicResource Muted}"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="0,2,0,4">
+                                        <CheckBox x:Name="TagElbowCheck" Content="Elbow" Margin="0,0,10,0" ToolTip="Bend the leader: it runs straight in from the tag for this far (needs Leader and an offset)"/>
+                                        <TextBox x:Name="TagElbowMm" Width="56" Margin="0,0,6,0"/>
+                                        <TextBlock Text="mm" VerticalAlignment="Center" Foreground="{DynamicResource Muted}"/>
+                                    </StackPanel>
+                                    <CheckBox x:Name="TagRemoveCheck" Content="Remove existing tags on these elements first" Margin="0,2,0,4"
+                                              ToolTip="Delete any tag already on a numbered element in the view before placing the new one"/>
+                                    <CheckBox x:Name="TagUntangleCheck" Content="Untangle: move overlapping tags apart" Margin="0,2,0,4"
+                                              ToolTip="After placing, nudge tags that touch each other apart, up the view"/>
                                     <TextBlock x:Name="TagNote" Text="" FontSize="11" TextWrapping="Wrap"
                                                Foreground="{DynamicResource Muted}"/>
                                 </StackPanel>
@@ -593,3 +620,4 @@
         </Grid>
     </Grid>
 </Window>
+

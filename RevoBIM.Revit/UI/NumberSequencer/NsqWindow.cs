@@ -20,6 +20,7 @@ using Grid = System.Windows.Controls.Grid;
 using TextBox = System.Windows.Controls.TextBox;
 using Panel = System.Windows.Controls.Panel;
 using Point = System.Windows.Point;
+using Control = System.Windows.Controls.Control;
 
 namespace RevoBIM.UI.NumberSequencer
 {
@@ -254,6 +255,9 @@ namespace RevoBIM.UI.NumberSequencer
             On<CheckBox>("TagCheck", OnTagChanged);
             Ctl<ComboBox>("TagCombo").SelectionChanged += (s, e) => Try("tag", OnTagChanged);
             On<CheckBox>("TagUntaggedCheck", OnTagChanged);
+            foreach (string n in new[] { "TagLeaderCheck", "TagElbowCheck", "TagRemoveCheck", "TagUntangleCheck" }) On<CheckBox>(n, OnTagChanged);
+            foreach (string n in new[] { "TagScopeView", "TagScopeTicked" }) Ctl<RadioButton>(n).Checked += (s, e) => Try("tag scope", OnTagChanged);
+            foreach (string n in new[] { "TagOffX", "TagOffY", "TagElbowMm" }) Ctl<TextBox>(n).TextChanged += (s, e) => Try("tag option", OnTagChanged);
             On<CheckBox>("DebugCheck", OnDebug);
             On<Button>("CopyDebugBtn", OnCopyDebug);
             On<Button>("ApplyBtn", OnApply);
@@ -338,9 +342,17 @@ namespace RevoBIM.UI.NumberSequencer
             Ctl<ScrollViewer>("SelTreeScroll").MaxHeight = Math.Max(80.0, Math.Min(h * FamilyShare, h - SystemsReserve) - 70.0);
         }
 
+        private bool ScopeTicked() { return Ctl<RadioButton>("TagScopeTicked").IsChecked == true; }
+
+        private double Mm(string name)
+        {
+            double v;
+            return double.TryParse((Ctl<TextBox>(name).Text ?? "").Trim(), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out v) ? v : 0;
+        }
+
         private string TagSummary()
         {
-            int n = Views != null ? Views.TickedCount() : 0;
+            int n = Views != null && ScopeTicked() ? Views.TickedCount() : 0;
             if (Ctl<CheckBox>("TagCheck").IsChecked != true) return "tags off" + (n > 0 ? " - " + n + " view(s) ticked" : "");
             return "tags on - " + (n > 0 ? n + " view(s) ticked" : "the active view");
         }
@@ -441,6 +453,14 @@ namespace RevoBIM.UI.NumberSequencer
             Ctl<TextBox>("StartBox").Text = string.IsNullOrEmpty(s["start"]) ? "1" : s["start"];
             Ctl<CheckBox>("TagCheck").IsChecked = s["tag"] == "on";
             Ctl<CheckBox>("TagUntaggedCheck").IsChecked = s["tag_untagged"] != "off";
+            Ctl<RadioButton>(s["tag_scope"] == "ticked" ? "TagScopeTicked" : "TagScopeView").IsChecked = true;
+            Ctl<CheckBox>("TagLeaderCheck").IsChecked = s["tag_leader"] == "on";
+            Ctl<TextBox>("TagOffX").Text = s["tag_offx"];
+            Ctl<TextBox>("TagOffY").Text = s["tag_offy"];
+            Ctl<CheckBox>("TagElbowCheck").IsChecked = s["tag_elbow"] == "on";
+            Ctl<TextBox>("TagElbowMm").Text = s["tag_elbow_mm"];
+            Ctl<CheckBox>("TagRemoveCheck").IsChecked = s["tag_remove"] == "on";
+            Ctl<CheckBox>("TagUntangleCheck").IsChecked = s["tag_untangle"] == "on";
             Ctl<CheckBox>("DebugCheck").IsChecked = Log.Enabled;
             Ctl<TextBlock>("ThemeText").Text = NsqCore.ThemeLabel(s["theme"]);
             Ctl<RadioButton>(s["tab"] == "sel" ? "TabSel" : "TabSeq").IsChecked = true;
@@ -497,7 +517,7 @@ namespace RevoBIM.UI.NumberSequencer
             NsqUi.Show(Ctl<UIElement>("SelPane"), tab == "sel");
             // the selector has its own Pick start / Auto Re-order under Duct / Pipe
             NsqUi.Show(Ctl<UIElement>("PickStartBtn"), tab == "seq");
-            NsqUi.Show(Ctl<UIElement>("AutoStartBtn"), tab == "seq");
+            NsqUi.Show(Ctl<UIElement>("AutoStartBtn"), false);
             Ctl<TextBlock>("StartHead").Text = tab == "seq" ? "Start point" : "Start point of the sequence";
             if (tab == "sel") Sel.Activate();
             RefreshShared();
@@ -626,6 +646,7 @@ namespace RevoBIM.UI.NumberSequencer
             public HashSet<long> Starts = new HashSet<long>();
             public List<TagChoice> Tags;
             public bool Positional;
+            public bool AllInView;
             public NsqRevit.ViewFrame Frame;
         }
 
@@ -694,7 +715,7 @@ namespace RevoBIM.UI.NumberSequencer
         private void OnPickStart()
         {
             if (Tab == "sel") { Sel.PickStart(); return; }
-            QueueBusy("pick start", JobPickStart, Added, "Click the element to start numbering from (Esc cancels)");
+            PickFirst();
         }
 
         private void Added(object resObj, string err)
@@ -1039,6 +1060,14 @@ namespace RevoBIM.UI.NumberSequencer
             auto.ToolTip = "Put the chosen system back on the automatic start";
             var t = Ctl<TextBlock>("StartText");
             long? k = SelStartKey();
+            if (PosSystem())
+            {
+                NsqUi.SetButton(Ctl<Button>("PickStartBtn"), "start", "Pick first element");
+                string fl;
+                t.Text = k == null ? "Tick a category, then Pick first element" :
+                    "First: " + (_data.Labels.TryGetValue(k.Value, out fl) ? fl : "") + "  [" + k + "]" + (_posFirst != null ? "  (picked)" : "  (start of the formation)");
+                return;
+            }
             if (k == null) { t.Text = "No systems yet - Add selection or Pick systems"; return; }
             SysDef sd = _systems[_selSys];
             string how = sd.Start != null ? "picked" : "auto";
@@ -1056,6 +1085,7 @@ namespace RevoBIM.UI.NumberSequencer
 
         private void OnTreeChanged()
         {
+            if (PosSystem() && _preview != null) QueuePreview();
             RefreshPreview();
             Save();
         }
@@ -1359,6 +1389,8 @@ namespace RevoBIM.UI.NumberSequencer
             bool on = Ctl<CheckBox>("TagCheck").IsChecked == true;
             Ctl<ComboBox>("TagCombo").IsEnabled = on;
             Ctl<CheckBox>("TagUntaggedCheck").IsEnabled = on;
+            foreach (string n in new[] { "TagLeaderCheck", "TagElbowCheck", "TagRemoveCheck", "TagUntangleCheck" }) Ctl<CheckBox>(n).IsEnabled = on;
+            foreach (string n in new[] { "TagOffX", "TagOffY", "TagElbowMm", "TagScopeView", "TagScopeTicked" }) Ctl<Control>(n).IsEnabled = on;
         }
 
         /// <summary>The tag each host category gets for the chosen tag.</summary>
@@ -1374,6 +1406,14 @@ namespace RevoBIM.UI.NumberSequencer
             SyncTagEnabled();
             Settings["tag"] = Ctl<CheckBox>("TagCheck").IsChecked == true ? "on" : "off";
             Settings["tag_untagged"] = Ctl<CheckBox>("TagUntaggedCheck").IsChecked == true ? "on" : "off";
+            Settings["tag_scope"] = ScopeTicked() ? "ticked" : "view";
+            Settings["tag_leader"] = Ctl<CheckBox>("TagLeaderCheck").IsChecked == true ? "on" : "off";
+            Settings["tag_offx"] = Ctl<TextBox>("TagOffX").Text ?? "0";
+            Settings["tag_offy"] = Ctl<TextBox>("TagOffY").Text ?? "0";
+            Settings["tag_elbow"] = Ctl<CheckBox>("TagElbowCheck").IsChecked == true ? "on" : "off";
+            Settings["tag_elbow_mm"] = Ctl<TextBox>("TagElbowMm").Text ?? "300";
+            Settings["tag_remove"] = Ctl<CheckBox>("TagRemoveCheck").IsChecked == true ? "on" : "off";
+            Settings["tag_untangle"] = Ctl<CheckBox>("TagUntangleCheck").IsChecked == true ? "on" : "off";
             TagChoice t = ChosenTag();
             if (t != null) Settings["tag_type"] = t.Label;
             Save();
@@ -1407,7 +1447,7 @@ namespace RevoBIM.UI.NumberSequencer
             if (others.Count > 0)
                 text += ". This tag cannot take every category, so " + string.Join("; ", others.Select(o => o.Value + " get " + o.Key));
             if (Ctl<CheckBox>("TagUntaggedCheck").IsChecked == true) text += ". Anything already tagged in a view is left alone";
-            int n = Views != null ? Views.TickedCount() : 0;
+            int n = Views != null && ScopeTicked() ? Views.TickedCount() : 0;
             if (n > 0)
                 text = "Tags go in the " + n + " ticked view(s), wherever the numbered elements show (3D views must be locked). " + text;
             else if (src.PlansOnly)
@@ -1443,7 +1483,10 @@ namespace RevoBIM.UI.NumberSequencer
                     Dictionary<string, TagChoice> byHost = TagPlan(plan, src, out hosts);
                     tag = new TagJob
                     {
-                        On = true, Choice = t, PlansOnly = src.PlansOnly, Views = Views.TickedIds(), ViewsDoc = Views.DocKeyValue,
+                        On = true, Choice = t, PlansOnly = src.PlansOnly, Views = ScopeTicked() ? Views.TickedIds() : new List<ElementId>(), ViewsDoc = Views.DocKeyValue,
+                        Leader = Ctl<CheckBox>("TagLeaderCheck").IsChecked == true, OffX = Mm("TagOffX"), OffY = Mm("TagOffY"),
+                        Elbow = Ctl<CheckBox>("TagElbowCheck").IsChecked == true, ElbowMm = Mm("TagElbowMm"),
+                        RemovePrev = Ctl<CheckBox>("TagRemoveCheck").IsChecked == true, Untangle = Ctl<CheckBox>("TagUntangleCheck").IsChecked == true,
                         ByHost = byHost.Where(kv => kv.Key != null).ToDictionary(kv => kv.Key, kv => kv.Value),
                         UntaggedOnly = Ctl<CheckBox>("TagUntaggedCheck").IsChecked == true,
                     };
@@ -1665,6 +1708,8 @@ namespace RevoBIM.UI.NumberSequencer
         }
     }
 }
+
+
 
 
 

@@ -42,6 +42,12 @@ namespace RevoBIM.Tools.NumberSequencer
         public Dictionary<string, TagChoice> ByHost = new Dictionary<string, TagChoice>();
         public bool UntaggedOnly = true;
         public bool PlansOnly;
+        public bool Leader;
+        public double OffX, OffY;          // mm in the view: right / up of the element
+        public bool Elbow;
+        public double ElbowMm = 300;
+        public bool RemovePrev;
+        public bool Untangle;
         public List<ElementId> Views = new List<ElementId>();
         public string ViewsDoc;
     }
@@ -804,10 +810,17 @@ namespace RevoBIM.Tools.NumberSequencer
         private static int TagView(Document doc, View view, TagJob tag, List<long> keys, Dictionary<long, ElementId> idmap, ApplyResult res, DebugLog log)
         {
             var marks = TagsInView(doc, view);
+            var placedTags = new List<IndependentTag>();
             var byHost = tag.ByHost ?? new Dictionary<string, TagChoice>();
             WarningSwallower sw;
             Transaction t = MakeTransaction(doc, "Tag sequence", out sw);
             t.Start();
+            if (tag.RemovePrev)
+            {
+                var del = TagsOn(doc, view, keys.Where(idmap.ContainsKey).Select(k => EidValue(idmap[k]))).Where(i => doc.GetElement(i) != null).ToList();
+                if (del.Count > 0) { try { doc.Delete(del); } catch (Exception ex) { log.Add("remove previous tags failed: " + ex.Message); } }
+                marks = TagsInView(doc, view);
+            }
             var used = new List<ElementId> { tag.Choice.Id };
             used.AddRange(byHost.Values.Where(v => v != null).Select(v => v.Id));
             foreach (ElementId tid in used)
@@ -838,7 +851,9 @@ namespace RevoBIM.Tools.NumberSequencer
                 st.Start();
                 try
                 {
-                    IndependentTag.Create(doc, use.Id, view.Id, new Reference(elem), false, TagOrientation.Horizontal, pt);
+                    IndependentTag tg = IndependentTag.Create(doc, use.Id, view.Id, new Reference(elem), tag.Leader, TagOrientation.Horizontal, pt);
+                    ApplyTagOffset(tg, elem, view, pt, tag);
+                    placedTags.Add(tg);
                     st.Commit();
                     placed.Add(k);
                 }
@@ -848,6 +863,7 @@ namespace RevoBIM.Tools.NumberSequencer
                     res.Errors.Add(new NsqCore.KeyMsg { Key = k, Msg = "Tag refused in " + ElemName(view) + ": " + ex.Message });
                 }
             }
+            if (tag.Untangle && placedTags.Count > 1) { try { Untangle(doc, view, placedTags, log); } catch (Exception ex) { log.Add("untangle failed: " + ex.Message); } }
             TransactionStatus status = t.Commit();
             log.Add("tag " + ElemName(view) + ": " + placed.Count + " placed, " + status);
             if (Committed(status)) { res.Tagged += placed.Count; return placed.Count; }
@@ -2012,8 +2028,134 @@ namespace RevoBIM.Tools.NumberSequencer
             }
             try { uiapp.ActiveUIDocument.RefreshActiveView(); } catch (Exception) { }
         }
+
+        // ---------------------------------------------------- tag placement options
+
+        /// <summary>Move a new tag off its element by the offset (mm, along the view's right and up) and bend its leader.</summary>
+        private static void ApplyTagOffset(IndependentTag tg, Element elem, View view, XYZ pt, TagJob tag)
+        {
+            if (tag.OffX == 0 && tag.OffY == 0) return;
+            try
+            {
+                XYZ r = view.RightDirection, u = view.UpDirection;
+                XYZ head = pt + r * (tag.OffX / 304.8) + u * (tag.OffY / 304.8);
+                if (tag.Leader) { try { tg.LeaderEndCondition = LeaderEndCondition.Free; } catch (Exception) { } }
+                tg.TagHeadPosition = head;
+                if (tag.Leader && tag.Elbow && tag.ElbowMm > 0)
+                {
+                    double sign = tag.OffX >= 0 ? 1.0 : -1.0;
+                    XYZ elbow = head - r * (sign * tag.ElbowMm / 304.8);
+                    try { tg.SetLeaderElbow(new Reference(elem), elbow); } catch (Exception) { }
+                }
+            }
+            catch (Exception) { }
+        }
+
+        /// <summary>Tags that touch are moved apart, up the view, until none do.</summary>
+        private static void Untangle(Document doc, View view, List<IndependentTag> tags, DebugLog log)
+        {
+            doc.Regenerate();
+            XYZ r = view.RightDirection, u = view.UpDirection;
+            const double gap = 0.01;
+            var items = new List<Tuple<IndependentTag, double[]>>();
+            foreach (IndependentTag tg in tags)
+            {
+                BoundingBoxXYZ bb = null;
+                try { bb = tg.get_BoundingBox(view); } catch (Exception) { }
+                if (bb == null) continue;
+                double r0 = double.MaxValue, r1 = double.MinValue, u0 = double.MaxValue, u1 = double.MinValue;
+                foreach (double x in new[] { bb.Min.X, bb.Max.X })
+                    foreach (double y in new[] { bb.Min.Y, bb.Max.Y })
+                        foreach (double z in new[] { bb.Min.Z, bb.Max.Z })
+                        {
+                            var p = new XYZ(x, y, z);
+                            double pr = p.DotProduct(r), pu = p.DotProduct(u);
+                            r0 = Math.Min(r0, pr); r1 = Math.Max(r1, pr); u0 = Math.Min(u0, pu); u1 = Math.Max(u1, pu);
+                        }
+                items.Add(Tuple.Create(tg, new[] { r0, r1, u0, u1 }));
+            }
+            int moved = 0;
+            for (int pass = 0; pass < 40; pass++)
+            {
+                bool any = false;
+                items = items.OrderBy(i => i.Item2[2]).ToList();
+                for (int i = 0; i < items.Count; i++)
+                    for (int j = i + 1; j < items.Count; j++)
+                    {
+                        double[] a = items[i].Item2, b = items[j].Item2;
+                        bool overlap = a[0] < b[1] + gap && b[0] < a[1] + gap && a[2] < b[3] + gap && b[2] < a[3] + gap;
+                        if (!overlap) continue;
+                        double delta = a[3] - b[2] + gap;
+                        if (delta <= 0) continue;
+                        try
+                        {
+                            items[j].Item1.TagHeadPosition = items[j].Item1.TagHeadPosition + u * delta;
+                            b[2] += delta; b[3] += delta;
+                            any = true; moved++;
+                        }
+                        catch (Exception) { }
+                    }
+                if (!any) break;
+            }
+            log.Add("untangle: " + moved + " tag move(s) among " + items.Count + " tags");
+        }
+
+        // ---------------------------------------------------- elements, not systems
+
+        private class IdFilter : ISelectionFilter
+        {
+            private readonly HashSet<long> _ids;
+            public IdFilter(HashSet<long> ids) { _ids = ids; }
+            public bool AllowElement(Element e) { return _ids.Contains(EidValue(e.Id)); }
+            public bool AllowReference(Reference r, XYZ p) { return false; }
+        }
+
+        /// <summary>Pick one element out of a set. Null when the user pressed Escape.</summary>
+        public static Element PickElementIn(UIDocument uidoc, HashSet<long> ids, string prompt)
+        {
+            try
+            {
+                Reference r = uidoc.Selection.PickObject(ObjectType.Element, new IdFilter(ids), prompt);
+                return r == null ? null : uidoc.Document.GetElement(r.ElementId);
+            }
+            catch (Exception) { return null; }
+        }
+
+        /// <summary>Model elements of any category, from a list of ids or from everything the view shows.</summary>
+        public static List<Element> ModelElements(Document doc, IEnumerable<ElementId> ids)
+        {
+            var o = new List<Element>();
+            foreach (ElementId id in ids)
+            {
+                Element e = doc.GetElement(id);
+                if (IsNumberable(e)) o.Add(e);
+            }
+            return o;
+        }
+
+        public static bool IsNumberable(Element e)
+        {
+            if (e == null || e is ElementType || e is RevitLinkInstance || e.Category == null) return false;
+            try { if (e.Category.CategoryType != CategoryType.Model) return false; } catch (Exception) { return false; }
+            return ElemPoint(e) != null;
+        }
+
+        public static List<Element> ElementsAllInView(Document doc, View view, int limit)
+        {
+            var o = new List<Element>();
+            CropInfo crop = Crop(view);
+            foreach (Element e in new FilteredElementCollector(doc, view.Id).WhereElementIsNotElementType())
+            {
+                if (!IsNumberable(e)) continue;
+                if (crop != null && !InsideCrop(e, crop)) continue;
+                o.Add(e);
+                if (o.Count >= limit) break;
+            }
+            return o;
+        }
     }
 }
+
 
 
 
