@@ -268,6 +268,26 @@ namespace RevoBIM
             };
             bwicDropdownButton?.AddPushButton(bwicPenetration);
 
+            // --- Electrical (pyRevit: Electrical.panel): one "Electrical Tools" dropdown (a dropdown cannot sit inside
+            //     another dropdown, so the Wires tools follow the others after a separator).
+            RibbonPanel electrical = app.CreateRibbonPanel(TabName, "Electrical");
+            var electricalTools = new PulldownButtonData("RevoBIM_ElectricalTools", "Electrical\nTools")
+            {
+                ToolTip = "Electrical tools: Circuit Manager, Containment System Creator, Panel Template Manager and the Wires tools.",
+                LargeImage = Icon("ElectricalToolsFolder", 32),
+                Image = Icon("ElectricalToolsFolder", 16),
+            };
+            var electricalToolsButton = electrical.AddItem(electricalTools) as PulldownButton;
+            electricalToolsButton?.AddPushButton(new PushButtonData(
+                "RevoBIM_CircuitManager", "Circuit Manager", dll, typeof(Commands.CircuitManagerCommand).FullName)
+            {
+                ToolTip = "Every electrical circuit in one Excel-style table: filter any column, add circuit parameters as columns, change Path Mode " +
+                          "on many circuits from a dropdown and set Path Offset with Ctrl+C / Ctrl+V. Nothing is written until Apply. Opens modeless.",
+                AvailabilityClassName = typeof(Commands.ProjectDocumentAvailability).FullName,
+                LargeImage = Icon("CircuitManager", 32),
+                Image = Icon("CircuitManager", 16),
+            });
+
             // --- FAB Automation (pyRevit: FAB Automation.panel)
             RibbonPanel fabAutomation = app.CreateRibbonPanel(TabName, "FAB Automation");
             var hangerAutomation = new PushButtonData(

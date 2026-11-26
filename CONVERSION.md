@@ -1,4 +1,4 @@
-﻿# Conversion tracker
+# Conversion tracker
 
 Status values: Not started, Converted (built, not yet tried in Revit), Tested (works in Revit 2024).
 
@@ -64,7 +64,7 @@ Status values: Not started, Converted (built, not yet tried in Revit), Tested (w
 | RevoBIM Offset Break | Coordination | Not started | In System Offset Tools pulldown. |
 | RevoBIM System Offset Settings | Coordination | Not started | In System Offset Tools pulldown. |
 | RevoBIM System Offset | Coordination | Not started | In System Offset Tools pulldown. |
-| Circuit Manager | Electrical | Not started |  |
+| Circuit Manager | Electrical | Converted | v1.0.1 port (add-in 0.24.0), first member of the new `Electrical Tools` dropdown on a new Electrical panel (a dropdown cannot nest, so the Wires tools will follow the others after a separator). Pure rules in `Tools\CircuitManager\CmLogic.cs` (= cm_logic: path mode names, mm parsing, typed/pasted values, clipboard, filter/sort, `CmStage` staged edits, settings), Revit side in `CmRevit.cs` (= cm_revit: read circuits, write in one transaction with a sub-transaction per circuit, borrow/checkout, read-back; `CmRunner` = the ExternalEvent queue; `CmSettings` = settings file + debug log); windows in `UI\CircuitManager\` (pyRevit XAML verbatim in `Layouts\`; `CmWindow.cs` = cm_main, `CmDialogs.cs` = cm_dialogs + palettes). The window chrome (theme chip, drawer, grips, full screen) is the new shared `Helpers\RevoChrome.cs` (`ThemedWindow`, `WindowDrawer`, `ChromeConfig`), for the snake_case layouts. Command `Commands\CircuitManagerCommand.cs` (staged like script.py). Shares `%APPDATA%\RevoBIM\circuit_manager.txt` with the pyRevit version; `circuit_manager_debug.txt` opens with a build line. Logo easter egg armed on every window. Not ported: the bench scripts, `import_check.py` and the modal fallback for a dead IronPython engine. Not yet tried in Revit. |
 | Containment System Creator | Electrical | Not started |  |
 | Panel Template Mngr | Electrical | Not started |  |
 | Align Wire Ends | Electrical | Not started | In Wires pulldown. |
