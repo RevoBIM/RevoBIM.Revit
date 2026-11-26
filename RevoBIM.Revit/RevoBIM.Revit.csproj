@@ -37,7 +37,7 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <EnableDefaultCompileItems>true</EnableDefaultCompileItems>
-    <Version>0.24.0</Version>
+    <Version>0.25.0</Version>
     <!-- REVIT2024, REVIT2025 ... for the few places the API differs between versions -->
     <DefineConstants>$(DefineConstants);REVIT$(RevitVersion)</DefineConstants>
     <!-- bin\<Configuration>\<framework>\ per version, so the builds never overwrite each other -->
@@ -223,6 +223,13 @@
     <Page Remove="UI\CircuitManager\Layouts\**" />
     <None Remove="UI\CircuitManager\Layouts\**" />
     <EmbeddedResource Include="UI\CircuitManager\Layouts\*.xaml" LogicalName="RevoBIM.UI.CircuitManager.Layouts.%(Filename)%(Extension)" />
+  </ItemGroup>
+  <!-- Containment System Creator layouts: the pyRevit XAML verbatim (handlers lifted out and wired in code by Helpers\XamlLoader.cs).
+       Embedded as RevoBIM.UI.ContainmentSystemCreator.Layouts.<file>. -->
+  <ItemGroup>
+    <Page Remove="UI\ContainmentSystemCreator\Layouts\**" />
+    <None Remove="UI\ContainmentSystemCreator\Layouts\**" />
+    <EmbeddedResource Include="UI\ContainmentSystemCreator\Layouts\*.xaml" LogicalName="RevoBIM.UI.ContainmentSystemCreator.Layouts.%(Filename)%(Extension)" />
   </ItemGroup>
   <!-- Per-user deploy for the version being built: no admin rights needed. Copies the DLL and writes the .addin manifest. -->
   <Target Name="DeployAddin" AfterTargets="Build">

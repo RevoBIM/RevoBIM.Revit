@@ -242,6 +242,7 @@ namespace RevoBIM.Helpers
         private DispatcherTimer timer;
         private double savedLeft, savedTop, savedHeight, savedMinHeight;
         private SizeToContent savedStc;
+        private ResizeMode savedResize;
         private int slot = -1;
         private double parkedTop;
 
@@ -250,25 +251,38 @@ namespace RevoBIM.Helpers
         public bool Busy;
         public WindowDrawer Owner;
 
+        /// <summary>The snake_case layouts: header_bar, body, shrink_btn, shrink_glyph, expand_glyph, grips, root_grid.</summary>
         public WindowDrawer(ChromeConfig config, Window window, Func<string, FrameworkElement> find)
+            : this(config, window, find("header_bar"), find("body"), find("shrink_btn") as Button, find("shrink_glyph"), find("expand_glyph"), find("grips"),
+                   ChildrenOf(find("root_grid") as Panel, find("header_bar"), find("grips")))
+        {
+        }
+
+        public WindowDrawer(ChromeConfig config, Window window, FrameworkElement header, FrameworkElement body, Button button,
+                            UIElement shrinkGlyph, UIElement expandGlyph, UIElement grips, IEnumerable<UIElement> siblings)
         {
             this.config = config;
             this.window = window;
-            header = find("header_bar");
-            body = find("body");
-            button = find("shrink_btn") as Button;
-            shrinkGlyph = find("shrink_glyph");
-            expandGlyph = find("expand_glyph");
-            grips = find("grips");
-            var root = find("root_grid") as Panel;
-            if (root != null)
-            {
-                foreach (UIElement child in root.Children)
-                    if (!ReferenceEquals(child, header) && !ReferenceEquals(child, grips)) siblings.Add(child);
-            }
+            this.header = header;
+            this.body = body;
+            this.button = button;
+            this.shrinkGlyph = shrinkGlyph;
+            this.expandGlyph = expandGlyph;
+            this.grips = grips;
+            if (siblings != null) this.siblings.AddRange(siblings);
             if (button != null) button.Click += (s, a) => Toggle();
             window.Closed += (s, a) => Released();
             SetGlyphs(false);
+        }
+
+        /// <summary>Every child of a panel except the header and the grips: what is collapsed while the window is parked.</summary>
+        public static List<UIElement> ChildrenOf(Panel root, UIElement header, UIElement grips)
+        {
+            var list = new List<UIElement>();
+            if (root == null) return list;
+            foreach (UIElement child in root.Children)
+                if (!ReferenceEquals(child, header) && !ReferenceEquals(child, grips)) list.Add(child);
+            return list;
         }
 
         public void SetOwner(WindowDrawer owner)
@@ -342,6 +356,7 @@ namespace RevoBIM.Helpers
             savedHeight = w.Height;
             savedMinHeight = w.MinHeight;
             savedStc = w.SizeToContent;
+            savedResize = w.ResizeMode;
             try
             {
                 if (double.IsNaN(savedHeight)) savedHeight = w.ActualHeight;
@@ -353,6 +368,7 @@ namespace RevoBIM.Helpers
             {
                 w.MinHeight = 0;
                 w.SizeToContent = SizeToContent.Manual;
+                w.ResizeMode = ResizeMode.NoResize;   // a resize grip would sit on the parked bar and swallow clicks
                 w.Height = savedHeight;
             }
             catch (Exception)
@@ -470,6 +486,7 @@ namespace RevoBIM.Helpers
                 window.Top = target;
                 window.MinHeight = savedMinHeight;
                 window.SizeToContent = savedStc;
+                window.ResizeMode = savedResize;
             }
             catch (Exception)
             {

@@ -1,0 +1,456 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RevoBIM Containment System Creator"
+        Height="710" Width="1080"
+        MinHeight="560" MinWidth="900"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ResizeMode="CanResizeWithGrip"
+        ShowInTaskbar="False"
+        SnapsToDevicePixels="True"
+        UseLayoutRounding="True">
+
+  <Window.Resources>
+
+    <SolidColorBrush x:Key="WinBg"    Color="#FF3C4454"/>
+    <SolidColorBrush x:Key="PanelBg"  Color="#FF343C4A"/>
+    <SolidColorBrush x:Key="FieldBg"  Color="#FF2D3441"/>
+    <SolidColorBrush x:Key="TreeBg"   Color="#FF3C4454"/>
+    <SolidColorBrush x:Key="EdgeBrush" Color="#FF4E5665"/>
+    <SolidColorBrush x:Key="TextBrush" Color="#FFE8F0F8"/>
+    <SolidColorBrush x:Key="MutedBrush" Color="#FF9DA4B2"/>
+    <SolidColorBrush x:Key="BlueBrush" Color="#FF4FA3E3"/>
+    <SolidColorBrush x:Key="OrangeBrush" Color="#FFE8912D"/>
+    <SolidColorBrush x:Key="GreenBrush" Color="#FF3FA75A"/>
+    <SolidColorBrush x:Key="GreenHover" Color="#FF4EC06D"/>
+
+    <Style TargetType="TextBlock">
+      <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+      <Setter Property="FontFamily" Value="Segoe UI"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+    </Style>
+
+    <!-- Flat dark button -->
+    <Style x:Key="FlatButton" TargetType="Button">
+      <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+      <Setter Property="FontFamily" Value="Segoe UI"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="Padding" Value="12,5"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="SnapsToDevicePixels" Value="True"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border x:Name="bd"
+                    Background="#FF46505F"
+                    BorderBrush="{StaticResource EdgeBrush}"
+                    BorderThickness="1"
+                    CornerRadius="3">
+              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"
+                                Margin="{TemplateBinding Padding}"/>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="bd" Property="Background" Value="#FF55606F"/>
+                <Setter TargetName="bd" Property="BorderBrush" Value="{StaticResource OrangeBrush}"/>
+              </Trigger>
+              <Trigger Property="IsPressed" Value="True">
+                <Setter TargetName="bd" Property="Background" Value="#FF323C48"/>
+              </Trigger>
+              <Trigger Property="IsEnabled" Value="False">
+                <Setter TargetName="bd" Property="Background" Value="#FF3A414D"/>
+                <Setter Property="Foreground" Value="#FF7B8290"/>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <!-- Green action button -->
+    <Style x:Key="GreenButton" TargetType="Button" BasedOn="{StaticResource FlatButton}">
+      <Setter Property="Foreground" Value="#FFFFFFFF"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border x:Name="bd"
+                    Background="{StaticResource GreenBrush}"
+                    BorderBrush="#FF2E8446"
+                    BorderThickness="1"
+                    CornerRadius="3">
+              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"
+                                Margin="{TemplateBinding Padding}"/>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="bd" Property="Background" Value="{StaticResource GreenHover}"/>
+              </Trigger>
+              <Trigger Property="IsPressed" Value="True">
+                <Setter TargetName="bd" Property="Background" Value="#FF2E8446"/>
+              </Trigger>
+              <Trigger Property="IsEnabled" Value="False">
+                <Setter TargetName="bd" Property="Background" Value="#FF33443A"/>
+                <Setter TargetName="bd" Property="BorderBrush" Value="#FF33443A"/>
+                <Setter Property="Foreground" Value="#FF7C8A80"/>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <!-- Orange action button: greyed out until a system is picked, then lit -->
+    <Style x:Key="OrangeButton" TargetType="Button" BasedOn="{StaticResource FlatButton}">
+      <Setter Property="FontWeight" Value="SemiBold"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border x:Name="bd"
+                    Background="{StaticResource OrangeBrush}"
+                    BorderBrush="#FFC2761F"
+                    BorderThickness="1"
+                    CornerRadius="3">
+              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"
+                                Margin="{TemplateBinding Padding}"/>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="bd" Property="Background" Value="#FFF4A64A"/>
+              </Trigger>
+              <Trigger Property="IsPressed" Value="True">
+                <Setter TargetName="bd" Property="Background" Value="#FFC2761F"/>
+              </Trigger>
+              <Trigger Property="IsEnabled" Value="False">
+                <Setter TargetName="bd" Property="Background" Value="#FF3A414D"/>
+                <Setter TargetName="bd" Property="BorderBrush" Value="#FF4E5665"/>
+                <Setter Property="Foreground" Value="#FF7B8290"/>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+      <Setter Property="Foreground" Value="#FF1B1F24"/>
+    </Style>
+
+    <!-- Shrink to taskbar: grey hover, never takes focus so Enter cannot press it -->
+    <Style x:Key="ShrinkButton" TargetType="Button">
+      <Setter Property="Foreground" Value="{StaticResource MutedBrush}"/>
+      <Setter Property="Width" Value="30"/>
+      <Setter Property="Height" Value="24"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="Focusable" Value="False"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border x:Name="bd" Background="Transparent" CornerRadius="3">
+              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="bd" Property="Background" Value="#FF46505F"/>
+                <Setter Property="Foreground" Value="#FFFFFFFF"/>
+              </Trigger>
+              <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Opacity" Value="0.4"/>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <!-- Window chrome close button -->
+    <Style x:Key="ChromeButton" TargetType="Button">
+      <Setter Property="Foreground" Value="{StaticResource MutedBrush}"/>
+      <Setter Property="FontFamily" Value="Segoe UI"/>
+      <Setter Property="FontSize" Value="13"/>
+      <Setter Property="Width" Value="30"/>
+      <Setter Property="Height" Value="24"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border x:Name="bd" Background="Transparent" CornerRadius="3">
+              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="bd" Property="Background" Value="#FFC0392B"/>
+                <Setter Property="Foreground" Value="#FFFFFFFF"/>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <!-- Dark text box -->
+    <Style TargetType="TextBox">
+      <Setter Property="Background" Value="{StaticResource FieldBg}"/>
+      <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource EdgeBrush}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="Padding" Value="6,4"/>
+      <Setter Property="FontFamily" Value="Segoe UI"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="CaretBrush" Value="{StaticResource TextBrush}"/>
+      <Setter Property="SelectionBrush" Value="{StaticResource BlueBrush}"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="TextBox">
+            <Border x:Name="bd" Background="{TemplateBinding Background}"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}"
+                    CornerRadius="3">
+              <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}"/>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsKeyboardFocused" Value="True">
+                <Setter TargetName="bd" Property="BorderBrush" Value="{StaticResource BlueBrush}"/>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <!-- Section card -->
+    <Style x:Key="Card" TargetType="Border">
+      <Setter Property="Background" Value="{StaticResource PanelBg}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource EdgeBrush}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="4"/>
+    </Style>
+
+    <Style TargetType="TreeViewItem">
+      <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+      <Setter Property="Padding" Value="2,2,2,2"/>
+      <Setter Property="FontFamily" Value="Segoe UI"/>
+      <Setter Property="FontSize" Value="12"/>
+    </Style>
+
+  </Window.Resources>
+
+  <Border Background="{StaticResource WinBg}"
+          BorderBrush="#FF5A6372" BorderThickness="1" CornerRadius="6">
+    <Grid Margin="1">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+
+      <!-- HEADER -->
+      <Border x:Name="header_bar" Grid.Row="0" Background="#FF212932" CornerRadius="5,5,0,0"
+              MouseLeftButtonDown="drag_window">
+        <Grid Margin="14,10,10,10">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+
+          <Image x:Name="app_icon" Grid.Column="0" Width="30" Height="30"
+                 VerticalAlignment="Center" Margin="0,0,10,0"
+                 RenderOptions.BitmapScalingMode="HighQuality"/>
+
+          <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+            <TextBlock Text="RevoBIM" FontSize="21" FontWeight="Bold"
+                       Foreground="{StaticResource BlueBrush}" VerticalAlignment="Center"/>
+            <TextBlock Text="Containment System Creator" FontSize="15" Margin="10,0,0,0"
+                       Foreground="{StaticResource OrangeBrush}" VerticalAlignment="Bottom"
+                       Padding="0,0,0,2"/>
+          </StackPanel>
+
+          <TextBlock x:Name="version_text" Grid.Column="3" Text="v1.4.1" FontSize="11"
+                     Foreground="{StaticResource MutedBrush}" VerticalAlignment="Center"
+                     Margin="0,0,8,0"/>
+
+          <Button x:Name="shrink_btn" Grid.Column="4" Style="{StaticResource ShrinkButton}"
+                  Margin="0,0,2,0">
+            <Grid Width="14" Height="14">
+              <Path x:Name="shrink_glyph"
+                    Data="M 7,1.5 L 7,9 M 3.5,5.5 L 7,9 L 10.5,5.5 M 2,12.5 L 12,12.5"
+                    Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                    StrokeThickness="1.6" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                    StrokeLineJoin="Round"/>
+              <Path x:Name="expand_glyph" Visibility="Collapsed"
+                    Data="M 7,12.5 L 7,2.5 M 2.5,7 L 7,2.5 L 11.5,7"
+                    Stroke="{StaticResource GreenHover}"
+                    StrokeThickness="2.2" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                    StrokeLineJoin="Round"/>
+            </Grid>
+          </Button>
+
+          <Button Grid.Column="5" Style="{StaticResource ChromeButton}"
+                  Content="&#x2715;" Click="close_window"/>
+        </Grid>
+      </Border>
+
+      <!-- HINT -->
+      <TextBlock Grid.Row="1" Margin="16,10,16,2" TextWrapping="Wrap"
+                 Foreground="{StaticResource MutedBrush}"
+                 Text="Every containment service type in the model, with the fitting types each one uses. Create System duplicates the source type and every fitting it references, renames them to the new service and stamps BGL_Function and Type Mark on all of them."/>
+
+      <!-- BODY -->
+      <Grid Grid.Row="2" Margin="16,10,16,6">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="14"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- CABLE TRAY GROUP -->
+        <Border Grid.Column="0" Style="{StaticResource Card}">
+          <Grid Margin="12">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+              </Grid.ColumnDefinitions>
+              <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                <Border Width="4" Height="16" CornerRadius="2"
+                        Background="{StaticResource BlueBrush}" Margin="0,0,8,0"/>
+                <TextBlock Text="Cable Tray with Fittings" FontSize="14" FontWeight="SemiBold"
+                           VerticalAlignment="Center"/>
+              </StackPanel>
+              <Button x:Name="btn_tray_top" Grid.Column="1"
+                      Style="{StaticResource GreenButton}"
+                      Content="Create System" Padding="10,3" FontSize="11"
+                      Click="create_tray_system"/>
+            </Grid>
+
+            <Grid Grid.Row="1" Margin="0,10,0,8">
+              <TextBox x:Name="tray_search" TextChanged="tray_search_changed"/>
+              <TextBlock x:Name="tray_search_hint" Text="Search cable tray types and fittings..."
+                         Foreground="#FF7B8290" IsHitTestVisible="False"
+                         VerticalAlignment="Center" Margin="9,0,0,0"/>
+            </Grid>
+
+            <Border Grid.Row="2" Background="{StaticResource TreeBg}"
+                    BorderBrush="{StaticResource EdgeBrush}" BorderThickness="1" CornerRadius="3">
+              <TreeView x:Name="tray_tree" Background="Transparent" BorderThickness="0"
+                        Foreground="{StaticResource TextBrush}" Margin="4"
+                        SelectedItemChanged="tray_selected"
+                        ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                <TreeView.Resources>
+                  <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#FF323C48"/>
+                  <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="#FFFFFFFF"/>
+                  <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#FF36404D"/>
+                  <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="#FFE8F0F8"/>
+                </TreeView.Resources>
+              </TreeView>
+            </Border>
+
+            <TextBlock x:Name="tray_count" Grid.Row="3" Margin="2,8,0,0"
+                       Foreground="{StaticResource MutedBrush}" Text=""/>
+          </Grid>
+        </Border>
+
+        <!-- CONDUIT GROUP -->
+        <Border Grid.Column="2" Style="{StaticResource Card}">
+          <Grid Margin="12">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+              </Grid.ColumnDefinitions>
+              <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                <Border Width="4" Height="16" CornerRadius="2"
+                        Background="{StaticResource OrangeBrush}" Margin="0,0,8,0"/>
+                <TextBlock Text="Conduit with Fittings" FontSize="14" FontWeight="SemiBold"
+                           VerticalAlignment="Center"/>
+              </StackPanel>
+              <Button x:Name="btn_conduit_top" Grid.Column="1"
+                      Style="{StaticResource GreenButton}"
+                      Content="Create System" Padding="10,3" FontSize="11"
+                      Click="create_conduit_system"/>
+            </Grid>
+
+            <Grid Grid.Row="1" Margin="0,10,0,8">
+              <TextBox x:Name="conduit_search" TextChanged="conduit_search_changed"/>
+              <TextBlock x:Name="conduit_search_hint" Text="Search conduit types and fittings..."
+                         Foreground="#FF7B8290" IsHitTestVisible="False"
+                         VerticalAlignment="Center" Margin="9,0,0,0"/>
+            </Grid>
+
+            <Border Grid.Row="2" Background="{StaticResource TreeBg}"
+                    BorderBrush="{StaticResource EdgeBrush}" BorderThickness="1" CornerRadius="3">
+              <TreeView x:Name="conduit_tree" Background="Transparent" BorderThickness="0"
+                        Foreground="{StaticResource TextBrush}" Margin="4"
+                        SelectedItemChanged="conduit_selected"
+                        ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                <TreeView.Resources>
+                  <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#FF323C48"/>
+                  <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="#FFFFFFFF"/>
+                  <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#FF36404D"/>
+                  <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="#FFE8F0F8"/>
+                </TreeView.Resources>
+              </TreeView>
+            </Border>
+
+            <TextBlock x:Name="conduit_count" Grid.Row="3" Margin="2,8,0,0"
+                       Foreground="{StaticResource MutedBrush}" Text=""/>
+          </Grid>
+        </Border>
+      </Grid>
+
+      <!-- FOOTER -->
+      <Border Grid.Row="3" Background="#FF212932" CornerRadius="0,0,5,5">
+        <Grid Margin="16,10,16,12">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+
+          <StackPanel Grid.Column="0" Orientation="Horizontal">
+            <Button Style="{StaticResource FlatButton}"
+                    Content="Refresh" Click="refresh_clicked" Margin="0,0,10,0"/>
+            <Button x:Name="btn_edit" Style="{StaticResource OrangeButton}"
+                    Content="Edit System Parameters" Padding="16,7"
+                    IsEnabled="False" Click="edit_selected" Margin="0,0,14,0"/>
+          </StackPanel>
+
+          <TextBlock x:Name="status_text" Grid.Column="1" VerticalAlignment="Center"
+                     TextTrimming="CharacterEllipsis"
+                     Foreground="{StaticResource MutedBrush}" Text=""/>
+
+          <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button x:Name="btn_tray_bottom" Style="{StaticResource GreenButton}"
+                    Content="Create Cable Tray System" Padding="16,7"
+                    Click="create_tray_system" Margin="0,0,10,0"/>
+            <Button x:Name="btn_conduit_bottom" Style="{StaticResource GreenButton}"
+                    Content="Create Conduit System" Padding="16,7"
+                    Click="create_conduit_system" Margin="0,0,10,0"/>
+            <Button Style="{StaticResource FlatButton}" Content="Close"
+                    Padding="16,7" Click="close_window"/>
+          </StackPanel>
+        </Grid>
+      </Border>
+
+    </Grid>
+  </Border>
+</Window>

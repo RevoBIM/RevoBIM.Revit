@@ -288,6 +288,17 @@ namespace RevoBIM
                 Image = Icon("CircuitManager", 16),
             });
 
+            electricalToolsButton?.AddPushButton(new PushButtonData(
+                "RevoBIM_ContainmentSystemCreator", "Containment System Creator", dll, typeof(Commands.ContainmentSystemCreatorCommand).FullName)
+            {
+                ToolTip = "Create a complete containment service type - cable tray or conduit - by duplicating an existing \"with fittings\" type " +
+                          "together with every fitting type it references, renaming them to the new service and stamping BGL_Function and Type Mark " +
+                          "on all of them. Also edits an existing system's name and parameters across all its fittings.",
+                AvailabilityClassName = typeof(Commands.ProjectDocumentAvailability).FullName,
+                LargeImage = Icon("ContainmentSystemCreator", 32),
+                Image = Icon("ContainmentSystemCreator", 16),
+            });
+
             // --- FAB Automation (pyRevit: FAB Automation.panel)
             RibbonPanel fabAutomation = app.CreateRibbonPanel(TabName, "FAB Automation");
             var hangerAutomation = new PushButtonData(
