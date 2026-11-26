@@ -1386,6 +1386,8 @@ namespace RevoBIM.UI.NumberSequencer
 
         private void SyncTagEnabled()
         {
+            // tagging in the current view needs no list of views: fold it away
+            NsqUi.Show(Ctl<UIElement>("TagViewsCard"), ScopeTicked());
             bool on = Ctl<CheckBox>("TagCheck").IsChecked == true;
             Ctl<ComboBox>("TagCombo").IsEnabled = on;
             Ctl<CheckBox>("TagUntaggedCheck").IsEnabled = on;
@@ -1708,6 +1710,7 @@ namespace RevoBIM.UI.NumberSequencer
         }
     }
 }
+
 
 
 
