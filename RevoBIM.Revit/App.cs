@@ -299,6 +299,18 @@ namespace RevoBIM
                 Image = Icon("ContainmentSystemCreator", 16),
             });
 
+            electricalToolsButton?.AddPushButton(new PushButtonData(
+                "RevoBIM_PanelTemplateMngr", "Panel Template\nMngr", dll, typeof(Commands.PanelTemplateManagerCommand).FullName)
+            {
+                ToolTip = "Panel Schedule Template Manager.\n\nEvery panel in the project with the panel schedule template it is using. Search and filter on every heading, " +
+                          "add as many parameter columns as you need, swap templates by hand or with Auto Assign, and nothing is written to the model until Apply is pressed.\n\n" +
+                          "The Template Duplicator tab lists every template with how many panels use it, isolates the unused ones, deletes or merges them, and duplicates one " +
+                          "template into as many fixed slot counts as you pick.\n\nSettings are behind the gear in the tool's own header. Modeless - Revit stays usable while it is open.",
+                AvailabilityClassName = typeof(Commands.ProjectDocumentAvailability).FullName,
+                LargeImage = Icon("PanelTemplateManager", 32),
+                Image = Icon("PanelTemplateManager", 16),
+            });
+
             // --- FAB Automation (pyRevit: FAB Automation.panel)
             RibbonPanel fabAutomation = app.CreateRibbonPanel(TabName, "FAB Automation");
             var hangerAutomation = new PushButtonData(

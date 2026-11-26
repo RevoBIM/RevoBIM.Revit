@@ -37,7 +37,7 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <EnableDefaultCompileItems>true</EnableDefaultCompileItems>
-    <Version>0.25.0</Version>
+    <Version>0.26.0</Version>
     <!-- REVIT2024, REVIT2025 ... for the few places the API differs between versions -->
     <DefineConstants>$(DefineConstants);REVIT$(RevitVersion)</DefineConstants>
     <!-- bin\<Configuration>\<framework>\ per version, so the builds never overwrite each other -->
@@ -230,6 +230,13 @@
     <Page Remove="UI\ContainmentSystemCreator\Layouts\**" />
     <None Remove="UI\ContainmentSystemCreator\Layouts\**" />
     <EmbeddedResource Include="UI\ContainmentSystemCreator\Layouts\*.xaml" LogicalName="RevoBIM.UI.ContainmentSystemCreator.Layouts.%(Filename)%(Extension)" />
+  </ItemGroup>
+  <!-- Panel Template Mngr layouts: the pyRevit XAML (it names no handlers; all wiring is in code), loaded at runtime by UI\PanelTemplateManager\PstmUi.cs.
+       Theme.xaml carries the dark palette shared with the other RevoBIM tools. Embedded as RevoBIM.UI.PanelTemplateManager.Layouts.<file>. -->
+  <ItemGroup>
+    <Page Remove="UI\PanelTemplateManager\Layouts\**" />
+    <None Remove="UI\PanelTemplateManager\Layouts\**" />
+    <EmbeddedResource Include="UI\PanelTemplateManager\Layouts\*.xaml" LogicalName="RevoBIM.UI.PanelTemplateManager.Layouts.%(Filename)%(Extension)" />
   </ItemGroup>
   <!-- Per-user deploy for the version being built: no admin rights needed. Copies the DLL and writes the .addin manifest. -->
   <Target Name="DeployAddin" AfterTargets="Build">

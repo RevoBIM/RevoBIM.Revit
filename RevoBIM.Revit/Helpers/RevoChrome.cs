@@ -239,6 +239,7 @@ namespace RevoBIM.Helpers
         private readonly List<WindowDrawer> children = new List<WindowDrawer>();
         private readonly List<KeyValuePair<UIElement, Visibility>> savedVisibility = new List<KeyValuePair<UIElement, Visibility>>();
         private Visibility? savedGrips;
+        private CornerRadius? savedCorners;
         private DispatcherTimer timer;
         private double savedLeft, savedTop, savedHeight, savedMinHeight;
         private SizeToContent savedStc;
@@ -422,6 +423,19 @@ namespace RevoBIM.Helpers
                 {
                 }
             }
+            // the bar stands alone, so its top corners are not the only rounded ones
+            var headerBorder = header as Border;
+            if (headerBorder != null)
+            {
+                try
+                {
+                    savedCorners = headerBorder.CornerRadius;
+                    headerBorder.CornerRadius = new CornerRadius(5);
+                }
+                catch (Exception)
+                {
+                }
+            }
             try
             {
                 window.Top = parkedTop;
@@ -464,6 +478,17 @@ namespace RevoBIM.Helpers
                 try
                 {
                     grips.Visibility = savedGrips.Value;
+                }
+                catch (Exception)
+                {
+                }
+            }
+            var headerCorners = header as Border;
+            if (headerCorners != null && savedCorners != null)
+            {
+                try
+                {
+                    headerCorners.CornerRadius = savedCorners.Value;
                 }
                 catch (Exception)
                 {
