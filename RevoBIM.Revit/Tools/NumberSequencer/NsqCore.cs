@@ -169,7 +169,7 @@ namespace RevoBIM.Tools.NumberSequencer
     /// </summary>
     public static class NsqCore
     {
-        public const string Version = "1.13.2";
+        public const string Version = "1.14.0";
         public const string ToolName = "Number Sequencer";
         public const string SettingsFile = "number_sequencer.txt";
         public const string DebugFile = "number_sequencer_debug.txt";
@@ -2116,6 +2116,73 @@ namespace RevoBIM.Tools.NumberSequencer
             views = tickedIds.Where(v => !onSheets.Contains(v)).OrderBy(v => v).ToList();
             return full;
         }
+
+        // ============================================================ Order by position
+
+        public const int SnakeVariants = 4;
+
+        /// <summary>
+        /// Elements in a snake across the view. uv: u right, v up. leftRight: rows across, each back the other way;
+        /// otherwise columns down, each back up. variant (0-3) picks the start corner and first direction. Within a row
+        /// each next element is the nearest one ahead in the direction of travel.
+        /// </summary>
+        public static List<long> SnakeOrder(Dictionary<long, double[]> uv, bool leftRight, int variant)
+        {
+            var keys = uv.Keys.OrderBy(k => k).ToList();
+            if (keys.Count <= 1) return keys;
+            double tSign = (variant & 1) != 0 ? -1.0 : 1.0;
+            double sSign = (variant & 2) != 0 ? -1.0 : 1.0;
+            // t runs along the travel, s across the rows; the default is left-to-right / top-to-bottom
+            Func<long, double> t = k => tSign * (leftRight ? uv[k][0] : -uv[k][1]);
+            Func<long, double> s = k => sSign * (leftRight ? -uv[k][1] : uv[k][0]);
+            // how far apart neighbours sit: the typical nearest-neighbour distance
+            var nn = new List<double>();
+            foreach (long a in keys)
+            {
+                double best = double.MaxValue;
+                foreach (long b in keys)
+                {
+                    if (a == b) continue;
+                    double dx = uv[a][0] - uv[b][0], dy = uv[a][1] - uv[b][1];
+                    double d = Math.Sqrt(dx * dx + dy * dy);
+                    if (d < best) best = d;
+                }
+                if (best < double.MaxValue) nn.Add(best);
+            }
+            nn.Sort();
+            double spacing = nn.Count > 0 ? nn[nn.Count / 2] : 1.0;
+            double tol = Math.Max(spacing * 0.6, 1e-6);
+            var bySide = keys.OrderBy(s).ThenBy(t).ThenBy(k => k).ToList();
+            var rows = new List<List<long>>();
+            double prev = 0;
+            foreach (long k in bySide)
+            {
+                double sv = s(k);
+                if (rows.Count == 0 || sv - prev > tol) rows.Add(new List<long>());
+                rows[rows.Count - 1].Add(k);
+                prev = sv;
+            }
+            var o = new List<long>();
+            for (int i = 0; i < rows.Count; i++)
+            {
+                var row = rows[i].OrderBy(t).ThenBy(k => k).ToList();
+                if (i % 2 == 1) row.Reverse();
+                o.AddRange(row);
+            }
+            return o;
+        }
+
+        /// <summary>"Left to right snake from the top left (1 of 4)".</summary>
+        public static string SnakeText(bool leftRight, int variant)
+        {
+            bool rev = (variant & 1) != 0, other = (variant & 2) != 0;
+            string start = leftRight
+                ? (other ? "bottom" : "top") + " " + (rev ? "right" : "left")
+                : (other ? "right" : "left") + " " + (rev ? "bottom" : "top");
+            return (leftRight ? "Left to right" : "Top to bottom") + " snake from the " + start + " (" + (variant + 1) + " of " + SnakeVariants + ")";
+        }
     }
 }
+
+
 

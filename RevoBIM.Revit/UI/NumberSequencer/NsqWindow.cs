@@ -94,7 +94,7 @@ namespace RevoBIM.UI.NumberSequencer
     /// element along a duct, pipe or fabrication system into a parameter you choose - branches first, then on up the
     /// main - and can tag each numbered element.
     /// </summary>
-    public class SequencerWindow
+    public partial class SequencerWindow
     {
         private static SequencerWindow _current;
 
@@ -259,6 +259,7 @@ namespace RevoBIM.UI.NumberSequencer
             On<Button>("ApplyBtn", OnApply);
             Win.Activated += (s, e) => Try("activated", OnActivated);
             Win.Closed += (s, e) => Try("closed", OnClosed);
+            WirePosition();
         }
 
         // ---------------------------------------------------- folding sections, the tag drawer
@@ -624,6 +625,8 @@ namespace RevoBIM.UI.NumberSequencer
             public List<NetworkData> Reads = new List<NetworkData>();
             public HashSet<long> Starts = new HashSet<long>();
             public List<TagChoice> Tags;
+            public bool Positional;
+            public NsqRevit.ViewFrame Frame;
         }
 
         private NetworkData Read(Document doc, List<Element> elems)
@@ -635,6 +638,7 @@ namespace RevoBIM.UI.NumberSequencer
 
         private object JobAddSelection(UIApplication uiapp)
         {
+            if (PosOn()) return JobAddPositional(uiapp);
             UIDocument uidoc = uiapp.ActiveUIDocument;
             Document doc = uidoc.Document;
             List<ElementId> ids = uidoc.Selection.GetElementIds().ToList();
@@ -698,6 +702,7 @@ namespace RevoBIM.UI.NumberSequencer
             if (err != null) { Status("Could not read - see debug"); return; }
             var res = resObj as AddResult;
             if (res == null) { Status("Cancelled"); return; }
+            if (res.Positional) { AddedPositional(res); return; }
             if (res.Tags != null) { Tags = res.Tags; FillTags(); }
             int moved = 0;
             for (int i = 0; i < _systems.Count; i++)
@@ -769,6 +774,8 @@ namespace RevoBIM.UI.NumberSequencer
                 if (data.Labels.TryGetValue(k, out s)) d.Labels[k] = s;
                 if (data.SysName.TryGetValue(k, out s)) d.SysName[k] = s;
                 if (data.PerElem.TryGetValue(k, out pe)) d.PerElem[k] = pe;
+                double[] pt;
+                if (data.Points.TryGetValue(k, out pt)) d.Points[k] = pt;
             }
             var newSet = new HashSet<long>(newKeys);
             foreach (NsqCore.TreeRow row in data.Rows)
@@ -830,6 +837,7 @@ namespace RevoBIM.UI.NumberSequencer
 
         private void RecomputeOrder()
         {
+            if (PosSystem()) { PosRecompute(); return; }
             if (_systems.Count == 0 || _data == null) { _order = new List<long>(); _spans = new List<KeyValuePair<int, int>>(); }
             else
             {
@@ -958,6 +966,7 @@ namespace RevoBIM.UI.NumberSequencer
             {
                 SysDef gone = _systems[i];
                 _systems.RemoveAt(i);
+                QueueClearPreview();
                 DropKeys(gone.Keys);
                 RefreshAll();
             }
@@ -965,6 +974,7 @@ namespace RevoBIM.UI.NumberSequencer
 
         private void OnSysClear()
         {
+            QueueClearPreview();
             _systems = new List<SysDef>();
             _data = null;
             _typeOf = new Dictionary<long, string>();
@@ -1449,6 +1459,7 @@ namespace RevoBIM.UI.NumberSequencer
             var snapshotPlan = plan;
             QueueBusy(src.Verb.ToLowerInvariant(), uiapp =>
             {
+                ClearPreviewNow(uiapp);   // the order lines go before the numbers are written
                 Document doc = uiapp.ActiveUIDocument.Document;
                 List<NsqCore.WriteItem> writes; List<long> same; List<NsqCore.KeyMsg> errors;
                 NsqCore.PrepareWrites(snapshotPlan, k => NsqRevit.ReadParamInfo(doc.GetElement(idmap[k]), name), out writes, out same, out errors);
@@ -1599,6 +1610,7 @@ namespace RevoBIM.UI.NumberSequencer
             try { RememberSize(); } catch (Exception) { }
             if (_tagwin != null) { try { _tagwin.Close(); } catch (Exception) { } }
             Sel.OnClosed();
+            ClosePosition();
             Save();
             Log.Write();
             if (ReferenceEquals(_current, this)) _current = null;
@@ -1653,4 +1665,6 @@ namespace RevoBIM.UI.NumberSequencer
         }
     }
 }
+
+
 

@@ -20,6 +20,7 @@ namespace RevoBIM.Tools.NumberSequencer
         public Dictionary<string, string> Storages = new Dictionary<string, string>();
         public Dictionary<long, List<string>> PerElem = new Dictionary<long, List<string>>();
         public HashSet<long> PassThrough = new HashSet<long>();
+        public Dictionary<long, double[]> Points = new Dictionary<long, double[]>();
         public List<SysDef> Systems = new List<SysDef>();
         public Dictionary<string, List<ElementId>> Extras = new Dictionary<string, List<ElementId>>();
         public ElementId ViewId;
@@ -373,6 +374,8 @@ namespace RevoBIM.Tools.NumberSequencer
                 FamilyType(doc, e, out cat, out fam, out typ);
                 data.Rows.Add(new NsqCore.TreeRow { ElementKey = k, Category = cat, Family = fam, Type = typ });
                 data.HostCat[k] = HostCatName(e);
+                double[] pt = ElemPoint(e);
+                if (pt != null) data.Points[k] = pt;
                 data.SysName[k] = BipText(e, BuiltInParameter.RBS_SYSTEM_NAME_PARAM);
                 data.Labels[k] = cat + " : " + fam + " : " + typ;
                 var node = new Node { Key = k, IsEquipment = CatInt(e) == eq && eq != null, Label = data.Labels[k] };
@@ -1860,6 +1863,157 @@ namespace RevoBIM.Tools.NumberSequencer
             if (Committed(status)) snapshot.Clear();
             return count;
         }
+
+        // ============================================================ Order by position (any category)
+
+        /// <summary>Where an element sits: its location point, the middle of its curve, else the middle of its box.</summary>
+        public static double[] ElemPoint(Element e)
+        {
+            try
+            {
+                Location loc = e.Location;
+                LocationPoint lp = loc as LocationPoint;
+                if (lp != null) return Xyz(lp.Point);
+                LocationCurve lc = loc as LocationCurve;
+                if (lc != null) return Xyz(lc.Curve.Evaluate(0.5, true));
+            }
+            catch (Exception) { }
+            try
+            {
+                BoundingBoxXYZ bb = e.get_BoundingBox(null);
+                if (bb != null) return Xyz((bb.Min + bb.Max) * 0.5);
+            }
+            catch (Exception) { }
+            return null;
+        }
+
+        /// <summary>A view's right, up, viewing direction and origin (for projecting points onto it).</summary>
+        public class ViewFrame
+        {
+            public double[] Right = { 1, 0, 0 }, Up = { 0, 1, 0 }, Dir = { 0, 0, 1 }, Origin = { 0, 0, 0 };
+        }
+
+        public static ViewFrame FrameOf(View view)
+        {
+            var f = new ViewFrame();
+            try { f.Right = Xyz(view.RightDirection); f.Up = Xyz(view.UpDirection); f.Dir = Xyz(view.ViewDirection); f.Origin = Xyz(view.Origin); }
+            catch (Exception) { }
+            return f;
+        }
+
+        /// <summary>Points on the view's screen: u to the right, v up.</summary>
+        public static Dictionary<long, double[]> Project(Dictionary<long, double[]> pts, IEnumerable<long> keys, ViewFrame f)
+        {
+            var o = new Dictionary<long, double[]>();
+            foreach (long k in keys)
+            {
+                double[] p;
+                if (!pts.TryGetValue(k, out p)) continue;
+                o[k] = new[] { p[0] * f.Right[0] + p[1] * f.Right[1] + p[2] * f.Right[2], p[0] * f.Up[0] + p[1] * f.Up[1] + p[2] * f.Up[2] };
+            }
+            return o;
+        }
+
+        /// <summary>Can detail lines be drawn in this view?</summary>
+        public static bool CanDrawLines(View view, out string why)
+        {
+            why = "";
+            string vt = view.ViewType.ToString();
+            if (vt == "ThreeD" || vt == "Schedule" || vt == "DrawingSheet" || vt == "Legend" || vt == "Internal" || vt == "ProjectBrowser" || vt == "Report" || vt == "Rendering" || vt == "Walkthrough")
+            {
+                why = "Detail lines cannot be drawn in this kind of view - open a plan, section or elevation (the order is shown there)";
+                return false;
+            }
+            bool template = false;
+            try { template = view.IsTemplate; } catch (Exception) { }
+            if (template) { why = "The active view is a template"; return false; }
+            return true;
+        }
+
+        public class OrderPreview
+        {
+            public ElementId ViewId;
+            public string DocKey = "";
+            public List<ElementId> Lines = new List<ElementId>();
+            public bool Isolated;
+        }
+
+        /// <summary>Draw a detail line between each pair of elements in order, then isolate the elements and the lines temporarily.</summary>
+        public static OrderPreview DrawOrder(UIDocument uidoc, List<long> order, Dictionary<long, double[]> pts, Dictionary<long, ElementId> idmap, ViewFrame f, DebugLog log)
+        {
+            Document doc = uidoc.Document;
+            View view = doc.ActiveView;
+            var prev = new OrderPreview { ViewId = view.Id, DocKey = DocKey(doc) };
+            Func<double[], XYZ> onPlane = p =>
+            {
+                double d = (p[0] - f.Origin[0]) * f.Dir[0] + (p[1] - f.Origin[1]) * f.Dir[1] + (p[2] - f.Origin[2]) * f.Dir[2];
+                return new XYZ(p[0] - d * f.Dir[0], p[1] - d * f.Dir[1], p[2] - d * f.Dir[2]);
+            };
+            WarningSwallower sw;
+            Transaction t = MakeTransaction(doc, "Number Sequencer order preview", out sw);
+            t.Start();
+            try
+            {
+                var red = new OverrideGraphicSettings();
+                var green = new OverrideGraphicSettings();
+                red.SetProjectionLineColor(new Autodesk.Revit.DB.Color(230, 30, 30)); red.SetProjectionLineWeight(6);
+                green.SetProjectionLineColor(new Autodesk.Revit.DB.Color(30, 190, 60)); green.SetProjectionLineWeight(6);
+                double[] last = null;
+                int n = 0;
+                foreach (long k in order)
+                {
+                    double[] p;
+                    if (!pts.TryGetValue(k, out p)) continue;
+                    if (last != null)
+                    {
+                        XYZ a = onPlane(last), b = onPlane(p);
+                        if (a.DistanceTo(b) > 0.01)
+                        {
+                            try
+                            {
+                                DetailCurve dc = doc.Create.NewDetailCurve(view, Line.CreateBound(a, b));
+                                view.SetElementOverrides(dc.Id, n == 0 ? green : red);
+                                prev.Lines.Add(dc.Id);
+                                n++;
+                            }
+                            catch (Exception ex) { log.Add("order line failed: " + ex.Message); }
+                        }
+                    }
+                    last = p;
+                }
+                t.Commit();
+            }
+            catch (Exception) { RollBackQuietly(t); throw; }
+            var keep = order.Where(idmap.ContainsKey).Select(k => idmap[k]).Concat(prev.Lines).ToList();
+            IsolateSystems(uidoc, keep, log);
+            prev.Isolated = true;
+            log.Add("order preview: " + prev.Lines.Count + " lines, " + order.Count + " elements");
+            return prev;
+        }
+
+        /// <summary>Delete the preview lines and put the view's isolate back.</summary>
+        public static void ClearOrder(UIApplication uiapp, OrderPreview prev, DebugLog log)
+        {
+            if (prev == null) return;
+            foreach (var kv in OpenDocuments(uiapp))
+            {
+                if (kv.Key != prev.DocKey) continue;
+                Document doc = kv.Value;
+                if (prev.Isolated) { try { ResetIsolateView(doc, prev.ViewId, log); } catch (Exception ex) { log.Add("preview reset failed: " + ex.Message); } }
+                var ids = prev.Lines.Where(i => doc.GetElement(i) != null).ToList();
+                if (ids.Count > 0)
+                {
+                    WarningSwallower sw;
+                    Transaction t = MakeTransaction(doc, "Remove order preview", out sw);
+                    t.Start();
+                    try { doc.Delete(ids); t.Commit(); }
+                    catch (Exception ex) { RollBackQuietly(t); log.Add("preview delete failed: " + ex.Message); }
+                }
+            }
+            try { uiapp.ActiveUIDocument.RefreshActiveView(); } catch (Exception) { }
+        }
     }
 }
+
+
 

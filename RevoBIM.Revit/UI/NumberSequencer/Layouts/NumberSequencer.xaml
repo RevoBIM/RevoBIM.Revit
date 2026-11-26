@@ -112,6 +112,18 @@
                                             <Button x:Name="SysRemoveBtn" Tag="i:remove" Style="{DynamicResource ChipButton}" Content="Remove"/>
                                             <Button x:Name="SysClearBtn" Tag="i:clear" Style="{DynamicResource ChipButton}" Content="Clear"/>
                                         </WrapPanel>
+                                        <CheckBox x:Name="PosCheck" Content="Order by position (any category, e.g. Air Terminals)" Margin="0,0,0,4"
+                                                  ToolTip="Number whatever is selected in Revit, in the order it sits in the view: a snake left to right, or top to bottom. Add selection reads the selected elements of any category."/>
+                                        <WrapPanel x:Name="PosPanel" Margin="0,0,0,6" Visibility="Collapsed">
+                                            <RadioButton x:Name="PosLR" GroupName="PosOrder" Content="Left to right snake" IsChecked="True"
+                                                         ToolTip="Row by row across the view, each row back the other way"/>
+                                            <RadioButton x:Name="PosTB" GroupName="PosOrder" Content="Top to bottom snake"
+                                                         ToolTip="Column by column down the view, each column back up"/>
+                                            <Button x:Name="PosShuffleBtn" Tag="i:refresh" Style="{DynamicResource ChipButton}" Content="Shuffle"
+                                                    ToolTip="Try another start corner / first direction. The lines in the view show the order; Run Sequence applies it."/>
+                                            <Button x:Name="PosClearBtn" Tag="i:remove" Style="{DynamicResource ChipButton}" Content="Clear lines"
+                                                    ToolTip="Remove the preview lines and put the view back"/>
+                                        </WrapPanel>
                                         <Border Background="{DynamicResource Field}" BorderBrush="{DynamicResource Edge}"
                                                 BorderThickness="1" CornerRadius="4">
                                             <ScrollViewer x:Name="SysScroll" MaxHeight="150" MinHeight="40" VerticalScrollBarVisibility="Auto"
