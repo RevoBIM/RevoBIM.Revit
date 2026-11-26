@@ -1,0 +1,140 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        Title="RevoBIM PY - Title on Sheet Builder"
+        Height="760" Width="1180" MinHeight="520" MinWidth="860"
+        WindowStartupLocation="CenterOwner"
+        WindowStyle="None" ResizeMode="CanResize" Background="{DynamicResource WindowBg}">
+
+  <shell:WindowChrome.WindowChrome>
+    <shell:WindowChrome CaptionHeight="0" CornerRadius="0"
+                        GlassFrameThickness="0" ResizeBorderThickness="6"/>
+  </shell:WindowChrome.WindowChrome>
+
+  <Window.Resources>
+    <!--SHARED_RESOURCES-->
+  </Window.Resources>
+
+  <Border BorderBrush="{DynamicResource Line}" BorderThickness="1">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="38"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+
+      <Border x:Name="BldHeader" Grid.Row="0" Background="{DynamicResource HeadBar}">
+        <Grid>
+          <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0,0,0">
+            <TextBlock Text="RevoBIM" Foreground="{DynamicResource Blue}" FontSize="13"
+                       FontWeight="Bold"/>
+            <TextBlock x:Name="BldTitle" Text="  Title on Sheet Builder" FontSize="13"/>
+          </StackPanel>
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button x:Name="ThemeChip" Style="{StaticResource ChipButton}">
+              <StackPanel Orientation="Horizontal">
+                <Grid Width="12" Height="12" Margin="0,0,6,0" VerticalAlignment="Center">
+                  <Ellipse Stroke="{DynamicResource Text}" StrokeThickness="1.2"/>
+                  <Path Fill="{DynamicResource Text}" Data="M 6,0.6 A 5.4,5.4 0 0 0 6,11.4 Z"/>
+                </Grid>
+                <TextBlock x:Name="ThemeChipText" Text="Auto" VerticalAlignment="Center"
+                           FontSize="11"/>
+              </StackPanel>
+            </Button>
+            <Button x:Name="BldShrink" Content="" Style="{StaticResource ShrinkBtn}" Height="38"/>
+            <Button x:Name="BldClose" Content="&#x2715;" Style="{StaticResource Close}" Height="38"/>
+          </StackPanel>
+        </Grid>
+      </Border>
+
+      <!-- the ruleset -->
+      <Border Grid.Row="1" Background="{DynamicResource Panel}"
+              BorderBrush="{DynamicResource Line}" BorderThickness="0,0,0,1">
+        <StackPanel Margin="14,12,14,12">
+          <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+            <TextBlock Text="RULESET" Style="{StaticResource Head}" VerticalAlignment="Center"
+                       Margin="0,0,8,0"/>
+            <ComboBox x:Name="BldSets" Width="300" Margin="0,0,10,0"/>
+            <TextBlock Text="NAME" Style="{StaticResource Head}" VerticalAlignment="Center"
+                       Margin="0,0,8,0"/>
+            <TextBox x:Name="BldSetName" Width="260" Margin="0,0,10,0"/>
+            <Button x:Name="BldSave" Content="Save ruleset" Style="{StaticResource Ghost}"
+                    Padding="12,5,12,5" Margin="0,0,6,0"
+                    ToolTip="Save the rules below under this name. Rulesets are kept for every project."/>
+            <Button x:Name="BldNew" Content="New" Style="{StaticResource Ghost}"
+                    Padding="12,5,12,5" Margin="0,0,6,0"/>
+            <Button x:Name="BldDelete" Content="Delete" Style="{StaticResource Ghost}"
+                    Padding="12,5,12,5"/>
+          </StackPanel>
+          <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+            <TextBlock Text="REWRITE FROM" Style="{StaticResource Head}"
+                       VerticalAlignment="Center" Margin="0,0,8,0"/>
+            <ComboBox x:Name="BldSource" Width="200" Margin="0,0,16,0"/>
+            <TextBlock Text="THEN" Style="{StaticResource Head}" VerticalAlignment="Center"
+                       Margin="0,0,8,0"/>
+            <ComboBox x:Name="BldCase" Width="160" Margin="0,0,16,0"/>
+            <CheckBox x:Name="BldTidy" Content="Tidy spaces" VerticalAlignment="Center"
+                      ToolTip="Collapse repeated spaces and trim the ends, after the rules run."/>
+          </StackPanel>
+          <Grid Margin="0,0,0,4">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="34"/>
+              <ColumnDefinition Width="112"/>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="22"/>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="44"/>
+              <ColumnDefinition Width="84"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="1" Text="MATCH" Style="{StaticResource Head}"/>
+            <TextBlock Grid.Column="2" Text="FIND IN THE NAME" Style="{StaticResource Head}"/>
+            <TextBlock Grid.Column="4" Text="REPLACE WITH" Style="{StaticResource Head}"/>
+            <TextBlock Grid.Column="5" Text="Aa" Style="{StaticResource Head}"
+                       ToolTip="Match case"/>
+          </Grid>
+          <Border Background="{DynamicResource Input}" BorderBrush="{DynamicResource Line}"
+                  BorderThickness="1">
+            <ScrollViewer MaxHeight="190" VerticalScrollBarVisibility="Auto">
+              <StackPanel x:Name="BldRules" Margin="8,8,8,4"/>
+            </ScrollViewer>
+          </Border>
+          <DockPanel Margin="0,8,0,0" LastChildFill="True">
+            <Button x:Name="BldAddRule" DockPanel.Dock="Left" Content="+ Add rule"
+                    Style="{StaticResource Ghost}" Padding="12,5,12,5" Margin="0,0,12,0"/>
+            <TextBlock x:Name="BldProblems" Foreground="{DynamicResource Orange}"
+                       VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+          </DockPanel>
+        </StackPanel>
+      </Border>
+
+      <!-- the views -->
+      <DataGrid x:Name="BldGrid" Grid.Row="2" Margin="14,12,14,12" AutoGenerateColumns="False"
+                CanUserAddRows="False" CanUserDeleteRows="False" CanUserSortColumns="False"
+                CanUserReorderColumns="False" SelectionMode="Extended" SelectionUnit="FullRow"/>
+
+      <Border Grid.Row="3" Background="{DynamicResource HeadBar}"
+              BorderBrush="{DynamicResource Line}" BorderThickness="0,1,0,0">
+        <Grid Margin="14,10,14,10">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <TextBlock x:Name="BldStatus" Grid.Column="0" Foreground="{DynamicResource Muted}"
+                     VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,12,0"/>
+          <StackPanel Grid.Column="1" Orientation="Horizontal">
+            <Button x:Name="BldReset" Content="Clear edits" Style="{StaticResource Ghost}"
+                    Margin="0,0,8,0"/>
+            <Button x:Name="BldApply" Content="Apply ruleset" Style="{StaticResource Primary}"
+                    Margin="0,0,8,0"
+                    ToolTip="Write each preview into Title on sheet. Rows selected here only, or every row if none are."/>
+            <Button x:Name="BldCancel" Content="Cancel" Style="{StaticResource Ghost}"
+                    Margin="0,0,8,0"/>
+            <Button x:Name="BldOk" Content="OK" Style="{StaticResource Go}"
+                    ToolTip="Stage these titles and detail numbers in the list and close."/>
+          </StackPanel>
+        </Grid>
+      </Border>
+    </Grid>
+  </Border>
+</Window>

@@ -340,10 +340,26 @@ namespace RevoBIM
                 Image = Icon("WorksetManagement", 16),
             };
 
-            // BIM Tools (first on the panel): Filter Manager, Model Cleanup and Workset Management.
+            var viewManager = new PushButtonData(
+                "RevoBIM_ViewManager", "View\nManager", dll, typeof(Commands.ViewManagerCommand).FullName)
+            {
+                ToolTip = "View Manager.\n\nCreate Views - plan views from the selected view templates x the selected levels on one scope box, " +
+                          "named <template abbreviation>_<level abbreviation> (VENT_L01), with room tags if Add room tags is ticked.\n\n" +
+                          "Dependent Views - dependents of the selected views on the selected scope boxes, named DEP_<host view>_<scope box abbreviation>.\n\n" +
+                          "View Reference Manager - every view in the project in one grid. Filter by view type, add parameter columns with the + at the " +
+                          "end of the header, edit View name, Title on sheet, Detail number, View template and Viewport type in the cells, push the list " +
+                          "to Excel and pull it back. Edits are staged until Apply to Revit. The Title on Sheet and Detail Number builders rewrite view " +
+                          "names into clean titles and numbers from rulesets you build.\n\nSettings has four tabs: level, template and scope box " +
+                          "abbreviations, and tag settings. Opens modeless.",
+                AvailabilityClassName = typeof(Commands.ProjectDocumentAvailability).FullName,
+                LargeImage = Icon("ViewManager", 32),
+                Image = Icon("ViewManager", 16),
+            };
+
+            // BIM Tools (first on the panel): Filter Manager, Model Cleanup, Workset Management and View Manager.
             var bimTools = new PulldownButtonData("RevoBIM_BIMTools", "BIM\nTools")
             {
-                ToolTip = "BIM management tools: Filter Manager, Model Cleanup and Workset Management.",
+                ToolTip = "BIM management tools: Filter Manager, Model Cleanup, Workset Management and View Manager.",
                 LargeImage = Icon("BIMToolsFolder", 32),
                 Image = Icon("BIMToolsFolder", 16),
             };
@@ -351,6 +367,7 @@ namespace RevoBIM
             bimToolsButton?.AddPushButton(filterManager);
             bimToolsButton?.AddPushButton(modelCleanup);
             bimToolsButton?.AddPushButton(worksetManagement);
+            bimToolsButton?.AddPushButton(viewManager);
             management.AddItem(excelForRevit);
             management.AddItem(legendCreator);
             var familyFindReplace = new PushButtonData(

@@ -1,0 +1,608 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        Title="RevoBIM PY - View Manager"
+        Height="690" Width="1000" MinHeight="520" MinWidth="860"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None" ResizeMode="CanResize"
+        Background="{DynamicResource WindowBg}" ShowInTaskbar="True">
+
+  <shell:WindowChrome.WindowChrome>
+    <shell:WindowChrome CaptionHeight="0" CornerRadius="0"
+                        GlassFrameThickness="0" ResizeBorderThickness="6"/>
+  </shell:WindowChrome.WindowChrome>
+
+  <Window.Resources>
+    <!--SHARED_RESOURCES-->
+  </Window.Resources>
+
+  <Border BorderBrush="{DynamicResource Line}" BorderThickness="1" Background="{DynamicResource WindowBg}">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="38"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+
+      <!-- header -->
+      <Border x:Name="Header" Grid.Row="0" Background="{DynamicResource HeadBar}">
+        <Grid>
+          <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0,0,0">
+            <TextBlock x:Name="BrandText" Text="RevoBIM" Foreground="{DynamicResource Blue}"
+                       FontSize="13" FontWeight="Bold"/>
+            <TextBlock x:Name="ToolLabel" Text="  View Manager" FontSize="13"/>
+          </StackPanel>
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+            <Button x:Name="BtnRefresh" Content="Refresh" Style="{StaticResource Flat}"
+                    Margin="0,0,2,0" ToolTip="Re-read the model (F5)"/>
+            <Button x:Name="BtnSettings" Style="{StaticResource Flat}" Margin="0,0,6,0"
+                    ToolTip="Template abbreviations">
+              <StackPanel Orientation="Horizontal">
+                <Path Stretch="None" Stroke="{DynamicResource Blue}" StrokeThickness="1.3"
+                      VerticalAlignment="Center" Margin="0,0,5,0"
+                      Data="M 6,1 L 8,1 L 8.4,2.9 L 10.1,3.6 L 11.7,2.5 L 13.1,3.9 L 12,5.5 L 12.7,7.2 L 14.6,7.6 L 14.6,9.6 L 12.7,10 L 12,11.7 L 13.1,13.3 L 11.7,14.7 L 10.1,13.6 L 8.4,14.3 L 8,16.2 L 6,16.2 L 5.6,14.3 L 3.9,13.6 L 2.3,14.7 L 0.9,13.3 L 2,11.7 L 1.3,10 L -0.6,9.6 L -0.6,7.6 L 1.3,7.2 L 2,5.5 L 0.9,3.9 L 2.3,2.5 L 3.9,3.6 L 5.6,2.9 Z"/>
+                <TextBlock Text="Settings" VerticalAlignment="Center"
+                           Foreground="{DynamicResource Blue}" FontSize="11"/>
+              </StackPanel>
+            </Button>
+            <Button x:Name="ThemeChip" Style="{StaticResource ChipButton}">
+              <StackPanel Orientation="Horizontal">
+                <Grid Width="12" Height="12" Margin="0,0,6,0" VerticalAlignment="Center">
+                  <Ellipse Stroke="{DynamicResource Text}" StrokeThickness="1.2"/>
+                  <Path Fill="{DynamicResource Text}" Data="M 6,0.6 A 5.4,5.4 0 0 0 6,11.4 Z"/>
+                </Grid>
+                <TextBlock x:Name="ThemeChipText" Text="Auto" VerticalAlignment="Center"
+                           FontSize="11"/>
+              </StackPanel>
+            </Button>
+            <TextBlock x:Name="VersionLabel" Text="v0.0.0" Foreground="{DynamicResource Muted}"
+                       FontSize="10" VerticalAlignment="Center" Margin="0,0,10,0"/>
+            <Button x:Name="BtnShrink" Content="" Style="{StaticResource ShrinkBtn}" Height="38"/>
+            <Button x:Name="BtnClose" Content="&#x2715;" Style="{StaticResource Close}" Height="38"/>
+          </StackPanel>
+        </Grid>
+      </Border>
+
+      <!-- tabs -->
+      <TabControl x:Name="Tabs" Grid.Row="1">
+
+        <!-- ============================ TAB 1 ============================ -->
+        <!-- ====================== TAB 1 - Create Views ====================== -->
+        <TabItem>
+        <TabItem.Header>
+          <StackPanel Orientation="Horizontal">
+            <Grid Width="15" Height="15" Margin="0,0,7,0" VerticalAlignment="Center">
+              <Path Stretch="None" Stroke="{DynamicResource Green}" StrokeThickness="1.3"
+                    Data="M 1,1 L 9,1 L 9,14 L 1,14 Z"/>
+              <Path Stretch="None" Stroke="{DynamicResource Green}" StrokeThickness="1.3"
+                    Data="M 3,4 L 7,4 M 3,6.5 L 7,6.5"/>
+              <Path Stretch="None" Stroke="{DynamicResource Green}" StrokeThickness="1.7"
+                    Data="M 11.5,7 L 11.5,13 M 8.5,10 L 14.5,10"/>
+            </Grid>
+            <TextBlock Text="Create Views" VerticalAlignment="Center"/>
+          </StackPanel>
+        </TabItem.Header>
+          <Grid Margin="12,12,12,6">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="1.35*"/>
+              <ColumnDefinition Width="10"/>
+              <ColumnDefinition Width="1*"/>
+              <ColumnDefinition Width="10"/>
+              <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- view templates -->
+            <Border Grid.Column="0" Background="{DynamicResource Panel}"
+                    BorderBrush="{DynamicResource Line}" BorderThickness="1">
+              <Grid>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0" Margin="10,8,10,4">
+                  <TextBlock x:Name="TplHead" Text="VIEW TEMPLATES" Style="{StaticResource Head}"
+                             VerticalAlignment="Center"/>
+                  <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button x:Name="BtnTplAll"  Content="All"  Style="{StaticResource Flat}"/>
+                    <Button x:Name="BtnTplNone" Content="None" Style="{StaticResource Flat}"/>
+                  </StackPanel>
+                </Grid>
+                <Grid Grid.Row="1" Margin="10,0,10,8">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="8"/>
+                    <ColumnDefinition Width="Auto"/>
+                  </Grid.ColumnDefinitions>
+                  <TextBox x:Name="TplSearch" Grid.Column="0"/>
+                  <ComboBox x:Name="TplFilter" Grid.Column="2" Width="186"
+                            ToolTip="Sort and filter by view family and type"/>
+                </Grid>
+                <Border Grid.Row="2" Background="{DynamicResource Sunken}"
+                        BorderBrush="{DynamicResource Line}" BorderThickness="1"
+                        Margin="10,0,10,10">
+                  <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel x:Name="TplList" Margin="2,6,2,6"/>
+                  </ScrollViewer>
+                </Border>
+              </Grid>
+            </Border>
+
+            <!-- levels -->
+            <Border Grid.Column="2" Background="{DynamicResource Panel}"
+                    BorderBrush="{DynamicResource Line}" BorderThickness="1">
+              <Grid>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0" Margin="10,8,10,4">
+                  <TextBlock x:Name="LvlHead" Text="LEVELS" Style="{StaticResource Head}"
+                             VerticalAlignment="Center"/>
+                  <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button x:Name="BtnLvlAll"  Content="All"  Style="{StaticResource Flat}"/>
+                    <Button x:Name="BtnLvlNone" Content="None" Style="{StaticResource Flat}"/>
+                  </StackPanel>
+                </Grid>
+                <TextBox x:Name="LvlSearch" Grid.Row="1" Margin="10,0,10,8"/>
+                <Border Grid.Row="2" Background="{DynamicResource Sunken}"
+                        BorderBrush="{DynamicResource Line}" BorderThickness="1"
+                        Margin="10,0,10,10">
+                  <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel x:Name="LvlList" Margin="2,6,2,6"/>
+                  </ScrollViewer>
+                </Border>
+              </Grid>
+            </Border>
+
+            <!-- scope box, single pick -->
+            <Border Grid.Column="4" Background="{DynamicResource Panel}"
+                    BorderBrush="{DynamicResource Line}" BorderThickness="1">
+              <Grid>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0" Margin="10,8,10,4">
+                  <TextBlock x:Name="CvBoxHead" Text="SCOPE BOX  (pick one)"
+                             Style="{StaticResource Head}" VerticalAlignment="Center"/>
+                  <Button x:Name="BtnCvBoxNone" Content="Clear" Style="{StaticResource Flat}"
+                          HorizontalAlignment="Right"/>
+                </Grid>
+                <TextBox x:Name="CvBoxSearch" Grid.Row="1" Margin="10,0,10,8"/>
+                <Border Grid.Row="2" Background="{DynamicResource Sunken}"
+                        BorderBrush="{DynamicResource Line}" BorderThickness="1"
+                        Margin="10,0,10,10">
+                  <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel x:Name="CvBoxList" Margin="2,6,2,6"/>
+                  </ScrollViewer>
+                </Border>
+              </Grid>
+            </Border>
+          </Grid>
+        </TabItem>
+        <!-- ==================== TAB 2 - Dependent Views ===================== -->
+        <TabItem>
+        <TabItem.Header>
+          <StackPanel Orientation="Horizontal">
+            <Grid Width="15" Height="15" Margin="0,0,7,0" VerticalAlignment="Center">
+              <Path Stretch="None" Stroke="{DynamicResource Orange}" StrokeThickness="1.3"
+                    Data="M 3,1 L 12,1 L 12,5 L 3,5 Z"/>
+              <Path Stretch="None" Stroke="{DynamicResource Muted}" StrokeThickness="1.1"
+                    Data="M 7.5,5 L 7.5,7.5 M 3,7.5 L 12,7.5 M 3,7.5 L 3,9.5 M 12,7.5 L 12,9.5"/>
+              <Path Stretch="None" Stroke="{DynamicResource Orange}" StrokeThickness="1.3"
+                    Data="M 0.5,9.5 L 5.5,9.5 L 5.5,13.5 L 0.5,13.5 Z M 9.5,9.5 L 14.5,9.5 L 14.5,13.5 L 9.5,13.5 Z"/>
+            </Grid>
+            <TextBlock Text="Dependent Views" VerticalAlignment="Center"/>
+          </StackPanel>
+        </TabItem.Header>
+          <Grid Margin="12,12,12,6">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="2*"/>
+              <ColumnDefinition Width="12"/>
+              <ColumnDefinition Width="1.15*"/>
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" Background="{DynamicResource Panel}"
+                    BorderBrush="{DynamicResource Line}" BorderThickness="1">
+              <Grid>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0" Margin="10,8,10,4">
+                  <TextBlock x:Name="ViewsHead" Text="HOST VIEWS" Style="{StaticResource Head}"
+                             VerticalAlignment="Center"/>
+                  <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button x:Name="BtnViewsAll"  Content="All"  Style="{StaticResource Flat}"/>
+                    <Button x:Name="BtnViewsNone" Content="None" Style="{StaticResource Flat}"/>
+                  </StackPanel>
+                </Grid>
+                <Grid Grid.Row="1" Margin="10,0,10,8">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="8"/>
+                    <ColumnDefinition Width="Auto"/>
+                  </Grid.ColumnDefinitions>
+                  <TextBox x:Name="ViewSearch" Grid.Column="0"/>
+                  <ComboBox x:Name="ViewFilter" Grid.Column="2" Width="186"
+                            ToolTip="Sort and filter by view family and type"/>
+                </Grid>
+
+                <Border x:Name="IsolateChip" Grid.Row="2" Margin="10,0,10,8"
+                        Visibility="Collapsed" Background="{DynamicResource OrangeWash}"
+                        BorderBrush="{DynamicResource Orange}" BorderThickness="1"
+                        CornerRadius="2">
+                  <Grid Margin="8,4,4,4">
+                    <TextBlock x:Name="IsolateText" Text="" FontSize="11"
+                               Foreground="{DynamicResource Orange}"
+                               VerticalAlignment="Center"/>
+                    <Button x:Name="BtnShowAll" Content="Show all views"
+                            Style="{StaticResource Flat}" HorizontalAlignment="Right"/>
+                  </Grid>
+                </Border>
+
+                <Border Grid.Row="3" Background="{DynamicResource Sunken}"
+                        BorderBrush="{DynamicResource Line}" BorderThickness="1"
+                        Margin="10,0,10,10">
+                  <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel x:Name="ViewList" Margin="2,6,2,6"/>
+                  </ScrollViewer>
+                </Border>
+              </Grid>
+            </Border>
+
+            <Border Grid.Column="2" Background="{DynamicResource Panel}"
+                    BorderBrush="{DynamicResource Line}" BorderThickness="1">
+              <Grid>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0" Margin="10,8,10,4">
+                  <TextBlock x:Name="BoxesHead" Text="SCOPE BOXES" Style="{StaticResource Head}"
+                             VerticalAlignment="Center"/>
+                  <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button x:Name="BtnBoxesAll"  Content="All"  Style="{StaticResource Flat}"/>
+                    <Button x:Name="BtnBoxesNone" Content="None" Style="{StaticResource Flat}"/>
+                  </StackPanel>
+                </Grid>
+                <TextBox x:Name="BoxSearch" Grid.Row="1" Margin="10,0,10,8"/>
+                <Border Grid.Row="2" Background="{DynamicResource Sunken}"
+                        BorderBrush="{DynamicResource Line}" BorderThickness="1"
+                        Margin="10,0,10,10">
+                  <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel x:Name="BoxList" Margin="2,6,2,6"/>
+                  </ScrollViewer>
+                </Border>
+              </Grid>
+            </Border>
+          </Grid>
+        </TabItem>
+
+        <!-- ================= TAB 3 - View Range (placeholder) ================= -->
+        <TabItem>
+        <TabItem.Header>
+          <StackPanel Orientation="Horizontal">
+            <Grid Width="15" Height="15" Margin="0,0,7,0" VerticalAlignment="Center">
+              <Path Stretch="None" Stroke="{DynamicResource Orange}" StrokeThickness="1.3"
+                    Data="M 2,3 L 13,3 M 2,12 L 13,12 M 7.5,3 L 7.5,12 M 5.5,5 L 7.5,3 L 9.5,5 M 5.5,10 L 7.5,12 L 9.5,10"/>
+            </Grid>
+            <TextBlock Text="View Range" VerticalAlignment="Center"/>
+          </StackPanel>
+        </TabItem.Header>
+          <Grid>
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+              <Grid Width="40" Height="40" HorizontalAlignment="Center" Margin="0,0,0,12">
+                <Path Stretch="Uniform" Width="38" Height="38" Stroke="{DynamicResource Orange}"
+                      StrokeThickness="1.4" Data="M 2,3 L 13,3 M 2,12 L 13,12 M 7.5,3 L 7.5,12 M 5.5,5 L 7.5,3 L 9.5,5 M 5.5,10 L 7.5,12 L 9.5,10"/>
+              </Grid>
+              <TextBlock Text="View Range" FontSize="16" FontWeight="SemiBold"
+                         HorizontalAlignment="Center"/>
+              <TextBlock Text="Placeholder - this tab is reserved for the view range tools." Foreground="{DynamicResource Muted}" Margin="0,6,0,0"
+                         HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="460"
+                         TextAlignment="Center"/>
+            </StackPanel>
+          </Grid>
+        </TabItem>
+        <!-- ================ TAB 4 - View Manager (placeholder) ================ -->
+        <TabItem>
+        <TabItem.Header>
+          <StackPanel Orientation="Horizontal">
+            <Grid Width="15" Height="15" Margin="0,0,7,0" VerticalAlignment="Center">
+              <Path Stretch="None" Stroke="{DynamicResource Green}" StrokeThickness="1.3"
+                    Data="M 1,1 L 11,1 L 11,9 L 1,9 Z M 4,12 L 14,12 L 14,5 L 11,5 M 3.5,4 L 8.5,4"/>
+            </Grid>
+            <TextBlock Text="View Manager" VerticalAlignment="Center"/>
+          </StackPanel>
+        </TabItem.Header>
+          <Grid>
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+              <Grid Width="40" Height="40" HorizontalAlignment="Center" Margin="0,0,0,12">
+                <Path Stretch="Uniform" Width="38" Height="38" Stroke="{DynamicResource Green}"
+                      StrokeThickness="1.4" Data="M 1,1 L 11,1 L 11,9 L 1,9 Z M 4,12 L 14,12 L 14,5 L 11,5 M 3.5,4 L 8.5,4"/>
+              </Grid>
+              <TextBlock Text="View Manager" FontSize="16" FontWeight="SemiBold"
+                         HorizontalAlignment="Center"/>
+              <TextBlock Text="Placeholder - this tab is reserved for the View Manager 1st tab." Foreground="{DynamicResource Muted}" Margin="0,6,0,0"
+                         HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="460"
+                         TextAlignment="Center"/>
+            </StackPanel>
+          </Grid>
+        </TabItem>
+        <!-- ================ TAB 5 - View Reference Manager ================ -->
+        <TabItem>
+        <TabItem.Header>
+          <StackPanel Orientation="Horizontal">
+            <Grid Width="15" Height="15" Margin="0,0,7,0" VerticalAlignment="Center">
+              <Path Stretch="None" Stroke="{DynamicResource Blue}" StrokeThickness="1.3"
+                    Data="M 1,2 L 14,2 L 14,13 L 1,13 Z M 1,5.5 L 14,5.5 M 1,9 L 14,9 M 5.5,2 L 5.5,13"/>
+            </Grid>
+            <TextBlock Text="View Reference Manager" VerticalAlignment="Center"/>
+          </StackPanel>
+        </TabItem.Header>
+          <Grid Margin="12,12,12,6">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="10"/>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="6"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0" Background="{DynamicResource Panel}"
+                    BorderBrush="{DynamicResource Line}" BorderThickness="1" Padding="10,8,10,8">
+              <StackPanel>
+              <DockPanel LastChildFill="False">
+                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
+                  <TextBlock Text="VIEW TYPE" Style="{StaticResource Head}"
+                             VerticalAlignment="Center" Margin="0,0,8,0"/>
+                  <ComboBox x:Name="RfType" Width="190" Margin="0,0,14,0"/>
+                  <TextBlock Text="SEARCH" Style="{StaticResource Head}"
+                             VerticalAlignment="Center" Margin="0,0,8,0"/>
+                  <TextBox x:Name="RfSearch" Width="200" Margin="0,0,14,0"/>
+                  <TextBlock Text="SHEETS" Style="{StaticResource Head}"
+                             VerticalAlignment="Center" Margin="0,0,8,0"/>
+                  <ComboBox x:Name="RfSheet" Width="150"/>
+                </StackPanel>
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                  <Button x:Name="BtnRfPush" Style="{StaticResource Ghost}" Padding="10,6,12,6"
+                    Margin="0,0,8,0" ToolTip="Write the list shown here to an Excel workbook.">
+              <StackPanel Orientation="Horizontal">
+                <Grid Width="17" Height="16" Margin="0,0,7,0" VerticalAlignment="Center">
+                  <Path Stretch="None" Stroke="{DynamicResource Green}" StrokeThickness="1.3"
+                        Data="M 1,2 L 11,2 L 11,12 L 1,12 Z M 1,5.3 L 11,5.3 M 1,8.6 L 11,8.6 M 5,2 L 5,12"/>
+                  <Path Stretch="None" Stroke="{DynamicResource Orange}" StrokeThickness="1.6"
+                        Data="M 13,15 L 13,8 M 10.5,10.5 L 13,8 L 15.5,10.5"/>
+                </Grid>
+                <TextBlock Text="Push to Excel" VerticalAlignment="Center"/>
+              </StackPanel>
+            </Button>
+                  <Button x:Name="BtnRfPull" Style="{StaticResource Ghost}" Padding="10,6,12,6"
+                    Margin="0,0,8,0" ToolTip="Read an edited workbook back in. Changes are staged, not written.">
+              <StackPanel Orientation="Horizontal">
+                <Grid Width="17" Height="16" Margin="0,0,7,0" VerticalAlignment="Center">
+                  <Path Stretch="None" Stroke="{DynamicResource Green}" StrokeThickness="1.3"
+                        Data="M 1,2 L 11,2 L 11,12 L 1,12 Z M 1,5.3 L 11,5.3 M 1,8.6 L 11,8.6 M 5,2 L 5,12"/>
+                  <Path Stretch="None" Stroke="{DynamicResource Orange}" StrokeThickness="1.6"
+                        Data="M 13,8 L 13,15 M 10.5,12.5 L 13,15 L 15.5,12.5"/>
+                </Grid>
+                <TextBlock Text="Pull from Excel" VerticalAlignment="Center"/>
+              </StackPanel>
+            </Button>
+                  <Button x:Name="BtnRfDetail" Style="{StaticResource GoSmall}" IsEnabled="False"
+                          Content="Detail Number Builder" Margin="0,0,8,0"
+                          ToolTip="Select views in the list, then press this to write detail numbers from a ruleset."/>
+                  <Button x:Name="BtnRfBuilder" Style="{StaticResource GoSmall}" IsEnabled="False"
+                          Content="Title on Sheet Builder"
+                          ToolTip="Select views in the list, then press this to write their titles from rules."/>
+                </StackPanel>
+              </DockPanel>
+              <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                <TextBlock Text="FILTER" Style="{StaticResource Head}"
+                           VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <ComboBox x:Name="RfFilterCol" Width="170" Margin="0,0,6,0"/>
+                <ComboBox x:Name="RfFilterVal" Width="210" Margin="0,0,26,0"/>
+                <TextBlock Text="SET SELECTED" Style="{StaticResource Head}"
+                           VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <ComboBox x:Name="RfSetCol" Width="170" Margin="0,0,6,0"/>
+                <TextBox x:Name="RfSetText" Width="210" Margin="0,0,6,0"/>
+                <ComboBox x:Name="RfSetChoice" Width="210" Margin="0,0,6,0" Visibility="Collapsed"/>
+                <Button x:Name="BtnRfSet" Content="Apply to selected" Style="{StaticResource Ghost}"
+                        Padding="12,5,12,5" IsEnabled="False"
+                        ToolTip="Stage this value on every selected row. Nothing is written until Apply to Revit."/>
+              </StackPanel>
+              </StackPanel>
+            </Border>
+
+            <DataGrid x:Name="RefGrid" Grid.Row="2" AutoGenerateColumns="False"
+                      CanUserAddRows="False" CanUserDeleteRows="False"
+                      CanUserReorderColumns="True" CanUserResizeColumns="True"
+                      SelectionMode="Extended" SelectionUnit="FullRow"
+                      EnableRowVirtualization="True"/>
+
+            <TextBlock x:Name="RfSummary" Grid.Row="4" Foreground="{DynamicResource Muted}"
+                       TextTrimming="CharacterEllipsis" Text=""/>
+          </Grid>
+        </TabItem>
+
+      </TabControl>
+
+      <!-- the reference tab's two in-window panels: the Excel pull report and
+           the add-a-column picker. In the window, not a window of their own. -->
+      <Grid x:Name="RefOverlay" Grid.Row="0" Grid.RowSpan="3"
+            Background="{DynamicResource Scrim}" Visibility="Collapsed" Panel.ZIndex="11">
+        <Border x:Name="RfReportPanel" Background="{DynamicResource Panel}"
+                BorderBrush="{DynamicResource Line}" BorderThickness="1" CornerRadius="3"
+                Width="680" HorizontalAlignment="Center" VerticalAlignment="Center"
+                Visibility="Collapsed">
+          <StackPanel Margin="22,18,22,18">
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+              <Border Width="4" Background="{DynamicResource Green}" Margin="0,0,9,0"/>
+              <TextBlock x:Name="RfReportTitle" Text="Pull from Excel" FontSize="15"
+                         FontWeight="SemiBold" VerticalAlignment="Center"/>
+            </StackPanel>
+            <Border Background="{DynamicResource Input}" BorderBrush="{DynamicResource Line}"
+                    BorderThickness="1">
+              <TextBox x:Name="RfReportText" Background="Transparent"
+                       Foreground="{DynamicResource Text}" BorderThickness="0" Padding="10"
+                       FontFamily="Consolas" FontSize="11.5" Height="270" IsReadOnly="True"
+                       AcceptsReturn="True" TextWrapping="NoWrap"
+                       VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"/>
+            </Border>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,14,0,0">
+              <Button x:Name="RfReportCancel" Content="Cancel" Style="{StaticResource Ghost}"
+                      Margin="0,0,8,0"/>
+              <Button x:Name="RfReportStage" Content="Stage changes" Style="{StaticResource Go}"/>
+            </StackPanel>
+          </StackPanel>
+        </Border>
+        <Border x:Name="RfPickPanel" Background="{DynamicResource Panel}"
+                BorderBrush="{DynamicResource Line}" BorderThickness="1" CornerRadius="3"
+                Width="460" HorizontalAlignment="Center" VerticalAlignment="Center"
+                Visibility="Collapsed">
+          <StackPanel Margin="22,18,22,18">
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+              <Border Width="4" Background="{DynamicResource Green}" Margin="0,0,9,0"/>
+              <TextBlock x:Name="RfPickTitle" Text="Choose" FontSize="15"
+                         FontWeight="SemiBold" VerticalAlignment="Center"/>
+            </StackPanel>
+            <TextBlock x:Name="RfPickNote" Foreground="{DynamicResource Muted}"
+                       TextWrapping="Wrap" Margin="0,0,0,8"/>
+            <TextBox x:Name="RfPickSearch" Margin="0,0,0,8"/>
+            <Border Background="{DynamicResource Input}" BorderBrush="{DynamicResource Line}"
+                    BorderThickness="1" Height="300">
+              <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel x:Name="RfPickList"/>
+              </ScrollViewer>
+            </Border>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,14,0,0">
+              <Button x:Name="RfPickClose" Content="Cancel" Style="{StaticResource Ghost}"/>
+            </StackPanel>
+          </StackPanel>
+        </Border>
+        <Border x:Name="RfColPanel" Background="{DynamicResource Panel}"
+                BorderBrush="{DynamicResource Line}" BorderThickness="1" CornerRadius="3"
+                Width="460" HorizontalAlignment="Center" VerticalAlignment="Center"
+                Visibility="Collapsed">
+          <StackPanel Margin="22,18,22,18">
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+              <Border Width="4" Background="{DynamicResource Blue}" Margin="0,0,9,0"/>
+              <TextBlock Text="Add a column" FontSize="15" FontWeight="SemiBold"
+                         VerticalAlignment="Center"/>
+            </StackPanel>
+            <TextBlock x:Name="RfColNote" Foreground="{DynamicResource Muted}"
+                       TextWrapping="Wrap" Margin="0,0,0,8"/>
+            <TextBox x:Name="RfColSearch" Margin="0,0,0,8"/>
+            <Border Background="{DynamicResource Input}" BorderBrush="{DynamicResource Line}"
+                    BorderThickness="1" Height="300">
+              <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel x:Name="RfColList"/>
+              </ScrollViewer>
+            </Border>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,14,0,0">
+              <Button x:Name="RfColClose" Content="Close" Style="{StaticResource Ghost}"/>
+            </StackPanel>
+          </StackPanel>
+        </Border>
+      </Grid>
+
+      <!-- the ask-before-creating overlay. In the window rather than a
+           window of its own: a modal child would disable Revit too. -->
+      <Grid x:Name="AskOverlay" Grid.Row="0" Grid.RowSpan="3"
+            Background="{DynamicResource Scrim}" Visibility="Collapsed" Panel.ZIndex="10">
+        <Border Background="{DynamicResource Panel}" BorderBrush="{DynamicResource Line}"
+                BorderThickness="1" CornerRadius="3" Width="560"
+                HorizontalAlignment="Center" VerticalAlignment="Center">
+          <StackPanel Margin="22,18,22,18">
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+              <Border Width="4" Background="{DynamicResource Orange}" Margin="0,0,9,0"/>
+              <TextBlock Text="Hide links while cropping?" FontSize="15"
+                         FontWeight="SemiBold" VerticalAlignment="Center"/>
+            </StackPanel>
+
+            <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource Text}"
+                       Margin="0,0,0,10"
+                       Text="Assigning a scope box makes Revit work out the crop against everything a new view can see - which on this model means every linked IFC. That is where the time goes."/>
+            <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource Muted}"
+                       Margin="0,0,0,8"
+                       Text="Fast create hides links, coordination models, point clouds and all user worksets in each new view before the scope box goes on, so the crop is worked out against nothing. The view template is applied straight afterwards and sets the visibility that actually belongs on the view, and the worksets are handed back to the global setting."/>
+            <TextBlock x:Name="AskWarn" TextWrapping="Wrap"
+                       Foreground="{DynamicResource Muted}" FontSize="11"
+                       Margin="0,0,0,14"
+                       Text="Where the view template does not control links or worksets, the finished view keeps the global setting - the same as a view made by hand."/>
+
+            <CheckBox x:Name="AskRemember" Content="Do not ask again this session"
+                      Margin="0,0,0,16"/>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+              <Button x:Name="AskCancel" Content="Cancel" Style="{StaticResource Flat}"
+                      Margin="0,0,10,0"/>
+              <Button x:Name="AskNormal" Content="Create normally"
+                      Style="{StaticResource Ghost}" Margin="0,0,8,0"/>
+              <Button x:Name="AskFast" Content="Fast create"
+                      Style="{StaticResource Go}" IsEnabled="True"/>
+            </StackPanel>
+          </StackPanel>
+        </Border>
+      </Grid>
+
+      <!-- footer -->
+      <Border Grid.Row="2" Background="{DynamicResource HeadBar}" BorderBrush="{DynamicResource Line}"
+              BorderThickness="0,1,0,0">
+       <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="3"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- progress strip: two Borders rather than a ProgressBar, which
+             would fall back to OS chrome like every other stock control -->
+        <Grid x:Name="ProgTrack" Grid.Row="0" Background="{DynamicResource Strip}">
+          <Border x:Name="ProgFill" Background="{DynamicResource Green}" Width="0"
+                  HorizontalAlignment="Left"/>
+        </Grid>
+
+        <Grid Grid.Row="1" Margin="12,10,12,10">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+
+          <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+            <CheckBox x:Name="ChkDebug" Content="Debug"
+                      VerticalAlignment="Center" Margin="0,0,14,0"
+                      ToolTip="Record every step and open a report to copy."/>
+            <CheckBox x:Name="ChkRoomTags" Content="Add room tags"
+                      VerticalAlignment="Center" Margin="0,0,14,0"
+                      ToolTip="Tag every room each new plan cuts. The tag is chosen in Settings."/>
+          </StackPanel>
+
+          <TextBlock x:Name="Status" Grid.Column="1" Text="Ready."
+                     Foreground="{DynamicResource Muted}"
+                     VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+
+          <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button x:Name="BtnReport" Content="Debug report" Style="{StaticResource Ghost}"
+                    Margin="0,0,8,0" Visibility="Collapsed"/>
+            <Button x:Name="BtnCancel" Content="Close" Style="{StaticResource Ghost}" Margin="0,0,8,0"/>
+            <Button x:Name="BtnRfRevert" Content="Revert edits" Style="{StaticResource Ghost}"
+                    Margin="0,0,8,0" Visibility="Collapsed" IsEnabled="False"/>
+            <Button x:Name="BtnRfApply" Content="Apply to Revit" Style="{StaticResource Go}"
+                    Visibility="Collapsed" IsEnabled="False"/>
+            <Button x:Name="BtnApply"  Content="Apply Dependents" Style="{StaticResource Danger}"/>
+            <Button x:Name="BtnCreate" Content="Create Views" Style="{StaticResource Go}"
+                    Visibility="Collapsed" IsEnabled="False"/>
+          </StackPanel>
+        </Grid>
+       </Grid>
+      </Border>
+    </Grid>
+  </Border>
+</Window>

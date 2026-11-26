@@ -37,7 +37,7 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <EnableDefaultCompileItems>true</EnableDefaultCompileItems>
-    <Version>0.17.0</Version>
+    <Version>0.18.0</Version>
     <!-- REVIT2024, REVIT2025 ... for the few places the API differs between versions -->
     <DefineConstants>$(DefineConstants);REVIT$(RevitVersion)</DefineConstants>
     <!-- bin\<Configuration>\<framework>\ per version, so the builds never overwrite each other -->
@@ -201,6 +201,14 @@
     <Page Remove="UI\WorksetManagement\Layouts\**" />
     <None Remove="UI\WorksetManagement\Layouts\**" />
     <EmbeddedResource Include="UI\WorksetManagement\Layouts\*.xaml" LogicalName="RevoBIM.UI.WorksetManagement.Layouts.%(Filename)%(Extension)" />
+  </ItemGroup>
+  <!-- View Manager layouts: the pyRevit XAML verbatim (it names no handlers; all wiring is in code), loaded at runtime by
+       UI\ViewManager\VmUi.cs. Shared.xaml is the resource block the pyRevit script dropped into every window at its
+       SHARED_RESOURCES token. Embedded as RevoBIM.UI.ViewManager.Layouts.<file>. -->
+  <ItemGroup>
+    <Page Remove="UI\ViewManager\Layouts\**" />
+    <None Remove="UI\ViewManager\Layouts\**" />
+    <EmbeddedResource Include="UI\ViewManager\Layouts\*.xaml" LogicalName="RevoBIM.UI.ViewManager.Layouts.%(Filename)%(Extension)" />
   </ItemGroup>
   <!-- Per-user deploy for the version being built: no admin rights needed. Copies the DLL and writes the .addin manifest. -->
   <Target Name="DeployAddin" AfterTargets="Build">

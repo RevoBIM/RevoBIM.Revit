@@ -1,0 +1,77 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        Title="RevoBIM PY - View Manager debug"
+        Height="620" Width="860" MinHeight="380" MinWidth="560"
+        WindowStartupLocation="CenterOwner"
+        WindowStyle="None" ResizeMode="CanResize" Background="{DynamicResource WindowBg}">
+
+  <shell:WindowChrome.WindowChrome>
+    <shell:WindowChrome CaptionHeight="0" CornerRadius="0"
+                        GlassFrameThickness="0" ResizeBorderThickness="6"/>
+  </shell:WindowChrome.WindowChrome>
+
+  <Window.Resources>
+    <!--SHARED_RESOURCES-->
+  </Window.Resources>
+
+  <Border BorderBrush="{DynamicResource Line}" BorderThickness="1">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="38"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+
+      <Border x:Name="DbgHeader" Grid.Row="0" Background="{DynamicResource HeadBar}">
+        <Grid>
+          <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0,0,0">
+            <TextBlock Text="RevoBIM" Foreground="{DynamicResource Blue}" FontSize="13" FontWeight="Bold"/>
+            <TextBlock Text="  View Manager debug" FontSize="13"/>
+          </StackPanel>
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button x:Name="ThemeChip" Style="{StaticResource ChipButton}">
+              <StackPanel Orientation="Horizontal">
+                <Grid Width="12" Height="12" Margin="0,0,6,0" VerticalAlignment="Center">
+                  <Ellipse Stroke="{DynamicResource Text}" StrokeThickness="1.2"/>
+                  <Path Fill="{DynamicResource Text}" Data="M 6,0.6 A 5.4,5.4 0 0 0 6,11.4 Z"/>
+                </Grid>
+                <TextBlock x:Name="ThemeChipText" Text="Auto" VerticalAlignment="Center"
+                           FontSize="11"/>
+              </StackPanel>
+            </Button>
+            <Button x:Name="DbgShrink" Content="" Style="{StaticResource ShrinkBtn}" Height="38"/>
+            <Button x:Name="DbgClose" Content="&#x2715;" Style="{StaticResource Close}" Height="38"/>
+          </StackPanel>
+        </Grid>
+      </Border>
+
+      <TextBlock Grid.Row="1" Margin="14,12,14,8" TextWrapping="Wrap"
+                 Foreground="{DynamicResource Muted}"
+                 Text="Press Copy, then paste the whole thing into the Claude chat. It carries the Revit build, what was picked, and the exact reason each view was refused."/>
+
+      <Border Grid.Row="2" Margin="14,0,14,10" Background="{DynamicResource Input}"
+              BorderBrush="{DynamicResource Line}" BorderThickness="1">
+        <TextBox x:Name="DbgText" Background="Transparent" Foreground="{DynamicResource Text}"
+                 BorderThickness="0" Padding="10"
+                 FontFamily="Consolas" FontSize="11.5"
+                 IsReadOnly="True" AcceptsReturn="True" TextWrapping="NoWrap"
+                 VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"/>
+      </Border>
+
+      <Border Grid.Row="3" Background="{DynamicResource HeadBar}" BorderBrush="{DynamicResource Line}"
+              BorderThickness="0,1,0,0">
+        <Grid Margin="14,10,14,10">
+          <TextBlock x:Name="DbgStatus" Text="" Foreground="{DynamicResource Muted}"
+                     VerticalAlignment="Center"/>
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button x:Name="DbgSave" Content="Save to file" Style="{StaticResource Ghost}"
+                    Margin="0,0,8,0"/>
+            <Button x:Name="DbgCopy" Content="Copy" Style="{StaticResource Primary}"/>
+          </StackPanel>
+        </Grid>
+      </Border>
+    </Grid>
+  </Border>
+</Window>

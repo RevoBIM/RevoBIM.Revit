@@ -23,6 +23,7 @@ Management|ExcelForRevit|Excel for Revit|Edit a schedule in a spreadsheet grid, 
 Management|FilterManager|Filter Manager|Edit every view filter, see them all in a table, and push them between view templates.
 Management|ModelCleanup|Model Cleanup|Save a detached copy and strip it ready to send.
 Management|WorksetManagement|Workset Management|Rename, merge, delete and create worksets in a table, see them coloured in 3D, tidy scope boxes, and assign elements onto worksets by category or by filter-style routines.
+Management|ViewManager|View Manager|Create plan views from view templates, levels and a scope box, make dependent views from scope boxes, and edit every view's name, title on sheet, detail number and template in one grid with an Excel round trip.
 Management|LegendCreator|Legend Creator|Family legends and system colour legends from the model.
 Management|FamilyFindReplace|Family Find & Replace|Swap one loadable family for another across the model, keeping position, chosen parameters, circuits, tags and wires; in a drafting view, AutoCAD import symbols become detail items.
 Management|AddinManager|Addin Manager|Every button any addin has put on Revit's ribbon in one searchable dockable panel, grouped by the addin's tab; favourites, pins and shortcuts.
