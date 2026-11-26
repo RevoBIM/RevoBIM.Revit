@@ -27,6 +27,7 @@ Management|ViewManager|View Manager|Create plan views from view templates, level
 Management|LegendCreator|Legend Creator|Family legends and system colour legends from the model.
 Management|FamilyFindReplace|Family Find & Replace|Swap one loadable family for another across the model, keeping position, chosen parameters, circuits, tags and wires; in a drafting view, AutoCAD import symbols become detail items.
 Management|AddinManager|Addin Manager|Every button any addin has put on Revit's ribbon in one searchable dockable panel, grouped by the addin's tab; favourites, pins and shortcuts.
+Family Tools|FamilyThumbnail|Family Thumbnail|Thumbnails for families: Update Current makes the image of the family you are editing, Update Batch does it for ticked families of a project and loads them back, with appearance by category, gradient background and BIM family parameters.
 Sheet Tools|ProSheetsExporter|Pro Sheets Exporter|Batch export sheets and views to PDF, DWG, NWC and IFC.
 Sheet Tools|RevisionManager|Revision Manager|Add, edit, reorder and merge the project's revisions.
 BWIC Tools|BwicIdPush|BWIC ID Push|Click a linked Generic Model element, then a host element: copies CLM_BWIC ID into BGL_BWIC ID; repeats until Escape.

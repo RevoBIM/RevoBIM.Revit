@@ -1,0 +1,68 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Family Thumbnail"
+        Width="520" Height="260"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ResizeMode="NoResize" ShowInTaskbar="False" WindowStartupLocation="CenterScreen"
+        FontFamily="Segoe UI" FontSize="13" UseLayoutRounding="True" SnapsToDevicePixels="True">
+
+    <Border x:Name="Frame" CornerRadius="6" BorderThickness="1"
+            Background="{DynamicResource bWindow}" BorderBrush="{DynamicResource bEdge}">
+        <Grid x:Name="Root">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- ======================== header ======================== -->
+            <Border x:Name="Header" Grid.Row="0" CornerRadius="5,5,0,0" Padding="14,8,10,8"
+                    Background="{DynamicResource bBar}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Image x:Name="HeaderIcon" Grid.Column="0" Width="36" Height="36" Margin="0,0,10,0"/>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="RevoBIM" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource bBlue}"/>
+                        <TextBlock x:Name="tbHeading" Text="Family Thumbnail" FontSize="14" Foreground="{DynamicResource bOrange}"/>
+                    </StackPanel>
+                    <Button x:Name="btnTheme" Grid.Column="2" Style="{DynamicResource ChipButton}"
+                            VerticalAlignment="Center" ToolTip="Theme: Auto follows Revit, then Dark, then Light">
+                        <TextBlock x:Name="tbTheme" Text="Auto" FontSize="12"/>
+                    </Button>
+                    <TextBlock x:Name="tbVersion" Grid.Column="3" Margin="12,0,8,0" VerticalAlignment="Center"
+                               FontSize="11" Foreground="{DynamicResource bMuted}"/>
+                    <Button x:Name="btnShrink" Grid.Column="4" Style="{DynamicResource ShrinkBtn}"
+                            VerticalAlignment="Center" ToolTip="Shrink to taskbar (Ctrl+Shift+H)"/>
+                    <Button x:Name="btnCloseX" Grid.Column="5" Style="{DynamicResource CloseBtn}"
+                            VerticalAlignment="Center" ToolTip="Close"/>
+                </Grid>
+            </Border>
+
+            <!-- ======================== body ======================== -->
+            <StackPanel x:Name="Body" Grid.Row="1" Margin="22,18,22,8" VerticalAlignment="Center">
+                <TextBlock x:Name="tbMessage" TextWrapping="Wrap" FontSize="14"/>
+                <TextBlock x:Name="tbPath" TextWrapping="Wrap" Margin="0,10,0,0" FontSize="12"
+                           Foreground="{DynamicResource bMuted}"/>
+                <TextBlock x:Name="tbNotes" TextWrapping="Wrap" Margin="0,8,0,0" FontSize="12"
+                           Foreground="{DynamicResource bOrange}"/>
+            </StackPanel>
+
+            <!-- ======================== footer ======================== -->
+            <Border x:Name="Footer" Grid.Row="2" CornerRadius="0,0,5,5" Padding="14,10"
+                    Background="{DynamicResource bBar}">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button x:Name="btnOpen" Content="Open Folder" Width="130" Margin="0,0,10,0"
+                            Style="{DynamicResource GreenButton}"/>
+                    <Button x:Name="btnClose" Content="Close" Width="110"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

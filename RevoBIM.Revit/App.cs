@@ -394,6 +394,43 @@ namespace RevoBIM
                 Image = Icon("AddinManager", 16),
             });
 
+            // --- Family Tools (pyRevit: Family Tools.panel): the Family Thumbnail pulldown
+            RibbonPanel familyTools = app.CreateRibbonPanel(TabName, "Family Tools");
+            var familyThumbnail = new PulldownButtonData("RevoBIM_FamilyThumbnail", "Family\nThumbnail")
+            {
+                ToolTip = "Family Thumbnail - thumbnails for families: Update Current (in a family), Update Batch (in a project) and Settings.",
+                LargeImage = Icon("FamilyThumbnail", 32),
+                Image = Icon("FamilyThumbnail", 16),
+            };
+            var familyThumbnailButton = familyTools.AddItem(familyThumbnail) as PulldownButton;
+            familyThumbnailButton?.AddPushButton(new PushButtonData(
+                "RevoBIM_FamilyThumbnailCurrent", "Update Current", dll, typeof(Commands.FamilyThumbnailCurrentCommand).FullName)
+            {
+                ToolTip = "Family Thumbnail - in a family, creates or updates the 3D thumbnail view named in Settings, temporarily applies the " +
+                          "appearance settings, saves the image to the export folder, then offers to open it.\n\nGreyed out in a project: use Update Batch there.",
+                AvailabilityClassName = typeof(Commands.FamilyDocumentAvailability).FullName,
+                LargeImage = Icon("FamilyThumbnailCurrent", 32),
+                Image = Icon("FamilyThumbnailCurrent", 16),
+            });
+            familyThumbnailButton?.AddPushButton(new PushButtonData(
+                "RevoBIM_FamilyThumbnailBatch", "Update Batch", dll, typeof(Commands.FamilyThumbnailBatchCommand).FullName)
+            {
+                ToolTip = "Family Thumbnail - in a project, run this, then tick the families to update (families selected in a view or picked " +
+                          "in the Project Browser are pre-ticked). Each ticked family is opened, given its thumbnail (and the BIM family parameters " +
+                          "if enabled in Settings), saved and loaded back into the project.\n\nGreyed out in the family editor: use Update Current there.",
+                AvailabilityClassName = typeof(Commands.ProjectDocumentAvailability).FullName,
+                LargeImage = Icon("FamilyThumbnailBatch", 32),
+                Image = Icon("FamilyThumbnailBatch", 16),
+            });
+            familyThumbnailButton?.AddPushButton(new PushButtonData(
+                "RevoBIM_FamilyThumbnailSettings", "Settings", dll, typeof(Commands.FamilyThumbnailSettingsCommand).FullName)
+            {
+                ToolTip = "Family Thumbnail settings - appearance by family kind and category, view options, export folder and gradient background.",
+                AvailabilityClassName = typeof(Commands.AlwaysAvailable).FullName,
+                LargeImage = Icon("FamilyThumbnailSettings", 32),
+                Image = Icon("FamilyThumbnailSettings", 16),
+            });
+
             // --- Sheet Tools (pyRevit: Sheet Tools.panel)
             RibbonPanel sheetTools = app.CreateRibbonPanel(TabName, "Sheet Tools");
             var proSheets = new PushButtonData(
