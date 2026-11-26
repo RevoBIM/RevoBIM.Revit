@@ -412,7 +412,60 @@ namespace RevoBIM.UI.NumberSequencer
                 OnTagChanged();
             }
             RefreshTagOpen();
+            tw.MinHeight = 200;
             tw.Show();
+            tw.UpdateLayout();
+            _tagCardOpen = true;
+            UpdateTagCard(false);   // tagging in the current view needs no list of views: start folded away
+        }
+
+        private double _tagCardH;
+        private bool _tagCardOpen = true;
+        private int _tagCardToken;
+
+        /// <summary>The views / sheets list slides open below the tag settings when "Ticked views / sheets" is chosen, and the window grows with it; the other way it slides shut and the window closes up to the bottom of the settings.</summary>
+        private void UpdateTagCard(bool animate)
+        {
+            var card = Ctl<FrameworkElement>("TagViewsCard");
+            bool open = ScopeTicked();
+            Window tw = _tagwin;
+            if (tw == null) { NsqUi.Show(card, open); _tagCardOpen = open; return; }
+            if (open == _tagCardOpen && (card.Visibility == System.Windows.Visibility.Visible) == open) return;
+            _tagCardOpen = open;
+            int token = ++_tagCardToken;
+            double wh = tw.ActualHeight;
+            if (!open)
+            {
+                double h = card.ActualHeight;
+                if (h > 0) _tagCardH = h;
+                double to = Math.Max(150.0, wh - h);
+                if (animate && h > 0)
+                {
+                    NsqUi.Animate(card, FrameworkElement.HeightProperty, 0.0, h, NsqUi.AnimMs, () =>
+                    {
+                        if (token != _tagCardToken) return;
+                        NsqUi.Show(card, false);
+                        card.Height = double.NaN;
+                    });
+                    NsqUi.Animate(tw, FrameworkElement.HeightProperty, to, wh);
+                }
+                else { NsqUi.Show(card, false); tw.Height = to; }
+            }
+            else
+            {
+                double target = _tagCardH > 0 ? _tagCardH : 380.0;
+                double[] area = NsqUi.WorkArea(tw);
+                double most = area != null ? area[3] - tw.Top : wh + target;
+                double to = Math.Min(wh + target, Math.Max(wh, most));
+                NsqUi.Show(card, true);
+                if (animate)
+                {
+                    card.Height = 0.0;
+                    NsqUi.Animate(card, FrameworkElement.HeightProperty, to - wh, 0.0, NsqUi.AnimMs, () => { if (token == _tagCardToken) card.Height = double.NaN; });
+                    NsqUi.Animate(tw, FrameworkElement.HeightProperty, to, wh);
+                }
+                else { card.Height = double.NaN; tw.Height = to; }
+            }
         }
 
         private static string Capitalise(string s) { return string.IsNullOrEmpty(s) ? s : char.ToUpper(s[0]) + s.Substring(1); }
@@ -1386,8 +1439,6 @@ namespace RevoBIM.UI.NumberSequencer
 
         private void SyncTagEnabled()
         {
-            // tagging in the current view needs no list of views: fold it away
-            NsqUi.Show(Ctl<UIElement>("TagViewsCard"), ScopeTicked());
             bool on = Ctl<CheckBox>("TagCheck").IsChecked == true;
             Ctl<ComboBox>("TagCombo").IsEnabled = on;
             Ctl<CheckBox>("TagUntaggedCheck").IsEnabled = on;
@@ -1406,6 +1457,7 @@ namespace RevoBIM.UI.NumberSequencer
         {
             if (_loading) return;
             SyncTagEnabled();
+            UpdateTagCard(true);
             Settings["tag"] = Ctl<CheckBox>("TagCheck").IsChecked == true ? "on" : "off";
             Settings["tag_untagged"] = Ctl<CheckBox>("TagUntaggedCheck").IsChecked == true ? "on" : "off";
             Settings["tag_scope"] = ScopeTicked() ? "ticked" : "view";
@@ -1710,6 +1762,8 @@ namespace RevoBIM.UI.NumberSequencer
         }
     }
 }
+
+
 
 
 

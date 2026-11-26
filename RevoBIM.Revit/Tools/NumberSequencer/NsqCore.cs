@@ -169,7 +169,7 @@ namespace RevoBIM.Tools.NumberSequencer
     /// </summary>
     public static class NsqCore
     {
-        public const string Version = "1.15.1";
+        public const string Version = "1.15.2";
         public const string ToolName = "Number Sequencer";
         public const string SettingsFile = "number_sequencer.txt";
         public const string DebugFile = "number_sequencer_debug.txt";
@@ -2202,6 +2202,7 @@ namespace RevoBIM.Tools.NumberSequencer
         }
     }
 }
+
 
 
 

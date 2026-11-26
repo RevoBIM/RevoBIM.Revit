@@ -451,12 +451,6 @@
                                     <ComboBox x:Name="TagCombo" Margin="0,0,0,4"/>
                                     <CheckBox x:Name="TagUntaggedCheck" Content="Tag untagged only" Margin="0,2,0,4"
                                               ToolTip="Leave elements that already have a tag in a view alone. Off: they get this tag too (never the same tag twice)."/>
-                                    <StackPanel Orientation="Horizontal" Margin="0,2,0,4">
-                                        <RadioButton x:Name="TagScopeView" GroupName="TagScope" Content="Current view" IsChecked="True" Margin="0,0,14,0"
-                                                     ToolTip="Tag in the view you are in"/>
-                                        <RadioButton x:Name="TagScopeTicked" GroupName="TagScope" Content="Ticked views / sheets (6.2)"
-                                                     ToolTip="Tag in every view ticked below, wherever the numbered elements show"/>
-                                    </StackPanel>
                                     <CheckBox x:Name="TagLeaderCheck" Content="Leader" Margin="0,2,0,4" ToolTip="Draw a leader from the tag to the element"/>
                                     <StackPanel Orientation="Horizontal" Margin="0,2,0,4">
                                         <TextBlock Text="Offset X" VerticalAlignment="Center" Margin="0,0,6,0" Foreground="{DynamicResource Muted}"/>
@@ -474,6 +468,12 @@
                                               ToolTip="Delete any tag already on a numbered element in the view before placing the new one"/>
                                     <CheckBox x:Name="TagUntangleCheck" Content="Untangle: move overlapping tags apart" Margin="0,2,0,4"
                                               ToolTip="After placing, nudge tags that touch each other apart, up the view"/>
+                                    <StackPanel Orientation="Horizontal" Margin="0,2,0,4">
+                                        <RadioButton x:Name="TagScopeView" GroupName="TagScope" Content="Current view" IsChecked="True" Margin="0,0,14,0"
+                                                     ToolTip="Tag in the view you are in"/>
+                                        <RadioButton x:Name="TagScopeTicked" GroupName="TagScope" Content="Ticked views / sheets (6.2)"
+                                                     ToolTip="Tag in every view ticked below, wherever the numbered elements show"/>
+                                    </StackPanel>
                                     <TextBlock x:Name="TagNote" Text="" FontSize="11" TextWrapping="Wrap"
                                                Foreground="{DynamicResource Muted}"/>
                                 </StackPanel>
@@ -620,5 +620,6 @@
         </Grid>
     </Grid>
 </Window>
+
 
 
