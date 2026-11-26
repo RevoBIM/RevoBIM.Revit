@@ -23,6 +23,7 @@ using Button = System.Windows.Controls.Button;
 using CheckBox = System.Windows.Controls.CheckBox;
 using Clipboard = System.Windows.Clipboard;
 using Control = System.Windows.Controls.Control;
+using MenuItem = System.Windows.Controls.MenuItem;
 using Panel = System.Windows.Controls.Panel;
 using Visibility = System.Windows.Visibility;
 using ContextMenu = System.Windows.Controls.ContextMenu;

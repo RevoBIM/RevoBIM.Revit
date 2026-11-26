@@ -311,6 +311,72 @@ namespace RevoBIM
                 Image = Icon("PanelTemplateManager", 16),
             });
 
+            // The Wires tools (pyRevit: the Wires pulldown). A dropdown cannot sit inside another dropdown, so they follow the tools above after a separator.
+            electricalToolsButton?.AddSeparator();
+            electricalToolsButton?.AddPushButton(new PushButtonData(
+                "RevoBIM_AutoWire", "Auto Wire", dll, typeof(Commands.AutoWireCommand).FullName)
+            {
+                ToolTip = "Select fittings and only their circuits are wired. Select nothing and every circuit in the active plan that has no wires yet is wired.\n\n" +
+                          "One continuous snake per circuit rather than a spider, arc wires between fitting centres, trimmed back so the wire never runs over a symbol.\n\n" +
+                          "The wire type comes from the fitting: emergency where the emergency parameter reads yes, permanent live where the run crosses from one switch " +
+                          "system to the next, the lighting type otherwise. The home run is a short arc leaving the light the switch is wired to, pointing at that switch. " +
+                          "One tag per circuit, with a leader.\n\nShuffle and Previous step through the route options. Keep leaves one undo step; Cancel puts the view back.",
+                AvailabilityClassName = typeof(Commands.ProjectDocumentAvailability).FullName,
+                LargeImage = Icon("AutoWire", 32),
+                Image = Icon("AutoWire", 16),
+            });
+            electricalToolsButton?.AddPushButton(new PushButtonData(
+                "RevoBIM_ReRouteWires", "Re-Route Wires", dll, typeof(Commands.ReRouteWiresCommand).FullName)
+            {
+                ToolTip = "Select a wire or a fitting on a circuit that is already wired. Its existing wires and tags are removed, and the circuit is redrawn to the same rules " +
+                          "Auto Wire uses - snake route, arc wires trimmed off the symbols, wire type by the emergency parameter, home run arc to the switch, one tag.\n\n" +
+                          "Shuffle and Previous step through the route options. Keep leaves one undo step; Cancel puts the view back exactly as it was.",
+                AvailabilityClassName = typeof(Commands.ProjectDocumentAvailability).FullName,
+                LargeImage = Icon("ReRouteWires", 32),
+                Image = Icon("ReRouteWires", 16),
+            });
+            electricalToolsButton?.AddPushButton(new PushButtonData(
+                "RevoBIM_ApplyWireTypes", "Apply Wire Types", dll, typeof(Commands.ApplyWireTypesCommand).FullName)
+            {
+                ToolTip = "Sets the wire type on wires that are already drawn, and changes nothing else. No wire is moved, redrawn, retagged or deleted.\n\n" +
+                          "Select a circuit, or a wire or a fitting on one, and only those circuits are done. Select nothing and it asks before doing every circuit with wires " +
+                          "in the active plan.\n\nThe type is decided by the same three questions Auto Wire draws with, in the same order: an emergency circuit is emergency " +
+                          "throughout; a wire bridging two legs is permanent live; everything else takes the lighting or power type.",
+                AvailabilityClassName = typeof(Commands.ProjectDocumentAvailability).FullName,
+                LargeImage = Icon("ApplyWireTypes", 32),
+                Image = Icon("ApplyWireTypes", 16),
+            });
+            electricalToolsButton?.AddPushButton(new PushButtonData(
+                "RevoBIM_AlignWireEnds", "Align Wire Ends", dll, typeof(Commands.AlignWireEndsCommand).FullName)
+            {
+                ToolTip = "Moves the point where a wire meets its fitting onto where it belongs - the small node you would otherwise drag by hand - and changes nothing else.\n\n" +
+                          "Select wires and only those are done. Select circuits and every wire on them is done. Select nothing and it asks before doing every wire in the active plan.\n\n" +
+                          "An end joined to nothing is left alone - Reconnect Wires is the button for those.",
+                AvailabilityClassName = typeof(Commands.ProjectDocumentAvailability).FullName,
+                LargeImage = Icon("AlignWireEnds", 32),
+                Image = Icon("AlignWireEnds", 16),
+            });
+            electricalToolsButton?.AddPushButton(new PushButtonData(
+                "RevoBIM_ReconnectWires", "Reconnect Wires", dll, typeof(Commands.ReconnectWiresCommand).FullName)
+            {
+                ToolTip = "Select the wires that have come away from their fittings and run this.\n\nEvery end that is connected to nothing is joined to the nearest lighting or " +
+                          "electrical element within the search radius that already carries a circuit and has no wire on it yet. Joining the wire is what puts it on the circuit. " +
+                          "Distance is measured in plan, so a ceiling light three metres above the plan is still found.\n\nNothing is deleted. A wire Revit refuses to join in " +
+                          "place is rebuilt with Wire.Create on the same type, view and workset, and the refusal is reported.",
+                AvailabilityClassName = typeof(Commands.ProjectDocumentAvailability).FullName,
+                LargeImage = Icon("ReconnectWires", 32),
+                Image = Icon("ReconnectWires", 16),
+            });
+            electricalToolsButton?.AddPushButton(new PushButtonData(
+                "RevoBIM_WiresSettings", "Wire Settings", dll, typeof(Commands.WiresSettingsCommand).FullName)
+            {
+                ToolTip = "Search radius, which categories count as wireable, how far out of true an end has to be before it is worth pulling, the lighting and power wire types, " +
+                          "tags, and how results are reported. Written to %APPDATA%\\RevoBIM\\wires.txt as plain key=value text.",
+                AvailabilityClassName = typeof(Commands.AlwaysAvailable).FullName,
+                LargeImage = Icon("WiresSettings", 32),
+                Image = Icon("WiresSettings", 16),
+            });
+
             // --- FAB Automation (pyRevit: FAB Automation.panel)
             RibbonPanel fabAutomation = app.CreateRibbonPanel(TabName, "FAB Automation");
             var hangerAutomation = new PushButtonData(
